@@ -1,0 +1,131 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="mud-fight-screen">
+    <h2>⚔️ Combat ⚔️</h2>
+
+    <div class="combat-log">
+        <h3>Combat Log</h3>
+        <div class="fight-messages">
+            {% for line in fight_log %}
+            <div class="combat-line">{{ line }}</div>
+            {% endfor %}
+        </div>
+    </div>
+
+    {% if combat_active %}
+    <div class="combat-actions">
+        <h3>Your Turn</h3>
+        <form method="POST" action="{{ url_for('process_fight_action') }}">
+            <input type="hidden" name="combat_id" value="{{ combat_id }}">
+            <div class="action-buttons">
+                <button type="submit" name="action" value="attack" class="btn btn-danger">Attack</button>
+                <button type="submit" name="action" value="defend" class="btn btn-warning">Defend</button>
+                <button type="submit" name="action" value="flee" class="btn btn-secondary">Flee</button>
+            </div>
+
+            <div class="weapon-selection">
+                <label for="weapon">Choose Weapon:</label>
+                <select name="weapon" id="weapon">
+                    {% if game_state.weapons.can_fight_with_pistol() %}
+                    <option value="pistol">Pistol ({{ game_state.weapons.bullets }} bullets)</option>
+                    {% endif %}
+                    {% if game_state.weapons.uzis > 0 and game_state.weapons.bullets > 1 %}
+                    <option value="uzi">Uzi ({{ game_state.weapons.bullets }} bullets)</option>
+                    {% endif %}
+                    {% if game_state.weapons.grenades > 0 %}
+                    <option value="grenade">Grenade ({{ game_state.weapons.grenades }} available)</option>
+                    {% endif %}
+                    {% if game_state.weapons.missile_launcher > 0 and game_state.weapons.missiles > 0 %}
+                    <option value="missile_launcher">Missile Launcher ({{ game_state.weapons.missiles }} missiles)</option>
+                    {% endif %}
+                    <option value="knife">Knife</option>
+                </select>
+            </div>
+        </form>
+    </div>
+    {% endif %}
+
+    <div class="combat-status">
+        <div class="player-status">
+            <h4>Your Status</h4>
+            <p>Health: {{ (10 - game_state.damage) if game_state.damage < 10 else 0 }}/10</p>
+            <p>Money: ${{ "{:,}".format(game_state.money) }}</p>
+            <p>Gang Members: {{ game_state.members }}</p>
+        </div>
+
+        <div class="enemy-status">
+            <h4>Enemy Status</h4>
+            <p>Health: {{ enemy_health }}/10</p>
+            <p>Type: {{ enemy_type }}</p>
+            {% if enemy_count > 1 %}
+            <p>Enemies: {{ enemy_count }}</p>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="combat-options">
+        {% if not combat_active %}
+        <a href="{{ url_for('alleyway') }}" class="btn btn-primary">Return to Alleyway</a>
+        <a href="{{ url_for('city') }}" class="btn btn-secondary">Return to City</a>
+        {% endif %}
+    </div>
+
+    <div id="player-list"></div>
+
+    <div class="chat-section">
+        <h4>Chat with other players</h4>
+        <div id="chat-messages" class="chat-messages"></div>
+        <div class="chat-input">
+            <input type="text" id="chat-input" placeholder="Type a message..." maxlength="200">
+            <button id="send-chat" class="btn btn-secondary">Send</button>
+        </div>
+    </div>
+</div>
+
+<style>
+.combat-line {
+    margin: 5px 0;
+    padding: 5px;
+    border-left: 3px solid #333;
+    background-color: #f8f9fa;
+    font-family: 'Courier New', monospace;
+    white-space: pre-wrap;
+}
+
+.fight-messages {
+    max-height: 300px;
+    overflow-y: auto;
+    border: 1px solid #ddd;
+    padding: 10px;
+    background-color: #000;
+    color: #0f0;
+    font-family: 'Courier New', monospace;
+    font-size: 14px;
+}
+
+.weapon-selection {
+    margin-top: 15px;
+}
+
+.weapon-selection select {
+    margin-left: 10px;
+    padding: 5px;
+}
+
+.combat-status {
+    display: flex;
+    justify-content: space-between;
+    margin: 20px 0;
+}
+
+.player-status, .enemy-status {
+    flex: 1;
+    margin: 0 10px;
+    padding: 15px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    background-color: #f8f9fa;
+}
+</style>
+{% endblock %}

@@ -1,0 +1,103 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="day-end-screen">
+    <h2>End of Day {{ game_state.day - 1 }}</h2>
+    
+    <div class="day-summary">
+        <h3>Daily Summary</h3>
+        <div class="summary-grid">
+            <div class="summary-item">
+                <h4>Financial Updates</h4>
+                <p>Savings Interest: +1% ({{ "{:,}".format(game_state.account|int * 0.01) }})</p>
+                <p>Loan Interest: +5% ({{ "{:,}".format(game_state.loan|int * 0.05) }})</p>
+                {% if game_state.money >= 1000000 %}
+                <p>New Gang Members: +{{ int(game_state.money / 1000000) }} (wealth attracts followers)</p>
+                {% endif %}
+            </div>
+            
+            <div class="summary-item">
+                <h4>Squidies Growth</h4>
+                <p>Members: +{{ int(game_state.squidies * 0.05) }}</p>
+                <p>Pistols: +{{ int(game_state.squidies.pistols * 0.1) }}</p>
+                <p>Bullets: +20</p>
+                <p>The Squidies are getting stronger every day!</p>
+            </div>
+            
+            <div class="summary-item">
+                <h4>Market Changes</h4>
+                <p>All drug prices have been randomized for the new day:</p>
+                <ul>
+                    <li>Weed: ${{ game_state.drug_prices['weed'] }}</li>
+                    <li>Crack: ${{ "{:,}".format(game_state.drug_prices['crack']) }}</li>
+                    <li>Cocaine: ${{ "{:,}".format(game_state.drug_prices['coke']) }}</li>
+                    <li>ice: ${{ "{:,}".format(game_state.drug_prices['ice']) }}</li>
+                    <li>percs: ${{ "{:,}".format(game_state.drug_prices['percs']) }}</li>
+                    <li>Pixie Dust: ${{ "{:,}".format(game_state.drug_prices['pixie_dust']) }}</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    
+    <div class="current-status">
+        <h3>Your Current Status</h3>
+        <div class="status-grid">
+            <div class="status-item">
+                <h4>Gang Status</h4>
+                <p>Members: {{ game_state.members }}</p>
+                <p>Strength: 
+                    {% if game_state.members >= 20 %}Elite
+                    {% elif game_state.members >= 15 %}Strong
+                    {% elif game_state.members >= 10 %}Formidable
+                    {% elif game_state.members >= 5 %}Growing
+                    {% else %}Small
+                    {% endif %}
+                </p>
+            </div>
+            
+            <div class="status-item">
+                <h4>Financial Status</h4>
+                <p>Cash: ${{ "{:,}".format(game_state.money) }}</p>
+                <p>Savings: ${{ "{:,}".format(game_state.account|int) }}</p>
+                <p>Loan Debt: ${{ "{:,}".format(game_state.loan|int) }}</p>
+            </div>
+            
+            <div class="status-item">
+                <h4>Drug Inventory</h4>
+                <p>Weed: {{ game_state.drugs.weed }} kilos</p>
+                <p>Crack: {{ game_state.drugs.crack }} kilos</p>
+                <p>Cocaine: {{ game_state.drugs.coke }} kilos</p>
+                <p>ice: {{ game_state.drugs.ice }} kilos</p>
+                <p>percs: {{ game_state.drugs.percs }} kilos</p>
+                <p>Pixie Dust: {{ game_state.drugs.pixie_dust }} kilos</p>
+            </div>
+        </div>
+    </div>
+    
+    <div class="day-tips">
+        <h3>Tips for Day {{ game_state.day }}</h3>
+        <ul>
+            <li>Check the new drug prices - buy low, sell high!</li>
+            <li>The Suidies are growing stronger - you need to keep up</li>
+            <li>Consider recruiting more gang members if you're falling behind</li>
+            <li>Stock up on weapons for the eventual gang war</li>
+            <li>Keep some money in savings to earn interest</li>
+        </ul>
+    </div>
+    
+    <div class="actions">
+        <a href="{{ url_for('city') }}" class="btn btn-primary">Start Day {{ game_state.day }}</a>
+    </div>
+
+    <div id="player-list"></div>
+
+    <div class="chat-section">
+        <h4>Chat with other players</h4>
+        <div id="chat-messages" class="chat-messages"></div>
+        <div class="chat-input">
+            <input type="text" id="chat-input" placeholder="Type a message..." maxlength="200">
+            <button id="send-chat" class="btn btn-secondary">Send</button>
+        </div>
+    </div>
+</div>
+{% endblock %}

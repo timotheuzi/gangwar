@@ -1,0 +1,111 @@
+## Deploying Flask-SocketIO Application to PythonAnywhere
+
+### Prerequisites
+1. Create a PythonAnywhere account at [pythonanywhere.com](https://www.pythonanywhere.com)
+2. Ensure your Git repository is public or you have SSH keys set up for private repos
+3. Note: PythonAnywhere supports WebSocket connections required for SocketIO
+
+### Step-by-Step Deployment Instructions
+
+#### 1. Clone Your Repository
+```bash
+# In PythonAnywhere bash console
+git clone https://github.com/timotheuzi/pimpin.git
+cd pimpin
+```
+
+#### 2. Create Virtual Environment
+```bash
+# Create and activate virtual environment
+python3 -m venv venv
+source venv/bin/activate
+```
+
+#### 3. Install Dependencies
+```bash
+# Install from requirements.txt (excluding pyinstaller as it's not needed for web deployment)
+pip install Flask==2.3.3 flask-socketio==5.3.6 python-socketio==5.8.0 eventlet==0.33.3
+```
+
+#### 4. Configure Web Application
+1. Go to the **Web** tab in PythonAnywhere dashboard
+2. Click **Add a new web app**
+3. Choose **Manual configuration** (or **Flask** if available)
+4. Select **Python 3.10** (or latest available)
+5. Set the source code directory to `/home/yourusername/pimpin`
+6. Set the working directory to `/home/yourusername/pimpin`
+
+#### 5. Create WSGI Configuration File
+Create a new file at `/var/www/yourusername_pythonanywhere_com_wsgi.py` with:
+
+```python
+import os
+import sys
+
+# Add your project directory to the sys.path
+project_home = '/home/yourusername/pimpin'
+if project_home not in sys.path:
+    sys.path.insert(0, project_home)
+
+# Set environment variables
+os.environ['FLASK_ENV'] = 'production'
+
+# Import your application
+from pythonanywhere import application
+
+# For SocketIO support, wrap with socketio WSGI app
+from flask_socketio import SocketIO
+from app import socketio
+
+application = socketio.WSGI_app()
+```
+
+**Note**: Replace `yourusername` with your actual PythonAnywhere username.
+
+#### 6. Update WSGI File Path in Web Configuration
+In the Web tab:
+- Set **WSGI configuration file** to `/var/www/yourusername_pythonanywhere_com_wsgi.py`
+- Set **Virtualenv** to `/home/yourusername/pimpin/venv`
+
+#### 7. Configure Static Files (Optional)
+If you need to serve static files:
+- URL: `/static/`
+- Directory: `/home/yourusername/pimpin/static`
+
+#### 8. Environment Variables (Optional)
+Set any required environment variables in the Web tab under **Environment variables**:
+- `SECRET_KEY`: A random secret key for Flask sessions
+- `FLASK_ENV`: `production`
+
+#### 9. Reload Web Application
+Click the **Reload** button in the Web tab to apply changes.
+
+#### 10. Access Your Application
+Your application will be available at `https://yourusername.pythonanywhere.com`
+
+### Important Notes
+
+#### SocketIO Configuration
+- PythonAnywhere supports WebSockets, but ensure your WSGI configuration properly initializes SocketIO
+- The `pythonanywhere.py` file is already configured as your application entry point
+- If SocketIO connections fail, check PythonAnywhere's logs in the **Web** tab
+
+#### Database Considerations
+- If your application uses a database, configure it in PythonAnywhere (SQLite works well for small apps)
+- For production, consider using PythonAnywhere's MySQL databases
+
+#### File Permissions
+- Ensure your application files have appropriate permissions
+- PythonAnywhere may require specific permissions for certain directories
+
+#### Troubleshooting
+- Check **Error log** and **Server log** in the Web tab for issues
+- Use PythonAnywhere's bash console to test imports and run debugging commands
+- Common issues: missing dependencies, incorrect file paths, WebSocket configuration
+
+#### Performance
+- PythonAnywhere free tier has usage limits
+- For production workloads, consider upgrading to a paid plan
+- Monitor your application's resource usage in the dashboard
+
+Your application should now be live and accessible via the provided URL. Test all features, especially SocketIO-dependent functionality like real-time combat and chat.

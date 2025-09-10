@@ -1,0 +1,114 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="crackhouse-screen">
+    <h2>Big Johnny's Crack House</h2>
+    <p>Welcome to the drug trading hub. Buy low, sell high!</p>
+    
+    <div class="current-prices">
+        <h3>Current Street Prices:</h3>
+        <div class="price-grid">
+            <div class="price-item">
+                <h4>Weed</h4>
+                <p>${{ game_state.drug_prices['weed'] }} per kilo</p>
+            </div>
+            <div class="price-item">
+                <h4>Crack</h4>
+                <p>${{ "{:,}".format(game_state.drug_prices['crack']) }} per kilo</p>
+            </div>
+            <div class="price-item">
+                <h4>Cocaine</h4>
+                <p>${{ "{:,}".format(game_state.drug_prices['coke']) }} per kilo</p>
+            </div>
+            <div class="price-item">
+                <h4>Ice</h4>
+                <p>${{ "{:,}".format(game_state.drug_prices['ice']) }} per kilo</p>
+            </div>
+            <div class="price-item">
+                <h4>Percs</h4>
+                <p>${{ "{:,}".format(game_state.drug_prices['percs']) }} per kilo</p>
+            </div>
+            <div class="price-item">
+                <h4>Pixie Dust</h4>
+                <p>${{ "{:,}".format(game_state.drug_prices['pixie_dust']) }} per kilo</p>
+            </div>
+        </div>
+    </div>
+    
+    <div class="trade-forms">
+        <div class="trade-section">
+            <h3>Buy Drugs</h3>
+            <form method="POST" action="{{ url_for('trade_drugs') }}">
+                <input type="hidden" name="action" value="buy">
+                <div class="form-group">
+                    <label for="buy_drug_type">Drug Type:</label>
+                    <select name="drug_type" id="buy_drug_type" required>
+                        <option value="weed">Weed</option>
+                        <option value="crack">Crack</option>
+                        <option value="coke">Cocaine</option>
+                        <option value="ice">Ice</option>
+                        <option value="percs">Percs</option>
+                        <option value="pixie_dust">Pixie Dust</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="buy_quantity">Quantity:</label>
+                    <input type="number" name="quantity" id="buy_quantity" min="1" value="1" required>
+                </div>
+                <button type="submit" class="btn btn-primary">Buy</button>
+            </form>
+        </div>
+        
+        <div class="trade-section">
+            <h3>Sell Drugs</h3>
+            <form method="POST" action="{{ url_for('trade_drugs') }}">
+                <input type="hidden" name="action" value="sell">
+                <div class="form-group">
+                    <label for="sell_drug_type">Drug Type:</label>
+                    <select name="drug_type" id="sell_drug_type" required>
+                        <option value="weed">Weed ({{ game_state.drugs.weed }} available)</option>
+                        <option value="crack">Crack ({{ game_state.drugs.crack }} available)</option>
+                        <option value="coke">Cocaine ({{ game_state.drugs.coke }} available)</option>
+                        <option value="ice">Ice ({{ game_state.drugs.ice }} available)</option>
+                        <option value="percs">Percs ({{ game_state.drugs.percs }} available)</option>
+                        <option value="pixie_dust">Pixie Dust ({{ game_state.drugs.pixie_dust }} available)</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="sell_quantity">Quantity:</label>
+                    <input type="number" name="quantity" id="sell_quantity" min="1" value="1" required>
+                </div>
+                <button type="submit" class="btn btn-secondary">Sell</button>
+            </form>
+        </div>
+    </div>
+    
+    <div class="inventory">
+        <h3>Your Drug Inventory:</h3>
+        <ul>
+            <li>Weed: {{ game_state.drugs.weed }} kilos</li>
+            <li>Crack: {{ game_state.drugs.crack }} kilos</li>
+            <li>Cocaine: {{ game_state.drugs.coke }} kilos</li>
+            <li>Ice: {{ game_state.drugs.ice }} kilos</li>
+            <li>Percs: {{ game_state.drugs.percs }} kilos</li>
+            <li>Pixie Dust: {{ game_state.drugs.pixie_dust }} kilos</li>
+        </ul>
+    </div>
+    
+    <div class="actions">
+        <a href="{{ url_for('visit_prostitutes') }}" class="btn btn-danger">💋 Visit Prostitutes</a>
+        <a href="{{ url_for('city') }}" class="btn btn-primary">Back to City</a>
+    </div>
+
+    <div id="player-list"></div>
+
+    <div class="chat-section">
+        <h4>Chat with other players</h4>
+        <div id="chat-messages" class="chat-messages"></div>
+        <div class="chat-input">
+            <input type="text" id="chat-input" placeholder="Type a message..." maxlength="200">
+            <button type="button" id="send-chat" class="btn btn-secondary">Send</button>
+        </div>
+    </div>
+</div>
+{% endblock %}

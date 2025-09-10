@@ -1,0 +1,47 @@
+#!/bin/bash
+
+# Pimpin Game Build Script - Local Build Version
+# This script builds the application locally using PyInstaller
+
+echo "Building Pimpin Game locally..."
+
+# Check if PyInstaller is installed
+if ! command -v pyinstaller &> /dev/null; then
+    echo "PyInstaller not found. Installing..."
+    pip install pyinstaller
+fi
+
+# Create dist directory if it doesn't exist
+mkdir -p dist
+
+# Copy deployment scripts to dist
+cp pythonanywhere.py dist/ 2>/dev/null || echo "pythonanywhere.py not found"
+cp run.sh dist/ 2>/dev/null || echo "run.sh not found"
+
+# Clean previous build
+echo "Cleaning previous build..."
+rm -rf build dist/pimpin dist/pimpin.exe
+
+# Build the application
+echo "Building application with PyInstaller..."
+pyinstaller --clean pimpin.spec
+
+# Generate environment variables file
+echo "Generating environment variables file..."
+python generate_env.py
+
+# Check if build was successful
+if [ -f "dist/pimpin" ] || [ -f "dist/pimpin.exe" ]; then
+    echo "Build successful! Files created in dist/ directory:"
+    ls -la dist/
+    echo ""
+    echo "To run the application:"
+    echo "./dist/run.sh"
+    echo ""
+    echo "For PythonAnywhere deployment:"
+    echo "Upload the contents of the dist/ directory to PythonAnywhere"
+    echo "Use pythonanywhere.py as your WSGI application file"
+else
+    echo "Build failed! Check the output above for errors."
+    exit 1
+fi

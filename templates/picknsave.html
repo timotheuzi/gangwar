@@ -1,0 +1,111 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="picknsave-screen">
+    <h2>Pick n' Save</h2>
+    <p>A seemingly innocent grocery store with some hidden secrets...</p>
+    
+    <div class="store-content">
+        <div class="store-section">
+            <h3>Grocery Items</h3>
+            <p>Stock up on essentials for your gang members.</p>
+            <div class="grocery-items">
+                <div class="item">
+                    <h4>Food Supplies</h4>
+                    <p>Keep your gang fed and happy</p>
+                    <p>Cost: $500 per day</p>
+                </div>
+                <div class="item">
+                    <h4>Medical Supplies</h4>
+                    <p>Heal your wounds and stay healthy</p>
+                    <p>Cost: $1,000 per treatment</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="store-section">
+            <h3>Hidden Services</h3>
+            <p>Rumor has it this place offers more than just groceries...</p>
+            
+            {% if not game_state.flags.has_id %}
+            <div class="secret-service">
+                <h4>Fake ID Service</h4>
+                <p>Get a fake ID to avoid police detection</p>
+                <p>Cost: $5,000</p>
+                <form method="POST" action="{{ url_for('picknsave_action') }}">
+                    <input type="hidden" name="action" value="buy_id">
+                    <button type="submit" class="btn btn-warning">Buy Fake ID</button>
+                </form>
+            </div>
+            {% else %}
+            <div class="secret-service">
+                <h4>Fake ID Service</h4>
+                <p>You already have a fake ID</p>
+                <p><strong>Status:</strong> Protected from random ID checks</p>
+            </div>
+            {% endif %}
+            
+            <div class="secret-service">
+                <h4>Information Broker</h4>
+                <p>Get insider information about police activity</p>
+                <p>Cost: $2,000</p>
+                <form method="POST" action="{{ url_for('picknsave_action') }}">
+                    <input type="hidden" name="action" value="buy_info">
+                    <button type="submit" class="btn btn-info">Buy Information</button>
+                </form>
+            </div>
+            
+            <div class="secret-service">
+                <h4>Gang Recruitment</h4>
+                <p>Recruit new members for your gang</p>
+                <p>Cost: $10,000 per member</p>
+                <form method="POST" action="{{ url_for('picknsave_action') }}">
+                    <input type="hidden" name="action" value="recruit">
+                    <button type="submit" class="btn btn-success">Recruit Member</button>
+                </form>
+            </div>
+        </div>
+        
+        <div class="store-section">
+            <h3>Current Gang Status</h3>
+            <div class="gang-status">
+                <p><strong>Gang Members:</strong> {{ game_state.members }}</p>
+                <p><strong>Gang Strength:</strong> 
+                    {% if game_state.members >= 20 %}Elite
+                    {% elif game_state.members >= 15 %}Strong
+                    {% elif game_state.members >= 10 %}Formidable
+                    {% elif game_state.members >= 5 %}Growing
+                    {% else %}Small
+                    {% endif %}
+                </p>
+                <p><strong>Squidies Members:</strong> {{ game_state.squidies|int }}</p>
+            </div>
+        </div>
+    </div>
+    
+    <div class="store-tips">
+        <h3>Store Tips</h3>
+        <ul>
+            <li>Fake IDs help avoid random police stops</li>
+            <li>More gang members = more firepower in battles</li>
+            <li>Information can save you from police raids</li>
+            <li>Keep your gang well-fed and healthy</li>
+        </ul>
+    </div>
+    
+    <div class="actions">
+        <a href="{{ url_for('city') }}" class="btn btn-primary">Back to City</a>
+    </div>
+
+    <div id="player-list"></div>
+
+    <div class="chat-section">
+        <h4>Chat with other players</h4>
+        <div id="chat-messages" class="chat-messages"></div>
+        <div class="chat-input">
+            <input type="text" id="chat-input" placeholder="Type a message..." maxlength="200">
+            <button id="send-chat" class="btn btn-secondary">Send</button>
+        </div>
+    </div>
+</div>
+{% endblock %}

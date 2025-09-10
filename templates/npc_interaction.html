@@ -1,0 +1,95 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="npc-interaction-screen">
+    <h2>Interaction with {{ npc.name }}</h2>
+
+    {% if action == 'talk' %}
+        <div class="dialogue-box">
+            <p class="npc-dialogue">{{ message }}</p>
+        </div>
+    {% elif action == 'fight' %}
+        <div class="combat-result">
+            <p>{{ message }}</p>
+            {% if not npc.is_alive %}
+                <p class="loot-info">You can now search the body for loot.</p>
+                <a href="{{ url_for('pickup_loot', npc_id=npc.id) }}" class="btn btn-warning">Search Body</a>
+            {% endif %}
+        </div>
+    {% elif action == 'loot' %}
+        <div class="loot-result">
+            <p>{{ message }}</p>
+        </div>
+    {% elif action == 'trade' %}
+        <div class="trade-result">
+            <p>{{ message }}</p>
+        </div>
+    {% endif %}
+
+    <div class="npc-info">
+        <h3>{{ npc.name }}</h3>
+        <p><strong>Personality:</strong> {{ npc.personality.title() }}</p>
+        <p><strong>Status:</strong> {% if npc.is_alive %}Alive (HP: {{ npc.hp }}/{{ npc.max_hp }}){% else %}Dead{% endif %}</p>
+        {% if npc.last_interaction %}
+            <p><strong>Last Interaction:</strong> {{ npc.last_interaction }}</p>
+        {% endif %}
+    </div>
+
+    {% if npc.is_alive %}
+        <div class="interaction-options">
+            <h3>What would you like to do?</h3>
+            <div class="action-buttons">
+                <a href="{{ url_for('talk_to_npc', npc_id=npc.id) }}" class="btn btn-primary">Talk Again</a>
+                <a href="{{ url_for('trade_with_npc', npc_id=npc.id) }}" class="btn btn-secondary">Trade</a>
+                <button type="button" class="btn btn-danger" onclick="showFightOptions()">Fight</button>
+            </div>
+
+            <div id="fight-options" style="display: none; margin-top: 20px;">
+                <h4>Choose your weapon:</h4>
+                <form method="POST" action="{{ url_for('fight_npc', npc_id=npc.id) }}">
+                    {% if game_state.weapons.can_fight_with_pistol() %}
+                        <label><input type="radio" name="weapon" value="pistol" checked> Pistol ({{ game_state.weapons.bullets }} bullets)</label><br>
+                    {% endif %}
+                    {% if game_state.weapons.uzis > 0 and game_state.weapons.bullets > 1 %}
+                        <label><input type="radio" name="weapon" value="uzi"> Uzi ({{ game_state.weapons.bullets }} bullets)</label><br>
+                    {% endif %}
+                    {% if game_state.weapons.grenades > 0 %}
+                        <label><input type="radio" name="weapon" value="grenade"> Grenade ({{ game_state.weapons.grenades }} grenades)</label><br>
+                    {% endif %}
+                    {% if game_state.weapons.missile_launcher > 0 and game_state.weapons.missiles > 0 %}
+                        <label><input type="radio" name="weapon" value="missile_launcher"> Missile Launcher ({{ game_state.weapons.missiles }} missiles)</label><br>
+                    {% endif %}
+                    <label><input type="radio" name="weapon" value="knife"> Knife</label><br>
+                    <button type="submit" class="btn btn-danger" style="margin-top: 10px;">Attack!</button>
+                    <button type="button" class="btn btn-secondary" onclick="hideFightOptions()">Cancel</button>
+                </form>
+            </div>
+        </div>
+    {% endif %}
+
+    <script>
+        function showFightOptions() {
+            document.getElementById('fight-options').style.display = 'block';
+        }
+        function hideFightOptions() {
+            document.getElementById('fight-options').style.display = 'none';
+        }
+    </script>
+
+    <div class="actions">
+        <a href="{{ url_for('npcs') }}" class="btn btn-primary">Back to People</a>
+        <a href="{{ url_for('city') }}" class="btn btn-secondary">Back to City</a>
+    </div>
+
+    <div id="player-list"></div>
+
+    <div class="chat-section">
+        <h4>Chat with other players</h4>
+        <div id="chat-messages" class="chat-messages"></div>
+        <div class="chat-input">
+            <input type="text" id="chat-input" placeholder="Type a message..." maxlength="200">
+            <button id="send-chat" class="btn btn-secondary">Send</button>
+        </div>
+    </div>
+</div>
+{% endblock %}

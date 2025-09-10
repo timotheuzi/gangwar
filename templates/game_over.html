@@ -1,0 +1,81 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="game-over">
+    <h2 class="flash">GAME OVER</h2>
+    
+    <div class="game-over-message">
+        <p>Sorry G, your gangwar' days are over!</p>
+        <p>You ran out of lives and couldn't make it in the streets.</p>
+        <p>You go back to the mud.</p>
+    </div>
+    
+    <div class="game-over-ascii">
+        <pre>
+                    ,--.    ,--.
+                   (( \\   // ))
+                    \\ \\_/ //
+                     \\   //
+                      ) (
+                     /   \
+                    /     \
+                   /       \
+                  /   RIP   \
+                 /           \
+                /             \
+               /   DEAD PIMP   \
+              /                 \
+             /                   \
+            /                     \
+           /                       \
+          /_________________________\
+         |                         |
+         |     💀  GAME OVER  💀    |
+         |                         |
+         |   Your gangwar' days     |
+         |   are over, G!         |
+         |                         |
+         |   You lie dead in the   |
+         |   cold, unforgiving     |
+         |   streets...           |
+         |                         |
+         |   Blood pools around    |
+         |   your lifeless body    |
+         |   as sirens wail in     |
+         |   the distance...       |
+         |_________________________|
+
+               .-~~~~~~~~~-.
+             .'              '.
+            /                  \
+           |     💀  RIP  💀     |
+           |                    |
+           |  Here lies a       |
+           |  fallen pimp        |
+           |  who thought he     |
+           |  could rule the     |
+           |  streets...         |
+           |                     |
+           |  But the streets    |
+           |  always win.        |
+           '--------------------'
+        </pre>
+    </div>
+    
+    <div class="game-over-actions">
+        <a href="{{ url_for('index') }}" class="btn btn-primary">Try Again</a>
+        <a href="{{ url_for('new_game') }}" class="btn btn-secondary">New Game</a>
+    </div>
+
+    <div id="player-list"></div>
+
+    <div class="chat-section">
+        <h4>Chat with other players</h4>
+        <div id="chat-messages" class="chat-messages"></div>
+        <div class="chat-input">
+            <input type="text" id="chat-input" placeholder="Type a message..." maxlength="200">
+            <button id="send-chat" class="btn btn-secondary">Send</button>
+        </div>
+    </div>
+</div>
+{% endblock %}

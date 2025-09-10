@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="alleyway-screen">
+    <h2>The Dark Alleyway</h2>
+    <p>Player: {{ game_state.player_name }} | Steps: {{ game_state.steps }}/{{ game_state.max_steps }}</p>
+
+    <div class="room-description">
+        <h3 id="room-title">{{ current_room.title }}</h3>
+        <p id="room-description">{{ current_room.description }}</p>
+
+        <div class="exits">
+            <strong>Exits:</strong>
+            <span id="room-exits">
+                {% for direction, room_id in current_room.exits.items() %}
+                    <span class="exit">{{ direction }}</span>
+                {% endfor %}
+            </span>
+        </div>
+    </div>
+
+    <div class="alleyway-actions">
+        <a href="{{ url_for('city') }}" class="btn btn-secondary">Return to City</a>
+        <a href="{{ url_for('stats') }}" class="btn btn-secondary">View Stats</a>
+    </div>
+
+    <div class="room-navigation">
+        <h4>Navigation</h4>
+        <div class="direction-buttons">
+            {% for direction, room_id in current_room.exits.items() %}
+                <a href="{{ url_for('move_room', direction=direction) }}" class="btn btn-primary direction-btn">
+                    Go {{ direction|title }}
+                </a>
+            {% endfor %}
+        </div>
+    </div>
+
+    <div class="chat-pvp-container">
+        <div class="chat-section">
+            <h4>Alleyway Chat & Commands</h4>
+            <div id="chat-messages" class="chat-messages"></div>
+
+            <div class="chat-input">
+                <input type="text" id="chat-input" placeholder="Type a command or message..." maxlength="200">
+                <button id="send-chat" class="btn btn-info btn-small">Send</button>
+            </div>
+        </div>
+        </div>
+
+        <div class="command-buttons">
+            <div class="action-buttons">
+                <button type="button" class="cmd-btn" data-command="look">Look (l)</button>
+                <button type="button" class="cmd-btn" data-command="search">Search (s)</button>
+                <button type="button" class="cmd-btn" data-command="fight">Fight (f)</button>
+                <button type="button" class="cmd-btn" data-command="run">Run (r)</button>
+                <button type="button" class="cmd-btn" data-command="help">Help (h)</button>
+            </div>
+        </div>
+
+        <!-- PVP Section -->
+        <div class="pvp-section">
+            <h3>⚔️ Players Online ⚔️</h3>
+            <div id="pvp-player-list" class="pvp-player-list">
+                <p>Loading players...</p>
+            </div>
+            <div class="pvp-actions">
+                <button id="refresh-players" class="btn btn-secondary btn-small">Refresh Players</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,46 @@
+{
+  "eric": {
+    "id": "eric",
+    "name": "Eric",
+    "personality": "friendly",
+    "hp": 225,
+    "max_hp": 225,
+    "damage": 22,
+    "is_alive": true,
+    "location": "city",
+    "last_interaction": ""
+  },
+  "steve": {
+    "id": "steve",
+    "name": "Steve",
+    "personality": "aggressive",
+    "hp": 300,
+    "max_hp": 300,
+    "damage": 30,
+    "is_alive": true,
+    "location": "city",
+    "last_interaction": ""
+  },
+  "dealer": {
+    "id": "dealer",
+    "name": "Drug Dealer",
+    "personality": "shady",
+    "hp": 180,
+    "max_hp": 280,
+    "damage": 18,
+    "is_alive": true,
+    "location": "city",
+    "last_interaction": ""
+  },
+  "informant": {
+    "id": "informant",
+    "name": "Informant",
+    "personality": "nervous",
+    "hp": 120,
+    "max_hp": 140,
+    "damage": 19,
+    "is_alive": true,
+    "location": "city",
+    "last_interaction": ""
+  }
+}

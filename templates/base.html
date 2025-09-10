@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Gang War{% endblock %}</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <script src="https://cdn.socket.io/4.0.0/socket.io.min.js"></script>
+    {% if game_state %}
+    <script>
+        // Set global variables from Flask template
+        window.playerName = "{{ game_state.player_name }}";
+        window.currentRoom = "{{ game_state.current_location }}";
+    </script>
+    {% endif %}
+    <script src="{{ url_for('static', filename='chat.js') }}"></script>
+</head>
+<body>
+    <div class="container">
+        <main>
+            {% block content %}{% endblock %}
+            {% block chat %}{% endblock %}
+        </main>
+    </div>
+
+    <footer>
+        {% block footer %}{% endblock %}
+    </footer>
+
+    <!-- JavaScript functionality is handled by chat.js -->
+</body>
+</html>

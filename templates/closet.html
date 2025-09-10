@@ -1,0 +1,82 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="closet-screen">
+    <h2>Steve's Secret Closet</h2>
+    <p>A hidden storage room where Steve keeps his bulk inventory. The air is thick with the scent of packaged goods and the hum of a small generator.</p>
+
+    {% if message %}
+    <div class="message" style="background-color: #333; padding: 10px; margin: 15px 0; border: 1px solid #00ff00;">
+        {{ message }}
+    </div>
+    {% endif %}
+
+    <div class="closet-content">
+        <div class="bulk-deals">
+            <h3>Bulk Drug Deals</h3>
+            <p>Steve offers special bulk pricing for large quantities. Get 20% off when buying 10 or more kilos!</p>
+
+            <div class="drug-grid">
+                {% for drug, price in game_state.drug_prices.items() %}
+                <div class="drug-item">
+                    <h4>{{ drug.title() }}</h4>
+                    <p>Regular Price: ${{ price }}</p>
+                    <p>Bulk Price (10+): ${{ (price * 0.8)|int }}</p>
+                    <form action="{{ url_for('bulk_purchase') }}" method="post" class="bulk-form">
+                        <input type="hidden" name="drug_type" value="{{ drug }}">
+                        <div class="form-group">
+                            <label for="quantity_{{ drug }}">Quantity:</label>
+                            <input type="number" id="quantity_{{ drug }}" name="quantity" min="1" max="100" value="10" required>
+                        </div>
+                        <button type="submit" class="btn btn-success">Buy Bulk</button>
+                    </form>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <div class="inventory-status">
+            <h3>Your Current Inventory</h3>
+            <div class="inventory-grid">
+                <div class="inventory-item">
+                    <strong>Money:</strong> ${{ "{:,}".format(game_state.money) }}
+                </div>
+                <div class="inventory-item">
+                    <strong>Weed:</strong> {{ game_state.drugs.weed }}
+                </div>
+                <div class="inventory-item">
+                    <strong>Crack:</strong> {{ game_state.drugs.crack }}
+                </div>
+                <div class="inventory-item">
+                    <strong>Cocaine:</strong> {{ game_state.drugs.coke }}
+                </div>
+                <div class="inventory-item">
+                    <strong>Ice:</strong> {{ game_state.drugs.ice }}
+                </div>
+                <div class="inventory-item">
+                    <strong>Percs:</strong> {{ game_state.drugs.percs }}
+                </div>
+                <div class="inventory-item">
+                    <strong>Pixie Dust:</strong> {{ game_state.drugs.pixie_dust }}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="actions">
+        <a href="{{ url_for('bar') }}" class="btn btn-primary">Back to Bar</a>
+        <a href="{{ url_for('city') }}" class="btn btn-secondary">Back to City</a>
+    </div>
+
+    <div id="player-list"></div>
+
+    <div class="chat-section">
+        <h4>Chat with other players</h4>
+        <div id="chat-messages" class="chat-messages"></div>
+        <div class="chat-input">
+            <input type="text" id="chat-input" placeholder="Type a message..." maxlength="200">
+            <button id="send-chat" class="btn btn-secondary">Send</button>
+        </div>
+    </div>
+</div>
+{% endblock %}
