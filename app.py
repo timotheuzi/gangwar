@@ -824,6 +824,11 @@ def infobooth():
     game_state = get_game_state()
     return render_template('infobooth.html', game_state=game_state)
 
+@app.route('/credits')
+def credits():
+    game_state = get_game_state()
+    return render_template('credits.html', game_state=game_state)
+
 @app.route('/stats')
 def stats():
     game_state = get_game_state()

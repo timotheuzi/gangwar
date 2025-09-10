@@ -23,55 +23,6 @@ You start as a small-time entrepreneur with $1000, 5 units of crack, and a pisto
 - Python 3.7+
 - pip (Python package manager)
 
-### Installation
-
-1. **Clone the repository:**
-   ```bash
-   git clone https://github.com/timotheuzi/pimpin.git
-   cd pimpin
-   ```
-
-2. **Install dependencies:**
-   ```bash
-   pip install -r requirements.txt
-   ```
-
-3. **Run the game:**
-   ```bash
-   ./run_app.py
-   ```
-
-   Or alternatively:
-   ```bash
-   python3 run_app.py
-   ```
-
-4. **Open your browser and navigate to:**
-   ```
-   http://localhost:5005
-   ```
-
-### Alternative: Standalone Version
-
-For easier deployment (e.g., on PythonAnywhere), use the standalone version:
-
-```bash
-python standalone_app.py
-```
-
-The standalone version includes all templates and CSS embedded in a single file.
-
-### Docker Build for Deployment
-
-For better compatibility across different systems (especially PythonAnywhere), use the Docker-based build:
-
-```bash
-# Build using Docker (recommended for deployment)
-./build.sh
-```
-
-This creates a standalone executable in the `dist/` directory that's compatible with older Linux distributions.
-
 ## 🎯 How to Play
 
 ### Getting Started
@@ -273,3 +224,11 @@ This project is licensed under the terms specified in the LICENSE file.
 ---
 
 **Remember**: In the streets, only the strong survive. Build your empire wisely, and may the best pimp win! 💰🔫🏙️
+
+- Created and Maintained by timotheuzi@hotmail.com
+- Public Address to Receive 
+- LTC ltc1qcx3xsrpxqm7q7gpkxhxhtaeqgdqpmq0jdrw7vh
+- SOL 4sAaizpXmFS4yedakv7mLN1Z2myGh2CWnes3YJBhF1Hb
+- XLM GCVYEJ7GC7LZZ2EBZL5DXWCLTZPTXX7YEUXLS36YGE6BA37R5BHRI2XG
+- BTC bc1qfv69rux98r7u3sr786j2qpsenmkskvkf58ynkk
+- ETH 0xD1A6b95958dE597c2D9478A3b4212adF0789BF81
