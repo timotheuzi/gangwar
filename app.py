@@ -888,11 +888,11 @@ def encounter():
 
     # Random encounter types
     encounter_types = [
-        ("squidies", "You run into some Squidies gang members who look like they're up to no good."),
-        ("baby_momma", "Your baby momma spots you from across the street and starts heading your way."),
-        ("discovery", "You notice an abandoned building that looks like it might contain something valuable."),
-        ("drug_deal", "A shady character approaches you with a proposition for a drug deal."),
-        ("potential_hooker", f"You encounter {random.choice(POTENTIAL_HOOKERS).name}, a potential hooker who looks like she could use some help.")
+        ("squidies", "A pack of Squidie scum emerges from the shadows, their eyes gleaming with murderous intent. Blood stains their claws from previous victims."),
+        ("baby_momma", "Your deranged ex-wife materializes from the fog, her face twisted in rage. She's come to extract her pound of flesh and collect what she sees as her due."),
+        ("discovery", "Your eyes catch a crumbling ruin that whispers promises of hidden horrors and forgotten atrocities. What dark secrets fester within its rotting walls?"),
+        ("drug_deal", "A gaunt figure with hollow eyes and rotting teeth shambles toward you, offering oblivion in exchange for your dwindling soul."),
+        ("potential_hooker", f"You cross paths with {random.choice(POTENTIAL_HOOKERS).name}, a broken spirit whose body bears the scars of countless brutal encounters.")
     ]
 
     encounter_type, description = random.choice(encounter_types)
@@ -2257,8 +2257,8 @@ NPCS = {
     'scarface': NPC(
         id='scarface',
         name='Scarface Tony',
-        description='A massive, scarred gangster with gold chains and a reputation that precedes him. His face tells stories of countless brutal fights.',
-        dialogue='"You lookin\' at me? You got some nerve walkin\' up to Scarface Tony like that. What do you want, punk?"',
+        description='A hulking brute whose face is a roadmap of scars from endless gang wars. His cold eyes have witnessed more deaths than you\'ve seen sunrises.',
+        dialogue='"Keep starin\' at my scars and I\'ll carve some fresh ones across your throat. What the hell do you want in my territory?"',
         health=25,
         damage_range=(8, 15),
         win_probability=0.85,
@@ -2275,8 +2275,8 @@ NPCS = {
     'big_mama': NPC(
         id='big_mama',
         name='Big Mama Jenkins',
-        description='A large, imposing woman with a no-nonsense attitude. She runs the local gambling dens and knows everyone\'s secrets.',
-        dialogue='"Well, well, what do we have here? Another street rat thinkin\' they can make it big. You got the guts, kid?"',
+        description='A hulking matriarch whose bulk hides a predatory cunning. Her eyes gleam with the hunger of someone who\'s devoured countless souls in this cesspool.',
+        dialogue='"Look at this pathetic wretch crawlin\' into my domain. Think you can handle the darkness down here, or should I crush you now and save us both the trouble?"',
         health=12,
         damage_range=(3, 8),
         win_probability=0.6,
@@ -2564,12 +2564,12 @@ if socketio:
     def handle_join(data):
         room = data['room']
         player_id = data.get('player_id', request.sid)
-        player_name = data.get('player_name', 'Unknown Player')
 
         join_room(room)
 
         # Get game state to sync PVP stats with actual game state
         game_state = get_game_state()
+        player_name = game_state.player_name if game_state else data.get('player_name', 'Unknown Player')
 
         # Track player in room
         if room not in players_in_rooms:
