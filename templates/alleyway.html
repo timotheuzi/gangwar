@@ -37,34 +37,23 @@
 
     <div class="chat-pvp-container">
         <div class="chat-section">
-            <h4>Alleyway Chat & Commands</h4>
+            <h4>Alleyway Chat</h4>
             <div id="chat-messages" class="chat-messages"></div>
-
             <div class="chat-input">
-                <input type="text" id="chat-input" placeholder="Type a command or message..." maxlength="200">
-                <button id="send-chat" class="btn btn-info btn-small">Send</button>
-            </div>
-        </div>
-        </div>
-
-        <div class="command-buttons">
-            <div class="action-buttons">
-                <button type="button" class="cmd-btn" data-command="look">Look (l)</button>
-                <button type="button" class="cmd-btn" data-command="search">Search (s)</button>
-                <button type="button" class="cmd-btn" data-command="fight">Fight (f)</button>
-                <button type="button" class="cmd-btn" data-command="run">Run (r)</button>
-                <button type="button" class="cmd-btn" data-command="help">Help (h)</button>
+                <input type="text" id="chat-input" placeholder="Type your message..." maxlength="200">
+                <button id="send-chat" class="btn btn-primary btn-small">Send</button>
             </div>
         </div>
 
-        <!-- PVP Section -->
+        <!-- Chat Users Section -->
         <div class="pvp-section">
-            <h3>⚔️ Players Online ⚔️</h3>
+            <h3>👥 Chat Users</h3>
             <div id="pvp-player-list" class="pvp-player-list">
-                <p>Loading players...</p>
+                <p>Loading users...</p>
             </div>
+            <div id="player-list"></div>
             <div class="pvp-actions">
-                <button id="refresh-players" class="btn btn-secondary btn-small">Refresh Players</button>
+                <button onclick="refreshPlayerList()" class="btn btn-secondary btn-small">Refresh Users</button>
             </div>
         </div>
     </div>

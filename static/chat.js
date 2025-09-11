@@ -29,7 +29,7 @@ function initSocketIO() {
         updateConnectionStatus(true);
 
         socket.emit('join', {room: currentRoom, player_name: playerName});
-        updatePlayerList();
+        refreshPlayerList();
     });
 
     socket.on('disconnect', function() {
@@ -46,7 +46,7 @@ function initSocketIO() {
 
     socket.on('status', function(data) {
         console.log(data.msg);
-        updatePlayerList();
+        refreshPlayerList();
     });
 
     socket.on('chat_message', function(data) {

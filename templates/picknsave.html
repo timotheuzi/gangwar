@@ -97,14 +97,26 @@
         <a href="{{ url_for('city') }}" class="btn btn-primary">Back to City</a>
     </div>
 
-    <div id="player-list"></div>
+    <div class="chat-pvp-container">
+        <div class="chat-section">
+            <h4>Pick n' Save Chat</h4>
+            <div id="chat-messages" class="chat-messages"></div>
+            <div class="chat-input">
+                <input type="text" id="chat-input" placeholder="Type your message..." maxlength="200">
+                <button id="send-chat" class="btn btn-primary btn-small">Send</button>
+            </div>
+        </div>
 
-    <div class="chat-section">
-        <h4>Chat with other players</h4>
-        <div id="chat-messages" class="chat-messages"></div>
-        <div class="chat-input">
-            <input type="text" id="chat-input" placeholder="Type a message..." maxlength="200">
-            <button id="send-chat" class="btn btn-secondary">Send</button>
+        <!-- Chat Users Section -->
+        <div class="pvp-section">
+            <h3>👥 Chat Users</h3>
+            <div id="pvp-player-list" class="pvp-player-list">
+                <p>Loading users...</p>
+            </div>
+            <div id="player-list"></div>
+            <div class="pvp-actions">
+                <button onclick="refreshPlayerList()" class="btn btn-secondary btn-small">Refresh Users</button>
+            </div>
         </div>
     </div>
 </div>

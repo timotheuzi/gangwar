@@ -12,24 +12,24 @@
             
             {% if not game_state.flags.eric_met %}
             <div class="contact">
-                <h4>Eric the Informant</h4>
-                <p>Eric knows everything about the drug trade in this city. He can give you valuable information about prices and opportunities.</p>
+                <h4>Nox the Informant</h4>
+                <p>Nox knows everything about the drug trade in this city. He can give you valuable information about prices and opportunities.</p>
                 <p><strong>Status:</strong> Not met yet</p>
                 <form action="{{ url_for('meet_contact') }}" method="post" class="contact-form">
-                    <input type="hidden" name="contact" value="eric">
-                    <button type="submit" class="btn btn-success btn-small">Meet Eric</button>
+                    <input type="hidden" name="contact" value="nox">
+                    <button type="submit" class="btn btn-success btn-small">Meet Nox</button>
                 </form>
             </div>
             {% else %}
             <div class="contact">
-                <h4>Eric the Informant</h4>
-                <p>Eric is your trusted source for street intelligence. He's sitting at the bar, nursing a drink.</p>
+                <h4>Nox the Informant</h4>
+                <p>Nox is your trusted source for street intelligence. He's sitting at the bar, nursing a drink.</p>
                 <p><strong>Status:</strong> Contact established</p>
                 <div class="contact-actions">
-                    <a href="{{ url_for('talk_to_npc', npc_id='eric_special') }}" class="btn btn-primary btn-small">Talk to Eric</a>
-                    <a href="{{ url_for('trade_with_npc', npc_id='eric_special') }}" class="btn btn-secondary btn-small">Trade</a>
-                    <form method="POST" action="{{ url_for('fight_npc', npc_id='eric_special') }}" style="display: inline;">
-                        <button type="submit" class="btn btn-danger btn-small">Fight Eric</button>
+                    <a href="{{ url_for('talk_to_npc', npc_id='nox') }}" class="btn btn-primary btn-small">Talk to Nox</a>
+                    <a href="{{ url_for('trade_with_npc', npc_id='nox') }}" class="btn btn-secondary btn-small">Trade</a>
+                    <form method="POST" action="{{ url_for('fight_npc', npc_id='nox') }}" style="display: inline;">
+                        <button type="submit" class="btn btn-danger btn-small">Fight Nox</button>
                     </form>
                 </div>
             </div>
@@ -37,25 +37,25 @@
 
             {% if not game_state.flags.steve_met %}
             <div class="contact">
-                <h4>Steve the Supplier</h4>
-                <p>Steve has connections to high-quality suppliers. He can get you better deals on bulk purchases.</p>
+                <h4>Raze the Supplier</h4>
+                <p>Raze has connections to high-quality suppliers. He can get you better deals on bulk purchases.</p>
                 <p><strong>Status:</strong> Not met yet</p>
                 <form action="{{ url_for('meet_contact') }}" method="post" class="contact-form">
-                    <input type="hidden" name="contact" value="steve">
-                    <button type="submit" class="btn btn-success btn-small">Meet Steve</button>
+                    <input type="hidden" name="contact" value="raze">
+                    <button type="submit" class="btn btn-success btn-small">Meet Raze</button>
                 </form>
             </div>
             {% else %}
             <div class="contact">
-                <h4>Steve the Supplier</h4>
-                <p>Steve is your go-to guy for bulk deals. He's standing by the back door, looking intimidating.</p>
+                <h4>Raze the Supplier</h4>
+                <p>Raze is your go-to guy for bulk deals. He's standing by the back door, looking intimidating.</p>
                 <p><strong>Status:</strong> Contact established</p>
                 <div class="contact-actions">
-                    <a href="{{ url_for('talk_to_npc', npc_id='steve_special') }}" class="btn btn-primary btn-small">Talk to Steve</a>
-                    <a href="{{ url_for('trade_with_npc', npc_id='steve_special') }}" class="btn btn-secondary btn-small">Trade</a>
+                    <a href="{{ url_for('talk_to_npc', npc_id='raze') }}" class="btn btn-primary btn-small">Talk to Raze</a>
+                    <a href="{{ url_for('trade_with_npc', npc_id='raze') }}" class="btn btn-secondary btn-small">Trade</a>
                     <a href="{{ url_for('closet') }}" class="btn btn-warning btn-small">Visit Closet</a>
-                    <form method="POST" action="{{ url_for('fight_npc', npc_id='steve_special') }}" style="display: inline;">
-                        <button type="submit" class="btn btn-danger btn-small">Fight Steve</button>
+                    <form method="POST" action="{{ url_for('fight_npc', npc_id='raze') }}" style="display: inline;">
+                        <button type="submit" class="btn btn-danger btn-small">Fight Raze</button>
                     </form>
                 </div>
             </div>
@@ -92,14 +92,27 @@
         <a href="{{ url_for('city') }}" class="btn btn-primary">Back to City</a>
     </div>
 
-    <div id="player-list"></div>
+    <div class="chat-pvp-container">
+        <div class="chat-section">
+            <h4>Bar Chat</h4>
+            <div id="chat-messages" class="chat-messages"></div>
+            <div class="chat-input">
+                <input type="text" id="chat-input" placeholder="Type your message..." maxlength="200">
+                <button id="send-chat" class="btn btn-primary btn-small">Send</button>
+            </div>
+        </div>
 
-    <div class="chat-section">
-        <h4>Chat with other players</h4>
-        <div id="chat-messages" class="chat-messages"></div>
-        <div class="chat-input">
-            <input type="text" id="chat-input" placeholder="Type a message..." maxlength="200">
-            <button id="send-chat" class="btn btn-secondary">Send</button>
+        <!-- Chat Users Section -->
+        <div class="pvp-section">
+            <h3>👥 Chat Users</h3>
+            <div id="pvp-player-list" class="pvp-player-list">
+                <p>Loading users...</p>
+            </div>
+            <div id="player-list"></div>
+            <div class="pvp-actions">
+                <button onclick="refreshPlayerList()" class="btn btn-secondary btn-small">Refresh Users</button>
+            </div>
         </div>
     </div>
+</div>
 {% endblock %}

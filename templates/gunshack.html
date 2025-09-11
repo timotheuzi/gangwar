@@ -49,6 +49,17 @@
                 <button type="submit" class="btn btn-primary">Buy Grenade</button>
             </form>
         </div>
+
+        <div class="weapon-item">
+            <h4>Vampire Bat</h4>
+            <p>Price: $2,500</p>
+            <p>You have: {{ game_state.weapons.vampire_bat }}</p>
+            <form method="POST" action="{{ url_for('buy_weapon') }}" class="inline-form">
+                <input type="hidden" name="weapon_type" value="vampire_bat">
+                <input type="hidden" name="quantity" value="1">
+                <button type="submit" class="btn btn-primary">Buy Vampire Bat</button>
+            </form>
+        </div>
         
         <div class="weapon-item">
             <h4>Missile Launcher</h4>
@@ -103,14 +114,26 @@
         <a href="{{ url_for('city') }}" class="btn btn-primary">Back to City</a>
     </div>
 
-    <div id="player-list"></div>
+    <div class="chat-pvp-container">
+        <div class="chat-section">
+            <h4>Gun Shack Chat</h4>
+            <div id="chat-messages" class="chat-messages"></div>
+            <div class="chat-input">
+                <input type="text" id="chat-input" placeholder="Type your message..." maxlength="200">
+                <button id="send-chat" class="btn btn-primary btn-small">Send</button>
+            </div>
+        </div>
 
-    <div class="chat-section">
-        <h4>Chat with other players</h4>
-        <div id="chat-messages" class="chat-messages"></div>
-        <div class="chat-input">
-            <input type="text" id="chat-input" placeholder="Type a message..." maxlength="200">
-            <button type="button" id="send-chat" class="btn btn-secondary">Send</button>
+        <!-- Chat Users Section -->
+        <div class="pvp-section">
+            <h3>👥 Chat Users</h3>
+            <div id="pvp-player-list" class="pvp-player-list">
+                <p>Loading users...</p>
+            </div>
+            <div id="player-list"></div>
+            <div class="pvp-actions">
+                <button onclick="refreshPlayerList()" class="btn btn-secondary btn-small">Refresh Users</button>
+            </div>
         </div>
     </div>
 </div>

@@ -33,25 +33,26 @@ class Config:
 
     # Price ranges
     DRUG_PRICE_RANGES = {
-        'weed': (50, 270),
+        'weed': (50, 370),
         'crack': (300, 4500),
-        'coke': (5000, 15000),
-        'ice': (2000, 9000),
-        'percs': (10000, 40000),
-        'pixie_dust': (50000, 150000)
+        'coke': (8000, 17000),
+        'ice': (2000, 7000),
+        'percs': (10000, 30000),
+        'pixie_dust': (50000, 170000)
     }
 
     # Weapon prices
     WEAPON_PRICES = {
         'pistol': 1200,
         'bullets': 100,  # 50-pack
-        'uzi': 100000,
+        'uzi': 10000,
         'grenade': 1000,
-        'missile_launcher': 1000000,
-        'missile': 100000,
-        'vest_light': 30000,
-        'vest_medium': 55000,
-        'vest_heavy': 75000
+        'missile_launcher': 100000,
+        'missile': 1000,
+        'vest_light': 3000,
+        'vest_medium': 5500,
+        'vest_heavy': 7500,
+        'vampire_bat': 2500
     }
 
 
@@ -93,6 +94,7 @@ class WeaponInventory:
     missile_launcher: int = 0
     vest: int = 0
     knife: int = 1
+    vampire_bat: int = 0
 
     def has_weapons(self) -> bool:
         return self.pistols > 0 or self.uzis > 0 or self.knife > 0
@@ -299,6 +301,13 @@ class GameLogic:
                 f"{attacker} stabs wildly, {defender}'s chest cavity opening up like a bloody flower!",
                 f"{defender}'s screams as {attacker} carves deep gashes, blood pooling beneath their feet!",
                 f"The knife finds {defender}'s femoral artery, blood pumping out in rhythmic spurts!"
+            ],
+            'vampire_bat': [
+                f"{attacker} swings the barbed baseball bat, {defender}'s skull cracking like a walnut in a vice!",
+                f"The razor-sharp barbs tear through {defender}'s flesh, blood spraying in crimson arcs!",
+                f"{attacker} brings the bat down hard, {defender}'s ribs shattering with a sickening crunch!",
+                f"The vampire bat's barbs catch {defender}'s arm, ripping muscle and tendon in a bloody mess!",
+                f"{attacker} smashes the bat into {defender}'s knee, bone fragments exploding outward!"
             ]
         }
 
@@ -385,6 +394,11 @@ class GameLogic:
                 return 0.0
             weapon_power = game_state.weapons.knife * 2  # Knives are weaker
             reliability = 0.65  # 65% reliability (more risky)
+        elif weapon_type == 'vampire_bat':
+            if game_state.weapons.vampire_bat <= 0:
+                return 0.0
+            weapon_power = game_state.weapons.vampire_bat * 3  # Medium power, between knife and pistol
+            reliability = 0.75  # 75% reliability (good but not great)
         else:
             return 0.0
 
@@ -453,6 +467,16 @@ class GameLogic:
                 'special': 'No ammo required'
             }
 
+        if game_state.weapons.vampire_bat > 0:
+            win_prob = self.calculate_win_probability(game_state, 'vampire_bat')
+            options['vampire_bat'] = {
+                'name': 'Vampire Bat',
+                'win_probability': win_prob,
+                'description': f"Barbed baseball bat, brutal melee weapon. {win_prob:.0%} chance to win.",
+                'damage_range': '2-6',
+                'special': 'No ammo required, high damage potential'
+            }
+
         return options
 
 
@@ -505,11 +529,17 @@ def bank():
     game_state = get_game_state()
     if not game_state:
         return redirect(url_for('index'))
+    # Update current location for SocketIO room
+    game_state.current_location = "bank"
+    session['game_state'] = asdict(game_state)
     return render_template('bank.html', game_state=game_state)
 
 @app.route('/bar')
 def bar():
     game_state = get_game_state()
+    # Update current location for SocketIO room
+    game_state.current_location = "bar"
+    session['game_state'] = asdict(game_state)
     return render_template('bar.html', game_state=game_state)
 
 def get_current_room(room_id: str) -> Room:
@@ -546,7 +576,7 @@ def get_current_room(room_id: str) -> Room:
             description='This looks like it used to be a drug dealing spot. Old mattresses and discarded needles litter the ground. The air smells strongly of chemicals and decay.',
             exits={'southwest': 'alley_fork', 'north': 'crack_house_entrance'},
             has_encounter=True,
-            encounter_chance=35
+            encounter_chance=45
         ),
         'crack_house_entrance': Room(
             id='crack_house_entrance',
@@ -554,7 +584,7 @@ def get_current_room(room_id: str) -> Room:
             description='You\'ve found the entrance to an old crack house. The windows are boarded up and the door hangs off its hinges. Strange sounds come from inside.',
             exits={'south': 'drug_den', 'inside': 'crack_house_interior'},
             has_encounter=True,
-            encounter_chance=40
+            encounter_chance=55
         ),
         'crack_house_interior': Room(
             id='crack_house_interior',
@@ -807,16 +837,25 @@ def move_room(direction):
 @app.route('/crackhouse')
 def crackhouse():
     game_state = get_game_state()
+    # Update current location for SocketIO room
+    game_state.current_location = "crackhouse"
+    session['game_state'] = asdict(game_state)
     return render_template('crackhouse.html', game_state=game_state)
 
 @app.route('/gunshack')
 def gunshack():
     game_state = get_game_state()
+    # Update current location for SocketIO room
+    game_state.current_location = "gunshack"
+    session['game_state'] = asdict(game_state)
     return render_template('gunshack.html', game_state=game_state)
 
 @app.route('/picknsave')
 def picknsave():
     game_state = get_game_state()
+    # Update current location for SocketIO room
+    game_state.current_location = "picknsave"
+    session['game_state'] = asdict(game_state)
     return render_template('picknsave.html', game_state=game_state)
 
 @app.route('/infobooth')
@@ -1179,13 +1218,13 @@ def wander():
             # Redirect to a different encounter if not powerful enough
             return redirect(url_for('encounter'))
 
-    elif rand < 0.6:  # 10% - Meet NPC
+    elif rand < 0.65:  # 15% - Meet NPC (increased from 10%)
         # Include both old and new NPCs
-        npcs = ['eric', 'steve', 'dealer', 'informant', 'scarface', 'big_mama', 'slick_vic', 'mad_dog', 'shadow']
+        npcs = ['nox', 'raze', 'void', 'whisper', 'scarface', 'big_mama', 'slick_vic', 'mad_dog', 'shadow', 'blade_master', 'cyber_punk', 'witch_doctor', 'demolition_man', 'ghost_rider']
         npc = random.choice(npcs)
         return redirect(url_for('npc_interaction', npc=npc))
 
-    elif rand < 0.7:  # 10% - Find weapon
+    elif rand < 0.75:  # 10% - Find weapon
         weapons = ['pistol', 'bullets', 'grenade']
         weapon = random.choice(weapons)
         if weapon == 'pistol':
@@ -1273,6 +1312,8 @@ def buy_weapon():
             game_state.weapons.vest += 10 * quantity
         elif weapon_type == 'vest_heavy':
             game_state.weapons.vest += 15 * quantity
+        elif weapon_type == 'vampire_bat':
+            game_state.weapons.vampire_bat += quantity
 
     session['game_state'] = asdict(game_state)
     return redirect(url_for('gunshack'))
@@ -1444,10 +1485,10 @@ def talk_to_npc(npc_id):
     else:
         # Legacy NPC dialogue system
         dialogues = {
-            'eric': "Eric says: 'Hey, I got some good info for you. The Squidies are planning something big.'",
-            'steve': "Steve says: 'Word on the street is the cops are cracking down hard. Watch your back.'",
-            'dealer': "Dealer says: 'Got some premium stuff if you're interested. Best prices in town.'",
-            'informant': "Informant whispers: 'I heard the Squidies got a new shipment coming in. Big money involved.'"
+            'nox': "Nox says: 'Hey, I got some good info for you. The Squidies are planning something big.'",
+            'raze': "Raze says: 'Word on the street is the cops are cracking down hard. Watch your back.'",
+            'void': "Void says: 'Got some premium stuff if you're interested. Best prices in town.'",
+            'whisper': "Whisper whispers: 'I heard the Squidies got a new shipment coming in. Big money involved.'"
         }
         dialogue = dialogues.get(npc_id, f"{npc_id.title()} says: 'Not much to say right now.'")
         npc_data = {'id': npc_id, 'name': npc_id.title(), 'dialogue': dialogue}
@@ -1582,12 +1623,12 @@ def meet_contact():
         return redirect(url_for('index'))
 
     contact = request.form.get('contact')
-    if contact == 'eric':
+    if contact == 'nox':
         game_state.flags.eric_met = True
-        result = "You meet Eric! He gives you some useful information about the streets."
-    elif contact == 'steve':
+        result = "You meet Nox! He gives you some useful information about the streets."
+    elif contact == 'raze':
         game_state.flags.steve_met = True
-        result = "You meet Steve! He offers to show you his special closet."
+        result = "You meet Raze! He offers to show you his special closet."
     else:
         result = "You meet someone, but they're not very helpful."
 
@@ -2297,6 +2338,92 @@ NPCS = {
         sells_drugs=False,  # Doesn't sell drugs
         drug_price_modifier=1.0,
         robbery_chance=0.25  # 25% chance to rob
+    ),
+
+    # Additional 5 new NPCs with random attributes
+    'blade_master': NPC(
+        id='blade_master',
+        name='Blade Master Chen',
+        description='A legendary knife fighter from the East, his blade work is poetry in motion. He claims to have studied under ancient masters.',
+        dialogue='"My blade sings the song of death. Will you dance with me, or shall I play a solo?"',
+        health=18,
+        damage_range=(6, 12),
+        win_probability=0.75,
+        reward_money=(300, 600),
+        recruit_chance=0.7,
+        recruit_amount=(2, 5),
+        special_ability="precision",
+        sells_drugs=False,
+        drug_price_modifier=1.0,
+        robbery_chance=0.1
+    ),
+
+    'cyber_punk': NPC(
+        id='cyber_punk',
+        name='Cyber Punk Zero',
+        description='A heavily augmented street samurai with glowing cybernetic implants and a attitude to match. Tech meets toughness.',
+        dialogue='"01010111 01101000 01100001 01110100 00100111 01110011 00100000 01111001 01101111 01110101 01110010 00100000 01110000 01110010 01101111 01100010 01101100 01100101 01101101 00111111"',
+        health=22,
+        damage_range=(7, 14),
+        win_probability=0.8,
+        reward_money=(400, 800),
+        recruit_chance=0.6,
+        recruit_amount=(1, 4),
+        special_ability="hacking",
+        sells_drugs=True,
+        drug_price_modifier=0.9,
+        robbery_chance=0.05
+    ),
+
+    'witch_doctor': NPC(
+        id='witch_doctor',
+        name='Mama Voodoo',
+        description='A mysterious shaman with tribal tattoos and pouches of strange herbs. Her eyes seem to pierce your soul.',
+        dialogue='"The spirits whisper your name to me. They say you carry great darkness... but also great potential."',
+        health=14,
+        damage_range=(3, 9),
+        win_probability=0.6,
+        reward_money=(200, 350),
+        recruit_chance=0.5,
+        recruit_amount=(1, 3),
+        special_ability="healing",
+        sells_drugs=True,
+        drug_price_modifier=1.2,
+        robbery_chance=0.15
+    ),
+
+    'demolition_man': NPC(
+        id='demolition_man',
+        name='Boomer Kowalski',
+        description='A grizzled explosives expert with burn scars and a collection of questionable fireworks. He smells like gunpowder.',
+        dialogue='"Everything\'s got a weak point, kid. You just gotta know where to poke it with enough boom!"',
+        health=20,
+        damage_range=(5, 11),
+        win_probability=0.7,
+        reward_money=(250, 500),
+        recruit_chance=0.4,
+        recruit_amount=(1, 3),
+        special_ability="explosives",
+        sells_drugs=False,
+        drug_price_modifier=1.0,
+        robbery_chance=0.3
+    ),
+
+    'ghost_rider': NPC(
+        id='ghost_rider',
+        name='Phantom Rider',
+        description='A spectral figure on a modified motorcycle, appearing and disappearing like smoke. No one knows where he came from.',
+        dialogue='"The road calls to those with nowhere else to go. You hear it too, don\'t you?"',
+        health=16,
+        damage_range=(4, 10),
+        win_probability=0.65,
+        reward_money=(180, 400),
+        recruit_chance=0.45,
+        recruit_amount=(1, 2),
+        special_ability="speed",
+        sells_drugs=True,
+        drug_price_modifier=1.1,
+        robbery_chance=0.2
     )
 }
 
