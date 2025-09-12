@@ -2,6 +2,8 @@ import os
 import random
 import secrets
 import sys
+import time
+import threading
 from dataclasses import dataclass, asdict, field
 from typing import Dict, List, Optional, Tuple
 
@@ -3123,15 +3125,19 @@ if socketio:
                 'knife': 1  # Everyone has a knife
             },
             'in_fight': False,
-            'flask_session_id': session.get('game_state') is not None  # Track if they have an active game
+            'flask_session_id': session.get('game_state') is not None,  # Track if they have an active game
+            'last_activity': time.time()  # Track last activity timestamp
         }
 
+        # Update activity timestamp for the joining player
+        players_in_rooms[room][player_id]['last_activity'] = time.time()
+
         # Notify room of player join
-        emit('status', {'msg': f'{player_name} joined {room}'}, room=room, skip_sid=request.sid)
+        socketio.emit('status', {'msg': f'{player_name} joined {room}'}, room=room, skip_sid=request.sid)
 
         # Send updated player list to all players in the room
         player_list = list(players_in_rooms[room].keys())
-        emit('player_list', {'players': player_list}, room=room)
+        socketio.emit('player_list', {'players': player_list}, room=room)
 
     @socketio.on('leave')
     def handle_leave(data):
@@ -3146,8 +3152,8 @@ if socketio:
             if not players_in_rooms[room]:
                 del players_in_rooms[room]
 
-            emit('status', {'msg': f'{player_name} left {room}'}, room=room)
-            emit('player_list', {'players': list(players_in_rooms.get(room, {}).keys())}, room=room)
+            socketio.emit('status', {'msg': f'{player_name} left {room}'}, room=room)
+            socketio.emit('player_list', {'players': list(players_in_rooms.get(room, {}).keys())}, room=room)
 
         leave_room(room)
 
@@ -3156,24 +3162,82 @@ if socketio:
         room = data['room']
         player_name = data.get('player_name', 'Unknown')
         message = data['message']
+
+        # Update last activity for the player who sent the message
+        player_id = request.sid
+        if room in players_in_rooms and player_id in players_in_rooms[room]:
+            players_in_rooms[room][player_id]['last_activity'] = time.time()
+
         # Emit globally to all connected clients instead of just the room
-        emit('chat_message', {'player': player_name, 'message': message, 'room': room}, broadcast=True)
+        socketio.emit('chat_message', {'player': player_name, 'message': message, 'room': room}, broadcast=True)
+
+    def cleanup_inactive_players():
+        """Remove players who haven't been active for 5 minutes"""
+        current_time = time.time()
+        inactive_threshold = 5 * 60  # 5 minutes in seconds
+
+        # Clean up inactive players across all rooms
+        rooms_to_remove = []
+        for room_name, room_players in players_in_rooms.items():
+            players_to_remove = []
+            for player_id, player_data in room_players.items():
+                last_activity = player_data.get('last_activity', current_time)
+                if current_time - last_activity > inactive_threshold:
+                    players_to_remove.append(player_id)
+
+            # Remove inactive players from this room
+            for player_id in players_to_remove:
+                del room_players[player_id]
+                print(f"Removed inactive player {player_id} from room {room_name}")
+
+            # If room is empty, mark it for removal
+            if not room_players:
+                rooms_to_remove.append(room_name)
+
+        # Remove empty rooms
+        for room_name in rooms_to_remove:
+            del players_in_rooms[room_name]
+            print(f"Removed empty room {room_name}")
+
+        # Schedule next cleanup in 60 seconds
+        threading.Timer(60.0, cleanup_inactive_players).start()
+
+    # Start the cleanup timer when the app starts
+    if socketio:
+        threading.Timer(60.0, cleanup_inactive_players).start()
 
     @socketio.on('get_player_list')
     def handle_get_player_list(data):
         room = data.get('room', 'city')
-        # Get all players globally across all rooms
-        all_players = []
-        for room_name, room_players in players_in_rooms.items():
-            for player_id, player_data in room_players.items():
-                if player_id != request.sid:  # Don't include self
+        current_time = time.time()
+        inactive_threshold = 5 * 60  # 5 minutes in seconds
+
+        # Update activity timestamp for the player requesting the list
+        player_id = request.sid
+        if room in players_in_rooms and player_id in players_in_rooms[room]:
+            players_in_rooms[room][player_id]['last_activity'] = current_time
+
+    # Get all players globally across all rooms, filtering out inactive and unknown players
+    all_players = []
+    for room_name, room_players in players_in_rooms.items():
+        for player_id, player_data in room_players.items():
+            if player_id != request.sid:  # Don't include self
+                # Check if player has been active within the last 5 minutes
+                last_activity = player_data.get('last_activity', current_time)
+                player_name = player_data['name']
+                # Filter out unknown/invalid players
+                if (current_time - last_activity <= inactive_threshold and
+                    player_name and
+                    player_name != 'Unknown Player' and
+                    player_name != 'Unknown' and
+                    not player_name.startswith('Player ')):
                     all_players.append({
                         'id': player_id,
-                        'name': player_data['name'],
+                        'name': player_name,
                         'in_fight': player_data.get('in_fight', False),
                         'room': room_name  # Include room info
                     })
-        emit('player_list', {'players': all_players})
+    socketio.emit('player_list', {'players': all_players})
 
     @socketio.on('pvp_challenge')
     def handle_pvp_challenge(data):
@@ -3193,31 +3257,31 @@ if socketio:
         ]
 
         if room not in alleyway_rooms:
-            emit('pvp_response', {'success': False, 'message': 'PVP combat is only allowed in the dark alleyway!'})
+            socketio.emit('pvp_response', {'success': False, 'message': 'PVP combat is only allowed in the dark alleyway!'})
             return
 
         if (room not in players_in_rooms or
             challenger_id not in players_in_rooms[room] or
             target_id not in players_in_rooms[room]):
-            emit('pvp_response', {'success': False, 'message': 'Player not found in room'})
+            socketio.emit('pvp_response', {'success': False, 'message': 'Player not found in room'})
             return
 
         challenger = players_in_rooms[room][challenger_id]
         target = players_in_rooms[room][target_id]
 
         if challenger['in_fight'] or target['in_fight']:
-            emit('pvp_response', {'success': False, 'message': 'One or both players are already in a fight'})
+            socketio.emit('pvp_response', {'success': False, 'message': 'One or both players are already in a fight'})
             return
 
         # Send challenge to target
-        emit('pvp_challenge_received', {
+        socketio.emit('pvp_challenge_received', {
             'challenger_id': challenger_id,
             'challenger_name': challenger['name'],
             'message': f'{challenger["name"]} challenges you to a fight!'
         }, room=room, skip_sid=challenger['sid'])
 
         # Confirm to challenger
-        emit('pvp_response', {'success': True, 'message': f'Challenge sent to {target["name"]}'})
+        socketio.emit('pvp_response', {'success': True, 'message': f'Challenge sent to {target["name"]}'})
 
     @socketio.on('pvp_accept')
     def handle_pvp_accept(data):
@@ -3253,13 +3317,13 @@ if socketio:
         active_pvp_fights[room] = fight_data
 
         # Announce fight start
-        emit('pvp_fight_start', {
+        socketio.emit('pvp_fight_start', {
             'message': f'⚔️ FIGHT START: {challenger["name"]} vs {accepter["name"]} ⚔️',
             'fight_data': fight_data
         }, room=room)
 
         # Start first turn
-        emit('pvp_turn_start', {
+        socketio.emit('pvp_turn_start', {
             'current_player': challenger_id,
             'message': f"{challenger['name']}'s turn! Choose your action."
         }, room=room)
@@ -3278,7 +3342,7 @@ if socketio:
 
         # Verify it's the player's turn
         if fight['current_turn'] != player_id:
-            emit('pvp_response', {'success': False, 'message': 'Not your turn!'})
+            socketio.emit('pvp_response', {'success': False, 'message': 'Not your turn!'})
             return
 
         current_player = fight['player1'] if player_id == fight['player1']['id'] else fight['player2']
@@ -3322,7 +3386,7 @@ if socketio:
                         session.pop('game_state', None)
 
                     # Emit defeat message to loser - redirect to defeat page like final battle
-                    emit('game_over', {
+                    socketio.emit('game_over', {
                         'message': f'💀 You have been defeated by {winner["name"]}! Your gang has been wiped out. 💀',
                         'redirect_url': url_for('defeat')
                     }, room=loser['sid'])
@@ -3333,7 +3397,7 @@ if socketio:
                 # Emit victory message to chat
                 emit_fight_message(room, victory_message, winner['name'])
 
-                emit('pvp_fight_end', {
+                socketio.emit('pvp_fight_end', {
                     'winner': winner['name'],
                     'loser': loser['name'],
                     'message': victory_message,
@@ -3353,7 +3417,7 @@ if socketio:
         fight['turn_count'] += 1
 
         # Broadcast turn result and next turn
-        emit('pvp_turn_result', {
+        socketio.emit('pvp_turn_result', {
             'message': message,
             'fight_log': fight['fight_log'],
             'next_player': opponent['id'],

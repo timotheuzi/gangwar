@@ -20,18 +20,18 @@ cp run.sh dist/ 2>/dev/null || echo "run.sh not found"
 
 # Clean previous build
 echo "Cleaning previous build..."
-rm -rf build dist/pimpin dist/pimpin.exe
+rm -rf build dist/gangwar dist/gangwar.exe
 
 # Build the application
 echo "Building application with PyInstaller..."
-pyinstaller --clean pimpin.spec
+pyinstaller --clean gangwar.spec
 
 # Generate environment variables file
 echo "Generating environment variables file..."
 python generate_env.py
 
 # Check if build was successful
-if [ -f "dist/pimpin" ] || [ -f "dist/pimpin.exe" ]; then
+if [ -f "dist/gangwar" ] || [ -f "dist/gangwar.exe" ]; then
     echo "Build successful! Files created in dist/ directory:"
     ls -la dist/
     echo ""
