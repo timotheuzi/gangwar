@@ -33,17 +33,17 @@ class Config:
 
     # Price ranges
     DRUG_PRICE_RANGES = {
-        'weed': (50, 370),
-        'crack': (300, 4500),
+        'weed': (50, 470),
+        'crack': (300, 5500),
         'coke': (8000, 17000),
-        'ice': (2000, 7000),
-        'percs': (10000, 30000),
+        'ice': (1000, 8000),
+        'percs': (10000, 20000),
         'pixie_dust': (50000, 170000)
     }
 
     # Weapon prices
     WEAPON_PRICES = {
-        'pistol': 1200,
+        'pistol': 5000,  # More expensive than ghost gun - better damage and speed
         'bullets': 100,  # 50-pack
         'uzi': 10000,
         'grenade': 1000,
@@ -52,7 +52,8 @@ class Config:
         'vest_light': 3000,
         'vest_medium': 5500,
         'vest_heavy': 7500,
-        'vampire_bat': 2500
+        'vampire_bat': 2500,
+        'ghost_gun': 1200  # 3D printed gun - cheap but unreliable
     }
 
 
@@ -95,6 +96,7 @@ class WeaponInventory:
     vest: int = 0
     knife: int = 1
     vampire_bat: int = 0
+    ghost_guns: int = 0
 
     def has_weapons(self) -> bool:
         return self.pistols > 0 or self.uzis > 0 or self.knife > 0
@@ -198,13 +200,22 @@ class GameState:
     discovery_type: str = ""
 
     def __post_init__(self):
-        if not self.drug_prices:
-            self.randomize_prices()
+        global current_drug_prices
+        if not current_drug_prices:
+            self.initialize_global_prices()
+        self.drug_prices = current_drug_prices
+
+    def initialize_global_prices(self):
+        """Initialize global drug prices"""
+        global current_drug_prices
+        for drug, (min_price, max_price) in Config.DRUG_PRICE_RANGES.items():
+            current_drug_prices[drug] = random.randint(min_price, max_price)
 
     def randomize_prices(self):
-        """Randomize drug prices for the day"""
+        """Randomize drug prices for the day (global)"""
+        global current_drug_prices
         for drug, (min_price, max_price) in Config.DRUG_PRICE_RANGES.items():
-            self.drug_prices[drug] = random.randint(min_price, max_price)
+            current_drug_prices[drug] = random.randint(min_price, max_price)
 
     def can_afford(self, cost: int) -> bool:
         return self.money >= cost
@@ -414,7 +425,7 @@ class GameLogic:
         return base_chance * reliability
 
     def get_weapon_options(self, game_state: GameState) -> Dict[str, Dict[str, any]]:
-        """Get available weapon options with their probabilities"""
+        """Get available weapon options with their probabilities and speed info"""
         options = {}
 
         if game_state.weapons.can_fight_with_pistol():
@@ -424,7 +435,8 @@ class GameLogic:
                 'win_probability': win_prob,
                 'description': f"Powerful and reliable. {win_prob:.0%} chance to win.",
                 'damage_range': '2-8',
-                'special': 'Uses 1 bullet per fight'
+                'attacks_per_turn': 2,
+                'special': 'Uses 1 bullet per attack'
             }
 
         if game_state.weapons.uzis > 0 and game_state.weapons.bullets > 0:
@@ -434,7 +446,8 @@ class GameLogic:
                 'win_probability': win_prob,
                 'description': f"Very powerful automatic weapon. {win_prob:.0%} chance to win.",
                 'damage_range': '3-12',
-                'special': 'Uses 2 bullets per fight'
+                'attacks_per_turn': 4,
+                'special': 'Uses 2 bullets per attack'
             }
 
         if game_state.weapons.grenades > 0:
@@ -444,6 +457,7 @@ class GameLogic:
                 'win_probability': win_prob,
                 'description': f"Area effect explosive. {win_prob:.0%} chance to win.",
                 'damage_range': '5-20',
+                'attacks_per_turn': 1,
                 'special': 'Destroys enemy group'
             }
 
@@ -454,6 +468,7 @@ class GameLogic:
                 'win_probability': win_prob,
                 'description': f"Devastating long-range weapon. {win_prob:.0%} chance to win.",
                 'damage_range': '10-50',
+                'attacks_per_turn': 1,
                 'special': 'High damage, low ammo'
             }
 
@@ -464,6 +479,7 @@ class GameLogic:
                 'win_probability': win_prob,
                 'description': f"Melee weapon, risky but silent. {win_prob:.0%} chance to win.",
                 'damage_range': '1-5',
+                'attacks_per_turn': 3,
                 'special': 'No ammo required'
             }
 
@@ -474,7 +490,19 @@ class GameLogic:
                 'win_probability': win_prob,
                 'description': f"Barbed baseball bat, brutal melee weapon. {win_prob:.0%} chance to win.",
                 'damage_range': '2-6',
+                'attacks_per_turn': 2,
                 'special': 'No ammo required, high damage potential'
+            }
+
+        if game_state.weapons.ghost_guns > 0 and game_state.weapons.bullets > 0:
+            win_prob = self.calculate_win_probability(game_state, 'ghost_gun')
+            options['ghost_gun'] = {
+                'name': 'Ghost Gun',
+                'win_probability': win_prob,
+                'description': f"3D printed firearm, cheap but unreliable. {win_prob:.0%} chance to win.",
+                'damage_range': '1-6',
+                'attacks_per_turn': 1,
+                'special': 'Uses 1 bullet per attack, may jam'
             }
 
         return options
@@ -1039,28 +1067,102 @@ def start_war():
     if not game_state:
         return redirect(url_for('index'))
 
-    # Calculate battle outcome based on forces
-    player_power = (game_state.members * 10 +
-                   game_state.weapons.pistols * 5 +
-                   game_state.weapons.uzis * 15 +
-                   game_state.weapons.grenades * 20 +
-                   game_state.weapons.missiles * 50)
+    # Detailed gang war combat simulation
+    import random
 
-    enemy_power = (game_state.squidies * 8 +
-                  game_state.squidies_pistols * 4 +
-                  game_state.squidies_uzis * 12 +
-                  game_state.squidies_grenades * 18 +
-                  game_state.squidies_missiles * 45)
+    # Player gang setup
+    player_members = game_state.members
+    player_weapons = {
+        'pistols': game_state.weapons.pistols,
+        'uzis': game_state.weapons.uzis,
+        'grenades': game_state.weapons.grenades,
+        'missile_launchers': game_state.weapons.missile_launcher,
+        'missiles': game_state.weapons.missiles,
+        'bullets': game_state.weapons.bullets
+    }
 
-    # Add some randomness
-    player_power *= (0.8 + random.random() * 0.4)  # 80-120% variation
-    enemy_power *= (0.8 + random.random() * 0.4)   # 80-120% variation
+    # Enemy gang setup (Squidies)
+    enemy_members = game_state.squidies
+    enemy_weapons = {
+        'pistols': game_state.squidies_pistols,
+        'uzis': game_state.squidies_uzis,
+        'grenades': game_state.squidies_grenades,
+        'missile_launchers': game_state.squidies_missile_launcher,
+        'missiles': game_state.squidies_missiles,
+        'bullets': game_state.squidies_bullets
+    }
 
-    if player_power > enemy_power:
-        # Player wins
+    # Simulate detailed gang war combat
+    combat_log = []
+    combat_log.append("🏴‍☠️ GANG WAR BEGINS! 🏴‍☠️")
+    combat_log.append(f"Your gang: {player_members} members")
+    combat_log.append(f"Squidie gang: {enemy_members} members")
+    combat_log.append("")
+
+    # Calculate total attacks per side
+    player_total_attacks = calculate_gang_attack_potential(player_members, player_weapons)
+    enemy_total_attacks = calculate_gang_attack_potential(enemy_members, enemy_weapons)
+
+    combat_log.append(f"⚔️ Your gang can unleash {player_total_attacks} total attacks!")
+    combat_log.append(f"⚔️ Squidie gang can unleash {enemy_total_attacks} total attacks!")
+    combat_log.append("")
+
+    # Simulate combat rounds
+    player_damage_dealt = 0
+    enemy_damage_dealt = 0
+    round_num = 1
+
+    # Continue until one side is defeated or max rounds reached
+    while player_members > 0 and enemy_members > 0 and round_num <= 10:
+        combat_log.append(f"🗡️ ROUND {round_num} 🗡️")
+
+        # Player gang attacks
+        round_player_damage = simulate_gang_round_attacks(
+            "Your gang", player_members, player_weapons, combat_log
+        )
+        player_damage_dealt += round_player_damage
+
+        # Enemy gang attacks (if still alive)
+        if enemy_members > 0:
+            round_enemy_damage = simulate_gang_round_attacks(
+                "Squidie gang", enemy_members, enemy_weapons, combat_log
+            )
+            enemy_damage_dealt += round_enemy_damage
+
+            # Calculate member losses based on damage
+            player_losses = min(player_members, round_enemy_damage // 15)  # Each 15 damage kills ~1 member
+            enemy_losses = min(enemy_members, round_player_damage // 12)  # Enemy slightly tougher
+
+            if player_losses > 0:
+                player_members -= player_losses
+                combat_log.append(f"💀 Your gang loses {player_losses} member{'s' if player_losses > 1 else ''}! ({player_members} remaining)")
+
+            if enemy_losses > 0:
+                enemy_members -= enemy_losses
+                combat_log.append(f"💀 Squidie gang loses {enemy_losses} member{'s' if enemy_losses > 1 else ''}! ({enemy_members} remaining)")
+
+        combat_log.append("")
+        round_num += 1
+
+    # Determine winner
+    combat_log.append("🏴‍☠️ GANG WAR CONCLUSION 🏴‍☠️")
+
+    if player_members > enemy_members:
+        combat_log.append("🎉 VICTORY! Your gang has defeated the Squidies!")
+        combat_log.append(f"💰 Your gang looted the battlefield and gained experience!")
+        combat_log.append(f"📊 Final Score - Your gang: {player_members} | Squidies: {enemy_members}")
+
+        # Save combat log to session for display
+        session['gang_war_log'] = combat_log
+        session['game_state'] = asdict(game_state)
         return redirect(url_for('victory'))
     else:
-        # Player loses - game over
+        combat_log.append("💀 DEFEAT! The Squidies have overwhelmed your gang!")
+        combat_log.append(f"📊 Final Score - Your gang: {player_members} | Squidies: {enemy_members}")
+
+        # Save combat log to session for display
+        session['gang_war_log'] = combat_log
+        session['game_state'] = asdict(game_state)
         return redirect(url_for('defeat'))
 
 @app.route('/cop_chase')
@@ -1314,6 +1416,8 @@ def buy_weapon():
             game_state.weapons.vest += 15 * quantity
         elif weapon_type == 'vampire_bat':
             game_state.weapons.vampire_bat += quantity
+        elif weapon_type == 'ghost_gun':
+            game_state.weapons.ghost_guns += quantity
 
     session['game_state'] = asdict(game_state)
     return redirect(url_for('gunshack'))
@@ -1501,6 +1605,9 @@ def trade_with_npc(npc_id):
     if not game_state:
         return redirect(url_for('index'))
 
+    if npc_id in NPCS:
+        return redirect(url_for('npc_trade', npc=npc_id))
+
     if request.method == 'POST':
         # Simple trade - give player some drugs for money
         if game_state.money >= 100:
@@ -1525,6 +1632,19 @@ def fight_npc(npc_id):
     if npc_id in NPCS:
         npc = NPCS[npc_id]
 
+        # Calculate actual damage dealt (simulate swing-by-swing)
+        player_weapon = "pistol" if game_state.weapons.can_fight_with_pistol() else "knife"
+        player_damage = calculate_weapon_damage(player_weapon, game_state)
+        npc_damage = random.randint(npc.damage_range[0], npc.damage_range[1])
+
+        # Emit initial combat messages
+        emit_fight_message(game_state.current_location,
+                          f"⚔️ COMBAT: {game_state.player_name} vs {npc.name} begins!",
+                          "SYSTEM")
+        emit_fight_message(game_state.current_location,
+                          f"⚔️ {game_state.player_name} attacks {npc.name} for {player_damage} damage!",
+                          game_state.player_name)
+
         # Use NPC-specific win probability
         win_chance = random.random()
         if win_chance <= npc.win_probability:
@@ -1543,24 +1663,46 @@ def fight_npc(npc_id):
 
             session['game_state'] = asdict(game_state)
             npc_name = npc.name
+            emit_fight_message(game_state.current_location,
+                              f"💀 {game_state.player_name} defeats {npc_name}! Victory! Looted ${reward}!",
+                              game_state.player_name)
             if recruited > 0:
                 result = f"You defeated {npc_name} and took ${reward} from them! {recruited} bystander(s) witnessed your victory and joined your gang!"
             else:
                 result = f"You defeated {npc_name} and took ${reward} from them!"
         else:
             # Player loses - use NPC's damage range
-            min_damage, max_damage = npc.damage_range
-            damage = random.randint(min_damage, max_damage)
-            died = game_state.take_damage(damage)
+            died = game_state.take_damage(npc_damage)
+            emit_fight_message(game_state.current_location,
+                              f"🔥 {npc.name} attacks {game_state.player_name} for {npc_damage} damage!",
+                              npc.name)
             if died:
+                emit_fight_message(game_state.current_location,
+                                  f"💀 {game_state.player_name} has been defeated by {npc.name}!",
+                                  "SYSTEM")
                 session['game_state'] = asdict(game_state)
                 return redirect(url_for('game_over'))
             session['game_state'] = asdict(game_state)
-            result = f"You lost the fight with {npc.name} and took {damage} damage!"
+            emit_fight_message(game_state.current_location,
+                              f"💀 {game_state.player_name} lost the fight with {npc.name}!",
+                              "SYSTEM")
+            result = f"You lost the fight with {npc.name} and took {npc_damage} damage!"
     else:
         # Legacy NPC fight logic
         win_chance = random.random()
+        player_weapon = "pistol" if game_state.weapons.can_fight_with_pistol() else "knife"
+        player_damage = calculate_weapon_damage(player_weapon, game_state)
+
+        # Emit combat start
+        emit_fight_message(game_state.current_location,
+                          f"⚔️ COMBAT: {game_state.player_name} vs {npc_id} begins!",
+                          "SYSTEM")
+
         if win_chance > 0.4:  # 60% win chance
+            emit_fight_message(game_state.current_location,
+                              f"⚔️ {game_state.player_name} attacks {npc_id} for {player_damage} damage!",
+                              game_state.player_name)
+
             reward = random.randint(100, 300)
             game_state.money += reward
 
@@ -1572,17 +1714,33 @@ def fight_npc(npc_id):
                 game_state.members += recruited
 
             session['game_state'] = asdict(game_state)
+            emit_fight_message(game_state.current_location,
+                              f"💀 {game_state.player_name} defeats {npc_id}! Victory! Looted ${reward}!",
+                              game_state.player_name)
             if recruited > 0:
                 result = f"You defeated {npc_id} and took ${reward} from them! {recruited} bystander(s) witnessed your victory and joined your gang!"
             else:
                 result = f"You defeated {npc_id} and took ${reward} from them!"
         else:
             damage = random.randint(1, 3)
+            emit_fight_message(game_state.current_location,
+                              f"⚔️ {game_state.player_name} attacks {npc_id} for {player_damage} damage!",
+                              game_state.player_name)
+            emit_fight_message(game_state.current_location,
+                              f"🔥 {npc_id} attacks {game_state.player_name} for {damage} damage!",
+                              npc_id)
+
             died = game_state.take_damage(damage)
             if died:
+                emit_fight_message(game_state.current_location,
+                                  f"💀 {game_state.player_name} has been defeated by {npc_id}!",
+                                  "SYSTEM")
                 session['game_state'] = asdict(game_state)
                 return redirect(url_for('game_over'))
             session['game_state'] = asdict(game_state)
+            emit_fight_message(game_state.current_location,
+                              f"💀 {game_state.player_name} lost the fight with {npc_id}!",
+                              "SYSTEM")
             result = f"You lost the fight with {npc_id} and took {damage} damage!"
 
     return render_template('wander_result.html', game_state=game_state, result=result)
@@ -1808,6 +1966,11 @@ def handle_encounter():
 
     if encounter_type == 'squidies':
         if action == 'fight':
+            # Emit combat start message to chat
+            emit_fight_message(game_state.current_location,
+                              f"⚔️ COMBAT: {game_state.player_name} encounters a Squidie Gang Member!",
+                              "SYSTEM")
+
             # Start detailed MUD-style combat
             combat_id = f"combat_{random.randint(1000, 9999)}"
             enemy_type = "Squidie Gang Member"
@@ -2022,6 +2185,7 @@ def process_fight_action():
     combat_id = request.form.get('combat_id')
     action = request.form.get('action')
     weapon = request.form.get('weapon', 'knife')
+    drug = request.args.get('drug')
 
     # Get combat state from session
     active_combat = session.get('active_combat', {})
@@ -2034,23 +2198,92 @@ def process_fight_action():
 
     import random
 
-    if action == 'attack':
-        # Player attacks
-        damage = calculate_weapon_damage(weapon, game_state)
-        enemy_health -= damage
+    if action == 'use_drug' and drug:
+        # Handle drug usage during combat
+        drug_effects = handle_combat_drug_usage(game_state, drug)
+        fight_log.append(drug_effects['message'])
+        emit_fight_message(game_state.current_location,
+                          f"💊 {game_state.player_name} {drug_effects['message']}",
+                          game_state.player_name)
 
-        # Generate gory attack description
-        attacker_name = "You"
-        defender_name = enemy_type
-        gory_description = GameLogic.get_gory_attack_description(attacker_name, defender_name, weapon, damage)
-        fight_log.append(f"⚔️ {gory_description}")
+        # Apply drug effects to player stats (temporary boost)
+        if 'damage_boost' in drug_effects:
+            # We'll handle this by modifying damage calculation temporarily
+            session['drug_boost'] = drug_effects
 
-        if enemy_health > 0:
-            fight_log.append(f"The {enemy_type} has {enemy_health} health remaining.")
-        else:
-            fight_log.append(f"The {enemy_type} collapses in a bloody heap!")
+        # Enemy gets a free attack while player is using drugs
+        enemy_damage = random.randint(1, 4)
+        died = game_state.take_damage(enemy_damage)
 
+        enemy_gory_description = GameLogic.get_gory_attack_description(enemy_type, game_state.player_name, "pistol", enemy_damage)
+        fight_log.append(f"🔥 {enemy_gory_description}")
+        emit_fight_message(game_state.current_location,
+                          f"🔥 {enemy_type} attacks {game_state.player_name} for {enemy_damage} damage! {enemy_gory_description}",
+                          enemy_type)
+
+        if died:
+            fight_log.append("💀 You have been defeated! 💀")
+            emit_fight_message(game_state.current_location,
+                              f"💀 {game_state.player_name} has been defeated by the {enemy_type}!",
+                              "SYSTEM")
+            session['game_state'] = asdict(game_state)
+            session.pop('active_combat', None)
+            return redirect(url_for('game_over'))
+
+        fight_log.append("What do you do next?")
+
+    elif action == 'attack':
+        # Get weapon options to determine attacks per turn
+        weapon_options = GameLogic().get_weapon_options(game_state)
+        attacks_per_turn = weapon_options.get(weapon, {}).get('attacks_per_turn', 1)
+
+        total_damage_dealt = 0
+        fight_log.append(f"⚔️ You unleash {attacks_per_turn} attack{'s' if attacks_per_turn > 1 else ''} with your {weapon}!")
+
+        # Perform multiple attacks based on weapon speed
+        for attack_num in range(1, attacks_per_turn + 1):
+            # Check if enemy is already defeated
+            if enemy_health <= 0:
+                break
+
+            # Calculate damage for this attack
+            damage = calculate_weapon_damage(weapon, game_state)
+            enemy_health -= damage
+            total_damage_dealt += damage
+
+            # Determine if this is a critical hit
+            is_critical = (damage > 0 and (
+                (weapon == "pistol" and damage >= 7) or
+                (weapon == "uzi" and damage >= 10) or
+                (weapon == "grenade" and damage >= 15) or
+                (weapon == "missile_launcher" and damage >= 40) or
+                (weapon == "knife" and damage >= 4) or
+                (weapon == "vampire_bat" and damage >= 5)
+            ))
+
+            # Generate gory attack description
+            attacker_name = game_state.player_name if game_state else "Player"
+            defender_name = enemy_type
+            gory_description = GameLogic.get_gory_attack_description(attacker_name, defender_name, weapon, damage)
+
+            if attacks_per_turn > 1:
+                fight_log.append(f"⚔️ Attack {attack_num}: {gory_description}")
+                emit_fight_message(game_state.current_location if game_state else "alleyway",
+                                  f"⚔️ Attack {attack_num}: {attacker_name} attacks {defender_name} for {damage} damage! {gory_description}",
+                                  attacker_name, "combat-hit")
+            else:
+                fight_log.append(f"⚔️ {gory_description}")
+                emit_fight_message(game_state.current_location if game_state else "alleyway",
+                                  f"⚔️ {attacker_name} attacks {defender_name} for {damage} damage! {gory_description}",
+                                  attacker_name, "combat-hit")
+
+        # Check if enemy is defeated after all attacks
         if enemy_health <= 0:
+            fight_log.append(f"The {enemy_type} collapses in a bloody heap!")
+            emit_fight_message(game_state.current_location if game_state else "alleyway",
+                              f"The {enemy_type} collapses in a bloody heap!",
+                              "SYSTEM", "combat-defeat")
+
             # Victory!
             fight_log.append(f"💀 You defeated the {enemy_type}!")
             reward = random.randint(100, 500)
@@ -2065,6 +2298,11 @@ def process_fight_action():
                 game_state.members += recruited
                 fight_log.append(f"{recruited} bystander(s) witness your victory and join your gang!")
 
+            # Emit victory message to chat
+            emit_fight_message(game_state.current_location if game_state else "alleyway",
+                              f"💀 {attacker_name} defeats the {enemy_type}! Victory! Looted ${reward}!",
+                              attacker_name, "combat-victory")
+
             # Clean up combat
             session.pop('active_combat', None)
             session['game_state'] = asdict(game_state)
@@ -2076,17 +2314,31 @@ def process_fight_action():
                                  enemy_health=0,
                                  enemy_type=enemy_type,
                                  enemy_count=1)
+        else:
+            # Enemy still alive - show remaining health
+            fight_log.append(f"The {enemy_type} has {enemy_health} health remaining.")
+            emit_fight_message(game_state.current_location if game_state else "alleyway",
+                              f"The {enemy_type} has {enemy_health} health remaining.",
+                              "SYSTEM", "combat-system")
 
         # Enemy counterattacks
         enemy_damage = random.randint(1, 4)
         died = game_state.take_damage(enemy_damage)
 
         # Generate gory enemy attack description
-        enemy_gory_description = GameLogic.get_gory_attack_description(enemy_type, "You", "pistol", enemy_damage)
+        enemy_gory_description = GameLogic.get_gory_attack_description(enemy_type, attacker_name, "pistol", enemy_damage)
         fight_log.append(f"🔥 {enemy_gory_description}")
+
+        # Emit enemy attack message to chat
+        emit_fight_message(game_state.current_location if game_state else "alleyway",
+                          f"🔥 {enemy_type} attacks {attacker_name} for {enemy_damage} damage! {enemy_gory_description}",
+                          enemy_type, "combat-hit")
 
         if died:
             fight_log.append("💀 You have been defeated! 💀")
+            emit_fight_message(game_state.current_location if game_state else "alleyway",
+                              f"💀 {attacker_name} has been defeated by the {enemy_type}!",
+                              "SYSTEM")
             session['game_state'] = asdict(game_state)
             session.pop('active_combat', None)
             return redirect(url_for('game_over'))
@@ -2149,6 +2401,106 @@ def process_fight_action():
                          enemy_type=enemy_type,
                          enemy_count=1)
 
+def handle_combat_drug_usage(game_state, drug_type):
+    """Handle drug usage during combat with various effects"""
+    import random
+
+    # Check if player has the drug
+    drug_amount = getattr(game_state.drugs, drug_type, 0)
+    if drug_amount <= 0:
+        return {'message': "You don't have any of that drug!", 'damage_boost': 0}
+
+    # Consume the drug
+    game_state.drugs.modify_drug(drug_type, -1)
+
+    # Base effects by drug type
+    drug_effects = {
+        'weed': {
+            'positive_effects': ["You feel incredibly relaxed and focused!", "Your speed increases dramatically!"],
+            'negative_effects': ["Your aim becomes a bit shaky.", "You're feeling a bit paranoid."],
+            'damage_modifier': random.choice([1.2, 0.8]),  # 20% boost or 20% penalty
+            'health_modifier': 0,
+            'accuracy_modifier': -0.2,  # -20% accuracy
+            'speed_modifier': 0.3  # +30% speed (faster attacks)
+        },
+        'crack': {
+            'positive_effects': ["You feel an incredible surge of power!", "Your muscles bulge with enhanced strength!"],
+            'negative_effects': ["Your heart is racing dangerously.", "You feel your health draining away."],
+            'damage_modifier': 1.5,  # +50% damage
+            'health_modifier': -2,  # Take 2 damage immediately
+            'accuracy_modifier': 0,
+            'speed_modifier': 0
+        },
+        'coke': {
+            'positive_effects': ["Your senses sharpen to a razor's edge!", "Everything seems to slow down!"],
+            'negative_effects': ["Your heart is pounding like a drum.", "The world feels... unpredictable."],
+            'damage_modifier': 0,
+            'health_modifier': random.choice([-1, 1]),  # Random health effect
+            'accuracy_modifier': 0.4,  # +40% accuracy
+            'speed_modifier': 0
+        },
+        'ice': {
+            'positive_effects': ["You feel invincible and powerful!", "Your strength multiplies!"],
+            'negative_effects': ["Your control is slipping away.", "You're losing your grip on reality."],
+            'damage_modifier': 1.3,  # +30% damage
+            'health_modifier': 0,
+            'accuracy_modifier': -0.3,  # -30% accuracy
+            'speed_modifier': 0.2  # +20% speed
+        },
+        'percs': {
+            'positive_effects': ["Pain becomes a distant memory!", "You feel no fear!"],
+            'negative_effects': ["You're feeling drowsy and slow.", "Your reactions are sluggish."],
+            'damage_modifier': 0,
+            'health_modifier': 1,  # Heal 1 damage
+            'accuracy_modifier': -0.2,  # -20% accuracy
+            'speed_modifier': -0.3  # -30% speed
+        },
+        'pixie_dust': {
+            'positive_effects': ["MAGIC HAPPENS! You feel incredible power!", "Reality bends to your will!"],
+            'negative_effects': ["What the hell just happened?!", "Your mind is playing tricks on you."],
+            'damage_modifier': random.choice([2.0, 0.5]),  # Double damage or half
+            'health_modifier': random.choice([-3, 3]),  # Random major health effect
+            'accuracy_modifier': random.choice([-0.5, 0.5]),  # Random accuracy
+            'speed_modifier': random.choice([-0.5, 0.5])  # Random speed
+        }
+    }
+
+    if drug_type not in drug_effects:
+        return {'message': "Unknown drug type!", 'damage_boost': 0}
+
+    effect = drug_effects[drug_type]
+
+    # Apply health modifier
+    if effect['health_modifier'] != 0:
+        game_state.damage = max(0, game_state.damage + effect['health_modifier'])
+
+    # Choose random positive or negative effect message
+    if random.random() > 0.3:  # 70% chance for positive effect
+        effect_message = random.choice(effect['positive_effects'])
+    else:
+        effect_message = random.choice(effect['negative_effects'])
+
+    # Special handling for pixie dust (completely random)
+    if drug_type == 'pixie_dust':
+        pixie_messages = [
+            "🌈 Reality warps around you! Colors bleed into impossible hues!",
+            "✨ You see visions of alternate realities where you already won!",
+            "🌪️ A vortex of energy surrounds you, bending time and space!",
+            "💫 Your body phases in and out of existence for a moment!",
+            "🔮 The enemy seems terrified as you glow with otherworldly power!",
+            "🌟 You feel the universe itself cheering you on!"
+        ]
+        effect_message = random.choice(pixie_messages)
+
+    full_message = f"💊 You use {drug_type}! {effect_message}"
+
+    return {
+        'message': full_message,
+        'damage_boost': effect['damage_modifier'],
+        'accuracy_boost': effect['accuracy_modifier'],
+        'speed_boost': effect['speed_modifier']
+    }
+
 def calculate_weapon_damage(weapon, game_state):
     """Calculate damage for a weapon in combat"""
     import random
@@ -2158,7 +2510,8 @@ def calculate_weapon_damage(weapon, game_state):
         'uzi': (3, 12),
         'grenade': (5, 20),
         'missile_launcher': (10, 50),
-        'knife': (1, 5)
+        'knife': (1, 5),
+        'ghost_gun': (1, 6)
     }
 
     if weapon not in damage_ranges:
@@ -2183,9 +2536,150 @@ def calculate_weapon_damage(weapon, game_state):
         if game_state.weapons.missile_launcher <= 0 or game_state.weapons.missiles <= 0:
             return 0
         game_state.weapons.missiles -= 1
+    elif weapon == 'ghost_gun':
+        if game_state.weapons.ghost_guns <= 0 or game_state.weapons.bullets <= 0:
+            return 0
+        game_state.weapons.bullets -= 1
     # Knife doesn't consume ammo
 
     return random.randint(min_dmg, max_dmg)
+
+def calculate_gang_attack_potential(members, weapons):
+    """Calculate total potential attacks for a gang based on weapons and members"""
+    import random
+
+    # Weapon attack potentials (attacks per turn per weapon)
+    weapon_attack_rates = {
+        'pistols': 2,      # 2 attacks per pistol per turn
+        'uzis': 4,         # 4 attacks per uzi per turn
+        'grenades': 1,     # 1 attack per grenade per turn
+        'missile_launchers': 1,  # 1 attack per missile launcher per turn
+        'bullets': 0       # Bullets don't directly contribute attacks
+    }
+
+    # Knife attacks (everyone has a knife)
+    knife_attacks = members * 3  # 3 attacks per member with knife
+
+    # Weapon-based attacks
+    pistol_attacks = weapons.get('pistols', 0) * weapon_attack_rates['pistols']
+    uzi_attacks = weapons.get('uzis', 0) * weapon_attack_rates['uzis']
+    grenade_attacks = weapons.get('grenades', 0) * weapon_attack_rates['grenades']
+    missile_attacks = weapons.get('missile_launchers', 0) * weapon_attack_rates['missile_launchers']
+
+    # Total attacks per turn
+    total_attacks = knife_attacks + pistol_attacks + uzi_attacks + grenade_attacks + missile_attacks
+
+    # Add some randomness (±20%)
+    variation = random.uniform(0.8, 1.2)
+    total_attacks = int(total_attacks * variation)
+
+    return max(1, total_attacks)  # Minimum 1 attack
+
+def simulate_gang_round_attacks(gang_name, members, weapons, combat_log):
+    """Simulate one round of gang attacks and return total damage dealt"""
+    import random
+
+    total_damage = 0
+
+    # Each member gets to attack based on their weapon
+    active_members = members
+
+    # Distribute weapons among members
+    members_with_pistols = min(active_members, weapons.get('pistols', 0))
+    active_members -= members_with_pistols
+
+    members_with_uzis = min(active_members, weapons.get('uzis', 0))
+    active_members -= members_with_uzis
+
+    members_with_grenades = min(active_members, weapons.get('grenades', 0))
+    active_members -= members_with_grenades
+
+    members_with_missiles = min(active_members, weapons.get('missile_launchers', 0))
+    active_members -= members_with_missiles
+
+    # Remaining members use knives
+    members_with_knives = active_members
+
+    # Simulate attacks
+    attack_messages = []
+
+    # Knife attacks (fastest - 3 attacks each)
+    if members_with_knives > 0:
+        knife_damage = 0
+        for _ in range(min(3, members_with_knives)):  # Show max 3 knife attacks to avoid spam
+            damage = random.randint(1, 5)
+            knife_damage += damage
+
+        if members_with_knives > 3:
+            # Show representative attacks
+            combat_log.append(f"⚔️ {members_with_knives} gang members slash with knives! ({knife_damage} total damage)")
+        else:
+            for i in range(members_with_knives):
+                damage = random.randint(1, 5)
+                knife_damage += damage
+                attacker_name = f"{gang_name} Member {i+1}"
+                defender_name = "enemy gang"
+                gory_desc = GameLogic.get_gory_attack_description(attacker_name, defender_name, "knife", damage)
+                combat_log.append(f"⚔️ {gory_desc}")
+
+        total_damage += knife_damage
+
+    # Pistol attacks (2 attacks each)
+    if members_with_pistols > 0:
+        pistol_damage = 0
+        bullets_available = weapons.get('bullets', 0)
+
+        for member in range(members_with_pistols):
+            if bullets_available >= 1:  # Need at least 1 bullet per pistol attack
+                damage = random.randint(2, 8)
+                pistol_damage += damage
+                bullets_available -= 1
+
+        if pistol_damage > 0:
+            combat_log.append(f"🔫 {members_with_pistols} gang members fire pistols! ({pistol_damage} total damage)")
+            total_damage += pistol_damage
+
+    # Uzi attacks (4 attacks each - very deadly)
+    if members_with_uzis > 0:
+        uzi_damage = 0
+        bullets_available = weapons.get('bullets', 0)
+
+        for member in range(members_with_uzis):
+            if bullets_available >= 2:  # Need at least 2 bullets per uzi attack
+                for _ in range(2):  # Show 2 attacks per uzi member
+                    damage = random.randint(3, 12)
+                    uzi_damage += damage
+                bullets_available -= 2
+
+        if uzi_damage > 0:
+            combat_log.append(f"🔫💥 {members_with_uzis} gang members unleash Uzis! ({uzi_damage} total damage)")
+            total_damage += uzi_damage
+
+    # Grenade attacks (area effect)
+    if members_with_grenades > 0:
+        grenade_damage = 0
+        for _ in range(members_with_grenades):
+            damage = random.randint(5, 20)
+            grenade_damage += damage
+
+        if grenade_damage > 0:
+            combat_log.append(f"💣 {members_with_grenades} gang members hurl grenades! ({grenade_damage} total damage)")
+            total_damage += grenade_damage
+
+    # Missile launcher attacks (devastating)
+    if members_with_missiles > 0:
+        missile_damage = 0
+        missiles_available = weapons.get('missiles', 0)
+
+        for _ in range(min(members_with_missiles, missiles_available)):
+            damage = random.randint(10, 50)
+            missile_damage += damage
+
+        if missile_damage > 0:
+            combat_log.append(f"🚀 {min(members_with_missiles, missiles_available)} gang members fire missiles! ({missile_damage} total damage)")
+            total_damage += missile_damage
+
+    return total_damage
 
 # Helper function
 def get_game_state():
@@ -2215,6 +2709,9 @@ def get_game_state():
 # Global player tracking
 players_in_rooms = {}  # room -> {player_id: player_data}
 active_pvp_fights = {}  # room -> current_fight_data
+
+# Global shared drug prices for all players
+current_drug_prices = {}
 
 # NPC Data Structure
 @dataclass
@@ -2558,6 +3055,45 @@ POTENTIAL_HOOKERS = [
     )
 ]
 
+# Helper function to emit fight messages to chat
+def determine_combat_message_class(action_type, damage=0, weapon="", is_critical=False, is_miss=False):
+    """Determine the appropriate CSS class for combat messages"""
+    if action_type == "drug":
+        return "combat-drug"
+    elif action_type == "victory":
+        return "combat-victory"
+    elif action_type == "defeat":
+        return "combat-defeat"
+    elif action_type == "defend":
+        return "combat-defend"
+    elif action_type == "dodge":
+        return "combat-dodge"
+    elif action_type == "miss" or is_miss:
+        return "combat-miss"
+    elif is_critical or (damage > 0 and (
+        (weapon == "pistol" and damage >= 7) or
+        (weapon == "uzi" and damage >= 10) or
+        (weapon == "grenade" and damage >= 15) or
+        (weapon == "missile_launcher" and damage >= 40) or
+        (weapon == "knife" and damage >= 4) or
+        (weapon == "vampire_bat" and damage >= 5)
+    )):
+        return "combat-critical"
+    elif damage > 0:
+        return "combat-hit"
+    else:
+        return "combat-system"
+
+def emit_fight_message(room, message, player_name="SYSTEM", message_class="combat-system"):
+    """Emit a fight message to all players in the specified room"""
+    if socketio:
+        socketio.emit('chat_message', {
+            'player': player_name,
+            'message': message,
+            'room': room,
+            'message_class': message_class
+        }, room=room)
+
 # SocketIO events - only define if socketio is available
 if socketio:
     @socketio.on('join')
@@ -2620,23 +3156,24 @@ if socketio:
         room = data['room']
         player_name = data.get('player_name', 'Unknown')
         message = data['message']
-        emit('chat_message', {'player': player_name, 'message': message}, room=room)
+        # Emit globally to all connected clients instead of just the room
+        emit('chat_message', {'player': player_name, 'message': message, 'room': room}, broadcast=True)
 
     @socketio.on('get_player_list')
     def handle_get_player_list(data):
         room = data.get('room', 'city')
-        if room in players_in_rooms:
-            player_list = []
-            for player_id, player_data in players_in_rooms[room].items():
+        # Get all players globally across all rooms
+        all_players = []
+        for room_name, room_players in players_in_rooms.items():
+            for player_id, player_data in room_players.items():
                 if player_id != request.sid:  # Don't include self
-                    player_list.append({
+                    all_players.append({
                         'id': player_id,
                         'name': player_data['name'],
-                        'in_fight': player_data.get('in_fight', False)
+                        'in_fight': player_data.get('in_fight', False),
+                        'room': room_name  # Include room info
                     })
-            emit('player_list', {'players': player_list})
-        else:
-            emit('player_list', {'players': []})
+        emit('player_list', {'players': all_players})
 
     @socketio.on('pvp_challenge')
     def handle_pvp_challenge(data):
@@ -2758,10 +3295,15 @@ if socketio:
             gory_description = GameLogic.get_gory_attack_description(attacker_name, defender_name, weapon, damage)
             fight['fight_log'].append(f"⚔️ {gory_description}")
 
+            # Emit real-time damage message to chat
+            emit_fight_message(room, f"⚔️ {attacker_name} attacks {defender_name} for {damage} damage! {gory_description}", attacker_name)
+
             if opponent['health'] > 0:
                 fight['fight_log'].append(f"{opponent['name']} has {opponent['health']} HP remaining.")
+                emit_fight_message(room, f"{opponent['name']} has {opponent['health']} HP remaining.", "SYSTEM")
             else:
                 fight['fight_log'].append(f"{opponent['name']} collapses in a bloody heap!")
+                emit_fight_message(room, f"{opponent['name']} collapses in a bloody heap!", "SYSTEM")
 
             # Check for victory
             if opponent['health'] <= 0:
@@ -2787,6 +3329,9 @@ if socketio:
 
                 victory_message = f"💀 VICTORY: {winner['name']} defeats {loser['name']}! {loser['name']} is eliminated! 💀"
                 fight['fight_log'].append(victory_message)
+
+                # Emit victory message to chat
+                emit_fight_message(room, victory_message, winner['name'])
 
                 emit('pvp_fight_end', {
                     'winner': winner['name'],
@@ -2823,7 +3368,8 @@ def calculate_pvp_damage(weapon, player_data):
         'pistol': (8, 15),
         'uzi': (12, 20),
         'knife': (3, 8),
-        'grenade': (20, 35)
+        'grenade': (20, 35),
+        'ghost_gun': (1, 6)
     }
 
     if weapon not in base_damage:
@@ -2841,6 +3387,9 @@ def calculate_pvp_damage(weapon, player_data):
     elif weapon == 'uzi' and (weapons.get('uzi', 0) <= 0 or weapons.get('bullets', 0) <= 1):
         weapon = 'pistol'  # Fallback to pistol
         min_dmg, max_dmg = base_damage['pistol']
+    elif weapon == 'ghost_gun' and (weapons.get('ghost_guns', 0) <= 0 or weapons.get('bullets', 0) <= 0):
+        weapon = 'knife'  # Fallback to knife
+        min_dmg, max_dmg = base_damage['knife']
 
     damage = random.randint(min_dmg, max_dmg)
 
@@ -2851,6 +3400,8 @@ def calculate_pvp_damage(weapon, player_data):
         weapons['bullets'] = max(0, weapons.get('bullets', 0) - 2)
     elif weapon == 'grenade':
         weapons['grenade'] = max(0, weapons.get('grenade', 0) - 1)
+    elif weapon == 'ghost_gun':
+        weapons['bullets'] = max(0, weapons.get('bullets', 0) - 1)
 
     return damage
 

@@ -39,9 +39,10 @@
         <div class="interaction-options">
             <h3>What would you like to do?</h3>
             <div class="action-buttons">
-                <a href="{{ url_for('talk_to_npc', npc_id=npc.id) }}" class="btn btn-primary">Talk Again</a>
+                <a href="{{ url_for('talk_to_npc', npc_id=npc.id) }}" class="btn btn-primary">Talk</a>
                 <a href="{{ url_for('trade_with_npc', npc_id=npc.id) }}" class="btn btn-secondary">Trade</a>
                 <button type="button" class="btn btn-danger" onclick="showFightOptions()">Fight</button>
+                <a href="{{ url_for('city') }}" class="btn btn-warning">Run Away</a>
             </div>
 
             <div id="fight-options" style="display: none; margin-top: 20px;">
@@ -81,14 +82,26 @@
         <a href="{{ url_for('city') }}" class="btn btn-secondary">Back to City</a>
     </div>
 
-    <div id="player-list"></div>
+    <div class="chat-pvp-container">
+        <div class="chat-section">
+            <h4>NPC Interaction Chat</h4>
+            <div id="chat-messages" class="chat-messages"></div>
+            <div class="chat-input">
+                <input type="text" id="chat-input" placeholder="Type your message..." maxlength="200">
+                <button id="send-chat" class="btn btn-primary btn-small">Send</button>
+            </div>
+        </div>
 
-    <div class="chat-section">
-        <h4>Chat with other players</h4>
-        <div id="chat-messages" class="chat-messages"></div>
-        <div class="chat-input">
-            <input type="text" id="chat-input" placeholder="Type a message..." maxlength="200">
-            <button id="send-chat" class="btn btn-secondary">Send</button>
+        <!-- Chat Users Section -->
+        <div class="pvp-section">
+            <h3>👥 Chat Users</h3>
+            <div id="pvp-player-list" class="pvp-player-list">
+                <p>Loading users...</p>
+            </div>
+            <div id="player-list"></div>
+            <div class="pvp-actions">
+                <button onclick="refreshPlayerList()" class="btn btn-secondary btn-small">Refresh Users</button>
+            </div>
         </div>
     </div>
 </div>

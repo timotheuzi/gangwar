@@ -3,11 +3,23 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}Gang War{% endblock %}</title>
+    <title>{% block title %}Gang War MUD{% endblock %}</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="stylesheet" hreff="{{ url_for('static', filename='style.css') }}">
+    <style>
+        /* Combat message colors */
+        .combat-hit { color: #ff6b6b !important; font-weight: bold; }
+        .combat-critical { color: #ff4757 !important; font-weight: bold; font-size: 1.1em; text-shadow: 0 0 5px #ff4757; }
+        .combat-miss { color: #ffa726 !important; font-style: italic; }
+        .combat-dodge { color: #42a5f5 !important; font-weight: bold; }
+        .combat-defend { color: #66bb6a !important; font-weight: bold; }
+        .combat-drug { color: #ab47bc !important; font-weight: bold; }
+        .combat-victory { color: #ffd700 !important; font-weight: bold; font-size: 1.1em; text-shadow: 0 0 8px #ffd700; }
+        .combat-defeat { color: #d32f2f !important; font-weight: bold; font-size: 1.1em; text-shadow: 0 0 8px #d32f2f; }
+        .combat-system { color: #90a4ae !important; }
+    </style>
     <script src="https://cdn.socket.io/4.0.0/socket.io.min.js"></script>
     {% if game_state and game_state.player_name %}
     <script>

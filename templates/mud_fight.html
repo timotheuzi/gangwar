@@ -21,25 +21,51 @@
             <div class="action-buttons">
                 <button type="submit" name="action" value="attack" class="btn btn-danger">Attack</button>
                 <button type="submit" name="action" value="defend" class="btn btn-warning">Defend</button>
-                <button type="submit" name="action" value="flee" class="btn btn-secondary">Flee</button>
+                <button type="submit" name="action" value="flee" class="btn btn-secondary">Flee (Risky)</button>
+            </div>
+
+            <div class="drug-options">
+                <h4>⚡ Quick Drug Boost (Risky!)</h4>
+                <p style="font-size: 12px; color: #666;">Drugs can boost your power but might backfire!</p>
+                {% if game_state.drugs.weed > 0 %}
+                <button type="submit" name="action" value="use_drug" formaction="{{ url_for('process_fight_action') }}?drug=weed" class="btn btn-success btn-small">Use Weed (+Speed, -Accuracy)</button>
+                {% endif %}
+                {% if game_state.drugs.crack > 0 %}
+                <button type="submit" name="action" value="use_drug" formaction="{{ url_for('process_fight_action') }}?drug=crack" class="btn btn-success btn-small">Use Crack (+Power, -Health)</button>
+                {% endif %}
+                {% if game_state.drugs.coke > 0 %}
+                <button type="submit" name="action" value="use_drug" formaction="{{ url_for('process_fight_action') }}?drug=coke" class="btn btn-success btn-small">Use Coke (+Accuracy, Risky)</button>
+                {% endif %}
+                {% if game_state.drugs.ice > 0 %}
+                <button type="submit" name="action" value="use_drug" formaction="{{ url_for('process_fight_action') }}?drug=ice" class="btn btn-success btn-small">Use Ice (+Strength, -Control)</button>
+                {% endif %}
+                {% if game_state.drugs.percs > 0 %}
+                <button type="submit" name="action" value="use_drug" formaction="{{ url_for('process_fight_action') }}?drug=percs" class="btn btn-success btn-small">Use Percs (+Pain Resistance, Drowsy)</button>
+                {% endif %}
+                {% if game_state.drugs.pixie_dust > 0 %}
+                <button type="submit" name="action" value="use_drug" formaction="{{ url_for('process_fight_action') }}?drug=pixie_dust" class="btn btn-success btn-small">Use Pixie Dust (???)</button>
+                {% endif %}
             </div>
 
             <div class="weapon-selection">
                 <label for="weapon">Choose Weapon:</label>
                 <select name="weapon" id="weapon">
                     {% if game_state.weapons.can_fight_with_pistol() %}
-                    <option value="pistol">Pistol ({{ game_state.weapons.bullets }} bullets)</option>
+                    <option value="pistol">Pistol ({{ game_state.weapons.bullets }} bullets) - 2 attacks/turn</option>
                     {% endif %}
                     {% if game_state.weapons.uzis > 0 and game_state.weapons.bullets > 1 %}
-                    <option value="uzi">Uzi ({{ game_state.weapons.bullets }} bullets)</option>
+                    <option value="uzi">Uzi ({{ game_state.weapons.bullets }} bullets) - 4 attacks/turn</option>
                     {% endif %}
                     {% if game_state.weapons.grenades > 0 %}
-                    <option value="grenade">Grenade ({{ game_state.weapons.grenades }} available)</option>
+                    <option value="grenade">Grenade ({{ game_state.weapons.grenades }} available) - 1 attack/turn</option>
                     {% endif %}
                     {% if game_state.weapons.missile_launcher > 0 and game_state.weapons.missiles > 0 %}
-                    <option value="missile_launcher">Missile Launcher ({{ game_state.weapons.missiles }} missiles)</option>
+                    <option value="missile_launcher">Missile Launcher ({{ game_state.weapons.missiles }} missiles) - 1 attack/turn</option>
                     {% endif %}
-                    <option value="knife">Knife</option>
+                    {% if game_state.weapons.vampire_bat > 0 %}
+                    <option value="vampire_bat">Vampire Bat - 2 attacks/turn</option>
+                    {% endif %}
+                    <option value="knife">Knife - 3 attacks/turn</option>
                 </select>
             </div>
         </form>
@@ -126,6 +152,28 @@
     border: 1px solid #ddd;
     border-radius: 5px;
     background-color: #f8f9fa;
+}
+
+.drug-options {
+    margin-top: 15px;
+    padding: 10px;
+    border: 2px solid #daa520;
+    border-radius: 8px;
+    background-color: #f0f8ff;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.drug-options h4 {
+    margin-top: 0;
+    color: #2e8b57;
+    font-size: 14px;
+}
+
+.btn-small {
+    font-size: 11px;
+    padding: 4px 8px;
+    margin: 2px;
+    min-width: 120px;
 }
 </style>
 {% endblock %}

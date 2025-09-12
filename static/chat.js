@@ -46,11 +46,18 @@ function initSocketIO() {
 
     socket.on('status', function(data) {
         console.log(data.msg);
+        addChatMessage('System', data.msg, 'status');
         refreshPlayerList();
     });
 
     socket.on('chat_message', function(data) {
-        addChatMessage(data.player, data.message);
+        // Include room info in chat message if it's from a different room
+        var message = data.message;
+        if (data.room && data.room !== currentRoom) {
+            message = `[${data.room}] ${message}`;
+        }
+        var messageClass = data.message_class || null;
+        addChatMessage(data.player, message, messageClass);
     });
 
     socket.on('player_list', function(data) {
@@ -88,13 +95,23 @@ function getGameState() {
 }
 
 // Add chat message to chat area
-function addChatMessage(player, message) {
+function addChatMessage(player, message, messageClass) {
     var chatMessages = document.getElementById('chat-messages');
     if (chatMessages) {
         var messageDiv = document.createElement('div');
         messageDiv.className = 'chat-message';
+        if (messageClass) {
+            messageDiv.classList.add(messageClass);
+        }
         messageDiv.innerHTML = '<strong>' + player + ':</strong> ' + message;
         chatMessages.appendChild(messageDiv);
+
+        // Limit chat messages to prevent overflow
+        var maxMessages = 50;
+        while (chatMessages.children.length > maxMessages) {
+            chatMessages.removeChild(chatMessages.firstChild);
+        }
+
         chatMessages.scrollTop = chatMessages.scrollHeight;
     }
 }
@@ -114,10 +131,13 @@ function updatePVPPlayerList(players) {
         var player = players[i];
         if (player && player.id && (!socket || player.id !== socket.id)) {
             var displayName = player.name || ('Player ' + String(player.id).substring(0, 8));
+            var roomInfo = player.room ? ' [' + player.room + ']' : '';
             var status = player.in_fight ? ' (In Fight)' : '';
             html += '<li class="pvp-player-item">';
-            html += '<span class="player-name">' + displayName + status + '</span>';
-            if (!player.in_fight) {
+            html += '<span class="player-name">' + displayName + roomInfo + status + '</span>';
+            // Only show challenge button for players in the same room (alleyway rooms)
+            var isInAlleyway = player.room && (player.room.startsWith('alley') || player.room.includes('alley') || player.room === 'entrance' || player.room === 'back_alley' || player.room === 'side_street' || player.room === 'hidden_room' || player.room === 'abandoned_lot' || player.room === 'construction_site' || player.room === 'burned_building' || player.room === 'building_interior' || player.room === 'rooftop' || player.room === 'rooftop_access' || player.room === 'basement' || player.room === 'sewer_entrance' || player.room === 'sewer_tunnel' || player.room === 'underground_chamber' || player.room === 'sewer_grate' || player.room === 'sewer_maintenance_tunnel' || player.room === 'sewer_flooded_chamber' || player.room === 'sewer_death_trap' || player.room === 'service_entrance' || player.room === 'restaurant_kitchen' || player.room === 'restaurant_dining' || player.room === 'alley_dead_end' || player.room === 'dead_end_alley' || player.room === 'drug_den' || player.room === 'crack_house_entrance' || player.room === 'crack_house_interior' || player.room === 'crack_house_upstairs');
+            if (!player.in_fight && isInAlleyway) {
                 html += '<button onclick="challengePlayer(\'' + player.id + '\', \'' + displayName.replace(/'/g, '\\\'') + '\')" class="btn btn-danger btn-small">Challenge</button>';
             }
             html += '</li>';
