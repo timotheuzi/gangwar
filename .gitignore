@@ -208,3 +208,41 @@ cython_debug/
 marimo/_static/
 marimo/_lsp/
 __marimo__/
+
+# Application specific ignores
+logs/
+*.log
+*.pid
+*.sqlite
+*.sqlite3
+*.db
+*.sqlite-journal
+
+# Session files
+session/
+
+# Upload directories (if any)
+uploads/
+temp/
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# IDE files
+.vscode/settings.json
+.idea/workspace.xml
+.idea/tasks.xml
+
+# Environment files
+.env.local
+.env.*.local
+
+# Build artifacts
+gangwar.exe
+gangwar.app

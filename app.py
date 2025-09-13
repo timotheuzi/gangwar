@@ -54,7 +54,7 @@ class Config:
         'vest_light': 3000,
         'vest_medium': 5500,
         'vest_heavy': 7500,
-        'vampire_bat': 2500,
+        'vampire_bat': 2500, #shes a vampire bat
         'ghost_gun': 1200  # 3D printed gun - cheap but unreliable
     }
 
@@ -3169,7 +3169,7 @@ if socketio:
             players_in_rooms[room][player_id]['last_activity'] = time.time()
 
         # Emit globally to all connected clients instead of just the room
-        socketio.emit('chat_message', {'player': player_name, 'message': message, 'room': room}, broadcast=True)
+        socketio.emit('chat_message', {'player': player_name, 'message': message, 'room': room})
 
     def cleanup_inactive_players():
         """Remove players who haven't been active for 5 minutes"""
