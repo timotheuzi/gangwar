@@ -1509,22 +1509,23 @@ def recruit_hooker(hooker_name):
         for drug_type, required_amount in potential_hooker.recruitment_cost_drugs.items():
             game_state.drugs.modify_drug(drug_type, -required_amount)
 
-        # Create the employed prostitute
-        employed_prostitute = Prostitute(
-            name=potential_hooker.name,
-            price=potential_hooker.stats['price'],
-            description=f"{potential_hooker.description} (Employed by you)",
-            risk_level=potential_hooker.stats['risk_level'],
-            healing_amount=potential_hooker.stats['healing_amount'],
-            death_risk=potential_hooker.stats['death_risk'],
-            death_method=potential_hooker.stats['death_method']
-        )
+        # # COMMENTED OUT: Prostitute recruitment disabled
+        # # Create the employed prostitute
+        # employed_prostitute = Prostitute(
+        #     name=potential_hooker.name,
+        #     price=potential_hooker.stats['price'],
+        #     description=f"{potential_hooker.description} (Employed by you)",
+        #     risk_level=potential_hooker.stats['risk_level'],
+        #     healing_amount=potential_hooker.stats['healing_amount'],
+        #     death_risk=potential_hooker.stats['death_risk'],
+        #     death_method=potential_hooker.stats['death_method']
+        # )
 
-        # Add to employed prostitutes
-        game_state.employed_prostitutes.append(employed_prostitute)
+        # # Add to employed prostitutes
+        # game_state.employed_prostitutes.append(employed_prostitute)
 
         session['game_state'] = asdict(game_state)
-        result = f"🎉 You successfully recruited {hooker_name}! She now works for you and is available at the crack house."
+        result = f"❌ Prostitute recruitment has been disabled. You cannot recruit {hooker_name} at this time."
         return render_template('wander_result.html', game_state=game_state, result=result)
 
     return render_template('recruit_hooker.html', game_state=game_state, hooker=potential_hooker)
@@ -3536,8 +3537,8 @@ if __name__ == '__main__':
     kill_existing_instances()
 
     if socketio:
-        socketio.run(app, host='0.0.0.0', port=5006, debug=True)
+        socketio.run(app, host='0.0.0.0', port=5009, debug=False)
     else:
         # Run without SocketIO for bundled applications
         print("Starting Flask app without SocketIO...")
-        app.run(host='0.0.0.0', port=5006, debug=True)
+        app.run(host='0.0.0.0', port=5009, debug=False)

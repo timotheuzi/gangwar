@@ -11,21 +11,71 @@ if ! command -v pyinstaller &> /dev/null; then
     pip install pyinstaller
 fi
 
-# Create dist directory if it doesn't exist
+# Delete and recreate dist directory
+echo "Deleting and recreating dist/ directory..."
+rm -rf dist
 mkdir -p dist
+
+# Create run.sh script in dist
+cat > dist/run.sh << 'EOF'
+#!/bin/bash
+
+# Simple run script for the Gangwar executable
+
+# Kill any existing instances of gangwar
+echo "Checking for existing gangwar instances..."
+if pgrep -f gangwar > /dev/null; then
+    echo "Killing existing gangwar instances..."
+    pkill -f gangwar
+    sleep 2  # Wait for processes to terminate
+fi
+
+# Check if we're in the dist directory
+if [ -f "gangwar" ]; then
+    echo "Running Gangwar executable..."
+    ./gangwar &
+    EXECUTABLE_PID=$!
+    sleep 3  # Wait a bit to see if it starts
+    if kill -0 $EXECUTABLE_PID 2>/dev/null; then
+        echo "Gangwar executable started successfully."
+        wait $EXECUTABLE_PID
+    else
+        echo "Gangwar executable failed to start. Falling back to Python..."
+        kill $EXECUTABLE_PID 2>/dev/null || true
+        cd ..
+        python app.py
+    fi
+elif [ -f "gangwar.exe" ]; then
+    echo "Running Gangwar executable..."
+    ./gangwar.exe &
+    EXECUTABLE_PID=$!
+    sleep 3  # Wait a bit to see if it starts
+    if kill -0 $EXECUTABLE_PID 2>/dev/null; then
+        echo "Gangwar executable started successfully."
+        wait $EXECUTABLE_PID
+    else
+        echo "Gangwar executable failed to start. Falling back to Python..."
+        kill $EXECUTABLE_PID 2>/dev/null || true
+        cd ..
+        python app.py
+    fi
+else
+    echo "Error: Gangwar executable not found in current directory."
+    echo "Falling back to Python..."
+    cd ..
+    python app.py
+fi
+EOF
+
+# Make run.sh executable
+chmod +x dist/run.sh
 
 # Copy deployment scripts to dist
 cp pythonanywhere.py dist/ 2>/dev/null || echo "pythonanywhere.py not found"
-cp run.sh dist/ 2>/dev/null || echo "run.sh not found"
 
-# Make run.sh executable if it exists in dist
-if [ -f "dist/run.sh" ]; then
-    chmod +x dist/run.sh
-fi
-
-# Clean previous build
+# Clean previous build directory (outside dist)
 echo "Cleaning previous build..."
-rm -rf build dist/gangwar dist/gangwar.exe
+rm -rf build
 
 # Build the application
 echo "Building application with PyInstaller..."

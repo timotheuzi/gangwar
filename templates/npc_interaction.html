@@ -63,6 +63,9 @@
                     {% if game_state.weapons.vampire_bat > 0 %}
                         <label><input type="radio" name="weapon" value="vampire_bat"> Vampire Bat</label><br>
                     {% endif %}
+                    <br>
+                    <button type="submit" class="btn btn-danger">Start Fight</button>
+                    <button type="button" class="btn btn-secondary" onclick="hideFightOptions()">Cancel</button>
                 </form>
             </div>
         </div>
