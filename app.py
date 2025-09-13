@@ -3232,23 +3232,33 @@ if socketio and socketio is not None:
         # Get players only from the current room, filtering out inactive and unknown players
         room_players = players_in_rooms.get(room, {})
         all_players = []
+        seen_names = {}  # Track seen names to prevent duplicates
+
         for player_id, player_data in room_players.items():
             if player_id != request.sid:  # Don't include self
                 # Check if player has been active within the last 5 minutes
                 last_activity = player_data.get('last_activity', current_time)
                 player_name = player_data['name']
+
                 # Filter out unknown/invalid players
                 if (current_time - last_activity <= inactive_threshold and
                     player_name and
                     player_name != 'Unknown Player' and
                     player_name != 'Unknown' and
                     not player_name.startswith('Player ')):
-                    all_players.append({
-                        'id': player_id,
-                        'name': player_name,
-                        'in_fight': player_data.get('in_fight', False),
-                        'room': room  # Include room info
-                    })
+
+                    # Deduplicate by name - keep the most recently active player
+                    if player_name not in seen_names or last_activity > seen_names[player_name]['last_activity']:
+                        seen_names[player_name] = {
+                            'id': player_id,
+                            'name': player_name,
+                            'in_fight': player_data.get('in_fight', False),
+                            'room': room,
+                            'last_activity': last_activity
+                        }
+
+        # Convert seen_names dict to list
+        all_players = list(seen_names.values())
         socketio.emit('player_list', {'players': all_players})
 
     @socketio.on('pvp_challenge')
