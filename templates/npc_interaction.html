@@ -60,9 +60,9 @@
                     {% if game_state.weapons.missile_launcher > 0 and game_state.weapons.missiles > 0 %}
                         <label><input type="radio" name="weapon" value="missile_launcher"> Missile Launcher ({{ game_state.weapons.missiles }} missiles)</label><br>
                     {% endif %}
-                    <label><input type="radio" name="weapon" value="knife"> Knife</label><br>
-                    <button type="submit" class="btn btn-danger" style="margin-top: 10px;">Attack!</button>
-                    <button type="button" class="btn btn-secondary" onclick="hideFightOptions()">Cancel</button>
+                    {% if game_state.weapons.vampire_bat > 0 %}
+                        <label><input type="radio" name="weapon" value="vampire_bat"> Vampire Bat</label><br>
+                    {% endif %}
                 </form>
             </div>
         </div>

@@ -67,6 +67,15 @@
         </form>
         {% endif %}
 
+        {% if game_state.weapons.vampire_bat > 0 %}
+        <form method="POST" action="{{ url_for('fight_cops') }}" class="chase-form">
+            <input type="hidden" name="action" value="shoot">
+            <input type="hidden" name="weapon" value="vampire_bat">
+            <input type="hidden" name="num_cops" value="{{ num_cops }}">
+            <button type="submit" class="btn btn-danger">Fight Back (Vampire Bat)</button>
+        </form>
+        {% endif %}
+
         <form method="POST" action="{{ url_for('fight_cops') }}" class="chase-form">
             <input type="hidden" name="action" value="run">
             <input type="hidden" name="num_cops" value="{{ num_cops }}">
