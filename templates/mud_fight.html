@@ -85,25 +85,34 @@
     </div>
     {% endif %}
 
+    <!-- Combat Log Section -->
+    <div class="combat-chat-container">
+        <div class="combat-chat-section">
+            <h4>⚔️ Combat Log</h4>
+            <div id="combat-messages" class="combat-messages">
+                {% for line in fight_log %}
+                <div class="combat-line">{{ line }}</div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
     <div class="combat-options">
         {% if not combat_active %}
-        <a href="{{ url_for('alleyway') }}" class="btn btn-primary">Return to Alleyway</a>
-        <a href="{{ url_for('city') }}" class="btn btn-secondary">Return to City</a>
+            {% if encounter_context %}
+                {% if encounter_context.type == 'wander' %}
+                    <a href="{{ url_for('continue_activity') }}" class="btn btn-success">Continue Wandering</a>
+                {% elif encounter_context.type == 'alleyway' %}
+                    <a href="{{ url_for('continue_activity') }}" class="btn btn-success">Continue in Alleyway</a>
+                {% endif %}
+            {% endif %}
+            <a href="{{ url_for('city') }}" class="btn btn-primary">Return to City</a>
         {% endif %}
     </div>
 </div>
 
 {% block chat %}
-<div class="combat-chat-container">
-    <div class="combat-chat-section">
-        <h4>⚔️ Combat Log</h4>
-        <div id="combat-messages" class="combat-messages">
-            {% for line in fight_log %}
-            <div class="combat-line">{{ line }}</div>
-            {% endfor %}
-        </div>
-    </div>
-</div>
+<!-- Combat page - no city chat -->
 {% endblock %}
 
 <style>

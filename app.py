@@ -29,7 +29,7 @@ class Config:
     FORCE_SOCKETIO = os.environ.get('FORCE_SOCKETIO', '').lower() in ('true', '1', 'yes', 'on')
 
     # Game constants
-    MAX_STEPS_PER_DAY = 35
+    MAX_STEPS_PER_DAY = 14
     INITIAL_MONEY = 1000
     INITIAL_LIVES = 5
     DAMAGE_THRESHOLD = 10
@@ -844,6 +844,11 @@ def alleyway():
     encounter_triggered = False
     if current_room.has_encounter and random.random() * 100 < current_room.encounter_chance:
         encounter_triggered = True
+        # Store context for continuing alleyway exploration
+        session['encounter_context'] = {
+            'type': 'alleyway',
+            'current_room': game_state.current_mud_room
+        }
         # Trigger encounter
         return redirect(url_for('encounter'))
 
@@ -953,7 +958,10 @@ def encounter():
 
     encounter_type, description = random.choice(encounter_types)
 
-    return render_template('encounter.html', game_state=game_state, encounter_type=encounter_type, encounter_description=description)
+    # Get encounter context for continue options
+    encounter_context = session.get('encounter_context', {})
+
+    return render_template('encounter.html', game_state=game_state, encounter_type=encounter_type, encounter_description=description, encounter_context=encounter_context)
 
 @app.route('/npc_interaction/<npc>')
 def npc_interaction(npc):
@@ -1095,6 +1103,9 @@ def start_war():
     if not game_state:
         return redirect(url_for('index'))
 
+    # Increment steps for starting gang war
+    game_state.steps += 1
+
     # Detailed gang war combat simulation
     import random
 
@@ -1213,7 +1224,9 @@ def start_war():
 @app.route('/cop_chase')
 def cop_chase():
     game_state = get_game_state()
-    return render_template('cop_chase.html', game_state=game_state)
+    # Get encounter context for continue options
+    encounter_context = session.get('encounter_context', {})
+    return render_template('cop_chase.html', game_state=game_state, encounter_context=encounter_context)
 
 @app.route('/cop_victory')
 def cop_victory():
@@ -1356,12 +1369,22 @@ def wander():
             return render_template('wander_result.html', game_state=game_state, result=f"You got robbed! Lost ${lost_money}.")
 
     elif rand < 0.4:  # 10% - Police encounter
+        # Store context for continuing wandering
+        session['encounter_context'] = {
+            'type': 'wander',
+            'action': 'continue_wandering'
+        }
         return redirect(url_for('cop_chase'))
 
     elif rand < 0.5:  # 10% - Gang encounter (only if powerful enough)
         if game_state.members > 25:
             return redirect(url_for('gang_war'))
         else:
+            # Store context for continuing wandering
+            session['encounter_context'] = {
+                'type': 'wander',
+                'action': 'continue_wandering'
+            }
             # Redirect to a different encounter if not powerful enough
             return redirect(url_for('encounter'))
 
@@ -1411,6 +1434,9 @@ def trade_drugs():
     action = request.form.get('action')
     drug_type = request.form.get('drug_type')
     quantity = int(request.form.get('quantity', 0))
+
+    # Increment steps for trading drugs
+    game_state.steps += 1
 
     if action == 'buy':
         cost = GameLogic.calculate_trade_cost(drug_type, quantity, game_state, is_selling=False)
@@ -1717,14 +1743,17 @@ def fight_npc(npc_id):
     }
 
     session['game_state'] = asdict(game_state)
+        # Get encounter context for continue options
+    encounter_context = session.get('encounter_context', {})
     return render_template('mud_fight.html',
-                         game_state=game_state,
-                         fight_log=fight_log,
-                         combat_active=True,
-                         combat_id=combat_id,
-                         enemy_health=enemy_health,
-                         enemy_type=enemy_type,
-                         enemy_count=1)
+                             game_state=game_state,
+                             fight_log=fight_log,
+                             combat_active=True,
+                             combat_id=combat_id,
+                             enemy_health=enemy_health,
+                             enemy_type=enemy_type,
+                             enemy_count=1,
+                             encounter_context=encounter_context)
 
 @app.route('/look_at_npc/<npc_id>')
 def look_at_npc(npc_id):
@@ -1780,6 +1809,9 @@ def bank_transaction():
     if not game_state:
         return redirect(url_for('index'))
 
+    # Increment steps for bank transaction
+    game_state.steps += 1
+
     action = request.form.get('action')
     amount = int(request.form.get('amount', 0))
 
@@ -1823,6 +1855,9 @@ def picknsave_action():
     if not game_state:
         return redirect(url_for('index'))
 
+    # Increment steps for pick n save action
+    game_state.steps += 1
+
     action = request.form.get('action')
 
     if action == 'buy_id':
@@ -1858,6 +1893,13 @@ def fight_cops():
     if not game_state:
         return redirect(url_for('index'))
 
+    # Handle empty or invalid num_cops values
+    num_cops_str = request.form.get('num_cops', '').strip()
+    if not num_cops_str or not num_cops_str.isdigit():
+        num_cops = 1  # Default to 1 if empty or invalid
+    else:
+        num_cops = int(num_cops_str)
+
     action = request.form.get('action')
 
     if action == 'run':
@@ -1874,42 +1916,85 @@ def fight_cops():
                 session['game_state'] = asdict(game_state)
                 return redirect(url_for('game_over'))
             result = f"You got caught! Lost ${arrest_penalty} and took {damage} damage."
+
+        session['game_state'] = asdict(game_state)
+        return render_template('wander_result.html', game_state=game_state, result=result)
     else:
-        # Fight with weapon
-        weapon = action  # 'shoot' parameter contains weapon type
-        if weapon == 'shoot':
-            weapon = 'pistol'  # Default
+        # Start MUD-style combat with cops instead of simple resolution
+        combat_id = f"cop_combat_{random.randint(1000, 9999)}"
 
-        # Check if player has the weapon (allow all owned weapons)
-        if weapon == 'pistol' and game_state.weapons.pistols <= 0:
-            result = "You don't have a pistol to fight with!"
-        elif weapon == 'uzi' and game_state.weapons.uzis <= 0:
-            result = "You don't have an Uzi to fight with!"
-        elif weapon == 'grenade' and game_state.weapons.grenades <= 0:
-            result = "You don't have any grenades to fight with!"
-        elif weapon == 'missile_launcher' and game_state.weapons.missile_launcher <= 0:
-            result = "You don't have a missile launcher to fight with!"
-        elif weapon == 'ghost_gun' and game_state.weapons.ghost_guns <= 0:
-            result = "You don't have a ghost gun to fight with!"
-        elif weapon == 'knife' and game_state.weapons.knife <= 0:
-            result = "You don't have a knife to fight with!"
-        else:
-            # Successful fight - consume ammo if available
-            result = "You fought off the police and escaped! But this will have consequences..."
-            # Consume ammo (only if available)
-            if weapon == 'pistol' and game_state.weapons.bullets > 0:
-                game_state.weapons.bullets = max(0, game_state.weapons.bullets - 1)
-            elif weapon == 'uzi' and game_state.weapons.bullets > 1:
-                game_state.weapons.bullets = max(0, game_state.weapons.bullets - 2)
-            elif weapon == 'grenade':
-                game_state.weapons.grenades -= 1
-            elif weapon == 'missile_launcher' and game_state.weapons.missiles > 0:
-                game_state.weapons.missiles -= 1
-            elif weapon == 'ghost_gun' and game_state.weapons.bullets > 0:
-                game_state.weapons.bullets = max(0, game_state.weapons.bullets - 1)
+        # Cop enemy stats based on number of cops
+        cop_health = num_cops * 6  # 6 HP per cop
+        enemy_type = f"Police Officer{'s' if num_cops > 1 else ''}"
+        enemy_damage_range = (2, 5)  # Cops have moderate damage
 
-    session['game_state'] = asdict(game_state)
-    return render_template('wander_result.html', game_state=game_state, result=result)
+        # Emit initial combat messages
+        emit_fight_message(game_state.current_location,
+                          f"🚔 COMBAT: {game_state.player_name} vs {num_cops} {enemy_type}!",
+                          "SYSTEM")
+
+        # Initialize combat log
+        fight_log = [
+            "🚔 POLICE CHASE TURNS TO COMBAT! 🚔",
+            f"You engage {num_cops} police officer{'s' if num_cops > 1 else ''} in battle!",
+            f"The {enemy_type} draw their weapons menacingly.",
+            "What do you do?"
+        ]
+
+        # Store combat state in session (use 'cop_fight' instead of 'npc_id' to distinguish)
+        session['active_combat'] = {
+            'combat_id': combat_id,
+            'enemy_type': enemy_type,
+            'enemy_health': cop_health,
+            'enemy_max_health': cop_health,
+            'enemy_damage_range': enemy_damage_range,
+            'fight_log': fight_log,
+            'player_turn': True,
+            'num_cops': num_cops,  # Store number of cops for rewards
+            'is_cop_fight': True  # Flag to identify cop fights
+        }
+
+        session['game_state'] = asdict(game_state)
+        return render_template('mud_fight.html',
+                             game_state=game_state,
+                             fight_log=fight_log,
+                             combat_active=True,
+                             combat_id=combat_id,
+                             enemy_health=cop_health,
+                             enemy_type=enemy_type,
+                             enemy_count=num_cops)
+
+@app.route('/continue_activity')
+def continue_activity():
+    """Handle continuing the activity that was interrupted by an encounter"""
+    encounter_context = session.get('encounter_context', {})
+
+    if not encounter_context:
+        return redirect(url_for('city'))
+
+    context_type = encounter_context.get('type')
+
+    if context_type == 'wander':
+        # Clear the context and continue wandering
+        if 'encounter_context' in session:
+            session.pop('encounter_context', None)
+        return redirect(url_for('wander'))
+    elif context_type == 'alleyway':
+        # Clear the context and return to the alleyway at the saved room
+        current_room = encounter_context.get('current_room', 'entrance')
+        game_state = get_game_state()
+        if game_state:
+            game_state.current_mud_room = current_room
+            session['game_state'] = asdict(game_state)
+
+        if 'encounter_context' in session:
+            session.pop('encounter_context', None)
+        return redirect(url_for('alleyway'))
+    else:
+        # Default fallback
+        if 'encounter_context' in session:
+            session.pop('encounter_context', None)
+        return redirect(url_for('city'))
 
 @app.route('/bulk_purchase', methods=['POST'])
 def bulk_purchase():
@@ -2075,11 +2160,11 @@ def handle_encounter():
         # Select a random hooker for this encounter
         selected_hooker = random.choice(POTENTIAL_HOOKERS)
         hooker_name = selected_hooker.name
-        if action == 'fight':  # Try to recruit
-            # Store the selected hooker in session for recruitment
-            session['current_hooker'] = hooker_name
-            # Redirect to recruitment page
-            return redirect(url_for('recruit_hooker', hooker_name=hooker_name))
+        if action == 'fight':  # No longer offers recruitment - just intimidate/threaten
+            if random.random() > 0.4:
+                result = f"You intimidated {hooker_name}! She seems scared but nothing else happens."
+            else:
+                result = f"{hooker_name} wasn't intimidated and walks away quickly."
         elif action == 'run':  # Walk away
             result = "You decided not to get involved and walked away."
         elif action == 'sneak':  # Offer help
@@ -2277,7 +2362,18 @@ def process_fight_action():
 
             # Handle rewards based on enemy type
             npc_id = active_combat.get('npc_id')
-            if npc_id and npc_id in NPCS:
+            is_cop_fight = active_combat.get('is_cop_fight', False)
+
+            if is_cop_fight:
+                # Cop fight victory - escape the police chase
+                num_cops = active_combat.get('num_cops', 1)
+                fight_log.append(f"🚔 You successfully fight off {num_cops} police officer{'s' if num_cops > 1 else ''}!")
+                fight_log.append("The remaining officers flee the scene. You've escaped the police chase!")
+
+                emit_fight_message(game_state.current_location if game_state else "alleyway",
+                                  f"🚔 {attacker_name} fights off the police and escapes!",
+                                  attacker_name, "combat-victory")
+            elif npc_id and npc_id in NPCS:
                 # NPC-specific rewards
                 npc = NPCS[npc_id]
                 min_reward, max_reward = npc.reward_money

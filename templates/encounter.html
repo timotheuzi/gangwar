@@ -99,6 +99,13 @@
     </div>
 
     <div class="actions">
+        {% if encounter_context %}
+            {% if encounter_context.type == 'wander' %}
+                <a href="{{ url_for('continue_activity') }}" class="btn btn-success">Continue Wandering</a>
+            {% elif encounter_context.type == 'alleyway' %}
+                <a href="{{ url_for('continue_activity') }}" class="btn btn-success">Continue in Alleyway</a>
+            {% endif %}
+        {% endif %}
         <a href="{{ url_for('city') }}" class="btn btn-primary">Back to City (Give Up)</a>
     </div>
 
