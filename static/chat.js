@@ -2,7 +2,8 @@
 
 // Global variables
 var socket = null;
-var currentRoom = 'city'; // Default to city
+var currentRoom = 'global'; // Global chat room
+var locationRoom = 'city'; // Location-specific room for player list and PVP
 var playerName = 'Unknown Player'; // Default name
 var isConnected = false;
 
@@ -20,6 +21,9 @@ function initSocketIO() {
     if (window.currentRoom) {
         currentRoom = window.currentRoom;
     }
+    if (window.locationRoom) {
+        locationRoom = window.locationRoom;
+    }
 
     socket = io();
 
@@ -28,7 +32,7 @@ function initSocketIO() {
         isConnected = true;
         updateConnectionStatus(true);
 
-        socket.emit('join', {room: currentRoom, player_name: playerName});
+        socket.emit('join', {room: currentRoom, location_room: locationRoom, player_name: playerName});
         refreshPlayerList();
     });
 
@@ -127,10 +131,13 @@ function updatePVPPlayerList(players) {
     }
 
     var html = '<ul class="pvp-player-items">';
+    var seenNames = new Set();
     for (var i = 0; i < players.length; i++) {
         var player = players[i];
         if (player && player.id && (!socket || player.id !== socket.id)) {
             var displayName = player.name || ('Player ' + String(player.id).substring(0, 8));
+            if (seenNames.has(displayName)) continue; // Skip duplicates
+            seenNames.add(displayName);
             var roomInfo = player.room ? ' [' + player.room + ']' : '';
             var status = player.in_fight ? ' (In Fight)' : '';
             html += '<li class="pvp-player-item">';
@@ -176,7 +183,7 @@ function refreshPlayerList() {
         return;
     }
 
-    socket.emit('get_player_list', {room: currentRoom});
+    socket.emit('get_player_list', {room: locationRoom});
 }
 
 // Challenge player to PVP
@@ -187,7 +194,7 @@ function challengePlayer(playerId, playerName) {
     }
 
     socket.emit('pvp_challenge', {
-        room: currentRoom,
+        room: locationRoom,
         target_id: playerId
     });
 }

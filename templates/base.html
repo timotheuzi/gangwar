@@ -25,13 +25,15 @@
     <script>
         // Set global variables from Flask template
         window.playerName = "{{ game_state.player_name }}";
-        window.currentRoom = "{{ game_state.current_location }}";
+        window.currentRoom = "global";
+        window.locationRoom = "{{ game_state.current_location }}";
     </script>
     {% else %}
     <script>
         // Fallback for pages without game_state
         window.playerName = "Unknown Player";
-        window.currentRoom = "city";
+        window.currentRoom = "global";
+        window.locationRoom = "city";
     </script>
     {% endif %}
     <script src="{{ url_for('static', filename='chat.js') }}"></script>

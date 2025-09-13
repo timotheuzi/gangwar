@@ -906,7 +906,9 @@ def stats():
 @app.route('/npcs')
 def npcs():
     game_state = get_game_state()
-    return render_template('npcs.html', game_state=game_state)
+    import random
+    npcs_list = random.sample(list(NPCS.values()), min(3, len(NPCS)))
+    return render_template('npcs.html', game_state=game_state, npcs=npcs_list)
 
 @app.route('/encounter')
 def encounter():
@@ -2733,6 +2735,7 @@ class NPC:
     drug_price_modifier: float = 1.0  # 1.0 = normal price, 0.8 = 20% discount, 1.5 = 50% markup
     robbery_chance: float = 0.0  # Chance NPC will try to rob player instead of buying
     personality: str = "neutral"  # For template compatibility
+    is_alive: bool = True  # For template compatibility
     drugs: DrugInventory = None  # For template compatibility
 
     def __post_init__(self):
@@ -3100,10 +3103,11 @@ def emit_fight_message(room, message, player_name="SYSTEM", message_class="comba
 if socketio and socketio is not None:
     @socketio.on('join')
     def handle_join(data):
-        room = data['room']
+        location_room = data.get('location_room', 'city')
         player_id = data.get('player_id', request.sid)
 
-        join_room(room)
+        join_room('global')
+        join_room(location_room)
 
         # Get game state to sync PVP stats with actual game state
         game_state = get_game_state()
@@ -3111,7 +3115,7 @@ if socketio and socketio is not None:
 
         # Remove player from all other rooms first to prevent duplicates
         for existing_room, room_players in players_in_rooms.items():
-            if existing_room != room and player_id in room_players:
+            if existing_room != location_room and player_id in room_players:
                 del room_players[player_id]
                 # Clean up empty rooms
                 if not room_players:
@@ -3121,9 +3125,9 @@ if socketio and socketio is not None:
                 socketio.emit('player_list', {'players': list(room_players.keys())}, room=existing_room)
 
         # Track player in new room
-        if room not in players_in_rooms:
-            players_in_rooms[room] = {}
-        players_in_rooms[room][player_id] = {
+        if location_room not in players_in_rooms:
+            players_in_rooms[location_room] = {}
+        players_in_rooms[location_room][player_id] = {
             'name': player_name,
             'sid': request.sid,
             'health': 100,  # Start with full health for PVP
@@ -3140,12 +3144,12 @@ if socketio and socketio is not None:
             'last_activity': time.time()  # Track last activity timestamp
         }
 
-        # Notify room of player join
-        socketio.emit('status', {'msg': f'{player_name} joined {room}'}, room=room, skip_sid=request.sid)
+        # Notify room of player join (for global chat)
+        socketio.emit('status', {'msg': f'{player_name} joined {location_room}'}, room='global', skip_sid=request.sid)
 
         # Send updated player list to all players in the room
-        player_list = list(players_in_rooms[room].keys())
-        socketio.emit('player_list', {'players': player_list}, room=room)
+        player_list = list(players_in_rooms[location_room].keys())
+        socketio.emit('player_list', {'players': player_list}, room=location_room)
 
     @socketio.on('leave')
     def handle_leave(data):
