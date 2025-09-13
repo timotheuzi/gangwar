@@ -1,18 +1,23 @@
 #!/usr/bin/env python3
 """
-WSGI application file for PythonAnywhere deployment.
-This file serves as the entry point for the WSGI server.
+gangwar Game - PythonAnywhere Deployment Entry Point
+This file serves as the main entry point for deploying on PythonAnywhere
 """
 
-import sys
 import os
+import sys
 
-# Add the current directory to Python path
-sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+# Add current directory to Python path
+sys.path.insert(0, os.path.dirname(__file__))
 
 # Import the Flask application
-from app import app as application
+from app import app, socketio
 
-# For debugging (optional - remove in production)
 if __name__ == '__main__':
-    application.run()
+    # For local development/testing
+    print("Starting Game server...")
+    socketio.run(app, host='0.0.0.0', port=int(os.environ.get('PORT', 5005)), debug=False)
+
+# For PythonAnywhere WSGI
+# This will be used by PythonAnywhere's WSGI configuration
+application = app

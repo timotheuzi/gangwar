@@ -683,8 +683,6 @@ footer {
 /* Pick n' Save Store */
 .picknsave-screen {
     padding: 15px;
-    max-height: calc(100vh - 200px);
-    overflow-y: auto;
 }
 
 .picknsave-screen h2 {

@@ -3109,7 +3109,18 @@ if socketio:
         game_state = get_game_state()
         player_name = game_state.player_name if game_state else data.get('player_name', 'Unknown Player')
 
-        # Track player in room
+        # Remove player from all other rooms first to prevent duplicates
+        for existing_room, room_players in players_in_rooms.items():
+            if existing_room != room and player_id in room_players:
+                del room_players[player_id]
+                # Clean up empty rooms
+                if not room_players:
+                    del players_in_rooms[existing_room]
+                # Notify the old room that player left
+                socketio.emit('status', {'msg': f'{player_name} left {existing_room}'}, room=existing_room)
+                socketio.emit('player_list', {'players': list(room_players.keys())}, room=existing_room)
+
+        # Track player in new room
         if room not in players_in_rooms:
             players_in_rooms[room] = {}
         players_in_rooms[room][player_id] = {
@@ -3128,9 +3139,6 @@ if socketio:
             'flask_session_id': session.get('game_state') is not None,  # Track if they have an active game
             'last_activity': time.time()  # Track last activity timestamp
         }
-
-        # Update activity timestamp for the joining player
-        players_in_rooms[room][player_id]['last_activity'] = time.time()
 
         # Notify room of player join
         socketio.emit('status', {'msg': f'{player_name} joined {room}'}, room=room, skip_sid=request.sid)
@@ -3168,8 +3176,8 @@ if socketio:
         if room in players_in_rooms and player_id in players_in_rooms[room]:
             players_in_rooms[room][player_id]['last_activity'] = time.time()
 
-        # Emit globally to all connected clients instead of just the room
-        socketio.emit('chat_message', {'player': player_name, 'message': message, 'room': room})
+        # Emit to the specific room only
+        socketio.emit('chat_message', {'player': player_name, 'message': message, 'room': room}, room=room)
 
     def cleanup_inactive_players():
         """Remove players who haven't been active for 5 minutes"""
@@ -3217,9 +3225,9 @@ if socketio:
         if room in players_in_rooms and player_id in players_in_rooms[room]:
             players_in_rooms[room][player_id]['last_activity'] = current_time
 
-    # Get all players globally across all rooms, filtering out inactive and unknown players
-    all_players = []
-    for room_name, room_players in players_in_rooms.items():
+        # Get players only from the current room, filtering out inactive and unknown players
+        room_players = players_in_rooms.get(room, {})
+        all_players = []
         for player_id, player_data in room_players.items():
             if player_id != request.sid:  # Don't include self
                 # Check if player has been active within the last 5 minutes
@@ -3235,9 +3243,9 @@ if socketio:
                         'id': player_id,
                         'name': player_name,
                         'in_fight': player_data.get('in_fight', False),
-                        'room': room_name  # Include room info
+                        'room': room  # Include room info
                     })
-    socketio.emit('player_list', {'players': all_players})
+        socketio.emit('player_list', {'players': all_players})
 
     @socketio.on('pvp_challenge')
     def handle_pvp_challenge(data):
@@ -3472,7 +3480,7 @@ def calculate_pvp_damage(weapon, player_data):
 
 if __name__ == '__main__':
     if socketio:
-        socketio.run(app, host='0.0.0.0', port=5005, debug=True)
+        socketio.run(app, host='0.0.0.0', port=5006, debug=True)
     else:
         # Run without SocketIO for bundled applications
-        app.run(host='0.0.0.0', port=5005, debug=True)
+        app.run(host='0.0.0.0', port=5006, debug=True)
