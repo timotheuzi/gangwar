@@ -520,13 +520,13 @@ app.config.from_object(Config)
 # Handle SocketIO for PyInstaller bundles
 # Enable SocketIO for both development and bundled applications
 if Config.IS_BUNDLED:
-    # For bundled applications, let SocketIO auto-detect async mode (threading forced by env var)
-    socketio = SocketIO(app, engineio_logger=False, cors_allowed_origins="*")
-    print("Running in bundled mode - SocketIO enabled")
+    # For bundled applications, disable SocketIO to avoid initialization issues
+    socketio = None
+    print("Running in bundled mode - SocketIO disabled")
 else:
     # For development, use threading mode
     socketio = SocketIO(app, async_mode='threading', engineio_logger=False, cors_allowed_origins="*")
-    print("SocketIO enabled")
+    print("SocketIO enabled with threading")
 
 # Routes
 
@@ -1968,16 +1968,16 @@ def handle_encounter():
 
     if encounter_type == 'squidies':
         if action == 'fight':
-            # Emit combat start message to chat
-            emit_fight_message(game_state.current_location,
-                              f"⚔️ COMBAT: {game_state.player_name} encounters a Squidie Gang Member!",
-                              "SYSTEM")
-
             # Start detailed MUD-style combat
             combat_id = f"combat_{random.randint(1000, 9999)}"
             enemy_type = "Squidie Gang Member"
             enemy_health = 8
             enemy_count = 1
+
+            # Emit combat start message to chat
+            emit_fight_message(game_state.current_location,
+                              f"⚔️ COMBAT: {game_state.player_name} encounters a {enemy_type}!",
+                              "SYSTEM")
 
             # Initialize combat log
             fight_log = [
@@ -3088,7 +3088,7 @@ def determine_combat_message_class(action_type, damage=0, weapon="", is_critical
 
 def emit_fight_message(room, message, player_name="SYSTEM", message_class="combat-system"):
     """Emit a fight message to all players in the specified room"""
-    if socketio:
+    if socketio and socketio is not None:
         socketio.emit('chat_message', {
             'player': player_name,
             'message': message,
@@ -3097,7 +3097,7 @@ def emit_fight_message(room, message, player_name="SYSTEM", message_class="comba
         }, room=room)
 
 # SocketIO events - only define if socketio is available
-if socketio:
+if socketio and socketio is not None:
     @socketio.on('join')
     def handle_join(data):
         room = data['room']
@@ -3483,4 +3483,5 @@ if __name__ == '__main__':
         socketio.run(app, host='0.0.0.0', port=5006, debug=True)
     else:
         # Run without SocketIO for bundled applications
+        print("Starting Flask app without SocketIO...")
         app.run(host='0.0.0.0', port=5006, debug=True)

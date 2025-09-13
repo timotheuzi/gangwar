@@ -30,38 +30,8 @@
         </ul>
     </div>
 
-    <div class="chat-pvp-container">
-        <div class="chat-section">
-            <h4>City Chat</h4>
-            <div id="chat-messages" class="chat-messages"></div>
-            <div class="chat-input">
-                <input type="text" id="chat-input" placeholder="Type your message..." maxlength="200">
-                <button id="send-chat" class="btn btn-primary btn-small">Send</button>
-            </div>
-        </div>
 
-        <!-- Chat Users Section -->
-        <div class="pvp-section">
-            <h3>👥 Chat Users</h3>
-            <div id="pvp-player-list" class="pvp-player-list">
-                <p>Loading users...</p>
-            </div>
-            <div id="player-list"></div>
-            <div class="pvp-actions">
-                <button onclick="refreshPlayerList()" class="btn btn-secondary btn-small">Refresh Users</button>
-            </div>
-        </div>
-    </div>
 </div>
 
-{% block footer %}
-<div class="mature-rating">
-    <div style="background: var(--secondary-bg); backdrop-filter: blur(10px); border: 1px solid var(--border-primary); border-radius: var(--radius-md); padding: 16px; margin: 16px 0; text-align: center;">
-        <p style="color: var(--text-warning); font-weight: 600; margin: 0; font-size: 0.9em;">
-            <span style="color: var(--text-danger); font-size: 1.2em;">⚠️</span>
-            <strong>MATURE RATING:</strong> This game contains mature themes including drug dealing, violence, and criminal activities. Intended for adults 18+ only.
-        </p>
-    </div>
-</div>
-{% endblock %}
+{% block footer %}{% endblock %}
 {% endblock %}

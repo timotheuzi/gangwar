@@ -18,6 +18,11 @@ mkdir -p dist
 cp pythonanywhere.py dist/ 2>/dev/null || echo "pythonanywhere.py not found"
 cp run.sh dist/ 2>/dev/null || echo "run.sh not found"
 
+# Make run.sh executable if it exists in dist
+if [ -f "dist/run.sh" ]; then
+    chmod +x dist/run.sh
+fi
+
 # Clean previous build
 echo "Cleaning previous build..."
 rm -rf build dist/gangwar dist/gangwar.exe
@@ -34,9 +39,25 @@ python generate_env.py
 if [ -f "dist/gangwar" ] || [ -f "dist/gangwar.exe" ]; then
     echo "Build successful! Files created in dist/ directory:"
     ls -la dist/
+
+    # Make the executable runnable
+    if [ -f "dist/gangwar" ]; then
+        chmod +x dist/gangwar
+        echo "Made executable runnable: ./dist/gangwar"
+    fi
+
+    if [ -f "dist/gangwar.exe" ]; then
+        chmod +x dist/gangwar.exe
+        echo "Made executable runnable: ./dist/gangwar.exe"
+    fi
+
     echo ""
     echo "To run the application:"
-    echo "./dist/run.sh"
+    echo "./dist/gangwar"
+    echo "or"
+    echo "./dist/gangwar.exe  (on Windows)"
+    echo ""
+    echo "The executable is standalone and requires no external Python installation or libraries."
     echo ""
     echo "For PythonAnywhere deployment:"
     echo "Upload the contents of the dist/ directory to PythonAnywhere"
