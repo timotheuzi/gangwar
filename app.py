@@ -1103,6 +1103,11 @@ def start_war():
     combat_log.append(f"Squidie gang: {enemy_members} members")
     combat_log.append("")
 
+    # Emit initial gang war messages to global chat
+    emit_fight_message(game_state.current_location, "🏴‍☠️ GANG WAR BEGINS! 🏴‍☠️", game_state.player_name)
+    emit_fight_message(game_state.current_location, f"Your gang: {player_members} members", game_state.player_name)
+    emit_fight_message(game_state.current_location, f"Squidie gang: {enemy_members} members", "SYSTEM")
+
     # Calculate total attacks per side
     player_total_attacks = calculate_gang_attack_potential(player_members, player_weapons)
     enemy_total_attacks = calculate_gang_attack_potential(enemy_members, enemy_weapons)
@@ -1119,6 +1124,7 @@ def start_war():
     # Continue until one side is defeated or max rounds reached
     while player_members > 0 and enemy_members > 0 and round_num <= 10:
         combat_log.append(f"🗡️ ROUND {round_num} 🗡️")
+        emit_fight_message(game_state.current_location, f"🗡️ ROUND {round_num} 🗡️", "SYSTEM")
 
         # Player gang attacks
         round_player_damage = simulate_gang_round_attacks(
@@ -1140,10 +1146,12 @@ def start_war():
             if player_losses > 0:
                 player_members -= player_losses
                 combat_log.append(f"💀 Your gang loses {player_losses} member{'s' if player_losses > 1 else ''}! ({player_members} remaining)")
+                emit_fight_message(game_state.current_location, f"💀 Your gang loses {player_losses} member{'s' if player_losses > 1 else ''}! ({player_members} remaining)", "SYSTEM")
 
             if enemy_losses > 0:
                 enemy_members -= enemy_losses
                 combat_log.append(f"💀 Squidie gang loses {enemy_losses} member{'s' if enemy_losses > 1 else ''}! ({enemy_members} remaining)")
+                emit_fight_message(game_state.current_location, f"💀 Squidie gang loses {enemy_losses} member{'s' if enemy_losses > 1 else ''}! ({enemy_members} remaining)", "SYSTEM")
 
         combat_log.append("")
         round_num += 1
@@ -1156,6 +1164,11 @@ def start_war():
         combat_log.append(f"💰 Your gang looted the battlefield and gained experience!")
         combat_log.append(f"📊 Final Score - Your gang: {player_members} | Squidies: {enemy_members}")
 
+        # Emit final victory messages to global chat
+        emit_fight_message(game_state.current_location, "🎉 VICTORY! Your gang has defeated the Squidies!", game_state.player_name)
+        emit_fight_message(game_state.current_location, f"💰 Your gang looted the battlefield and gained experience!", game_state.player_name)
+        emit_fight_message(game_state.current_location, f"📊 Final Score - Your gang: {player_members} | Squidies: {enemy_members}", "SYSTEM")
+
         # Save combat log to session for display
         session['gang_war_log'] = combat_log
         session['game_state'] = asdict(game_state)
@@ -1163,6 +1176,10 @@ def start_war():
     else:
         combat_log.append("💀 DEFEAT! The Squidies have overwhelmed your gang!")
         combat_log.append(f"📊 Final Score - Your gang: {player_members} | Squidies: {enemy_members}")
+
+        # Emit final defeat messages to global chat
+        emit_fight_message(game_state.current_location, "💀 DEFEAT! The Squidies have overwhelmed your gang!", "SYSTEM")
+        emit_fight_message(game_state.current_location, f"📊 Final Score - Your gang: {player_members} | Squidies: {enemy_members}", "SYSTEM")
 
         # Save combat log to session for display
         session['gang_war_log'] = combat_log
@@ -3090,12 +3107,12 @@ def determine_combat_message_class(action_type, damage=0, weapon="", is_critical
         return "combat-system"
 
 def emit_fight_message(room, message, player_name="SYSTEM", message_class="combat-system"):
-    """Emit a fight message to all players in the specified room"""
+    """Emit a fight message to all players in the specific room where the fight is happening"""
     if socketio and socketio is not None:
         socketio.emit('chat_message', {
             'player': player_name,
             'message': message,
-            'room': room,
+            'room': room,  # Emit to the specific room where the fight is happening
             'message_class': message_class
         }, room=room)
 
@@ -3180,8 +3197,8 @@ if socketio and socketio is not None:
         if room in players_in_rooms and player_id in players_in_rooms[room]:
             players_in_rooms[room][player_id]['last_activity'] = time.time()
 
-        # Emit to the specific room only
-        socketio.emit('chat_message', {'player': player_name, 'message': message, 'room': room}, room=room)
+        # Emit to global room so all players see all chat messages
+        socketio.emit('chat_message', {'player': player_name, 'message': message, 'room': 'global'}, room='global')
 
     def cleanup_inactive_players():
         """Remove players who haven't been active for 5 minutes"""
