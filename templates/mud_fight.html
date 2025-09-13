@@ -234,8 +234,10 @@ function initializeCombatLog() {
     // Limit initial messages if there are too many
     limitCombatMessages();
 
-    // Scroll to bottom
-    scrollCombatToBottom();
+    // Scroll to bottom with a small delay to ensure content is rendered
+    setTimeout(() => {
+        scrollCombatToBottom();
+    }, 100);
 }
 
 function addCombatMessage(message, messageClass) {
