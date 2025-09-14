@@ -14,11 +14,19 @@
                     <h4>Food Supplies</h4>
                     <p>Keep your gang fed and happy</p>
                     <p>Cost: $500 per day</p>
+                    <form method="POST" action="{{ url_for('picknsave_action') }}" class="inline-form">
+                        <input type="hidden" name="action" value="buy_food">
+                        <button type="submit" class="btn btn-success">Buy Food Supplies</button>
+                    </form>
                 </div>
                 <div class="item">
                     <h4>Medical Supplies</h4>
                     <p>Heal your wounds and stay healthy</p>
                     <p>Cost: $1,000 per treatment</p>
+                    <form method="POST" action="{{ url_for('picknsave_action') }}" class="inline-form">
+                        <input type="hidden" name="action" value="buy_medical">
+                        <button type="submit" class="btn btn-info">Buy Medical Supplies</button>
+                    </form>
                 </div>
             </div>
         </div>
