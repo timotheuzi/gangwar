@@ -1,5 +1,6 @@
 # -*- mode: python ; coding: utf-8 -*-
 
+block_cipher = None
 
 a = Analysis(
     ['app.py'],
@@ -11,31 +12,39 @@ a = Analysis(
         ('npcs.json', '.'),
     ],
     hiddenimports=[
-        'flask_socketio',
-        'socketio',
-        'engineio',
-        'eventlet',
-        'gevent',
         'flask',
-        'werkzeug',
-        'jinja2',
-        'click',
-        'itsdangerous',
-        'blinker',
+        'flask_socketio',
+        'eventlet',
+        'engineio',
+        'socketio',
+        'dataclasses',
+        'json',
+        'os',
+        'random',
+        'secrets',
+        'subprocess',
+        'sys',
+        'time',
+        'threading',
+        'typing',
     ],
     hookspath=[],
     hooksconfig={},
     runtime_hooks=[],
     excludes=[],
+    win_no_prefer_redirects=False,
+    win_private_assemblies=False,
+    cipher=block_cipher,
     noarchive=False,
-    optimize=0,
 )
-pyz = PYZ(a.pure)
+
+pyz = PYZ(a.pure, a.zipped_data, cipher=block_cipher)
 
 exe = EXE(
     pyz,
     a.scripts,
     a.binaries,
+    a.zipfiles,
     a.datas,
     [],
     name='gangwar',
@@ -51,4 +60,5 @@ exe = EXE(
     target_arch=None,
     codesign_identity=None,
     entitlements_file=None,
+    icon=None,
 )

@@ -9,9 +9,11 @@ echo "Building Gangwar Game for cross-platform deployment..."
 cleanup_disk_space() {
     echo "Attempting to free up disk space..."
 
-    # Remove old build files
+    # Remove old build files (but preserve gangwar.spec)
     echo "Removing old build files..."
-    rm -rf build/ dist/ *.spec 2>/dev/null || true
+    rm -rf build/ dist/ 2>/dev/null || true
+    # Remove other spec files but keep gangwar.spec
+    find . -maxdepth 1 -name "*.spec" ! -name "gangwar.spec" -delete 2>/dev/null || true
 
     # Clean Python cache
     echo "Cleaning Python cache files..."

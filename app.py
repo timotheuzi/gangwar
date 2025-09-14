@@ -99,6 +99,7 @@ class Weapons:
     missile_launcher: int = 0
     missiles: int = 0
     vest: int = 0
+    knife: int = 0
 
     def can_fight_with_pistol(self):
         return self.pistols > 0 and self.bullets > 0
@@ -109,8 +110,15 @@ class GameState:
     gang_name: str = ""
     money: int = 1000
     account: int = 0
+    loan: int = 0
     members: int = 5
     squidies: int = 25
+    squidies_pistols: int = 10
+    squidies_uzis: int = 5
+    squidies_bullets: int = 100
+    squidies_grenades: int = 20
+    squidies_missile_launcher: int = 2
+    squidies_missiles: int = 10
     day: int = 1
     health: int = 100
     steps: int = 0
@@ -357,43 +365,112 @@ def wander():
     """Wander the Streets"""
     game_state = get_game_state()
 
-    # List of possible wander results
-    wander_messages = [
-        "You wander the streets and find a discarded wallet with $50!",
-        "You encounter a street performer who gives you some tips on the local scene.",
-        "You overhear some gang members talking about upcoming turf wars.",
-        "You find a quiet spot to rest and regain some health.",
-        "You notice some suspicious activity but decide to keep moving.",
-        "You bump into an old contact who shares some gossip.",
-        "You wander into a rough neighborhood and narrowly avoid trouble.",
-        "You find some discarded drugs worth $200 on the street.",
-        "You help a local shopkeeper and get rewarded with information.",
-        "You wander around the city without incident.",
-        "You see a police patrol and quickly hide in an alley.",
-        "You find a hidden stash of weapons.",
-        "You encounter a beggar who tells you about secret locations.",
-        "You wander through a market district and haggle for better prices.",
-        "You stumble upon a gang recruitment drive."
-    ]
+    # Check for police chase (10% chance)
+    if random.random() < 0.1:
+        if game_state.flags.has_id:
+            result = "You see a police patrol but your fake ID saves you from getting stopped!"
+            flash("Your fake ID protected you from police harassment!", "success")
+        else:
+            # Police chase sequence
+            save_game_state(game_state)
+            return render_template('cop_chase.html', game_state=game_state)
 
-    # Ensure randomness by seeding with current time
-    random.seed(time.time())
-    # Select a random message
-    result = random.choice(wander_messages)
+    # Check for baby momma incident (8% chance)
+    elif random.random() < 0.08:
+        baby_momma_messages = [
+            "Your baby momma spots you from across the street and starts yelling about child support!",
+            "You run into one of your many baby mommas who demands money for the kids!",
+            "A woman approaches you claiming you're the father of her child and demands $500!",
+            "You see your ex approaching with a determined look - she wants money for the kids!"
+        ]
+        result = random.choice(baby_momma_messages)
+        # Lose money if you have it
+        if game_state.money >= 200:
+            game_state.money -= 200
+            result += f" You pay her $200 to make her go away."
+        elif game_state.money >= 100:
+            game_state.money -= 100
+            result += f" You give her $100 to calm her down."
+        else:
+            result += " You don't have any money to give her!"
+            game_state.health = max(0, game_state.health - 10)  # She beats you up
 
-    # Apply effects based on the result
-    if "wallet with $50" in result:
-        game_state.money += 50
-    elif "discarded drugs worth $200" in result:
-        game_state.money += 200
-    elif "find a quiet spot" in result:
-        game_state.health = min(100, game_state.health + 10)
-    elif "hidden stash of weapons" in result:
-        game_state.weapons.bullets += 5
-    elif "without incident" not in result and "trouble" not in result and "police" not in result:
-        # Minor health damage for risky wanders
-        if random.random() < 0.3:
-            game_state.health = max(0, game_state.health - 5)
+    # Check for small gang fight (12% chance)
+    elif random.random() < 0.12:
+        enemy_members = random.randint(3, 8)
+        result = f"You encounter {enemy_members} rival gang members looking for trouble!"
+
+        # Calculate combat odds
+        player_power = game_state.members + (game_state.weapons.pistols * 2) + (game_state.weapons.uzis * 3)
+        enemy_power = enemy_members
+
+        if player_power > enemy_power:
+            # Victory
+            killed = min(enemy_members, random.randint(1, enemy_members))
+            game_state.squidies = max(0, game_state.squidies - killed)
+            money_gained = killed * 50
+            game_state.money += money_gained
+            result += f" You and your gang win the fight! You kill {killed} of them and take ${money_gained}."
+            flash(f"Gang fight victory! Killed {killed} enemies!", "success")
+        elif player_power >= enemy_power * 0.8:
+            # Stalemate with casualties
+            player_casualties = random.randint(0, min(2, game_state.members - 1))
+            enemy_casualties = random.randint(1, enemy_members)
+            game_state.members = max(1, game_state.members - player_casualties)
+            game_state.squidies = max(0, game_state.squidies - enemy_casualties)
+            if player_casualties > 0:
+                result += f" The fight is brutal! You lose {player_casualties} gang member(s) but kill {enemy_casualties} of them."
+            else:
+                result += f" You manage to fight them off without losing anyone, killing {enemy_casualties} enemies!"
+        else:
+            # Defeat
+            player_casualties = random.randint(1, min(3, game_state.members))
+            game_state.members = max(1, game_state.members - player_casualties)
+            money_lost = random.randint(100, 500)
+            game_state.money = max(0, game_state.money - money_lost)
+            game_state.health = max(0, game_state.health - 20)
+            result += f" You get beaten badly! You lose {player_casualties} gang member(s) and ${money_lost}."
+            flash(f"Gang fight defeat! Lost {player_casualties} members!", "danger")
+
+    # Regular wander results (remaining ~70% chance)
+    else:
+        # List of possible wander results
+        wander_messages = [
+            "You wander the streets and find a discarded wallet with $50!",
+            "You encounter a street performer who gives you some tips on the local scene.",
+            "You overhear some gang members talking about upcoming turf wars.",
+            "You find a quiet spot to rest and regain some health.",
+            "You notice some suspicious activity but decide to keep moving.",
+            "You bump into an old contact who shares some gossip.",
+            "You wander into a rough neighborhood and narrowly avoid trouble.",
+            "You find some discarded drugs worth $200 on the street.",
+            "You help a local shopkeeper and get rewarded with information.",
+            "You wander around the city without incident.",
+            "You see a police patrol and quickly hide in an alley.",
+            "You find a hidden stash of weapons.",
+            "You encounter a beggar who tells you about secret locations.",
+            "You wander through a market district and haggle for better prices.",
+            "You stumble upon a gang recruitment drive."
+        ]
+
+        # Ensure randomness by seeding with current time
+        random.seed(time.time())
+        # Select a random message
+        result = random.choice(wander_messages)
+
+        # Apply effects based on the result
+        if "wallet with $50" in result:
+            game_state.money += 50
+        elif "discarded drugs worth $200" in result:
+            game_state.money += 200
+        elif "find a quiet spot" in result:
+            game_state.health = min(100, game_state.health + 10)
+        elif "hidden stash of weapons" in result:
+            game_state.weapons.bullets += 5
+        elif "without incident" not in result and "trouble" not in result and "police" not in result:
+            # Minor health damage for risky wanders
+            if random.random() < 0.3:
+                game_state.health = max(0, game_state.health - 5)
 
     # Increment steps
     game_state.steps += 1
@@ -404,8 +481,8 @@ def wander():
         game_state.steps = 0
         # Reset some daily things if needed
 
-    # Check for NPC encounter
-    if random.random() < 0.3 and npcs:
+    # Check for NPC encounter (15% chance, down from 30% since we have more events now)
+    if random.random() < 0.15 and npcs:
         wander_npcs = [npc for npc in npcs.values() if npc['location'] == 'wander']
         if wander_npcs:
             npc = random.choice(wander_npcs)
@@ -699,6 +776,178 @@ def pickup_loot(npc_id):
         message = "You can't loot a living person."
     save_game_state(game_state)
     return render_template('npc_interaction.html', npc=npc, action='loot', message=message, game_state=game_state)
+
+@app.route('/cop_chase')
+def cop_chase():
+    """Police chase encounter"""
+    game_state = get_game_state()
+    num_cops = random.randint(2, 6)
+    message = f"Oh no! {num_cops} police officers spot you and give chase!"
+    return render_template('cop_chase.html', game_state=game_state, num_cops=num_cops, message=message)
+
+@app.route('/fight_cops', methods=['POST'])
+def fight_cops():
+    """Handle police fight actions"""
+    game_state = get_game_state()
+    action = request.form.get('action')
+    weapon = request.form.get('weapon')
+    num_cops = int(request.form.get('num_cops', 2))
+
+    if action == 'run':
+        # Try to escape
+        escape_chance = random.random()
+        if escape_chance < 0.6:  # 60% chance to escape
+            flash("You manage to escape the police chase!", "success")
+            save_game_state(game_state)
+            return redirect(url_for('city'))
+        else:
+            # Failed to escape, take damage
+            damage = random.randint(10, 30)
+            if game_state.weapons.vest > 0:
+                game_state.weapons.vest -= 1
+                damage = max(0, damage - 20)  # Vest reduces damage
+                message = f"You failed to escape! Your vest absorbed some damage but you still took {damage} damage."
+            else:
+                message = f"You failed to escape and took {damage} damage from police gunfire!"
+
+            game_state.damage += damage
+            if game_state.damage >= 10:
+                game_state.lives -= 1
+                game_state.damage = 0
+                game_state.health = 100
+                if game_state.lives <= 0:
+                    flash("You died and ran out of lives! Game Over!", "danger")
+                    return redirect(url_for('game_over'))
+                else:
+                    flash(f"You died but have {game_state.lives} lives remaining!", "warning")
+                    save_game_state(game_state)
+                    return redirect(url_for('city'))
+
+            return render_template('cop_chase.html', game_state=game_state, num_cops=num_cops, message=message)
+
+    elif action == 'shoot':
+        # Combat with police
+        if weapon == 'pistol' and game_state.weapons.bullets > 0:
+            game_state.weapons.bullets -= 1
+            cops_killed = min(num_cops, random.randint(1, 3))
+            num_cops -= cops_killed
+
+            # Police shoot back
+            damage = random.randint(5, 25) * (num_cops if num_cops > 0 else 1)
+            if game_state.weapons.vest > 0:
+                game_state.weapons.vest -= 1
+                damage = max(0, damage - 20)
+
+            game_state.damage += damage
+
+            if num_cops <= 0:
+                flash(f"You killed all the cops and escaped! {cops_killed} officers down!", "success")
+                save_game_state(game_state)
+                return redirect(url_for('city'))
+            else:
+                message = f"You killed {cops_killed} cop(s) but {num_cops} remain and shot back! You took {damage} damage."
+                if game_state.damage >= 10:
+                    game_state.lives -= 1
+                    game_state.damage = 0
+                    game_state.health = 100
+                    if game_state.lives <= 0:
+                        flash("You died in the shootout! Game Over!", "danger")
+                        return redirect(url_for('game_over'))
+                    else:
+                        flash(f"You died in the shootout but have {game_state.lives} lives remaining!", "warning")
+                        save_game_state(game_state)
+                        return redirect(url_for('city'))
+
+        elif weapon == 'uzi' and game_state.weapons.bullets > 0:
+            game_state.weapons.bullets -= min(10, game_state.weapons.bullets)  # Uzi uses 10 bullets
+            cops_killed = min(num_cops, random.randint(2, 5))
+            num_cops -= cops_killed
+
+            damage = random.randint(10, 40) * (num_cops if num_cops > 0 else 1)
+            if game_state.weapons.vest > 0:
+                game_state.weapons.vest -= 1
+                damage = max(0, damage - 20)
+
+            game_state.damage += damage
+
+            if num_cops <= 0:
+                flash(f"You sprayed the cops with your Uzi! {cops_killed} officers down!", "success")
+                save_game_state(game_state)
+                return redirect(url_for('city'))
+            else:
+                message = f"You sprayed {cops_killed} cop(s) but {num_cops} remain! Massive shootout - you took {damage} damage."
+
+        elif weapon == 'grenade' and game_state.weapons.grenades > 0:
+            game_state.weapons.grenades -= 1
+            cops_killed = min(num_cops, random.randint(3, 6))
+            num_cops -= cops_killed
+
+            if num_cops <= 0:
+                flash(f"Grenade explosion! {cops_killed} cops eliminated!", "success")
+                save_game_state(game_state)
+                return redirect(url_for('city'))
+            else:
+                damage = random.randint(20, 50)
+                if game_state.weapons.vest > 0:
+                    game_state.weapons.vest -= 1
+                    damage = max(0, damage - 20)
+                game_state.damage += damage
+                message = f"Grenade blast killed {cops_killed} cops but you're hurt too! {damage} damage."
+
+        elif weapon == 'missile_launcher' and game_state.weapons.missiles > 0:
+            game_state.weapons.missiles -= 1
+            cops_killed = num_cops  # Missile kills all remaining cops
+            num_cops = 0
+
+            damage = random.randint(30, 60)
+            if game_state.weapons.vest > 0:
+                game_state.weapons.vest -= 1
+                damage = max(0, damage - 20)
+            game_state.damage += damage
+
+            flash(f"RPG blast! All {cops_killed} cops eliminated!", "success")
+            save_game_state(game_state)
+            return redirect(url_for('city'))
+
+        elif weapon == 'knife':
+            damage_to_player = random.randint(15, 35) * num_cops
+            if game_state.weapons.vest > 0:
+                game_state.weapons.vest -= 1
+                damage_to_player = max(0, damage_to_player - 20)
+            game_state.damage += damage_to_player
+            message = f"You tried to fight with a knife but got overwhelmed! {damage_to_player} damage from {num_cops} cops."
+
+        elif weapon == 'vampire_bat':
+            damage_to_player = random.randint(20, 45) * num_cops
+            if game_state.weapons.vest > 0:
+                game_state.weapons.vest -= 1
+                damage_to_player = max(0, damage_to_player - 20)
+            game_state.damage += damage_to_player
+            message = f"The vampire bat didn't help much! {damage_to_player} damage from {num_cops} cops shooting back."
+
+        # Check if player died
+        if game_state.damage >= 10:
+            game_state.lives -= 1
+            game_state.damage = 0
+            game_state.health = 100
+            if game_state.lives <= 0:
+                flash("You died in the police shootout! Game Over!", "danger")
+                return redirect(url_for('game_over'))
+            else:
+                flash(f"You died but have {game_state.lives} lives remaining!", "warning")
+                save_game_state(game_state)
+                return redirect(url_for('city'))
+
+        return render_template('cop_chase.html', game_state=game_state, num_cops=num_cops, message=message)
+
+    save_game_state(game_state)
+    return redirect(url_for('city'))
+
+@app.route('/game_over')
+def game_over():
+    """Game Over screen"""
+    game_state = get_game_state()
+    return render_template('game_over.html', game_state=game_state)
 
 # ============
 # SocketIO Events

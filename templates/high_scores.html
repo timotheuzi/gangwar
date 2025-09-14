@@ -15,9 +15,9 @@
                             <strong>{{ score.player_name }}</strong> - {{ score.gang_name }}
                         </div>
                         <div class="score-breakdown">
-                            <span class="total-score">Score: {{ score.score|number_format }}</span>
+                            <span class="total-score">Score: {{ "{:,}".format(score.score) }}</span>
                             <div class="score-components">
-                                <small>Money: ${{ score.money_earned|number_format }}</small>
+                                <small>Money: ${{ "{:,}".format(score.money_earned) }}</small>
                                 <small>Days: {{ score.days_survived }}</small>
                                 <small>Gang Wars: {{ score.gang_wars_won }}</small>
                                 <small>Fights: {{ score.fights_won }}</small>
