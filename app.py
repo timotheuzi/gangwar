@@ -10,6 +10,14 @@ from dataclasses import dataclass, asdict, field
 from typing import Dict, List, Optional, Tuple
 
 from flask import Flask, render_template, request, redirect, url_for, session, jsonify, abort, flash
+
+# Load NPCs
+try:
+    with open('npcs.json', 'r') as f:
+        npcs = json.load(f)
+except FileNotFoundError:
+    npcs = {}
+
 # ============
 # High Scores
 # ============
@@ -92,6 +100,9 @@ class Weapons:
     missiles: int = 0
     vest: int = 0
 
+    def can_fight_with_pistol(self):
+        return self.pistols > 0 and self.bullets > 0
+
 @dataclass
 class GameState:
     player_name: str = ""
@@ -104,6 +115,7 @@ class GameState:
     health: int = 100
     steps: int = 0
     max_steps: int = 100
+    current_location: str = "city"
     drug_prices: Dict[str, int] = field(default_factory=lambda: {
         'weed': 500,
         'crack': 1000,
@@ -136,6 +148,7 @@ def get_game_state():
 def save_game_state(game_state):
     """Save game state to session"""
     session['game_state'] = asdict(game_state)
+    session.modified = True
 
 # def check_and_update_high_scores(game_state: GameState, gang_wars_won: int = 0, fights_won: int = 0):
 #     """Check if current game qualifies for high score and update if necessary"""
@@ -219,12 +232,16 @@ def credits():
 def city():
     """City hub"""
     game_state = get_game_state()
+    game_state.current_location = "city"
+    save_game_state(game_state)
     return render_template('city.html', game_state=game_state)
 
 @app.route('/crackhouse')
 def crackhouse():
     """Big Johnny's Crack House"""
     game_state = get_game_state()
+    game_state.current_location = "crackhouse"
+    save_game_state(game_state)
     return render_template('crackhouse.html', game_state=game_state)
 
 @app.route('/gunshack')
@@ -255,18 +272,71 @@ def infobooth():
 def alleyway():
     """Explore Dark Alleyway"""
     game_state = get_game_state()
+    game_state.current_location = "alleyway"
+    save_game_state(game_state)
 
-    # Simple room structure for alleyway
-    current_room = {
-        'title': 'Dark Alley Entrance',
-        'description': 'You stand at the entrance of a dark alleyway. The streetlights cast long shadows, and you can hear distant sounds echoing off the walls.',
-        'exits': {
-            'north': 'alleyway_north',
-            'south': 'city',
-            'east': 'alleyway_east',
-            'west': 'alleyway_west'
+    # Define alleyway rooms
+    rooms = {
+        'entrance': {
+            'title': 'Dark Alley Entrance',
+            'description': 'You stand at the entrance of a dark alleyway. The streetlights cast long shadows, and you can hear distant sounds echoing off the walls.',
+            'exits': {
+                'north': 'dead_end',
+                'south': 'city',
+                'east': 'side_street',
+                'west': 'dumpster'
+            }
+        },
+        'dead_end': {
+            'title': 'Dead End',
+            'description': 'You reach a dead end with graffiti-covered walls. There\'s nothing here but trash and shadows.',
+            'exits': {
+                'south': 'entrance'
+            }
+        },
+        'side_street': {
+            'title': 'Side Street',
+            'description': 'You emerge onto a narrow side street. Cars occasionally drive by, and you see a few shady figures watching you.',
+            'exits': {
+                'west': 'entrance',
+                'north': 'hidden_entrance'
+            }
+        },
+        'dumpster': {
+            'title': 'Behind the Dumpster',
+            'description': 'You hide behind a large dumpster. The smell is awful, but you\'re well concealed. You find some discarded items.',
+            'exits': {
+                'east': 'entrance'
+            }
+        },
+        'hidden_entrance': {
+            'title': 'Hidden Entrance',
+            'description': 'You find a hidden entrance to an underground network. This could lead to interesting places...',
+            'exits': {
+                'south': 'side_street',
+                'down': 'underground'
+            }
+        },
+        'underground': {
+            'title': 'Underground Passage',
+            'description': 'You descend into a dimly lit underground passage. Water drips from the ceiling, and you hear echoes of distant footsteps.',
+            'exits': {
+                'up': 'hidden_entrance',
+                'north': 'secret_room'
+            }
+        },
+        'secret_room': {
+            'title': 'Secret Room',
+            'description': 'You enter a secret room filled with old crates and mysterious artifacts. There might be valuable items here.',
+            'exits': {
+                'south': 'underground'
+            }
         }
     }
+
+    # Get current room from session, default to entrance
+    current_room_id = session.get('current_alleyway_room', 'entrance')
+    current_room = rooms.get(current_room_id, rooms['entrance'])
 
     return render_template('alleyway.html', game_state=game_state, current_room=current_room)
 
@@ -286,7 +356,65 @@ def final_battle():
 def wander():
     """Wander the Streets"""
     game_state = get_game_state()
-    return render_template('wander_result.html', game_state=game_state)
+
+    # List of possible wander results
+    wander_messages = [
+        "You wander the streets and find a discarded wallet with $50!",
+        "You encounter a street performer who gives you some tips on the local scene.",
+        "You overhear some gang members talking about upcoming turf wars.",
+        "You find a quiet spot to rest and regain some health.",
+        "You notice some suspicious activity but decide to keep moving.",
+        "You bump into an old contact who shares some gossip.",
+        "You wander into a rough neighborhood and narrowly avoid trouble.",
+        "You find some discarded drugs worth $200 on the street.",
+        "You help a local shopkeeper and get rewarded with information.",
+        "You wander around the city without incident.",
+        "You see a police patrol and quickly hide in an alley.",
+        "You find a hidden stash of weapons.",
+        "You encounter a beggar who tells you about secret locations.",
+        "You wander through a market district and haggle for better prices.",
+        "You stumble upon a gang recruitment drive."
+    ]
+
+    # Ensure randomness by seeding with current time
+    random.seed(time.time())
+    # Select a random message
+    result = random.choice(wander_messages)
+
+    # Apply effects based on the result
+    if "wallet with $50" in result:
+        game_state.money += 50
+    elif "discarded drugs worth $200" in result:
+        game_state.money += 200
+    elif "find a quiet spot" in result:
+        game_state.health = min(100, game_state.health + 10)
+    elif "hidden stash of weapons" in result:
+        game_state.weapons.bullets += 5
+    elif "without incident" not in result and "trouble" not in result and "police" not in result:
+        # Minor health damage for risky wanders
+        if random.random() < 0.3:
+            game_state.health = max(0, game_state.health - 5)
+
+    # Increment steps
+    game_state.steps += 1
+
+    # Check if day ends
+    if game_state.steps >= game_state.max_steps:
+        game_state.day += 1
+        game_state.steps = 0
+        # Reset some daily things if needed
+
+    # Check for NPC encounter
+    if random.random() < 0.3 and npcs:
+        wander_npcs = [npc for npc in npcs.values() if npc['location'] == 'wander']
+        if wander_npcs:
+            npc = random.choice(wander_npcs)
+            save_game_state(game_state)
+            return render_template('npc_interaction.html', npc=npc, action='encounter', message=f"You encounter {npc['name']}. {npc['description']}", game_state=game_state)
+
+    save_game_state(game_state)
+
+    return render_template('wander_result.html', game_state=game_state, result=result)
 
 @app.route('/picknsave')
 def picknsave():
@@ -387,8 +515,100 @@ def visit_prostitutes():
 def move_room(direction):
     """Move to a different room in the alleyway"""
     game_state = get_game_state()
-    # For now, just redirect back to alleyway
-    # In a full implementation, this would handle room navigation
+
+    # Define alleyway rooms
+    rooms = {
+        'entrance': {
+            'title': 'Dark Alley Entrance',
+            'description': 'You stand at the entrance of a dark alleyway. The streetlights cast long shadows, and you can hear distant sounds echoing off the walls.',
+            'exits': {
+                'north': 'dead_end',
+                'south': 'city',
+                'east': 'side_street',
+                'west': 'dumpster'
+            }
+        },
+        'dead_end': {
+            'title': 'Dead End',
+            'description': 'You reach a dead end with graffiti-covered walls. There\'s nothing here but trash and shadows.',
+            'exits': {
+                'south': 'entrance'
+            }
+        },
+        'side_street': {
+            'title': 'Side Street',
+            'description': 'You emerge onto a narrow side street. Cars occasionally drive by, and you see a few shady figures watching you.',
+            'exits': {
+                'west': 'entrance',
+                'north': 'hidden_entrance'
+            }
+        },
+        'dumpster': {
+            'title': 'Behind the Dumpster',
+            'description': 'You hide behind a large dumpster. The smell is awful, but you\'re well concealed. You find some discarded items.',
+            'exits': {
+                'east': 'entrance'
+            }
+        },
+        'hidden_entrance': {
+            'title': 'Hidden Entrance',
+            'description': 'You find a hidden entrance to an underground network. This could lead to interesting places...',
+            'exits': {
+                'south': 'side_street',
+                'down': 'underground'
+            }
+        },
+        'underground': {
+            'title': 'Underground Passage',
+            'description': 'You descend into a dimly lit underground passage. Water drips from the ceiling, and you hear echoes of distant footsteps.',
+            'exits': {
+                'up': 'hidden_entrance',
+                'north': 'secret_room'
+            }
+        },
+        'secret_room': {
+            'title': 'Secret Room',
+            'description': 'You enter a secret room filled with old crates and mysterious artifacts. There might be valuable items here.',
+            'exits': {
+                'south': 'underground'
+            }
+        }
+    }
+
+    # Get current room from session, default to entrance
+    current_room_id = session.get('current_alleyway_room', 'entrance')
+
+    # Get the exit for the given direction
+    if current_room_id in rooms and direction in rooms[current_room_id]['exits']:
+        next_room = rooms[current_room_id]['exits'][direction]
+        if next_room == 'city':
+            # Special case: exit to city
+            session['current_alleyway_room'] = 'entrance'  # Reset for next time
+            session.modified = True
+            return redirect(url_for('city'))
+        else:
+            # Move to new room
+            session['current_alleyway_room'] = next_room
+            session.modified = True
+    else:
+        # Invalid direction, stay in current room
+        pass
+
+    # Increment steps for exploration
+    game_state.steps += 1
+    if game_state.steps >= game_state.max_steps:
+        game_state.day += 1
+        game_state.steps = 0
+
+    # Check for NPC encounter in alleyway
+    if random.random() < 0.2 and npcs:
+        alley_npcs = [npc for npc in npcs.values() if npc['location'] == 'alleyway']
+        if alley_npcs:
+            npc = random.choice(alley_npcs)
+            return render_template('npc_interaction.html', npc=npc, action='encounter', message=f"You encounter {npc['name']}. {npc['description']}", game_state=game_state)
+
+    save_game_state(game_state)
+
     return redirect(url_for('alleyway'))
 
 @app.route('/new_game', methods=['GET', 'POST'])
@@ -417,6 +637,68 @@ def new_game():
         return redirect(url_for('city'))
 
     return render_template('new_game.html')
+
+@app.route('/npc_interaction/<npc_id>')
+def npc_interaction(npc_id):
+    if npc_id not in npcs:
+        return redirect(url_for('city'))
+    npc = npcs[npc_id]
+    game_state = get_game_state()
+    return render_template('npc_interaction.html', npc=npc, action='encounter', message=f"You encounter {npc['name']}. {npc['description']}", game_state=game_state)
+
+@app.route('/talk_to_npc/<npc_id>')
+def talk_to_npc(npc_id):
+    if npc_id not in npcs:
+        return redirect(url_for('city'))
+    npc = npcs[npc_id]
+    game_state = get_game_state()
+    message = f"{npc['name']} says: Hello, {game_state.player_name}. What can I do for you?"
+    return render_template('npc_interaction.html', npc=npc, action='talk', message=message, game_state=game_state)
+
+@app.route('/trade_with_npc/<npc_id>')
+def trade_with_npc(npc_id):
+    if npc_id not in npcs:
+        return redirect(url_for('city'))
+    npc = npcs[npc_id]
+    game_state = get_game_state()
+    message = f"{npc['name']} offers to trade with you."
+    return render_template('npc_interaction.html', npc=npc, action='trade', message=message, game_state=game_state)
+
+@app.route('/fight_npc/<npc_id>', methods=['POST'])
+def fight_npc(npc_id):
+    if npc_id not in npcs:
+        return redirect(url_for('city'))
+    npc = npcs[npc_id]
+    game_state = get_game_state()
+    weapon = request.form.get('weapon', 'pistol')
+    if weapon == 'pistol' and game_state.weapons.bullets > 0:
+        game_state.weapons.bullets -= 1
+        npc['hp'] -= 20
+        if npc['hp'] <= 0:
+            npc['is_alive'] = False
+            message = f"You defeated {npc['name']} with your pistol!"
+        else:
+            message = f"You shot {npc['name']}, but they are still alive. HP: {npc['hp']}"
+    else:
+        message = "You don't have the weapon or ammo to fight."
+    with open('npcs.json', 'w') as f:
+        json.dump(npcs, f, indent=2)
+    save_game_state(game_state)
+    return render_template('npc_interaction.html', npc=npc, action='fight', message=message, game_state=game_state)
+
+@app.route('/pickup_loot/<npc_id>')
+def pickup_loot(npc_id):
+    if npc_id not in npcs:
+        return redirect(url_for('city'))
+    npc = npcs[npc_id]
+    game_state = get_game_state()
+    if not npc['is_alive']:
+        game_state.money += 100
+        message = f"You search {npc['name']}'s body and find $100!"
+    else:
+        message = "You can't loot a living person."
+    save_game_state(game_state)
+    return render_template('npc_interaction.html', npc=npc, action='loot', message=message, game_state=game_state)
 
 # ============
 # SocketIO Events

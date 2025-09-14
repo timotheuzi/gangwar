@@ -166,5 +166,17 @@
     "location": "wander",
     "last_interaction": "",
     "description": "A vigilant guardian who watches over the vulnerable in the crime-ridden districts."
+  },
+  "baby_momma": {
+    "id": "baby_momma",
+    "name": "Baby Momma",
+    "personality": "desperate",
+    "hp": 100,
+    "max_hp": 100,
+    "damage": 10,
+    "is_alive": true,
+    "location": "wander",
+    "last_interaction": "",
+    "description": "A desperate woman looking for help with her child."
   }
 }
