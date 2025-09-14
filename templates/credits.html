@@ -2,32 +2,71 @@
 
 {% block content %}
 <div class="credits-screen">
-    <h2>Credits</h2>
-    
-    <div class="ascii-art">
+    <h2>Credits & High Scores</h2>
+
+    <div class="content-container">
+        <div class="credits-section">
+            <div class="ascii-art">
 <pre>
-   _____          _      _____ _    _ _            _   _ 
+   _____          _      _____ _    _ _            _   _
   / ____|        | |    / ____| |  | | |          | | (_)
  | |     ___ _ __| |_  | |    | |  | | |_ __ _   _| |_ _  ___  _ __  ___
  | |    / _ \ '__| __| | |    | |  | | __/ _` | | | __| |/ _ \| '_ \/ __|
  | |___|  __/ |  | |_  | |____| |__| | || (_| |_| | |_| | (_) | | | \__ \
   \_____\___|_|   \__|  \_____|\____/ \__\__,_(_)_|\__|_|\___/|_| |_|___/
-                                                                        
-                                                                        
+
+
 </pre>
-    </div>
-    
-    <div class="credits-content">
-        <p>Created and Maintained by timotheuzi@hotmail.com</p>
-        <p>Public Address to Receive</p>
-        <p>LTC ltc1qcx3xsrpxqm7q7gpkxhxhtaeqgdqpmq0jdrw7vh</p>
-        <p>SOL 4sAaizpXmFS4yedakv7mLN1Z2myGh2CWnes3YJBhF1Hb</p>
-        <p>XLM GCVYEJ7GC7LZZ2EBZL5DXWCLTZPTXX7YEUXLS36YGE6BA37R5BHRI2XG</p>
-        <p>BTC bc1qfv69rux98r7u3sr786j2qpsenmkskvkf58ynkk</p>
-        <p>ETH 0xD1A6b95958dE597c2D9478A3b4212adF0789BF81</p>
+            </div>
+
+            <div class="credits-content">
+                <p>Created and Maintained by timotheuzi@hotmail.com</p>
+                <p>Public Address to Receive</p>
+                <p>LTC ltc1qcx3xsrpxqm7q7gpkxhxhtaeqgdqpmq0jdrw7vh</p>
+                <p>SOL 4sAaizpXmFS4yedakv7mLN1Z2myGh2CWnes3YJBhF1Hb</p>
+                <p>XLM GCVYEJ7GC7LZZ2EBZL5DXWCLTZPTXX7YEUXLS36YGE6BA37R5BHRI2XG</p>
+                <p>BTC bc1qfv69rux98r7u3sr786j2qpsenmkskvkf58ynkk</p>
+                <p>ETH 0xD1A6b95958dE597c2D9478A3b4212adF0789BF81</p>
+            </div>
+        </div>
+
+        <div class="high-scores-section">
+            <h3>All-Time High Scores</h3>
+            <div class="high-scores-content">
+                {% if high_scores %}
+                    <div class="scores-list">
+                        {% for score in high_scores %}
+                        <div class="score-entry">
+                            <div class="score-rank">#{{ loop.index }}</div>
+                            <div class="score-details">
+                                <div class="player-info">
+                                    <strong>{{ score.player_name }}</strong> - {{ score.gang_name }}
+                                </div>
+                                <div class="score-breakdown">
+                                    <span class="total-score">Score: {{ score.score|number_format }}</span>
+                                    <div class="score-components">
+                                        <small>Money: ${{ score.money_earned|number_format }}</small>
+                                        <small>Days: {{ score.days_survived }}</small>
+                                        <small>Gang Wars: {{ score.gang_wars_won }}</small>
+                                        <small>Fights: {{ score.fights_won }}</small>
+                                    </div>
+                                </div>
+                                <div class="score-date">
+                                    <small>{{ score.date_achieved }}</small>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <p>No high scores yet. Be the first to set a record!</p>
+                {% endif %}
+            </div>
+        </div>
     </div>
     
     <div class="actions">
+        <a href="{{ url_for('high_scores') }}" class="btn btn-secondary">View High Scores</a>
         <a href="{{ url_for('city') }}" class="btn btn-primary">Back to City</a>
     </div>
 
@@ -48,7 +87,7 @@
                 <p>Loading users...</p>
             </div>
             <div class="pvp-actions">
-                <button onclick="refreshPlayerList()" class="btn btn-secondary btn-small">Refresh Users</button>
+                <button id="refresh-players" onclick="refreshPlayerList()" class="btn btn-secondary btn-small">Refresh Users</button>
             </div>
         </div>
     </div>
