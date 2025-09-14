@@ -5,6 +5,31 @@
 
 echo "Building Gangwar Game for cross-platform deployment..."
 
+# Function to clean up disk space
+cleanup_disk_space() {
+    echo "Attempting to free up disk space..."
+
+    # Remove old build files
+    echo "Removing old build files..."
+    rm -rf build/ dist/ *.spec 2>/dev/null || true
+
+    # Clean Python cache
+    echo "Cleaning Python cache files..."
+    find . -name "__pycache__" -type d -exec rm -rf {} + 2>/dev/null || true
+    find . -name "*.pyc" -delete 2>/dev/null || true
+    find . -name "*.pyo" -delete 2>/dev/null || true
+
+    # Clean pip cache
+    echo "Cleaning pip cache..."
+    pip cache purge 2>/dev/null || true
+
+    # Clean system temp files
+    echo "Cleaning temporary files..."
+    rm -rf /tmp/* 2>/dev/null || true
+
+    echo "Cleanup completed."
+}
+
 # Check if PyInstaller is installed
 if ! command -v pyinstaller &> /dev/null; then
     echo "PyInstaller not found. Installing..."
@@ -253,6 +278,51 @@ cp pythonanywhere.py dist/ 2>/dev/null || echo "pythonanywhere.py not found"
 # Clean previous build directory (outside dist)
 echo "Cleaning previous build..."
 rm -rf build
+
+# Check available disk space before building
+echo "Checking available disk space..."
+AVAILABLE_SPACE=$(df . | tail -1 | awk '{print $4}')
+REQUIRED_SPACE=500000  # Require at least 500MB (in KB)
+
+if [ "$AVAILABLE_SPACE" -lt "$REQUIRED_SPACE" ]; then
+    echo "WARNING: Insufficient disk space detected!"
+    echo "Available: $(($AVAILABLE_SPACE / 1024)) MB"
+    echo "Required: $(($REQUIRED_SPACE / 1024)) MB"
+    echo ""
+    echo "Attempting automatic cleanup..."
+
+    # Try to free up space
+    cleanup_disk_space
+
+    # Check space again
+    sleep 2
+    AVAILABLE_SPACE=$(df . | tail -1 | awk '{print $4}')
+
+    if [ "$AVAILABLE_SPACE" -lt "$REQUIRED_SPACE" ]; then
+        echo "ERROR: Still insufficient disk space after cleanup!"
+        echo "Available: $(($AVAILABLE_SPACE / 1024)) MB"
+        echo "Required: $(($REQUIRED_SPACE / 1024)) MB"
+        echo ""
+        echo "Manual cleanup suggestions:"
+        echo "1. Check disk usage: df -h"
+        echo "2. Find large files: du -h . | sort -hr | head -10"
+        echo "3. Clear system temp: rm -rf /tmp/*"
+        echo "4. Clear pip cache: pip cache purge"
+        echo "5. Remove old kernels if on Linux"
+        exit 1
+    else
+        echo "Success! Disk space freed up. Continuing build..."
+        echo "New available space: $(($AVAILABLE_SPACE / 1024)) MB"
+    fi
+fi
+
+echo "Disk space check passed. Available: $(($AVAILABLE_SPACE / 1024)) MB"
+
+# Additional cleanup before build
+echo "Performing additional cleanup..."
+rm -rf __pycache__/ */__pycache__/ 2>/dev/null || true
+find . -name "*.pyc" -delete 2>/dev/null || true
+find . -name "*.pyo" -delete 2>/dev/null || true
 
 # Build the application
 echo "Building application with PyInstaller..."

@@ -1,7 +1,7 @@
 # Gangwar Game Makefile
 # Cross-platform build system for the Gangwar game
 
-.PHONY: all build clean distclean install-deps run test help
+.PHONY: all build clean distclean clean-disk install-deps run test help
 
 # Default target
 all: build
@@ -27,6 +27,17 @@ distclean: clean
 	@rm -rf logs/
 	@rm -f high_scores.json
 	@rm -f .env
+
+# Clean disk space (aggressive cleanup)
+clean-disk:
+	@echo "Performing aggressive disk cleanup..."
+	@rm -rf build/ dist/ *.spec
+	@find . -name "__pycache__" -type d -exec rm -rf {} + 2>/dev/null || true
+	@find . -name "*.pyc" -delete
+	@find . -name "*.pyo" -delete
+	@pip cache purge 2>/dev/null || true
+	@rm -rf /tmp/* 2>/dev/null || true
+	@echo "Disk cleanup completed."
 
 # Install Python dependencies
 install-deps:
@@ -69,6 +80,7 @@ help:
 	@echo "  build        - Build standalone executable"
 	@echo "  clean        - Clean build artifacts"
 	@echo "  distclean    - Clean everything including logs and config"
+	@echo "  clean-disk   - Aggressive disk cleanup to free space"
 	@echo "  install-deps - Install Python dependencies"
 	@echo "  run          - Run in development mode"
 	@echo "  run-dist     - Run the built executable"
