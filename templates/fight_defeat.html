@@ -39,11 +39,28 @@
 
     <div class="defeat-details">
         <h3>What Happened</h3>
-        <p>Your health was depleted in combat. You were overwhelmed by your enemies.</p>
+        {% if fight_log %}
+        <p>{{ fight_log[-1] if fight_log else "You were defeated in combat." }}</p>
+        {% else %}
+        <p>You were defeated in combat.</p>
+        {% endif %}
         {% if game_state.lives > 0 %}
         <p>You've been revived in the city with full health, but you're one step closer to total defeat.</p>
         {% else %}
         <p>This was your final life. Your gang's reign has come to an end.</p>
+        {% endif %}
+    </div>
+
+    <div class="fight-recap">
+        <h3>Fight Recap</h3>
+        {% if fight_log %}
+        <div class="recap-entries">
+            {% for entry in fight_log %}
+            <p>{{ entry }}</p>
+            {% endfor %}
+        </div>
+        {% else %}
+        <p>No detailed combat information available.</p>
         {% endif %}
     </div>
 
@@ -100,7 +117,7 @@
     margin: 20px 0;
 }
 
-.defeat-details, .current-stats, .warning {
+.defeat-details, .fight-recap, .current-stats, .warning {
     background: rgba(0, 0, 0, 0.1);
     border-radius: 10px;
     padding: 15px;

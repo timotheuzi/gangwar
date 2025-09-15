@@ -270,6 +270,65 @@ def gunshack():
     game_state = get_game_state()
     return render_template('gunshack.html', game_state=game_state)
 
+@app.route('/buy_weapon', methods=['POST'])
+def buy_weapon():
+    """Handle weapon purchases"""
+    game_state = get_game_state()
+    weapon_type = request.form.get('weapon_type')
+    quantity = int(request.form.get('quantity', 1))
+
+    weapon_prices = {
+        'pistol': 1200,
+        'bullets': 100,
+        'uzi': 100000,
+        'grenade': 1000,
+        'vampire_bat': 2500,
+        'missile_launcher': 1000000,
+        'missile': 100000,
+        'vest_light': 30000,
+        'vest_medium': 55000,
+        'vest_heavy': 75000
+    }
+
+    if weapon_type not in weapon_prices:
+        flash("Invalid weapon type!", "danger")
+        return redirect(url_for('gunshack'))
+
+    price = weapon_prices[weapon_type]
+    total_cost = price * quantity
+
+    if game_state.money >= total_cost:
+        game_state.money -= total_cost
+
+        if weapon_type == 'pistol':
+            game_state.weapons.pistols += quantity
+        elif weapon_type == 'bullets':
+            game_state.weapons.bullets += quantity * 50  # 50 bullets per pack
+        elif weapon_type == 'uzi':
+            game_state.weapons.uzis += quantity
+        elif weapon_type == 'grenade':
+            game_state.weapons.grenades += quantity
+        elif weapon_type == 'vampire_bat':
+            game_state.weapons.vampire_bat += quantity
+        elif weapon_type == 'missile_launcher':
+            game_state.weapons.missile_launcher += quantity
+        elif weapon_type == 'missile':
+            game_state.weapons.missiles += quantity
+        elif weapon_type.startswith('vest_'):
+            if weapon_type == 'vest_light':
+                game_state.weapons.vest += 5
+            elif weapon_type == 'vest_medium':
+                game_state.weapons.vest += 10
+            elif weapon_type == 'vest_heavy':
+                game_state.weapons.vest += 15
+
+        flash(f"You bought {quantity} {weapon_type.replace('_', ' ')}(s) for ${total_cost:,}!", "success")
+    else:
+        flash(f"You don't have enough money! Need ${total_cost:,}.", "danger")
+
+    save_game_state(game_state)
+    return redirect(url_for('gunshack'))
+
 @app.route('/bar')
 def bar():
     """Vagabond's Pub"""
@@ -375,9 +434,8 @@ def final_battle():
     enemy_health = game_state.squidies * 20  # Each Squidie has 20 health
     enemy_type = f"The Squidies Gang ({game_state.squidies} members)"
     combat_active = True
-    fight_log = [message]
     combat_id = f"final_battle_{random.randint(1000, 9999)}"
-    return render_template('mud_fight.html', game_state=game_state, enemy_health=enemy_health, enemy_type=enemy_type, enemy_count=game_state.squidies, combat_active=combat_active, fight_log=fight_log, combat_id=combat_id)
+    return render_template('mud_fight.html', game_state=game_state, enemy_health=enemy_health, enemy_type=enemy_type, enemy_count=game_state.squidies, combat_active=combat_active, combat_id=combat_id)
 
 @app.route('/wander')
 def wander():
@@ -397,9 +455,8 @@ def wander():
             enemy_health = num_cops * 10  # Each cop has 10 health
             enemy_type = f"{num_cops} Police Officers"
             combat_active = True
-            fight_log = [message]
             combat_id = f"police_{random.randint(1000, 9999)}"
-            return render_template('mud_fight.html', game_state=game_state, enemy_health=enemy_health, enemy_type=enemy_type, enemy_count=num_cops, combat_active=combat_active, fight_log=fight_log, combat_id=combat_id)
+            return render_template('mud_fight.html', game_state=game_state, enemy_health=enemy_health, enemy_type=enemy_type, enemy_count=num_cops, combat_active=combat_active, combat_id=combat_id)
 
     # Check for baby momma incident (8% chance)
     elif random.random() < 0.08:
@@ -430,9 +487,8 @@ def wander():
         enemy_health = enemy_members * 15  # Each gang member has 15 health
         enemy_type = f"{enemy_members} Rival Gang Members"
         combat_active = True
-        fight_log = [message]
         combat_id = f"gang_{random.randint(1000, 9999)}"
-        return render_template('mud_fight.html', game_state=game_state, enemy_health=enemy_health, enemy_type=enemy_type, enemy_count=enemy_members, combat_active=combat_active, fight_log=fight_log, combat_id=combat_id)
+        return render_template('mud_fight.html', game_state=game_state, enemy_health=enemy_health, enemy_type=enemy_type, enemy_count=enemy_members, combat_active=combat_active, combat_id=combat_id)
 
     # Check for Squidie hit squad (scales with gang power)
     elif game_state.members >= 3:  # Only when you have some gang presence
@@ -450,9 +506,8 @@ def wander():
             enemy_health = squidie_members * 25  # Squidies are tougher (25 HP each)
             enemy_type = f"{squidie_members} Squidie Hit Squad"
             combat_active = True
-            fight_log = [message]
             combat_id = f"squidie_{random.randint(1000, 9999)}"
-            return render_template('mud_fight.html', game_state=game_state, enemy_health=enemy_health, enemy_type=enemy_type, enemy_count=squidie_members, combat_active=combat_active, fight_log=fight_log, combat_id=combat_id)
+            return render_template('mud_fight.html', game_state=game_state, enemy_health=enemy_health, enemy_type=enemy_type, enemy_count=squidie_members, combat_active=combat_active, combat_id=combat_id)
 
     # Regular wander results (remaining ~70% chance)
     else:
@@ -519,6 +574,8 @@ def wander():
 def picknsave():
     """Pick n Save grocery store"""
     game_state = get_game_state()
+    game_state.current_location = "picknsave"
+    save_game_state(game_state)
     return render_template('picknsave.html', game_state=game_state)
 
 @app.route('/picknsave_action', methods=['POST'])
@@ -610,11 +667,270 @@ def trade_drugs():
     save_game_state(game_state)
     return redirect(url_for('crackhouse'))
 
+@app.route('/bulk_purchase', methods=['POST'])
+def bulk_purchase():
+    """Handle bulk drug purchases from Steve's Closet"""
+    game_state = get_game_state()
+    drug_type = request.form.get('drug_type')
+    quantity = int(request.form.get('quantity', 1))
+
+    if drug_type not in game_state.drug_prices:
+        flash("Invalid drug type!", "danger")
+        return redirect(url_for('closet'))
+
+    regular_price = game_state.drug_prices[drug_type]
+    bulk_price = int(regular_price * 0.8)  # 20% discount for 10+ kilos
+    total_cost = bulk_price * quantity
+
+    if game_state.money >= total_cost:
+        game_state.money -= total_cost
+        setattr(game_state.drugs, drug_type, getattr(game_state.drugs, drug_type) + quantity)
+        flash(f"Bulk purchase successful! Bought {quantity} kilos of {drug_type} for ${total_cost:,} (20% discount applied)!", "success")
+    else:
+        flash(f"You don't have enough money! Need ${total_cost:,}.", "danger")
+
+    save_game_state(game_state)
+    return redirect(url_for('closet'))
+
+@app.route('/closet')
+def closet():
+    """Steve's Secret Closet"""
+    game_state = get_game_state()
+    game_state.current_location = "closet"
+    save_game_state(game_state)
+    return render_template('closet.html', game_state=game_state)
+
+@app.route('/search_closet')
+def search_closet():
+    """Search Steve's Secret Closet for hidden treasures"""
+    game_state = get_game_state()
+
+    # Only allow searching if in closet
+    if game_state.current_location != "closet":
+        flash("You need to be in Steve's Closet to search it!", "warning")
+        return redirect(url_for('bar'))
+
+    search_result = random.random()
+
+    if search_result < 0.05:  # 5% chance - major drug stash
+        drug_types = ['weed', 'crack', 'coke', 'ice', 'pixie_dust']
+        drug = random.choice(drug_types)
+        amount = random.randint(15, 30)
+        setattr(game_state.drugs, drug, getattr(game_state.drugs, drug) + amount)
+        result = f"You find a hidden compartment! Steve must have forgotten about this stash. You gain {amount} kilos of {drug}!"
+        flash(result, "success")
+
+    elif search_result < 0.15:  # 10% chance - weapon cache
+        weapons = [
+            ('pistols', 1, "an extra pistol"),
+            ('bullets', random.randint(20, 50), "bullets"),
+            ('grenades', random.randint(2, 5), "grenades"),
+            ('vampire_bat', 1, "a vampire bat"),
+            ('uzis', 1, "an Uzi with 25 bullets")
+        ]
+        weapon_choice = random.choice(weapons)
+        if weapon_choice[0] == 'uzis':
+            game_state.weapons.uzis += weapon_choice[1]
+            game_state.weapons.bullets += 25
+            result = f"You find a dusty crate containing {weapon_choice[2]}!"
+        else:
+            setattr(game_state.weapons, weapon_choice[0], getattr(game_state.weapons, weapon_choice[0]) + weapon_choice[1])
+            result = f"You find a hidden weapons cache containing {weapon_choice[1]} {weapon_choice[2]}!"
+        flash(result, "success")
+
+    elif search_result < 0.25:  # 10% chance - money
+        money_found = random.randint(500, 2000)
+        game_state.money += money_found
+        result = f"You discover an old safe hidden behind some boxes! You gain ${money_found:,}!"
+        flash(result, "success")
+
+    elif search_result < 0.35:  # 10% chance - trap/alarm
+        damage = random.randint(5, 15)
+        game_state.health = max(0, game_state.health - damage)
+        result = f"You trigger a silent alarm system! Security arrives and roughs you up for {damage} damage!"
+        flash(result, "danger")
+
+    elif search_result < 0.50:  # 15% chance - small find
+        small_finds = [
+            ("some loose change", lambda: setattr(game_state, 'money', game_state.money + random.randint(25, 100))),
+            ("a few stray bullets", lambda: setattr(game_state.weapons, 'bullets', game_state.weapons.bullets + random.randint(5, 15))),
+            ("an old knife", lambda: setattr(game_state.weapons, 'knife', game_state.weapons.knife + 1))
+        ]
+        find = random.choice(small_finds)
+        find[1]()
+        result = f"You find {find[0]} while rummaging through the storage."
+        flash(result, "info")
+
+    else:  # 50% chance - nothing
+        result = "You search thoroughly but find nothing out of the ordinary. Steve keeps his closet well-organized."
+        flash(result, "info")
+
+    # Increment steps for searching
+    game_state.steps += 1
+    if game_state.steps >= game_state.max_steps:
+        game_state.day += 1
+        game_state.steps = 0
+
+    save_game_state(game_state)
+    return redirect(url_for('closet'))
+
+@app.route('/search_picknsave')
+def search_picknsave():
+    """Search Pick n' Save for hidden secrets"""
+    game_state = get_game_state()
+
+    # Only allow searching if in picknsave
+    if game_state.current_location != "picknsave":
+        flash("You need to be in Pick n' Save to search it!", "warning")
+        return redirect(url_for('city'))
+
+    search_result = random.random()
+
+    if search_result < 0.03:  # 3% chance - rare item
+        # Chance for special items
+        special_items = [
+            ("a fake ID kit", lambda: setattr(game_state.flags, 'has_id', True)),
+            ("classified police documents", lambda: setattr(game_state.flags, 'has_info', True)),
+            ("a gang recruitment flyer", lambda: setattr(game_state, 'members', game_state.members + 1))
+        ]
+        item = random.choice(special_items)
+        item[1]()
+        result = f"You find {item[0]} hidden in the store's back office!"
+        flash(result, "success")
+
+    elif search_result < 0.13:  # 10% chance - weapon
+        weapons = [
+            ('bullets', random.randint(10, 30), "bullets"),
+            ('grenades', random.randint(1, 3), "grenades"),
+            ('knife', 1, "a knife")
+        ]
+        weapon_choice = random.choice(weapons)
+        setattr(game_state.weapons, weapon_choice[0], getattr(game_state.weapons, weapon_choice[0]) + weapon_choice[1])
+        result = f"You find a hidden compartment containing {weapon_choice[1]} {weapon_choice[2]}!"
+        flash(result, "success")
+
+    elif search_result < 0.23:  # 10% chance - drugs
+        drug_types = ['weed', 'crack', 'percs']
+        drug = random.choice(drug_types)
+        amount = random.randint(3, 8)
+        setattr(game_state.drugs, drug, getattr(game_state.drugs, drug) + amount)
+        result = f"You discover some contraband hidden in the storage room! You gain {amount} kilos of {drug}!"
+        flash(result, "success")
+
+    elif search_result < 0.33:  # 10% chance - money
+        money_found = random.randint(200, 600)
+        game_state.money += money_found
+        result = f"You find a forgotten cash register drawer! You gain ${money_found:,}!"
+        flash(result, "success")
+
+    elif search_result < 0.43:  # 10% chance - trap
+        damage = random.randint(8, 20)
+        game_state.health = max(0, game_state.health - damage)
+        result = f"You accidentally knock over some cleaning supplies! The store manager confronts you and deals {damage} damage!"
+        flash(result, "danger")
+
+    elif search_result < 0.58:  # 15% chance - small find
+        small_finds = [
+            ("some spare change", lambda: setattr(game_state, 'money', game_state.money + random.randint(15, 75))),
+            ("a few loose bullets", lambda: setattr(game_state.weapons, 'bullets', game_state.weapons.bullets + random.randint(3, 10))),
+            ("a candy bar", lambda: setattr(game_state, 'health', min(100, game_state.health + 5)))
+        ]
+        find = random.choice(small_finds)
+        find[1]()
+        result = f"You find {find[0]} while searching the shelves."
+        flash(result, "info")
+
+    else:  # 42% chance - nothing
+        result = "You search the store discreetly but find nothing unusual. The employees are watching you closely."
+        flash(result, "info")
+
+    # Increment steps for searching
+    game_state.steps += 1
+    if game_state.steps >= game_state.max_steps:
+        game_state.day += 1
+        game_state.steps = 0
+
+    save_game_state(game_state)
+    return redirect(url_for('picknsave'))
+
 @app.route('/visit_prostitutes')
 def visit_prostitutes():
     """Visit Prostitutes"""
     game_state = get_game_state()
     return render_template('prostitutes.html', game_state=game_state)
+
+@app.route('/search_deeper')
+def search_deeper():
+    """Search deeper when a secret has been found"""
+    game_state = get_game_state()
+
+    # Check if a secret was found
+    if not session.get('secret_found', False):
+        flash("You haven't found any secrets to search deeper for.", "info")
+        return redirect(url_for('alleyway'))
+
+    secret_room = session.get('secret_room', 'secret_room')
+
+    # Clear the secret found flag
+    session['secret_found'] = False
+    session.modified = True
+
+    # Better rewards for deeper search
+    deeper_result = random.random()
+
+    if deeper_result < 0.3:  # 30% chance - great reward
+        if random.random() < 0.5:
+            # Massive money find
+            money_found = random.randint(1000, 3000)
+            game_state.money += money_found
+            result = f"You discover a hidden vault! You gain ${money_found:,}!"
+            flash(result, "success")
+        else:
+            # Rare weapon
+            rare_weapons = ['uzi', 'grenade', 'missile_launcher']
+            weapon = random.choice(rare_weapons)
+            if weapon == 'uzi':
+                game_state.weapons.uzis += 1
+                game_state.weapons.bullets += 50
+                result = "You find a hidden Uzi with 50 bullets!"
+            elif weapon == 'grenade':
+                game_state.weapons.grenades += random.randint(2, 5)
+                result = f"You find a crate of grenades! You gain {game_state.weapons.grenades} grenades!"
+            elif weapon == 'missile_launcher':
+                game_state.weapons.missile_launcher += 1
+                game_state.weapons.missiles += random.randint(3, 8)
+                result = f"You find a missile launcher with {game_state.weapons.missiles} missiles!"
+            flash(result, "success")
+
+    elif deeper_result < 0.6:  # 30% chance - good reward
+        # Large drug stash
+        drug_types = ['weed', 'crack', 'coke', 'ice']
+        drug = random.choice(drug_types)
+        amount = random.randint(8, 15)
+        setattr(game_state.drugs, drug, getattr(game_state.drugs, drug) + amount)
+        result = f"You find a major drug operation stash! You gain {amount} kilos of {drug}!"
+        flash(result, "success")
+
+    elif deeper_result < 0.8:  # 20% chance - trap
+        damage = random.randint(25, 50)
+        game_state.health = max(0, game_state.health - damage)
+        result = f"You trigger a deadly trap! A collapsing wall crushes you for {damage} damage!"
+        flash(result, "danger")
+
+    else:  # 20% chance - moderate reward
+        money_found = random.randint(500, 1500)
+        game_state.money += money_found
+        result = f"You find a concealed safe! You gain ${money_found:,}!"
+        flash(result, "success")
+
+    # Increment steps for deeper searching
+    game_state.steps += 2  # Deeper search costs more time
+    if game_state.steps >= game_state.max_steps:
+        game_state.day += 1
+        game_state.steps = 0
+
+    save_game_state(game_state)
+    return redirect(url_for('alleyway'))
 
 @app.route('/search_room')
 def search_room():
@@ -699,23 +1015,30 @@ def search_room():
             game_state.health = max(0, game_state.health - damage)
             result = f"You trigger a trap! A hidden spike pit injures you for {damage} damage!"
             flash(result, "danger")
-        elif search_result < 0.3:  # 20% chance - weapon cache
+        elif search_result < 0.25:  # 15% chance - secret hint
+            result = "You find a mysterious inscription on the wall: 'The true treasure lies deeper within.' You sense there might be more to discover!"
+            flash(result, "warning")
+            # Store that a secret was found for deeper search
+            session['secret_found'] = True
+            session['secret_room'] = current_room_id
+            session.modified = True
+        elif search_result < 0.45:  # 20% chance - weapon cache
             game_state.weapons.bullets += random.randint(10, 25)
             result = f"You find a hidden weapon cache! You gain {game_state.weapons.bullets} bullets!"
             flash(result, "success")
-        elif search_result < 0.5:  # 20% chance - drug stash
+        elif search_result < 0.65:  # 20% chance - drug stash
             drug_types = ['weed', 'crack', 'coke']
             drug = random.choice(drug_types)
             amount = random.randint(2, 5)
             setattr(game_state.drugs, drug, getattr(game_state.drugs, drug) + amount)
             result = f"You discover a drug stash! You find {amount} kilos of {drug}!"
             flash(result, "success")
-        elif search_result < 0.7:  # 20% chance - money
+        elif search_result < 0.85:  # 20% chance - money
             money_found = random.randint(200, 800)
             game_state.money += money_found
             result = f"You find a hidden stash of cash! You gain ${money_found}!"
             flash(result, "success")
-        else:  # 30% chance - nothing special
+        else:  # 15% chance - nothing special
             result = "You search thoroughly but find nothing of value."
             flash(result, "info")
 
@@ -893,9 +1216,8 @@ def move_room(direction):
             enemy_health = npc.get('hp', 50)  # Default 50 HP if not specified
             enemy_type = npc['name']
             combat_active = True
-            fight_log = [message]
             combat_id = f"npc_{list(npcs_data.keys())[list(npcs_data.values()).index(npc)]}_{random.randint(1000, 9999)}"
-            return render_template('mud_fight.html', game_state=game_state, enemy_health=enemy_health, enemy_type=enemy_type, enemy_count=1, combat_active=combat_active, fight_log=fight_log, combat_id=combat_id, npc_id=list(npcs_data.keys())[list(npcs_data.values()).index(npc)])
+            return render_template('mud_fight.html', game_state=game_state, enemy_health=enemy_health, enemy_type=enemy_type, enemy_count=1, combat_active=combat_active, combat_id=combat_id, npc_id=list(npcs_data.keys())[list(npcs_data.values()).index(npc)])
 
     save_game_state(game_state)
 
@@ -974,9 +1296,8 @@ def fight_npc(npc_id):
     enemy_health = npc.get('hp', 50)  # Default 50 HP if not specified
     enemy_type = npc['name']
     combat_active = True
-    fight_log = [message]
     combat_id = f"npc_{npc_id}_{random.randint(1000, 9999)}"
-    return render_template('mud_fight.html', game_state=game_state, enemy_health=enemy_health, enemy_type=enemy_type, enemy_count=1, combat_active=combat_active, fight_log=fight_log, combat_id=combat_id, npc_id=npc_id)
+    return render_template('mud_fight.html', game_state=game_state, enemy_health=enemy_health, enemy_type=enemy_type, enemy_count=1, combat_active=combat_active, combat_id=combat_id, npc_id=npc_id)
 
 @app.route('/pickup_loot/<npc_id>')
 def pickup_loot(npc_id):
@@ -1009,9 +1330,8 @@ def cop_chase():
     enemy_health = num_cops * 10  # Each cop has 10 health
     enemy_type = f"{num_cops} Police Officers"
     combat_active = True
-    fight_log = [message]
     combat_id = f"police_{random.randint(1000, 9999)}"
-    return render_template('mud_fight.html', game_state=game_state, enemy_health=enemy_health, enemy_type=enemy_type, enemy_count=num_cops, combat_active=combat_active, fight_log=fight_log, combat_id=combat_id)
+    return render_template('mud_fight.html', game_state=game_state, enemy_health=enemy_health, enemy_type=enemy_type, enemy_count=num_cops, combat_active=combat_active, combat_id=combat_id)
 
 @app.route('/fight_cops', methods=['POST'])
 def fight_cops():
@@ -1050,21 +1370,21 @@ def fight_cops():
                 game_state.health = 100
                 enemy_type = f"{num_cops} Police Officers"
                 enemy_count = num_cops
-                fight_log = [message]
                 if game_state.lives <= 0:
                     save_game_state(game_state)
-                    return render_template('fight_defeat.html', game_state=game_state, enemy_type=enemy_type, enemy_count=enemy_count, fight_log=fight_log, final_damage=final_damage)
+                    fight_log = [f"You were defeated by {enemy_type} and took {final_damage} damage. This was your final life."]
+                    return render_template('fight_defeat.html', game_state=game_state, enemy_type=enemy_type, enemy_count=enemy_count, final_damage=final_damage, fight_log=fight_log)
                 else:
                     save_game_state(game_state)
-                    return render_template('fight_defeat.html', game_state=game_state, enemy_type=enemy_type, enemy_count=enemy_count, fight_log=fight_log, final_damage=final_damage)
+                    fight_log = [f"You were defeated by {enemy_type} and took {final_damage} damage. You lost a life but can continue."]
+                    return render_template('fight_defeat.html', game_state=game_state, enemy_type=enemy_type, enemy_count=enemy_count, final_damage=final_damage, fight_log=fight_log)
 
             # Return to MUD fight with updated state
             enemy_health = num_cops * 10
             enemy_type = f"{num_cops} Police Officers"
             combat_active = True
-            fight_log = [message]
             combat_id = f"police_{random.randint(1000, 9999)}"
-            return render_template('mud_fight.html', game_state=game_state, enemy_health=enemy_health, enemy_type=enemy_type, enemy_count=num_cops, combat_active=combat_active, fight_log=fight_log, combat_id=combat_id)
+            return render_template('mud_fight.html', game_state=game_state, enemy_health=enemy_health, enemy_type=enemy_type, enemy_count=num_cops, combat_active=combat_active, combat_id=combat_id)
 
     elif action == 'shoot':
         # Combat with police
@@ -1094,13 +1414,14 @@ def fight_cops():
                     game_state.health = 100
                     enemy_type = f"{num_cops} Police Officers"
                     enemy_count = num_cops
-                    fight_log = [message]
                     if game_state.lives <= 0:
                         save_game_state(game_state)
-                        return render_template('fight_defeat.html', game_state=game_state, enemy_type=enemy_type, enemy_count=enemy_count, fight_log=fight_log, final_damage=final_damage)
+                        fight_log = [f"You were defeated by {enemy_type} and took {final_damage} damage. This was your final life."]
+                        return render_template('fight_defeat.html', game_state=game_state, enemy_type=enemy_type, enemy_count=enemy_count, final_damage=final_damage, fight_log=fight_log)
                     else:
                         save_game_state(game_state)
-                        return render_template('fight_defeat.html', game_state=game_state, enemy_type=enemy_type, enemy_count=enemy_count, fight_log=fight_log, final_damage=final_damage)
+                        fight_log = [f"You were defeated by {enemy_type} and took {final_damage} damage. You lost a life but can continue."]
+                        return render_template('fight_defeat.html', game_state=game_state, enemy_type=enemy_type, enemy_count=enemy_count, final_damage=final_damage, fight_log=fight_log)
 
         elif weapon == 'uzi' and game_state.weapons.bullets > 0:
             game_state.weapons.bullets -= min(10, game_state.weapons.bullets)  # Uzi uses 10 bullets
@@ -1186,21 +1507,21 @@ def fight_cops():
             game_state.health = 100
             enemy_type = f"{num_cops} Police Officers"
             enemy_count = num_cops
-            fight_log = [message] if 'message' in locals() else ["Combat with police officers"]
             if game_state.lives <= 0:
                 save_game_state(game_state)
-                return render_template('fight_defeat.html', game_state=game_state, enemy_type=enemy_type, enemy_count=enemy_count, fight_log=fight_log, final_damage=final_damage)
+                fight_log = [f"You were defeated by {enemy_type} and took {final_damage} damage. This was your final life."]
+                return render_template('fight_defeat.html', game_state=game_state, enemy_type=enemy_type, enemy_count=enemy_count, final_damage=final_damage, fight_log=fight_log)
             else:
                 save_game_state(game_state)
-                return render_template('fight_defeat.html', game_state=game_state, enemy_type=enemy_type, enemy_count=enemy_count, fight_log=fight_log, final_damage=final_damage)
+                fight_log = [f"You were defeated by {enemy_type} and took {final_damage} damage. You lost a life but can continue."]
+                return render_template('fight_defeat.html', game_state=game_state, enemy_type=enemy_type, enemy_count=enemy_count, final_damage=final_damage, fight_log=fight_log)
 
         # Return to MUD fight with updated state
         enemy_health = num_cops * 10
         enemy_type = f"{num_cops} Police Officers"
         combat_active = True
-        fight_log = [message] if 'message' in locals() else ["Combat continues..."]
         combat_id = f"police_{random.randint(1000, 9999)}"
-        return render_template('mud_fight.html', game_state=game_state, enemy_health=enemy_health, enemy_type=enemy_type, enemy_count=num_cops, combat_active=combat_active, fight_log=fight_log, combat_id=combat_id)
+        return render_template('mud_fight.html', game_state=game_state, enemy_health=enemy_health, enemy_type=enemy_type, enemy_count=num_cops, combat_active=combat_active, combat_id=combat_id)
 
     save_game_state(game_state)
     return redirect(url_for('city'))
@@ -1218,45 +1539,48 @@ def process_fight_action():
     enemy_health = int(request.form.get('enemy_health', 30))
     enemy_type = request.form.get('enemy_type', 'Enemy')
     enemy_count = int(request.form.get('enemy_count', 1))
-    fight_log = request.form.getlist('fight_log') or ["Combat begins!"]
+
+    # Initialize or get fight log from session
+    fight_log = session.get('fight_log', [])
+    if not fight_log:
+        fight_log = [f"Combat begins against {enemy_type}!"]
 
     # Process action
     if action == 'attack':
+        weapon_name = weapon.replace('_', ' ').title()
         if weapon == 'pistol' and game_state.weapons.pistols > 0 and game_state.weapons.bullets > 0:
             game_state.weapons.bullets -= 1
             damage = random.randint(15, 25)
             enemy_health -= damage
-            fight_log.append(f"You fire your pistol and deal {damage} damage!")
+            fight_log.append(f"You fire your pistol, dealing {damage} damage!")
         elif weapon == 'ghost_gun' and game_state.weapons.ghost_guns > 0 and game_state.weapons.bullets > 0:
             game_state.weapons.bullets -= 1
             damage = random.randint(15, 25)
             enemy_health -= damage
-            fight_log.append(f"You fire your ghost gun and deal {damage} damage!")
+            fight_log.append(f"You fire your ghost gun, dealing {damage} damage!")
         elif weapon == 'uzi' and game_state.weapons.uzis > 0 and game_state.weapons.bullets >= 3:
             game_state.weapons.bullets -= 3
             damage = random.randint(20, 40)
             enemy_health -= damage
-            fight_log.append(f"You spray with your Uzi and deal {damage} damage!")
+            fight_log.append(f"You spray with your Uzi, dealing {damage} damage!")
         elif weapon == 'grenade' and game_state.weapons.grenades > 0:
             game_state.weapons.grenades -= 1
             damage = random.randint(30, 60)
             enemy_health -= damage
-            fight_log.append(f"You throw a grenade and deal {damage} damage!")
+            fight_log.append(f"You throw a grenade, dealing {damage} damage!")
         elif weapon == 'missile_launcher' and game_state.weapons.missile_launcher > 0 and game_state.weapons.missiles > 0:
             game_state.weapons.missiles -= 1
             damage = random.randint(50, 100)
             enemy_health -= damage
-            fight_log.append(f"You fire a missile and deal {damage} damage!")
+            fight_log.append(f"You fire a missile, dealing {damage} damage!")
         elif weapon == 'vampire_bat' and game_state.weapons.vampire_bat > 0:
             damage = random.randint(25, 45)
             enemy_health -= damage
-            fight_log.append(f"You swing your vampire bat and deal {damage} damage!")
+            fight_log.append(f"You swing your vampire bat, dealing {damage} damage!")
         elif weapon == 'knife':
             damage = random.randint(10, 20)
             enemy_health -= damage
-            fight_log.append(f"You stab with your knife and deal {damage} damage!")
-        else:
-            fight_log.append("You don't have that weapon or ammo!")
+            fight_log.append(f"You stab with your knife, dealing {damage} damage!")
 
         # Enemy attacks back
         if enemy_health > 0:
@@ -1264,51 +1588,52 @@ def process_fight_action():
             if game_state.weapons.vest > 0 and random.random() < 0.5:
                 game_state.weapons.vest -= 1
                 enemy_damage = max(0, enemy_damage - 20)
-                fight_log.append(f"Enemy attacks! Your vest absorbs some damage, you take {enemy_damage} damage!")
+                fight_log.append(f"The {enemy_type} attack! Your vest absorbs damage, you take {enemy_damage} damage!")
             else:
-                fight_log.append(f"Enemy attacks! You take {enemy_damage} damage!")
-            game_state.damage += enemy_damage
+                game_state.damage += enemy_damage
+                fight_log.append(f"The {enemy_type} counterattack, dealing {enemy_damage} damage!")
 
     elif action == 'defend':
-        fight_log.append("You take a defensive stance, reducing incoming damage!")
         # Reduced enemy damage
         if enemy_health > 0:
             enemy_damage = random.randint(2, 10) * enemy_count
-            fight_log.append(f"Enemy attacks! You take {enemy_damage} damage (reduced by defense)!")
             game_state.damage += enemy_damage
+            fight_log.append(f"You defend carefully. The {enemy_type} deal {enemy_damage} damage!")
 
     elif action == 'flee':
         if random.random() < 0.4:  # 40% chance to flee
+            fight_log.append("You successfully flee from combat!")
+            session['fight_log'] = fight_log
+            session.modified = True
             flash("You successfully flee from combat!", "success")
             save_game_state(game_state)
             return redirect(url_for('city'))
         else:
-            fight_log.append("You try to flee but fail!")
             # Enemy attacks during flee attempt
             enemy_damage = random.randint(10, 20) * enemy_count
-            fight_log.append(f"Enemy attacks while you flee! You take {enemy_damage} damage!")
             game_state.damage += enemy_damage
+            fight_log.append(f"You try to flee but the {enemy_type} attack, dealing {enemy_damage} damage!")
+
+    elif action == 'change_weapon':
+        # No combat action, just return to fight with same state
+        fight_log.append("You take a moment to consider changing weapons.")
 
     elif action == 'use_drug':
         # Handle drug usage
+        drug_name = drug.title() if drug else "Unknown"
         if drug and hasattr(game_state.drugs, drug) and getattr(game_state.drugs, drug) > 0:
             setattr(game_state.drugs, drug, getattr(game_state.drugs, drug) - 1)
-            if drug == 'weed':
-                fight_log.append("You smoke weed - your accuracy decreases but you feel relaxed!")
-            elif drug == 'crack':
-                fight_log.append("You smoke crack - you feel powerful but your health suffers!")
+            if drug == 'crack':
                 game_state.damage += 5
-            elif drug == 'coke':
-                fight_log.append("You snort coke - your accuracy improves!")
-            elif drug == 'ice':
-                fight_log.append("You use ice - you feel incredibly strong!")
+                fight_log.append(f"You use crack, gaining power but taking 5 damage!")
             elif drug == 'percs':
-                fight_log.append("You take percs - pain fades away!")
+                healed = min(10, game_state.damage)
                 game_state.damage = max(0, game_state.damage - 10)
-            elif drug == 'pixie_dust':
-                fight_log.append("You use pixie dust - ??? Something magical happens!")
+                fight_log.append(f"You use percs, healing {healed} damage!")
+            else:
+                fight_log.append(f"You use {drug_name}, feeling its effects!")
         else:
-            fight_log.append("You don't have that drug!")
+            fight_log.append(f"You try to use {drug_name} but have none!")
 
     # Check win/lose conditions
     if enemy_health <= 0:
@@ -1337,15 +1662,17 @@ def process_fight_action():
         game_state.health = 100
         if game_state.lives <= 0:
             save_game_state(game_state)
-            return render_template('fight_defeat.html', game_state=game_state, enemy_type=enemy_type, enemy_count=enemy_count, fight_log=fight_log, final_damage=final_damage)
+            fight_log = [f"You were defeated by {enemy_type} and took {final_damage} damage. This was your final life."]
+            return render_template('fight_defeat.html', game_state=game_state, enemy_type=enemy_type, enemy_count=enemy_count, final_damage=final_damage, fight_log=fight_log)
         else:
             save_game_state(game_state)
-            return render_template('fight_defeat.html', game_state=game_state, enemy_type=enemy_type, enemy_count=enemy_count, fight_log=fight_log, final_damage=final_damage)
+            fight_log = [f"You were defeated by {enemy_type} and took {final_damage} damage. You lost a life but can continue."]
+            return render_template('fight_defeat.html', game_state=game_state, enemy_type=enemy_type, enemy_count=enemy_count, final_damage=final_damage, fight_log=fight_log)
 
     # Continue combat
     save_game_state(game_state)
     combat_active = enemy_health > 0
-    return render_template('mud_fight.html', game_state=game_state, enemy_health=enemy_health, enemy_type=enemy_type, enemy_count=enemy_count, combat_active=combat_active, fight_log=fight_log, combat_id=combat_id)
+    return render_template('mud_fight.html', game_state=game_state, enemy_health=enemy_health, enemy_type=enemy_type, enemy_count=enemy_count, combat_active=combat_active, combat_id=combat_id)
 
 @app.route('/game_over')
 def game_over():
