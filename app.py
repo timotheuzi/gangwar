@@ -83,7 +83,7 @@ class Flags:
 @dataclass
 class Drugs:
     weed: int = 0
-    crack: int = 0
+    crack: int = 5
     coke: int = 0
     ice: int = 0
     percs: int = 0
@@ -112,7 +112,7 @@ class GameState:
     money: int = 1000
     account: int = 0
     loan: int = 0
-    members: int = 5
+    members: int = 1
     squidies: int = 25
     squidies_pistols: int = 10
     squidies_uzis: int = 5
@@ -434,6 +434,26 @@ def wander():
         combat_id = f"gang_{random.randint(1000, 9999)}"
         return render_template('mud_fight.html', game_state=game_state, enemy_health=enemy_health, enemy_type=enemy_type, enemy_count=enemy_members, combat_active=combat_active, fight_log=fight_log, combat_id=combat_id)
 
+    # Check for Squidie hit squad (scales with gang power)
+    elif game_state.members >= 3:  # Only when you have some gang presence
+        # Base chance starts low, increases with gang size and success
+        base_chance = 0.02  # 2% base chance
+        gang_multiplier = min(game_state.members / 10, 2.0)  # Up to 2x multiplier at 10+ members
+        money_multiplier = min(game_state.money / 10000, 1.5)  # Up to 1.5x for $10k+
+        total_chance = base_chance * gang_multiplier * money_multiplier
+
+        if random.random() < total_chance:
+            squidie_members = random.randint(2, min(6, max(2, game_state.members // 2 + 1)))
+            message = f"Oh no! A Squidie hit squad of {squidie_members} members has tracked you down!"
+            save_game_state(game_state)
+            # Start MUD fight with Squidies
+            enemy_health = squidie_members * 25  # Squidies are tougher (25 HP each)
+            enemy_type = f"{squidie_members} Squidie Hit Squad"
+            combat_active = True
+            fight_log = [message]
+            combat_id = f"squidie_{random.randint(1000, 9999)}"
+            return render_template('mud_fight.html', game_state=game_state, enemy_health=enemy_health, enemy_type=enemy_type, enemy_count=squidie_members, combat_active=combat_active, fight_log=fight_log, combat_id=combat_id)
+
     # Regular wander results (remaining ~70% chance)
     else:
         # List of possible wander results
@@ -578,6 +598,12 @@ def trade_drugs():
             revenue = price * quantity
             game_state.money += revenue
             flash(f"You sold {quantity} kilo(s) of {drug_type} for ${revenue:,}!", "success")
+
+            # Chance to recruit new member from big drug sales
+            if revenue >= 5000:  # Big sale threshold
+                if random.random() < 0.25:  # 25% chance for big sales
+                    game_state.members += 1
+                    flash("Word of your successful drug operation spread! A new recruit joined your gang!", "success")
         else:
             flash(f"You don't have enough {drug_type} to sell!", "danger")
 
@@ -589,6 +615,184 @@ def visit_prostitutes():
     """Visit Prostitutes"""
     game_state = get_game_state()
     return render_template('prostitutes.html', game_state=game_state)
+
+@app.route('/search_room')
+def search_room():
+    """Search the current room for hidden treasures or traps"""
+    game_state = get_game_state()
+
+    # Define alleyway rooms
+    rooms = {
+        'entrance': {
+            'title': 'Dark Alley Entrance',
+            'description': 'You stand at the entrance of a dark alleyway. The streetlights cast long shadows, and you can hear distant sounds echoing off the walls.',
+            'exits': {
+                'north': 'dead_end',
+                'south': 'city',
+                'east': 'side_street',
+                'west': 'dumpster'
+            }
+        },
+        'dead_end': {
+            'title': 'Dead End',
+            'description': 'You reach a dead end with graffiti-covered walls. There\'s nothing here but trash and shadows.',
+            'exits': {
+                'south': 'entrance'
+            }
+        },
+        'side_street': {
+            'title': 'Side Street',
+            'description': 'You emerge onto a narrow side street. Cars occasionally drive by, and you see a few shady figures watching you.',
+            'exits': {
+                'west': 'entrance',
+                'north': 'hidden_entrance'
+            }
+        },
+        'dumpster': {
+            'title': 'Behind the Dumpster',
+            'description': 'You hide behind a large dumpster. The smell is awful, but you\'re well concealed. You find some discarded items.',
+            'exits': {
+                'east': 'entrance'
+            }
+        },
+        'hidden_entrance': {
+            'title': 'Hidden Entrance',
+            'description': 'You find a hidden entrance to an underground network. This could lead to interesting places...',
+            'exits': {
+                'south': 'side_street',
+                'down': 'underground'
+            }
+        },
+        'underground': {
+            'title': 'Underground Passage',
+            'description': 'You descend into a dimly lit underground passage. Water drips from the ceiling, and you hear echoes of distant footsteps.',
+            'exits': {
+                'up': 'hidden_entrance',
+                'north': 'secret_room'
+            }
+        },
+        'secret_room': {
+            'title': 'Secret Room',
+            'description': 'You enter a secret room filled with old crates and mysterious artifacts. There might be valuable items here.',
+            'exits': {
+                'south': 'underground'
+            }
+        }
+    }
+
+    # Get current room from session
+    current_room_id = session.get('current_alleyway_room', 'entrance')
+    current_room = rooms.get(current_room_id, rooms['entrance'])
+
+    # Check if this room can be searched
+    if not ('secret' in current_room['title'].lower() or 'mysterious' in current_room['description'].lower() or 'hidden' in current_room['title'].lower()):
+        flash("There's nothing special to search for here.", "info")
+        return redirect(url_for('alleyway'))
+
+    # Determine search result based on room and random chance
+    search_result = random.random()
+
+    if current_room_id == 'secret_room':
+        # Secret room has better rewards but also traps
+        if search_result < 0.1:  # 10% chance - trap
+            damage = random.randint(15, 35)
+            game_state.health = max(0, game_state.health - damage)
+            result = f"You trigger a trap! A hidden spike pit injures you for {damage} damage!"
+            flash(result, "danger")
+        elif search_result < 0.3:  # 20% chance - weapon cache
+            game_state.weapons.bullets += random.randint(10, 25)
+            result = f"You find a hidden weapon cache! You gain {game_state.weapons.bullets} bullets!"
+            flash(result, "success")
+        elif search_result < 0.5:  # 20% chance - drug stash
+            drug_types = ['weed', 'crack', 'coke']
+            drug = random.choice(drug_types)
+            amount = random.randint(2, 5)
+            setattr(game_state.drugs, drug, getattr(game_state.drugs, drug) + amount)
+            result = f"You discover a drug stash! You find {amount} kilos of {drug}!"
+            flash(result, "success")
+        elif search_result < 0.7:  # 20% chance - money
+            money_found = random.randint(200, 800)
+            game_state.money += money_found
+            result = f"You find a hidden stash of cash! You gain ${money_found}!"
+            flash(result, "success")
+        else:  # 30% chance - nothing special
+            result = "You search thoroughly but find nothing of value."
+            flash(result, "info")
+
+    elif current_room_id == 'hidden_entrance':
+        # Hidden entrance has moderate rewards
+        if search_result < 0.15:  # 15% chance - trap
+            damage = random.randint(10, 25)
+            game_state.health = max(0, game_state.health - damage)
+            result = f"You disturb a sleeping rat colony! They attack you for {damage} damage!"
+            flash(result, "danger")
+        elif search_result < 0.4:  # 25% chance - small reward
+            money_found = random.randint(50, 200)
+            game_state.money += money_found
+            result = f"You find some loose change and bills! You gain ${money_found}!"
+            flash(result, "success")
+        elif search_result < 0.6:  # 20% chance - ammo
+            game_state.weapons.bullets += random.randint(5, 15)
+            result = f"You find some discarded ammo! You gain {game_state.weapons.bullets} bullets!"
+            flash(result, "success")
+        else:  # 40% chance - nothing
+            result = "The area looks like it's been searched before. Nothing here."
+            flash(result, "info")
+
+    elif current_room_id == 'underground':
+        # Underground passage has mixed results
+        if search_result < 0.2:  # 20% chance - trap
+            damage = random.randint(20, 40)
+            game_state.health = max(0, game_state.health - damage)
+            result = f"You step on a pressure plate! Poison darts shoot out, dealing {damage} damage!"
+            flash(result, "danger")
+        elif search_result < 0.5:  # 30% chance - good reward
+            if random.random() < 0.5:
+                # Money
+                money_found = random.randint(300, 600)
+                game_state.money += money_found
+                result = f"You find a waterproof bag with cash! You gain ${money_found}!"
+            else:
+                # Drugs
+                drug_types = ['weed', 'crack']
+                drug = random.choice(drug_types)
+                amount = random.randint(3, 7)
+                setattr(game_state.drugs, drug, getattr(game_state.drugs, drug) + amount)
+                result = f"You find a hidden compartment with drugs! You gain {amount} kilos of {drug}!"
+            flash(result, "success")
+        else:  # 50% chance - minor find or nothing
+            if random.random() < 0.3:
+                game_state.weapons.bullets += random.randint(3, 8)
+                result = f"You find a few loose bullets! You gain {game_state.weapons.bullets} bullets!"
+                flash(result, "success")
+            else:
+                result = "The underground passage is damp and empty. Nothing of interest."
+                flash(result, "info")
+
+    else:
+        # Generic secret areas
+        if search_result < 0.25:  # 25% chance - trap
+            damage = random.randint(5, 20)
+            game_state.health = max(0, game_state.health - damage)
+            result = f"You find a trap! You take {damage} damage!"
+            flash(result, "danger")
+        elif search_result < 0.6:  # 35% chance - small reward
+            money_found = random.randint(25, 150)
+            game_state.money += money_found
+            result = f"You find some hidden money! You gain ${money_found}!"
+            flash(result, "success")
+        else:  # 40% chance - nothing
+            result = "You search carefully but find nothing special."
+            flash(result, "info")
+
+    # Increment steps for searching
+    game_state.steps += 1
+    if game_state.steps >= game_state.max_steps:
+        game_state.day += 1
+        game_state.steps = 0
+
+    save_game_state(game_state)
+    return redirect(url_for('alleyway'))
 
 @app.route('/move_room/<direction>')
 def move_room(direction):
@@ -822,6 +1026,10 @@ def fight_cops():
         escape_chance = random.random()
         if escape_chance < 0.6:  # 60% chance to escape
             flash("You manage to escape the police chase!", "success")
+            # Chance to recruit a impressed bystander
+            if random.random() < 0.2:  # 20% chance
+                game_state.members += 1
+                flash("A bystander was impressed by your escape and joined your gang!", "success")
             save_game_state(game_state)
             return redirect(url_for('city'))
         else:
@@ -1114,6 +1322,11 @@ def process_fight_action():
                 json.dump(npcs_data, f, indent=2)
             game_state.money += 100  # Loot from defeated NPC
             flash(f"You defeated {npcs_data[npc_id]['name']} and looted $100!", "success")
+
+        # Chance to recruit a defeated enemy as a gang member
+        if enemy_type != "Police Officers" and random.random() < 0.3:  # 30% chance
+            game_state.members += 1
+            flash("One of your defeated enemies has joined your gang!", "success")
 
         save_game_state(game_state)
         return redirect(url_for('city'))

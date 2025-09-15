@@ -27,9 +27,9 @@
 
         {% if fight_log %}
         <div class="combat-log">
-            <h4>Combat Log:</h4>
+            <h4>Full Combat Log:</h4>
             <div class="log-entries">
-                {% for entry in fight_log[-5:] %}  {# Show last 5 entries #}
+                {% for entry in fight_log %}
                 <p>{{ entry }}</p>
                 {% endfor %}
             </div>
@@ -71,48 +71,18 @@
     </div>
 
     <div class="actions">
-        <p>Returning to city in <span id="countdown">3</span> seconds...</p>
-        <a href="{{ url_for('city') }}" class="btn btn-primary">Return to City Now</a>
+        <p>Review the details above and click to continue when ready.</p>
+        <a href="{{ url_for('city') }}" class="btn btn-primary">Return to City</a>
     </div>
     {% else %}
     <div class="actions">
-        <p>Redirecting to game over in <span id="countdown">3</span> seconds...</p>
+        <p>Your final defeat. Review the details above and click to continue.</p>
         <a href="{{ url_for('game_over') }}" class="btn btn-danger">View Game Over</a>
     </div>
     {% endif %}
 </div>
 
-{% if game_state.lives > 0 %}
-<script>
-    let countdown_city = 3;
-    const countdownElement_city = document.getElementById('countdown');
 
-    const timer_city = setInterval(() => {
-        countdown_city--;
-        countdownElement_city.textContent = countdown_city;
-
-        if (countdown_city <= 0) {
-            clearInterval(timer_city);
-            window.location.href = "{{ url_for('city') }}";
-        }
-    }, 1000);
-</script>
-{% else %}
-<script>
-    let countdown_gameover = 3;
-    const countdownElement_gameover = document.getElementById('countdown');
-
-    const timer_gameover = setInterval(() => {
-        countdown_gameover--;
-        countdownElement_gameover.textContent = countdown_gameover;
-
-        if (countdown_gameover <= 0) {
-            clearInterval(timer_gameover);
-            window.location.href = "{{ url_for('game_over') }}";
-        }
-    }, 1000);
-</script>
-{% endif %}
 
 <style>
 .fight-defeat-screen {

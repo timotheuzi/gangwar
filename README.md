@@ -4,7 +4,7 @@ Set in a dypstopian present, this is a gritty, text-based drug dealing and gang 
 
 ## 🎮 Game Overview
 
-You start as a small-time entrepreneur with $1000, 5 units of crack, and a pistol. Your goal is to build a massive gang empire, defeat the rival Squidies gang, and become the ultimate pimp king of the city.
+You start as a small-time entrepreneur with $1000, 5 kilos of crack, and a pistol. Your goal is to build a massive gang empire, defeat the rival Squidies gang, and become the ultimate pimp king of the city.
 
 ### Key Features
 
