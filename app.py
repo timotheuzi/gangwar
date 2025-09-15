@@ -14,9 +14,9 @@ from flask import Flask, render_template, request, redirect, url_for, session, j
 # Load NPCs
 try:
     with open('npcs.json', 'r') as f:
-        npcs = json.load(f)
+        npcs_data = json.load(f)
 except FileNotFoundError:
-    npcs = {}
+    npcs_data = {}
 
 # ============
 # High Scores
@@ -122,7 +122,8 @@ class GameState:
     day: int = 1
     health: int = 100
     steps: int = 0
-    max_steps: int = 100
+    max_steps: int = 24
+    current_score: int = 0
     current_location: str = "city"
     drug_prices: Dict[str, int] = field(default_factory=lambda: {
         'weed': 500,
@@ -153,8 +154,18 @@ def get_game_state():
     game_dict['drugs'] = Drugs(**game_dict.get('drugs', {}))
     return GameState(**game_dict)
 
+def update_current_score(game_state):
+    """Update the current score based on achievements"""
+    money_earned = game_state.money + game_state.account
+    days_survived = game_state.day
+    # For current score, we don't track gang wars/fights won in real-time,
+    # so we'll base it on money and days survived for now
+    game_state.current_score = calculate_score(money_earned, days_survived, 0, 0)
+
 def save_game_state(game_state):
     """Save game state to session"""
+    # Update current score before saving
+    update_current_score(game_state)
     session['game_state'] = asdict(game_state)
     session.modified = True
 
@@ -358,7 +369,14 @@ def stats():
 def final_battle():
     """FINAL BATTLE: Destroy Squidies"""
     game_state = get_game_state()
-    return render_template('final_battle.html', game_state=game_state)
+    message = "You launch your final assault on the Squidies gang headquarters!"
+    # Start MUD fight with Squidies
+    enemy_health = game_state.squidies * 20  # Each Squidie has 20 health
+    enemy_type = f"The Squidies Gang ({game_state.squidies} members)"
+    combat_active = True
+    fight_log = [message]
+    combat_id = f"final_battle_{random.randint(1000, 9999)}"
+    return render_template('mud_fight.html', game_state=game_state, enemy_health=enemy_health, enemy_type=enemy_type, enemy_count=game_state.squidies, combat_active=combat_active, fight_log=fight_log, combat_id=combat_id)
 
 @app.route('/wander')
 def wander():
@@ -371,9 +389,16 @@ def wander():
             result = "You see a police patrol but your fake ID saves you from getting stopped!"
             flash("Your fake ID protected you from police harassment!", "success")
         else:
-            # Police chase sequence
+            # Police chase sequence - redirect to MUD fight
+            num_cops = random.randint(2, 6)
+            message = f"Oh no! {num_cops} police officers spot you and give chase!"
             save_game_state(game_state)
-            return render_template('cop_chase.html', game_state=game_state)
+            enemy_health = num_cops * 10  # Each cop has 10 health
+            enemy_type = f"{num_cops} Police Officers"
+            combat_active = True
+            fight_log = [message]
+            combat_id = f"police_{random.randint(1000, 9999)}"
+            return render_template('mud_fight.html', game_state=game_state, enemy_health=enemy_health, enemy_type=enemy_type, enemy_count=num_cops, combat_active=combat_active, fight_log=fight_log, combat_id=combat_id)
 
     # Check for baby momma incident (8% chance)
     elif random.random() < 0.08:
@@ -398,39 +423,15 @@ def wander():
     # Check for small gang fight (12% chance)
     elif random.random() < 0.12:
         enemy_members = random.randint(3, 8)
-        result = f"You encounter {enemy_members} rival gang members looking for trouble!"
-
-        # Calculate combat odds
-        player_power = game_state.members + (game_state.weapons.pistols * 2) + (game_state.weapons.uzis * 3)
-        enemy_power = enemy_members
-
-        if player_power > enemy_power:
-            # Victory
-            killed = min(enemy_members, random.randint(1, enemy_members))
-            game_state.squidies = max(0, game_state.squidies - killed)
-            money_gained = killed * 50
-            game_state.money += money_gained
-            result += f" You and your gang win the fight! You kill {killed} of them and take ${money_gained}."
-            flash(f"Gang fight victory! Killed {killed} enemies!", "success")
-        elif player_power >= enemy_power * 0.8:
-            # Stalemate with casualties
-            player_casualties = random.randint(0, min(2, game_state.members - 1))
-            enemy_casualties = random.randint(1, enemy_members)
-            game_state.members = max(1, game_state.members - player_casualties)
-            game_state.squidies = max(0, game_state.squidies - enemy_casualties)
-            if player_casualties > 0:
-                result += f" The fight is brutal! You lose {player_casualties} gang member(s) but kill {enemy_casualties} of them."
-            else:
-                result += f" You manage to fight them off without losing anyone, killing {enemy_casualties} enemies!"
-        else:
-            # Defeat
-            player_casualties = random.randint(1, min(3, game_state.members))
-            game_state.members = max(1, game_state.members - player_casualties)
-            money_lost = random.randint(100, 500)
-            game_state.money = max(0, game_state.money - money_lost)
-            game_state.health = max(0, game_state.health - 20)
-            result += f" You get beaten badly! You lose {player_casualties} gang member(s) and ${money_lost}."
-            flash(f"Gang fight defeat! Lost {player_casualties} members!", "danger")
+        message = f"You encounter {enemy_members} rival gang members looking for trouble!"
+        save_game_state(game_state)
+        # Start MUD fight
+        enemy_health = enemy_members * 15  # Each gang member has 15 health
+        enemy_type = f"{enemy_members} Rival Gang Members"
+        combat_active = True
+        fight_log = [message]
+        combat_id = f"gang_{random.randint(1000, 9999)}"
+        return render_template('mud_fight.html', game_state=game_state, enemy_health=enemy_health, enemy_type=enemy_type, enemy_count=enemy_members, combat_active=combat_active, fight_log=fight_log, combat_id=combat_id)
 
     # Regular wander results (remaining ~70% chance)
     else:
@@ -482,8 +483,8 @@ def wander():
         # Reset some daily things if needed
 
     # Check for NPC encounter (15% chance, down from 30% since we have more events now)
-    if random.random() < 0.15 and npcs:
-        wander_npcs = [npc for npc in npcs.values() if npc['location'] == 'wander']
+    if random.random() < 0.15 and npcs_data:
+        wander_npcs = [npc for npc in npcs_data.values() if npc['location'] == 'wander']
         if wander_npcs:
             npc = random.choice(wander_npcs)
             save_game_state(game_state)
@@ -678,11 +679,18 @@ def move_room(direction):
         game_state.steps = 0
 
     # Check for NPC encounter in alleyway
-    if random.random() < 0.2 and npcs:
-        alley_npcs = [npc for npc in npcs.values() if npc['location'] == 'alleyway']
+    if random.random() < 0.2 and npcs_data:
+        alley_npcs = [npc for npc in npcs_data.values() if npc['location'] == 'alleyway']
         if alley_npcs:
             npc = random.choice(alley_npcs)
-            return render_template('npc_interaction.html', npc=npc, action='encounter', message=f"You encounter {npc['name']}. {npc['description']}", game_state=game_state)
+            message = f"You encounter {npc['name']}! They look hostile..."
+            # Start MUD fight with NPC
+            enemy_health = npc.get('hp', 50)  # Default 50 HP if not specified
+            enemy_type = npc['name']
+            combat_active = True
+            fight_log = [message]
+            combat_id = f"npc_{list(npcs_data.keys())[list(npcs_data.values()).index(npc)]}_{random.randint(1000, 9999)}"
+            return render_template('mud_fight.html', game_state=game_state, enemy_health=enemy_health, enemy_type=enemy_type, enemy_count=1, combat_active=combat_active, fight_log=fight_log, combat_id=combat_id, npc_id=list(npcs_data.keys())[list(npcs_data.values()).index(npc)])
 
     save_game_state(game_state)
 
@@ -717,57 +725,59 @@ def new_game():
 
 @app.route('/npc_interaction/<npc_id>')
 def npc_interaction(npc_id):
-    if npc_id not in npcs:
+    if npc_id not in npcs_data:
         return redirect(url_for('city'))
-    npc = npcs[npc_id]
+    npc = npcs_data[npc_id]
     game_state = get_game_state()
     return render_template('npc_interaction.html', npc=npc, action='encounter', message=f"You encounter {npc['name']}. {npc['description']}", game_state=game_state)
 
 @app.route('/talk_to_npc/<npc_id>')
 def talk_to_npc(npc_id):
-    if npc_id not in npcs:
+    if npc_id not in npcs_data:
         return redirect(url_for('city'))
-    npc = npcs[npc_id]
+    npc = npcs_data[npc_id]
     game_state = get_game_state()
     message = f"{npc['name']} says: Hello, {game_state.player_name}. What can I do for you?"
     return render_template('npc_interaction.html', npc=npc, action='talk', message=message, game_state=game_state)
 
+@app.route('/look_at_npc/<npc_id>')
+def look_at_npc(npc_id):
+    if npc_id not in npcs_data:
+        return redirect(url_for('city'))
+    npc = npcs_data[npc_id]
+    game_state = get_game_state()
+    message = f"You look closely at {npc['name']}. {npc['description']}"
+    return render_template('npc_interaction.html', npc=npc, action='look', message=message, game_state=game_state)
+
 @app.route('/trade_with_npc/<npc_id>')
 def trade_with_npc(npc_id):
-    if npc_id not in npcs:
+    if npc_id not in npcs_data:
         return redirect(url_for('city'))
-    npc = npcs[npc_id]
+    npc = npcs_data[npc_id]
     game_state = get_game_state()
     message = f"{npc['name']} offers to trade with you."
     return render_template('npc_interaction.html', npc=npc, action='trade', message=message, game_state=game_state)
 
 @app.route('/fight_npc/<npc_id>', methods=['POST'])
 def fight_npc(npc_id):
-    if npc_id not in npcs:
+    if npc_id not in npcs_data:
         return redirect(url_for('city'))
-    npc = npcs[npc_id]
+    npc = npcs_data[npc_id]
     game_state = get_game_state()
-    weapon = request.form.get('weapon', 'pistol')
-    if weapon == 'pistol' and game_state.weapons.bullets > 0:
-        game_state.weapons.bullets -= 1
-        npc['hp'] -= 20
-        if npc['hp'] <= 0:
-            npc['is_alive'] = False
-            message = f"You defeated {npc['name']} with your pistol!"
-        else:
-            message = f"You shot {npc['name']}, but they are still alive. HP: {npc['hp']}"
-    else:
-        message = "You don't have the weapon or ammo to fight."
-    with open('npcs.json', 'w') as f:
-        json.dump(npcs, f, indent=2)
-    save_game_state(game_state)
-    return render_template('npc_interaction.html', npc=npc, action='fight', message=message, game_state=game_state)
+    message = f"You engage in combat with {npc['name']}!"
+    # Start MUD fight with NPC
+    enemy_health = npc.get('hp', 50)  # Default 50 HP if not specified
+    enemy_type = npc['name']
+    combat_active = True
+    fight_log = [message]
+    combat_id = f"npc_{npc_id}_{random.randint(1000, 9999)}"
+    return render_template('mud_fight.html', game_state=game_state, enemy_health=enemy_health, enemy_type=enemy_type, enemy_count=1, combat_active=combat_active, fight_log=fight_log, combat_id=combat_id, npc_id=npc_id)
 
 @app.route('/pickup_loot/<npc_id>')
 def pickup_loot(npc_id):
-    if npc_id not in npcs:
+    if npc_id not in npcs_data:
         return redirect(url_for('city'))
-    npc = npcs[npc_id]
+    npc = npcs_data[npc_id]
     game_state = get_game_state()
     if not npc['is_alive']:
         game_state.money += 100
@@ -777,13 +787,26 @@ def pickup_loot(npc_id):
     save_game_state(game_state)
     return render_template('npc_interaction.html', npc=npc, action='loot', message=message, game_state=game_state)
 
+@app.route('/npcs')
+def npcs():
+    """View NPCs in current location"""
+    game_state = get_game_state()
+    location_npcs = [npc for npc in npcs_data.values() if npc.get('location') == game_state.current_location]
+    return render_template('npcs.html', npcs=location_npcs, game_state=game_state)
+
 @app.route('/cop_chase')
 def cop_chase():
     """Police chase encounter"""
     game_state = get_game_state()
     num_cops = random.randint(2, 6)
     message = f"Oh no! {num_cops} police officers spot you and give chase!"
-    return render_template('cop_chase.html', game_state=game_state, num_cops=num_cops, message=message)
+    # Initialize MUD fight variables
+    enemy_health = num_cops * 10  # Each cop has 10 health
+    enemy_type = f"{num_cops} Police Officers"
+    combat_active = True
+    fight_log = [message]
+    combat_id = f"police_{random.randint(1000, 9999)}"
+    return render_template('mud_fight.html', game_state=game_state, enemy_health=enemy_health, enemy_type=enemy_type, enemy_count=num_cops, combat_active=combat_active, fight_log=fight_log, combat_id=combat_id)
 
 @app.route('/fight_cops', methods=['POST'])
 def fight_cops():
@@ -823,7 +846,13 @@ def fight_cops():
                     save_game_state(game_state)
                     return redirect(url_for('city'))
 
-            return render_template('cop_chase.html', game_state=game_state, num_cops=num_cops, message=message)
+            # Return to MUD fight with updated state
+            enemy_health = num_cops * 10
+            enemy_type = f"{num_cops} Police Officers"
+            combat_active = True
+            fight_log = [message]
+            combat_id = f"police_{random.randint(1000, 9999)}"
+            return render_template('mud_fight.html', game_state=game_state, enemy_health=enemy_health, enemy_type=enemy_type, enemy_count=num_cops, combat_active=combat_active, fight_log=fight_log, combat_id=combat_id)
 
     elif action == 'shoot':
         # Combat with police
@@ -938,10 +967,134 @@ def fight_cops():
                 save_game_state(game_state)
                 return redirect(url_for('city'))
 
-        return render_template('cop_chase.html', game_state=game_state, num_cops=num_cops, message=message)
+        # Return to MUD fight with updated state
+        enemy_health = num_cops * 10
+        enemy_type = f"{num_cops} Police Officers"
+        combat_active = True
+        fight_log = [message] if 'message' in locals() else ["Combat continues..."]
+        combat_id = f"police_{random.randint(1000, 9999)}"
+        return render_template('mud_fight.html', game_state=game_state, enemy_health=enemy_health, enemy_type=enemy_type, enemy_count=num_cops, combat_active=combat_active, fight_log=fight_log, combat_id=combat_id)
 
     save_game_state(game_state)
     return redirect(url_for('city'))
+
+@app.route('/process_fight_action', methods=['POST'])
+def process_fight_action():
+    """Handle MUD-style fight actions"""
+    game_state = get_game_state()
+    combat_id = request.form.get('combat_id')
+    action = request.form.get('action')
+    weapon = request.form.get('weapon', 'pistol')
+    drug = request.args.get('drug')
+
+    # Get combat state from session (simplified - in real implementation you'd store full combat state)
+    enemy_health = int(request.form.get('enemy_health', 30))
+    enemy_type = request.form.get('enemy_type', 'Enemy')
+    enemy_count = int(request.form.get('enemy_count', 1))
+    fight_log = request.form.getlist('fight_log') or ["Combat begins!"]
+
+    # Process action
+    if action == 'attack':
+        if weapon == 'pistol' and game_state.weapons.bullets > 0:
+            game_state.weapons.bullets -= 1
+            damage = random.randint(15, 25)
+            enemy_health -= damage
+            fight_log.append(f"You fire your pistol and deal {damage} damage!")
+        elif weapon == 'uzi' and game_state.weapons.bullets >= 3:
+            game_state.weapons.bullets -= 3
+            damage = random.randint(20, 40)
+            enemy_health -= damage
+            fight_log.append(f"You spray with your Uzi and deal {damage} damage!")
+        elif weapon == 'knife':
+            damage = random.randint(10, 20)
+            enemy_health -= damage
+            fight_log.append(f"You stab with your knife and deal {damage} damage!")
+        else:
+            fight_log.append("You don't have that weapon or ammo!")
+
+        # Enemy attacks back
+        if enemy_health > 0:
+            enemy_damage = random.randint(5, 15) * enemy_count
+            if game_state.weapons.vest > 0 and random.random() < 0.5:
+                game_state.weapons.vest -= 1
+                enemy_damage = max(0, enemy_damage - 20)
+                fight_log.append(f"Enemy attacks! Your vest absorbs some damage, you take {enemy_damage} damage!")
+            else:
+                fight_log.append(f"Enemy attacks! You take {enemy_damage} damage!")
+            game_state.damage += enemy_damage
+
+    elif action == 'defend':
+        fight_log.append("You take a defensive stance, reducing incoming damage!")
+        # Reduced enemy damage
+        if enemy_health > 0:
+            enemy_damage = random.randint(2, 10) * enemy_count
+            fight_log.append(f"Enemy attacks! You take {enemy_damage} damage (reduced by defense)!")
+            game_state.damage += enemy_damage
+
+    elif action == 'flee':
+        if random.random() < 0.4:  # 40% chance to flee
+            flash("You successfully flee from combat!", "success")
+            save_game_state(game_state)
+            return redirect(url_for('city'))
+        else:
+            fight_log.append("You try to flee but fail!")
+            # Enemy attacks during flee attempt
+            enemy_damage = random.randint(10, 20) * enemy_count
+            fight_log.append(f"Enemy attacks while you flee! You take {enemy_damage} damage!")
+            game_state.damage += enemy_damage
+
+    elif action == 'use_drug':
+        # Handle drug usage
+        if drug and hasattr(game_state.drugs, drug) and getattr(game_state.drugs, drug) > 0:
+            setattr(game_state.drugs, drug, getattr(game_state.drugs, drug) - 1)
+            if drug == 'weed':
+                fight_log.append("You smoke weed - your accuracy decreases but you feel relaxed!")
+            elif drug == 'crack':
+                fight_log.append("You smoke crack - you feel powerful but your health suffers!")
+                game_state.damage += 5
+            elif drug == 'coke':
+                fight_log.append("You snort coke - your accuracy improves!")
+            elif drug == 'ice':
+                fight_log.append("You use ice - you feel incredibly strong!")
+            elif drug == 'percs':
+                fight_log.append("You take percs - pain fades away!")
+                game_state.damage = max(0, game_state.damage - 10)
+            elif drug == 'pixie_dust':
+                fight_log.append("You use pixie dust - ??? Something magical happens!")
+        else:
+            fight_log.append("You don't have that drug!")
+
+    # Check win/lose conditions
+    if enemy_health <= 0:
+        flash("Victory! You defeated your enemies!", "success")
+
+        # Handle NPC-specific victory logic
+        npc_id = request.form.get('npc_id')
+        if npc_id and npc_id in npcs_data:
+            npcs_data[npc_id]['is_alive'] = False
+            with open('npcs.json', 'w') as f:
+                json.dump(npcs_data, f, indent=2)
+            game_state.money += 100  # Loot from defeated NPC
+            flash(f"You defeated {npcs_data[npc_id]['name']} and looted $100!", "success")
+
+        save_game_state(game_state)
+        return redirect(url_for('city'))
+    elif game_state.damage >= 10:
+        game_state.lives -= 1
+        game_state.damage = 0
+        game_state.health = 100
+        if game_state.lives <= 0:
+            flash("You died in combat! Game Over!", "danger")
+            return redirect(url_for('game_over'))
+        else:
+            flash(f"You died but have {game_state.lives} lives remaining!", "warning")
+            save_game_state(game_state)
+            return redirect(url_for('city'))
+
+    # Continue combat
+    save_game_state(game_state)
+    combat_active = enemy_health > 0
+    return render_template('mud_fight.html', game_state=game_state, enemy_health=enemy_health, enemy_type=enemy_type, enemy_count=enemy_count, combat_active=combat_active, fight_log=fight_log, combat_id=combat_id)
 
 @app.route('/game_over')
 def game_over():

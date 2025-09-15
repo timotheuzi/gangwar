@@ -135,7 +135,7 @@
     "id": "synth",
     "name": "Synth",
     "personality": "inventive",
-    "hp": 120,
+    "hp": 60,
     "max_hp": 140,
     "damage": 14,
     "is_alive": true,

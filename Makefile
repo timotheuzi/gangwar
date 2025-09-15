@@ -17,7 +17,7 @@ clean:
 	@echo "Cleaning build artifacts..."
 	@rm -rf build/
 	@rm -rf dist/
-	@rm -rf *.spec
+	@find . -maxdepth 1 -name "*.spec" ! -name "gangwar.spec" -delete 2>/dev/null || true
 	@find . -name "*.pyc" -delete
 	@find . -name "__pycache__" -type d -exec rm -rf {} + 2>/dev/null || true
 
@@ -31,7 +31,8 @@ distclean: clean
 # Clean disk space (aggressive cleanup)
 clean-disk:
 	@echo "Performing aggressive disk cleanup..."
-	@rm -rf build/ dist/ *.spec
+	@rm -rf build/ dist/
+	@find . -maxdepth 1 -name "*.spec" ! -name "gangwar.spec" -delete 2>/dev/null || true
 	@find . -name "__pycache__" -type d -exec rm -rf {} + 2>/dev/null || true
 	@find . -name "*.pyc" -delete
 	@find . -name "*.pyo" -delete

@@ -40,6 +40,17 @@
 </head>
 <body>
     <div class="container">
+        <!-- Player Info Header -->
+        {% if game_state and game_state.player_name %}
+        <header class="player-info-header">
+            <div class="player-info">
+                <span class="player-name">{{ game_state.player_name }}</span>
+                <span class="player-score">Score: {{ game_state.current_score }}</span>
+                <span class="player-steps">Steps: {{ game_state.steps }}/{{ game_state.max_steps }}</span>
+            </div>
+        </header>
+        {% endif %}
+
         <!-- Flash messages -->
         {% with messages = get_flashed_messages(with_categories=true) %}
             {% if messages %}

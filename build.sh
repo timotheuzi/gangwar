@@ -328,6 +328,15 @@ find . -name "*.pyo" -delete 2>/dev/null || true
 
 # Build the application
 echo "Building application with PyInstaller..."
+
+# Generate spec file if it doesn't exist
+if [ ! -f "gangwar.spec" ]; then
+    echo "Generating gangwar.spec file..."
+    pyinstaller --name gangwar --onefile app.py --specpath .
+    # Remove the generated executable and build files, keep only spec
+    rm -rf build/ dist/
+fi
+
 pyinstaller --clean gangwar.spec
 
 # Generate environment variables file

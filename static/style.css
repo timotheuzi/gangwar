@@ -64,6 +64,58 @@ body {
     z-index: -1;
 }
 
+/* Player Info Header */
+.player-info-header {
+    background: var(--secondary-bg);
+    backdrop-filter: blur(20px);
+    border: 1px solid var(--border-primary);
+    border-radius: var(--radius-lg);
+    padding: 12px 16px;
+    margin-bottom: 16px;
+    box-shadow: var(--shadow-primary);
+    position: relative;
+    overflow: hidden;
+}
+
+.player-info-header::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, var(--text-accent), var(--text-danger), var(--text-success));
+}
+
+.player-info {
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    gap: 16px;
+    flex-wrap: wrap;
+}
+
+.player-name {
+    color: var(--text-danger);
+    font-size: 1.2em;
+    font-weight: 700;
+    text-shadow: 0 0 10px rgba(239, 68, 68, 0.5);
+}
+
+.player-score {
+    color: var(--text-accent);
+    font-size: 1em;
+    font-weight: 600;
+    font-family: 'JetBrains Mono', monospace;
+}
+
+.player-steps {
+    color: var(--text-warning);
+    font-size: 1em;
+    font-weight: 600;
+    font-family: 'JetBrains Mono', monospace;
+}
+
 /*header {
     background: var(--secondary-bg);
     backdrop-filter: blur(20px);
