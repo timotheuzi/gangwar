@@ -125,8 +125,24 @@ function updatePVPPlayerList(players) {
     var pvpListDiv = document.getElementById('pvp-player-list');
     if (!pvpListDiv) return;
 
-    // Always show loading users regardless of actual player data
-    pvpListDiv.innerHTML = '<p>Loading users...</p>';
+    if (!players || players.length === 0) {
+        pvpListDiv.innerHTML = '<p>No players online</p>';
+        return;
+    }
+
+    var html = '<ul class="player-list">';
+    players.forEach(function(player) {
+        var playerStatus = player.in_fight ? ' (In Fight)' : '';
+        var joinTime = new Date(player.joined_at * 1000).toLocaleTimeString();
+        html += '<li class="player-item">';
+        html += '<span class="player-name">' + player.name + '</span>';
+        html += '<span class="player-info">Location: ' + player.room + playerStatus + '</span>';
+        html += '<span class="player-join-time">Joined: ' + joinTime + '</span>';
+        html += '</li>';
+    });
+    html += '</ul>';
+
+    pvpListDiv.innerHTML = html;
 }
 
 // Send chat message
