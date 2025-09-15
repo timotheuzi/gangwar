@@ -1,6 +1,5 @@
 # -*- mode: python ; coding: utf-8 -*-
 
-block_cipher = None
 
 a = Analysis(
     ['app.py'],
@@ -12,71 +11,30 @@ a = Analysis(
         ('npcs.json', '.'),
     ],
     hiddenimports=[
-        'flask',
         'flask_socketio',
-        'python_socketio',
-        'python_socketio.client',
-        'python_socketio.server',
-        'engineio',
-        'engineio.client',
-        'engineio.server',
         'eventlet',
-        'dataclasses',
-        'secrets',
-        'random',
-        'os',
-        'sys',
-        'werkzeug',
-        'werkzeug.serving',
-        'werkzeug.middleware',
-        'jinja2',
-        'jinja2.ext',
-        'markupsafe',
-        'click',
-        'itsdangerous',
-        'blinker',
-        'bidict',
-        'simple_websocket',
-        'wsproto',
-        'h11',
-        'h2',
-        'hpack',
-        'hyperframe',
-        'asyncio',
-        'threading',
-        'multiprocessing',
-        'multiprocessing.util',
         'gevent',
-        'gevent.monkey',
-        'eventlet',
-        'eventlet.wsgi',
-        'concurrent.futures',
-        'concurrent.futures.thread',
     ],
     hookspath=[],
     hooksconfig={},
     runtime_hooks=[],
     excludes=[],
-    win_no_prefer_redirects=False,
-    win_private_assemblies=False,
-    cipher=block_cipher,
     noarchive=False,
+    optimize=0,
 )
-
-pyz = PYZ(a.pure, a.zipped_data, cipher=block_cipher)
+pyz = PYZ(a.pure)
 
 exe = EXE(
     pyz,
     a.scripts,
     a.binaries,
-    a.zipfiles,
     a.datas,
     [],
     name='gangwar',
     debug=False,
     bootloader_ignore_signals=False,
-    strip=False,  # Disable stripping to avoid library issues
-    upx=False,  # Disable UPX compression
+    strip=False,
+    upx=True,
     upx_exclude=[],
     runtime_tmpdir=None,
     console=True,
@@ -85,6 +43,4 @@ exe = EXE(
     target_arch=None,
     codesign_identity=None,
     entitlements_file=None,
-    icon=None,
-    onefile=True,  # Create single standalone executable
 )

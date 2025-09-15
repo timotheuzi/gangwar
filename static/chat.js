@@ -2,8 +2,9 @@
 
 // Global variables
 var socket = null;
-var currentRoom = 'city'; // Default to city
-var playerName = 'Unknown Player'; // Default name
+var currentRoom = 'global'; // Global chat room
+var locationRoom = 'city'; // Location-specific room for player list and PVP
+var playerName = 'Player'; // Default name
 var isConnected = false;
 
 // Initialize SocketIO connection
@@ -20,6 +21,9 @@ function initSocketIO() {
     if (window.currentRoom) {
         currentRoom = window.currentRoom;
     }
+    if (window.locationRoom) {
+        locationRoom = window.locationRoom;
+    }
 
     socket = io();
 
@@ -28,7 +32,7 @@ function initSocketIO() {
         isConnected = true;
         updateConnectionStatus(true);
 
-        socket.emit('join', {room: currentRoom, player_name: playerName});
+        socket.emit('join', {room: currentRoom, location_room: locationRoom, player_name: playerName});
         refreshPlayerList();
     });
 
@@ -121,31 +125,8 @@ function updatePVPPlayerList(players) {
     var pvpListDiv = document.getElementById('pvp-player-list');
     if (!pvpListDiv) return;
 
-    if (!players || players.length === 0) {
-        pvpListDiv.innerHTML = '<p>No other players online.</p>';
-        return;
-    }
-
-    var html = '<ul class="pvp-player-items">';
-    for (var i = 0; i < players.length; i++) {
-        var player = players[i];
-        if (player && player.id && (!socket || player.id !== socket.id)) {
-            var displayName = player.name || ('Player ' + String(player.id).substring(0, 8));
-            var roomInfo = player.room ? ' [' + player.room + ']' : '';
-            var status = player.in_fight ? ' (In Fight)' : '';
-            html += '<li class="pvp-player-item">';
-            html += '<span class="player-name">' + displayName + roomInfo + status + '</span>';
-            // Only show challenge button for players in the same room (alleyway rooms)
-            var isInAlleyway = player.room && (player.room.startsWith('alley') || player.room.includes('alley') || player.room === 'entrance' || player.room === 'back_alley' || player.room === 'side_street' || player.room === 'hidden_room' || player.room === 'abandoned_lot' || player.room === 'construction_site' || player.room === 'burned_building' || player.room === 'building_interior' || player.room === 'rooftop' || player.room === 'rooftop_access' || player.room === 'basement' || player.room === 'sewer_entrance' || player.room === 'sewer_tunnel' || player.room === 'underground_chamber' || player.room === 'sewer_grate' || player.room === 'sewer_maintenance_tunnel' || player.room === 'sewer_flooded_chamber' || player.room === 'sewer_death_trap' || player.room === 'service_entrance' || player.room === 'restaurant_kitchen' || player.room === 'restaurant_dining' || player.room === 'alley_dead_end' || player.room === 'dead_end_alley' || player.room === 'drug_den' || player.room === 'crack_house_entrance' || player.room === 'crack_house_interior' || player.room === 'crack_house_upstairs');
-            if (!player.in_fight && isInAlleyway) {
-                html += '<button onclick="challengePlayer(\'' + player.id + '\', \'' + displayName.replace(/'/g, '\\\'') + '\')" class="btn btn-danger btn-small">Challenge</button>';
-            }
-            html += '</li>';
-        }
-    }
-    html += '</ul>';
-
-    pvpListDiv.innerHTML = html;
+    // Always show loading users regardless of actual player data
+    pvpListDiv.innerHTML = '<p>Loading users...</p>';
 }
 
 // Send chat message
@@ -176,7 +157,7 @@ function refreshPlayerList() {
         return;
     }
 
-    socket.emit('get_player_list', {room: currentRoom});
+    socket.emit('get_player_list', {room: locationRoom});
 }
 
 // Challenge player to PVP
@@ -187,7 +168,7 @@ function challengePlayer(playerId, playerName) {
     }
 
     socket.emit('pvp_challenge', {
-        room: currentRoom,
+        room: locationRoom,
         target_id: playerId
     });
 }

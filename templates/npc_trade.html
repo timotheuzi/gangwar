@@ -26,7 +26,7 @@
                 <select name="item_type" id="buy_item" required>
                     <option value="">Select item...</option>
                     {% for drug in ['weed', 'crack', 'coke', 'ice', 'percs', 'pixie_dust'] %}
-                        {% set amount = attribute(npc.drugs, drug) %}
+                        {% set amount = npc.drugs[drug] %}
                         {% if amount > 0 %}
                             {% set price = (game_state.drug_prices[drug] * npc.drug_price_modifier)|int %}
                             <option value="{{ drug }}">{{ drug.title() }} (${{ price }} each, {{ amount }} available)</option>
@@ -53,7 +53,7 @@
                 <select name="item_type" id="sell_item" required>
                     <option value="">Select item...</option>
                     {% for drug in ['weed', 'crack', 'coke', 'ice', 'percs', 'pixie_dust'] %}
-                        {% set amount = attribute(game_state.drugs, drug) %}
+                        {% set amount = game_state.drugs[drug] %}
                         {% if amount > 0 %}
                             <option value="{{ drug }}">{{ drug.title() }} (${{ (game_state.drug_prices[drug] * 0.7)|int }} each, {{ amount }} available)</option>
                         {% endif %}
@@ -75,14 +75,5 @@
     </div>
 
     <div id="player-list"></div>
-
-    <div class="chat-section">
-        <h4>Chat with other players</h4>
-        <div id="chat-messages" class="chat-messages"></div>
-        <div class="chat-input">
-            <input type="text" id="chat-input" placeholder="Type a message..." maxlength="200">
-            <button id="send-chat" class="btn btn-secondary">Send</button>
-        </div>
-    </div>
 </div>
 {% endblock %}

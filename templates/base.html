@@ -7,7 +7,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" hreff="{{ url_for('static', filename='style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
     <style>
         /* Combat message colors */
         .combat-hit { color: #ff6b6b !important; font-weight: bold; }
@@ -25,22 +25,74 @@
     <script>
         // Set global variables from Flask template
         window.playerName = "{{ game_state.player_name }}";
-        window.currentRoom = "{{ game_state.current_location }}";
+        window.currentRoom = "global";
+        window.locationRoom = "{{ game_state.current_location }}";
     </script>
     {% else %}
     <script>
         // Fallback for pages without game_state
-        window.playerName = "Unknown Player";
-        window.currentRoom = "city";
+        window.playerName = "Player";
+        window.currentRoom = "global";
+        window.locationRoom = "city";
     </script>
     {% endif %}
+ 
     <script src="{{ url_for('static', filename='chat.js') }}"></script>
 </head>
 <body>
     <div class="container">
+        <!-- Player Info Header -->
+        {% if game_state and game_state.player_name %}
+        <header class="player-info-header">
+            <div class="player-info">
+                <span class="player-name">{{ game_state.player_name }}</span>
+                <span class="player-score">Score: {{ game_state.current_score }}</span>
+                <span class="player-steps">Steps: {{ game_state.steps }}/{{ game_state.max_steps }}</span>
+            </div>
+        </header>
+        {% endif %}
+
+        <!-- Flash messages -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <div class="flash-messages">
+                    {% for category, message in messages %}
+                        <div class="flash-message flash-{{ category }}">
+                            {{ message }}
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
+
         <main>
             {% block content %}{% endblock %}
-            {% block chat %}{% endblock %}
+
+            {% block chat %}
+            <div class="chat-pvp-container">
+                <div class="chat-section">
+                    <h4>City Chat</h4>
+                    <div id="chat-messages" class="chat-messages"></div>
+                    <div class="chat-input">
+                        <input type="text" id="chat-input" placeholder="Type your message..." maxlength="200">
+                        <button id="send-chat" class="btn btn-primary btn-small">Send</button>
+                    </div>
+                </div>
+
+                <!-- Chat Users Section -->
+                <div class="pvp-section">
+                    <h3>👥 Chat Users</h3>
+                    <div id="pvp-player-list" class="pvp-player-list">
+                        <p>Loading users...</p>
+                    </div>
+                    <div class="pvp-actions">
+                        <button id="refresh-players" onclick="refreshPlayerList()" class="btn btn-secondary btn-small">Refresh Users</button>
+                    </div>
+                </div>
+            </div>
+            {% endblock %}
+
+
         </main>
     </div>
 

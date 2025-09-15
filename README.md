@@ -4,7 +4,7 @@ Set in a dypstopian present, this is a gritty, text-based drug dealing and gang 
 
 ## 🎮 Game Overview
 
-You start as a small-time entrepreneur with $1000, 5 units of crack, and a pistol. Your goal is to build a massive gang empire, defeat the rival Squidies gang, and become the ultimate pimp king of the city.
+You start as a small-time entrepreneur with $1000, 5 kilos of crack, and a pistol. Your goal is to build a massive gang empire, defeat the rival Squidies gang, and become the ultimate pimp king of the city.
 
 ### Key Features
 
@@ -133,7 +133,7 @@ The game uses Python dataclasses to manage complex game state:
 
 ### Multiplayer Features
 
-- **Real-time Chat**: Communicate with other players in the same location
+- **Real-time Chat**: Communicate with all other players globally
 - **PVP Combat**: Challenge other players to turn-based fights
 - **Room System**: Location-based player grouping
 - **Live Updates**: Real-time game state synchronization
@@ -189,13 +189,33 @@ This game contains mature themes including:
 pip install -r requirements.txt
 
 # Run in debug mode
-FLASK_DEBUG=true ./run_app.py
+python app.py
 ```
 
-Or alternatively:
+### Cross-Platform Executable
+
+The game can be built as a standalone executable that works on any system:
+
 ```bash
-FLASK_DEBUG=true python3 run_app.py
+# Build standalone executable
+make build
+
+# Or manually
+./build.sh
+
+# Run the executable
+cd dist && ./run.sh    # Linux/macOS
+cd dist && ./run.bat   # Windows
+
+# Clean build artifacts
+make clean
 ```
+
+The executable includes:
+- All Python dependencies bundled
+- Cross-platform launcher scripts
+- No external Python installation required
+- Works on Linux, macOS, and Windows
 
 ## 📄 License
 
