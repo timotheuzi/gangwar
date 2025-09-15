@@ -60,22 +60,22 @@
             <div class="weapon-selection">
                 <label for="weapon">Choose Weapon:</label>
                 <select name="weapon" id="weapon">
-                    {% if game_state.weapons.pistols > 0 %}
+                    {% if game_state.weapons.pistols > 0 and game_state.weapons.bullets > 0 %}
                     <option value="pistol">Pistol ({{ game_state.weapons.bullets }} bullets) - 2 attacks/turn</option>
                     {% endif %}
-                    {% if game_state.weapons.uzis > 0 %}
+                    {% if game_state.weapons.uzis > 0 and game_state.weapons.bullets >= 3 %}
                     <option value="uzi">Uzi ({{ game_state.weapons.bullets }} bullets) - 4 attacks/turn</option>
                     {% endif %}
                     {% if game_state.weapons.grenades > 0 %}
                     <option value="grenade">Grenade ({{ game_state.weapons.grenades }} available) - 1 attack/turn</option>
                     {% endif %}
-                    {% if game_state.weapons.missile_launcher > 0 %}
+                    {% if game_state.weapons.missile_launcher > 0 and game_state.weapons.missiles > 0 %}
                     <option value="missile_launcher">Missile Launcher ({{ game_state.weapons.missiles }} missiles) - 1 attack/turn</option>
                     {% endif %}
                     {% if game_state.weapons.vampire_bat > 0 %}
                     <option value="vampire_bat">Vampire Bat - 2 attacks/turn</option>
                     {% endif %}
-                    {% if game_state.weapons.ghost_guns > 0 %}
+                    {% if game_state.weapons.ghost_guns > 0 and game_state.weapons.bullets > 0 %}
                     <option value="ghost_gun">Ghost Gun ({{ game_state.weapons.bullets }} bullets) - 1 attack/turn</option>
                     {% endif %}
                     <option value="knife">Knife - 3 attacks/turn</option>

@@ -4,7 +4,7 @@
 var socket = null;
 var currentRoom = 'global'; // Global chat room
 var locationRoom = 'city'; // Location-specific room for player list and PVP
-var playerName = 'Unknown Player'; // Default name
+var playerName = 'Player'; // Default name
 var isConnected = false;
 
 // Initialize SocketIO connection

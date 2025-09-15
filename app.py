@@ -100,6 +100,7 @@ class Weapons:
     missiles: int = 0
     vest: int = 0
     knife: int = 0
+    ghost_guns: int = 0
 
     def can_fight_with_pistol(self):
         return self.pistols > 0 and self.bullets > 0
@@ -796,7 +797,7 @@ def npcs():
 
 @app.route('/cop_chase')
 def cop_chase():
-    """Police chase encounter"""
+    """Police chase encounter - redirect to MUD fight system"""
     game_state = get_game_state()
     num_cops = random.randint(2, 6)
     message = f"Oh no! {num_cops} police officers spot you and give chase!"
@@ -836,15 +837,18 @@ def fight_cops():
             game_state.damage += damage
             if game_state.damage >= 10:
                 game_state.lives -= 1
+                final_damage = game_state.damage  # Store before resetting
                 game_state.damage = 0
                 game_state.health = 100
+                enemy_type = f"{num_cops} Police Officers"
+                enemy_count = num_cops
+                fight_log = [message]
                 if game_state.lives <= 0:
-                    flash("You died and ran out of lives! Game Over!", "danger")
-                    return redirect(url_for('game_over'))
-                else:
-                    flash(f"You died but have {game_state.lives} lives remaining!", "warning")
                     save_game_state(game_state)
-                    return redirect(url_for('city'))
+                    return render_template('fight_defeat.html', game_state=game_state, enemy_type=enemy_type, enemy_count=enemy_count, fight_log=fight_log, final_damage=final_damage)
+                else:
+                    save_game_state(game_state)
+                    return render_template('fight_defeat.html', game_state=game_state, enemy_type=enemy_type, enemy_count=enemy_count, fight_log=fight_log, final_damage=final_damage)
 
             # Return to MUD fight with updated state
             enemy_health = num_cops * 10
@@ -877,15 +881,18 @@ def fight_cops():
                 message = f"You killed {cops_killed} cop(s) but {num_cops} remain and shot back! You took {damage} damage."
                 if game_state.damage >= 10:
                     game_state.lives -= 1
+                    final_damage = game_state.damage  # Store before resetting
                     game_state.damage = 0
                     game_state.health = 100
+                    enemy_type = f"{num_cops} Police Officers"
+                    enemy_count = num_cops
+                    fight_log = [message]
                     if game_state.lives <= 0:
-                        flash("You died in the shootout! Game Over!", "danger")
-                        return redirect(url_for('game_over'))
-                    else:
-                        flash(f"You died in the shootout but have {game_state.lives} lives remaining!", "warning")
                         save_game_state(game_state)
-                        return redirect(url_for('city'))
+                        return render_template('fight_defeat.html', game_state=game_state, enemy_type=enemy_type, enemy_count=enemy_count, fight_log=fight_log, final_damage=final_damage)
+                    else:
+                        save_game_state(game_state)
+                        return render_template('fight_defeat.html', game_state=game_state, enemy_type=enemy_type, enemy_count=enemy_count, fight_log=fight_log, final_damage=final_damage)
 
         elif weapon == 'uzi' and game_state.weapons.bullets > 0:
             game_state.weapons.bullets -= min(10, game_state.weapons.bullets)  # Uzi uses 10 bullets
@@ -946,26 +953,38 @@ def fight_cops():
             game_state.damage += damage_to_player
             message = f"You tried to fight with a knife but got overwhelmed! {damage_to_player} damage from {num_cops} cops."
 
-        elif weapon == 'vampire_bat':
-            damage_to_player = random.randint(20, 45) * num_cops
+        elif weapon == 'vampire_bat' and game_state.weapons.vampire_bat > 0:
+            cops_killed = min(num_cops, random.randint(1, 2))  # Vampire bat kills 1-2 cops
+            num_cops -= cops_killed
+
+            damage = random.randint(5, 25) * (num_cops if num_cops > 0 else 1)
             if game_state.weapons.vest > 0:
                 game_state.weapons.vest -= 1
-                damage_to_player = max(0, damage_to_player - 20)
-            game_state.damage += damage_to_player
-            message = f"The vampire bat didn't help much! {damage_to_player} damage from {num_cops} cops shooting back."
+                damage = max(0, damage - 20)
+            game_state.damage += damage
+
+            if num_cops <= 0:
+                flash(f"You beat the cops senseless with your vampire bat! {cops_killed} officers down!", "success")
+                save_game_state(game_state)
+                return redirect(url_for('city'))
+            else:
+                message = f"You smashed {cops_killed} cop(s) with your vampire bat but {num_cops} remain! You took {damage} damage."
 
         # Check if player died
         if game_state.damage >= 10:
             game_state.lives -= 1
+            final_damage = game_state.damage  # Store before resetting
             game_state.damage = 0
             game_state.health = 100
+            enemy_type = f"{num_cops} Police Officers"
+            enemy_count = num_cops
+            fight_log = [message] if 'message' in locals() else ["Combat with police officers"]
             if game_state.lives <= 0:
-                flash("You died in the police shootout! Game Over!", "danger")
-                return redirect(url_for('game_over'))
-            else:
-                flash(f"You died but have {game_state.lives} lives remaining!", "warning")
                 save_game_state(game_state)
-                return redirect(url_for('city'))
+                return render_template('fight_defeat.html', game_state=game_state, enemy_type=enemy_type, enemy_count=enemy_count, fight_log=fight_log, final_damage=final_damage)
+            else:
+                save_game_state(game_state)
+                return render_template('fight_defeat.html', game_state=game_state, enemy_type=enemy_type, enemy_count=enemy_count, fight_log=fight_log, final_damage=final_damage)
 
         # Return to MUD fight with updated state
         enemy_health = num_cops * 10
@@ -995,16 +1014,35 @@ def process_fight_action():
 
     # Process action
     if action == 'attack':
-        if weapon == 'pistol' and game_state.weapons.bullets > 0:
+        if weapon == 'pistol' and game_state.weapons.pistols > 0 and game_state.weapons.bullets > 0:
             game_state.weapons.bullets -= 1
             damage = random.randint(15, 25)
             enemy_health -= damage
             fight_log.append(f"You fire your pistol and deal {damage} damage!")
-        elif weapon == 'uzi' and game_state.weapons.bullets >= 3:
+        elif weapon == 'ghost_gun' and game_state.weapons.ghost_guns > 0 and game_state.weapons.bullets > 0:
+            game_state.weapons.bullets -= 1
+            damage = random.randint(15, 25)
+            enemy_health -= damage
+            fight_log.append(f"You fire your ghost gun and deal {damage} damage!")
+        elif weapon == 'uzi' and game_state.weapons.uzis > 0 and game_state.weapons.bullets >= 3:
             game_state.weapons.bullets -= 3
             damage = random.randint(20, 40)
             enemy_health -= damage
             fight_log.append(f"You spray with your Uzi and deal {damage} damage!")
+        elif weapon == 'grenade' and game_state.weapons.grenades > 0:
+            game_state.weapons.grenades -= 1
+            damage = random.randint(30, 60)
+            enemy_health -= damage
+            fight_log.append(f"You throw a grenade and deal {damage} damage!")
+        elif weapon == 'missile_launcher' and game_state.weapons.missile_launcher > 0 and game_state.weapons.missiles > 0:
+            game_state.weapons.missiles -= 1
+            damage = random.randint(50, 100)
+            enemy_health -= damage
+            fight_log.append(f"You fire a missile and deal {damage} damage!")
+        elif weapon == 'vampire_bat' and game_state.weapons.vampire_bat > 0:
+            damage = random.randint(25, 45)
+            enemy_health -= damage
+            fight_log.append(f"You swing your vampire bat and deal {damage} damage!")
         elif weapon == 'knife':
             damage = random.randint(10, 20)
             enemy_health -= damage
@@ -1081,15 +1119,15 @@ def process_fight_action():
         return redirect(url_for('city'))
     elif game_state.damage >= 10:
         game_state.lives -= 1
+        final_damage = game_state.damage  # Store the final damage before resetting
         game_state.damage = 0
         game_state.health = 100
         if game_state.lives <= 0:
-            flash("You died in combat! Game Over!", "danger")
-            return redirect(url_for('game_over'))
-        else:
-            flash(f"You died but have {game_state.lives} lives remaining!", "warning")
             save_game_state(game_state)
-            return redirect(url_for('city'))
+            return render_template('fight_defeat.html', game_state=game_state, enemy_type=enemy_type, enemy_count=enemy_count, fight_log=fight_log, final_damage=final_damage)
+        else:
+            save_game_state(game_state)
+            return render_template('fight_defeat.html', game_state=game_state, enemy_type=enemy_type, enemy_count=enemy_count, fight_log=fight_log, final_damage=final_damage)
 
     # Continue combat
     save_game_state(game_state)
