@@ -10,7 +10,7 @@
             <p>Gang Name: {{ game_state.player_name }}</p>
             <p>Day: {{ game_state.day }}</p>
             <p>Lives Remaining: {{ game_state.lives }}</p>
-            <p>Health: {{ 10 - game_state.damage }}/10</p>
+            <p>Health: {{ game_state.health - game_state.damage }}/30</p>
             <p>Gang Members: {{ game_state.members }}</p>
         </div>
         

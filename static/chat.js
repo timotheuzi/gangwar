@@ -107,7 +107,14 @@ function addChatMessage(player, message, messageClass) {
         if (messageClass) {
             messageDiv.classList.add(messageClass);
         }
-        messageDiv.innerHTML = '<strong>' + player + ':</strong> ' + message;
+
+        // Ensure we use the actual player name, not fallback "Player"
+        var displayName = player;
+        if (player === 'Player' && window.playerName && window.playerName !== 'Player') {
+            displayName = window.playerName;
+        }
+
+        messageDiv.innerHTML = '<strong>' + displayName + ':</strong> ' + message;
         chatMessages.appendChild(messageDiv);
 
         // Limit chat messages to prevent overflow

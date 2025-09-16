@@ -83,17 +83,6 @@
 
 
 
-    {% if game_state %}
-    <div class="current-prices">
-        <h3>Player Stats:</h3>
-        <ul>
-            <li>Money: $ {{ "{:,}".format(game_state.money) }}</li>
-            <li>Day: {{ game_state.day }}</li>
-            <li>Lives: {{ game_state.lives }}</li>
-            <li>Gang: {{ game_state.members }} members</li>
-            <li>Health: {{ 10 - game_state.damage }}/10</li>
-        </ul>
-    </div>
-    {% endif %}
+
 </div>
 {% endblock %}

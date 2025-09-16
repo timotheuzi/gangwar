@@ -121,7 +121,7 @@ class GameState:
     squidies_missile_launcher: int = 2
     squidies_missiles: int = 10
     day: int = 1
-    health: int = 100
+    health: int = 30
     steps: int = 0
     max_steps: int = 15
     current_score: int = 0
@@ -435,12 +435,19 @@ def final_battle():
     enemy_type = f"The Squidies Gang ({game_state.squidies} members)"
     combat_active = True
     combat_id = f"final_battle_{random.randint(1000, 9999)}"
-    return render_template('mud_fight.html', game_state=game_state, enemy_health=enemy_health, enemy_type=enemy_type, enemy_count=game_state.squidies, combat_active=combat_active, combat_id=combat_id)
+
+    # Initialize fight log
+    fight_log = [f"You launch your final assault on the Squidies gang headquarters!", f"Combat begins against {enemy_type}!"]
+    session['fight_log'] = fight_log
+    session.modified = True
+
+    return render_template('mud_fight.html', game_state=game_state, enemy_health=enemy_health, enemy_type=enemy_type, enemy_count=game_state.squidies, combat_active=combat_active, combat_id=combat_id, fight_log=fight_log)
 
 @app.route('/wander')
 def wander():
     """Wander the Streets"""
     game_state = get_game_state()
+    result = ""  # Initialize result variable
 
     # Check for police chase (10% chance)
     if random.random() < 0.1:
@@ -456,7 +463,13 @@ def wander():
             enemy_type = f"{num_cops} Police Officers"
             combat_active = True
             combat_id = f"police_{random.randint(1000, 9999)}"
-            return render_template('mud_fight.html', game_state=game_state, enemy_health=enemy_health, enemy_type=enemy_type, enemy_count=num_cops, combat_active=combat_active, combat_id=combat_id)
+
+            # Initialize fight log
+            fight_log = [f"Oh no! {num_cops} police officers spot you and give chase!", f"Combat begins against {enemy_type}!"]
+            session['fight_log'] = fight_log
+            session.modified = True
+
+            return render_template('mud_fight.html', game_state=game_state, enemy_health=enemy_health, enemy_type=enemy_type, enemy_count=num_cops, combat_active=combat_active, combat_id=combat_id, fight_log=fight_log)
 
     # Check for baby momma incident (8% chance)
     elif random.random() < 0.08:
@@ -488,7 +501,13 @@ def wander():
         enemy_type = f"{enemy_members} Rival Gang Members"
         combat_active = True
         combat_id = f"gang_{random.randint(1000, 9999)}"
-        return render_template('mud_fight.html', game_state=game_state, enemy_health=enemy_health, enemy_type=enemy_type, enemy_count=enemy_members, combat_active=combat_active, combat_id=combat_id)
+
+        # Initialize fight log
+        fight_log = [f"You encounter {enemy_members} rival gang members looking for trouble!", f"Combat begins against {enemy_type}!"]
+        session['fight_log'] = fight_log
+        session.modified = True
+
+        return render_template('mud_fight.html', game_state=game_state, enemy_health=enemy_health, enemy_type=enemy_type, enemy_count=enemy_members, combat_active=combat_active, combat_id=combat_id, fight_log=fight_log)
 
     # Check for Squidie hit squad (scales with gang power)
     elif game_state.members >= 3:  # Only when you have some gang presence
@@ -507,7 +526,13 @@ def wander():
             enemy_type = f"{squidie_members} Squidie Hit Squad"
             combat_active = True
             combat_id = f"squidie_{random.randint(1000, 9999)}"
-            return render_template('mud_fight.html', game_state=game_state, enemy_health=enemy_health, enemy_type=enemy_type, enemy_count=squidie_members, combat_active=combat_active, combat_id=combat_id)
+
+            # Initialize fight log
+            fight_log = [f"Oh no! A Squidie hit squad of {squidie_members} members has tracked you down!", f"Combat begins against {enemy_type}!"]
+            session['fight_log'] = fight_log
+            session.modified = True
+
+            return render_template('mud_fight.html', game_state=game_state, enemy_health=enemy_health, enemy_type=enemy_type, enemy_count=squidie_members, combat_active=combat_active, combat_id=combat_id, fight_log=fight_log)
 
     # Regular wander results (remaining ~70% chance)
     else:
@@ -858,6 +883,46 @@ def visit_prostitutes():
     """Visit Prostitutes"""
     game_state = get_game_state()
     return render_template('prostitutes.html', game_state=game_state)
+
+@app.route('/prostitute_action', methods=['POST'])
+def prostitute_action():
+    """Handle prostitute service actions"""
+    game_state = get_game_state()
+    action = request.form.get('action')
+
+    if action == 'quick_service':
+        if game_state.money >= 200:
+            game_state.money -= 200
+            # Quick service restores some health
+            health_gain = random.randint(5, 15)
+            game_state.health = min(100, game_state.health + health_gain)
+            flash(f"You enjoyed a quick service and gained {health_gain} health!", "success")
+        else:
+            flash("You don't have enough money for a quick service!", "danger")
+
+    elif action == 'vip_experience':
+        if game_state.money >= 500:
+            game_state.money -= 500
+            # VIP experience restores more health
+            health_gain = random.randint(15, 30)
+            game_state.health = min(100, game_state.health + health_gain)
+            flash(f"You had a VIP experience and gained {health_gain} health!", "success")
+        else:
+            flash("You don't have enough money for a VIP experience!", "danger")
+
+    elif action == 'recruit_hooker':
+        if game_state.money >= 1000:
+            game_state.money -= 1000
+            game_state.members += 1
+            # Recruiting also gives health boost
+            health_gain = random.randint(10, 20)
+            game_state.health = min(100, game_state.health + health_gain)
+            flash(f"You recruited a hooker to your gang and gained {health_gain} health!", "success")
+        else:
+            flash("You don't have enough money to recruit a hooker!", "danger")
+
+    save_game_state(game_state)
+    return redirect(url_for('visit_prostitutes'))
 
 @app.route('/search_deeper')
 def search_deeper():
@@ -1217,7 +1282,13 @@ def move_room(direction):
             enemy_type = npc['name']
             combat_active = True
             combat_id = f"npc_{list(npcs_data.keys())[list(npcs_data.values()).index(npc)]}_{random.randint(1000, 9999)}"
-            return render_template('mud_fight.html', game_state=game_state, enemy_health=enemy_health, enemy_type=enemy_type, enemy_count=1, combat_active=combat_active, combat_id=combat_id, npc_id=list(npcs_data.keys())[list(npcs_data.values()).index(npc)])
+
+            # Initialize fight log
+            fight_log = [f"You encounter {npc['name']}! They look hostile...", f"Combat begins against {enemy_type}!"]
+            session['fight_log'] = fight_log
+            session.modified = True
+
+            return render_template('mud_fight.html', game_state=game_state, enemy_health=enemy_health, enemy_type=enemy_type, enemy_count=1, combat_active=combat_active, combat_id=combat_id, npc_id=list(npcs_data.keys())[list(npcs_data.values()).index(npc)], fight_log=fight_log)
 
     save_game_state(game_state)
 
@@ -1297,7 +1368,13 @@ def fight_npc(npc_id):
     enemy_type = npc['name']
     combat_active = True
     combat_id = f"npc_{npc_id}_{random.randint(1000, 9999)}"
-    return render_template('mud_fight.html', game_state=game_state, enemy_health=enemy_health, enemy_type=enemy_type, enemy_count=1, combat_active=combat_active, combat_id=combat_id, npc_id=npc_id)
+
+    # Initialize fight log
+    fight_log = [f"You engage in combat with {npc['name']}!", f"Combat begins against {enemy_type}!"]
+    session['fight_log'] = fight_log
+    session.modified = True
+
+    return render_template('mud_fight.html', game_state=game_state, enemy_health=enemy_health, enemy_type=enemy_type, enemy_count=1, combat_active=combat_active, combat_id=combat_id, npc_id=npc_id, fight_log=fight_log)
 
 @app.route('/pickup_loot/<npc_id>')
 def pickup_loot(npc_id):
@@ -1331,7 +1408,13 @@ def cop_chase():
     enemy_type = f"{num_cops} Police Officers"
     combat_active = True
     combat_id = f"police_{random.randint(1000, 9999)}"
-    return render_template('mud_fight.html', game_state=game_state, enemy_health=enemy_health, enemy_type=enemy_type, enemy_count=num_cops, combat_active=combat_active, combat_id=combat_id)
+
+    # Initialize fight log
+    fight_log = [f"Oh no! {num_cops} police officers spot you and give chase!", f"Combat begins against {enemy_type}!"]
+    session['fight_log'] = fight_log
+    session.modified = True
+
+    return render_template('mud_fight.html', game_state=game_state, enemy_health=enemy_health, enemy_type=enemy_type, enemy_count=num_cops, combat_active=combat_active, combat_id=combat_id, fight_log=fight_log)
 
 @app.route('/fight_cops', methods=['POST'])
 def fight_cops():
@@ -1367,7 +1450,7 @@ def fight_cops():
                 game_state.lives -= 1
                 final_damage = game_state.damage  # Store before resetting
                 game_state.damage = 0
-                game_state.health = 100
+                game_state.health = 30
                 enemy_type = f"{num_cops} Police Officers"
                 enemy_count = num_cops
                 if game_state.lives <= 0:
@@ -1411,7 +1494,7 @@ def fight_cops():
                     game_state.lives -= 1
                     final_damage = game_state.damage  # Store before resetting
                     game_state.damage = 0
-                    game_state.health = 100
+                    game_state.health = 30
                     enemy_type = f"{num_cops} Police Officers"
                     enemy_count = num_cops
                     if game_state.lives <= 0:
@@ -1504,7 +1587,7 @@ def fight_cops():
             game_state.lives -= 1
             final_damage = game_state.damage  # Store before resetting
             game_state.damage = 0
-            game_state.health = 100
+            game_state.health = 30
             enemy_type = f"{num_cops} Police Officers"
             enemy_count = num_cops
             if game_state.lives <= 0:
@@ -1544,43 +1627,91 @@ def process_fight_action():
     fight_log = session.get('fight_log', [])
     if not fight_log:
         fight_log = [f"Combat begins against {enemy_type}!"]
+        session['fight_log'] = fight_log
+        session.modified = True
 
     # Process action
     if action == 'attack':
         weapon_name = weapon.replace('_', ' ').title()
+        total_player_damage = 0
+
+        # Player's attack
         if weapon == 'pistol' and game_state.weapons.pistols > 0 and game_state.weapons.bullets > 0:
             game_state.weapons.bullets -= 1
             damage = random.randint(15, 25)
-            enemy_health -= damage
+            total_player_damage += damage
             fight_log.append(f"You fire your pistol, dealing {damage} damage!")
         elif weapon == 'ghost_gun' and game_state.weapons.ghost_guns > 0 and game_state.weapons.bullets > 0:
             game_state.weapons.bullets -= 1
             damage = random.randint(15, 25)
-            enemy_health -= damage
+            total_player_damage += damage
             fight_log.append(f"You fire your ghost gun, dealing {damage} damage!")
         elif weapon == 'uzi' and game_state.weapons.uzis > 0 and game_state.weapons.bullets >= 3:
             game_state.weapons.bullets -= 3
             damage = random.randint(20, 40)
-            enemy_health -= damage
+            total_player_damage += damage
             fight_log.append(f"You spray with your Uzi, dealing {damage} damage!")
         elif weapon == 'grenade' and game_state.weapons.grenades > 0:
             game_state.weapons.grenades -= 1
             damage = random.randint(30, 60)
-            enemy_health -= damage
+            total_player_damage += damage
             fight_log.append(f"You throw a grenade, dealing {damage} damage!")
         elif weapon == 'missile_launcher' and game_state.weapons.missile_launcher > 0 and game_state.weapons.missiles > 0:
             game_state.weapons.missiles -= 1
             damage = random.randint(50, 100)
-            enemy_health -= damage
+            total_player_damage += damage
             fight_log.append(f"You fire a missile, dealing {damage} damage!")
         elif weapon == 'vampire_bat' and game_state.weapons.vampire_bat > 0:
             damage = random.randint(25, 45)
-            enemy_health -= damage
+            total_player_damage += damage
             fight_log.append(f"You swing your vampire bat, dealing {damage} damage!")
         elif weapon == 'knife':
             damage = random.randint(10, 20)
-            enemy_health -= damage
+            total_player_damage += damage
             fight_log.append(f"You stab with your knife, dealing {damage} damage!")
+
+        # Gang members' attacks (if player has gang members)
+        gang_damage = 0
+        if game_state.members > 1:  # Player + at least 1 gang member
+            gang_member_count = min(game_state.members - 1, 5)  # Max 5 gang members attack per turn
+            weapons_available = []
+
+            # Check what weapons are available for gang members
+            if game_state.weapons.pistols > 1 and game_state.weapons.bullets >= gang_member_count:
+                weapons_available.append('pistol')
+            if game_state.weapons.uzis > 0 and game_state.weapons.bullets >= gang_member_count * 3:
+                weapons_available.append('uzi')
+            if game_state.weapons.vampire_bat > 0:
+                weapons_available.append('vampire_bat')
+            if game_state.weapons.knife > 0:
+                weapons_available.append('knife')
+
+            if weapons_available:
+                # Each gang member gets a chance to attack
+                for i in range(gang_member_count):
+                    if enemy_health <= 0:
+                        break
+
+                    weapon_choice = random.choice(weapons_available)
+                    member_damage = 0
+
+                    if weapon_choice == 'pistol' and game_state.weapons.bullets > 0:
+                        game_state.weapons.bullets -= 1
+                        member_damage = random.randint(10, 20)
+                    elif weapon_choice == 'uzi' and game_state.weapons.bullets >= 3:
+                        game_state.weapons.bullets -= 3
+                        member_damage = random.randint(15, 30)
+                    elif weapon_choice == 'vampire_bat':
+                        member_damage = random.randint(15, 25)
+                    elif weapon_choice == 'knife':
+                        member_damage = random.randint(8, 15)
+
+                    if member_damage > 0:
+                        gang_damage += member_damage
+                        fight_log.append(f"Gang member {i+1} attacks with {weapon_choice.replace('_', ' ')}, dealing {member_damage} damage!")
+
+        # Apply total damage
+        enemy_health -= (total_player_damage + gang_damage)
 
         # Enemy attacks back
         if enemy_health > 0:
@@ -1637,8 +1768,6 @@ def process_fight_action():
 
     # Check win/lose conditions
     if enemy_health <= 0:
-        flash("Victory! You defeated your enemies!", "success")
-
         # Handle NPC-specific victory logic
         npc_id = request.form.get('npc_id')
         if npc_id and npc_id in npcs_data:
@@ -1646,33 +1775,62 @@ def process_fight_action():
             with open('npcs.json', 'w') as f:
                 json.dump(npcs_data, f, indent=2)
             game_state.money += 100  # Loot from defeated NPC
-            flash(f"You defeated {npcs_data[npc_id]['name']} and looted $100!", "success")
+            fight_log.append(f"You defeated {npcs_data[npc_id]['name']} and looted $100!")
 
         # Chance to recruit a defeated enemy as a gang member
         if enemy_type != "Police Officers" and random.random() < 0.3:  # 30% chance
             game_state.members += 1
-            flash("One of your defeated enemies has joined your gang!", "success")
+            fight_log.append("One of your defeated enemies has joined your gang!")
 
+        fight_log.append(f"VICTORY! You have defeated {enemy_type}!")
         save_game_state(game_state)
-        return redirect(url_for('city'))
+
+        # Show victory outcome in mud fight template before redirect
+        combat_active = False
+        return render_template('mud_fight.html', game_state=game_state, enemy_health=enemy_health, enemy_type=enemy_type, enemy_count=enemy_count, combat_active=combat_active, combat_id=combat_id, fight_log=fight_log, victory=True)
     elif game_state.damage >= 10:
         game_state.lives -= 1
         final_damage = game_state.damage  # Store the final damage before resetting
         game_state.damage = 0
-        game_state.health = 100
+        game_state.health = 30
+        fight_log.append(f"You were defeated by {enemy_type} and took {final_damage} damage!")
         if game_state.lives <= 0:
-            save_game_state(game_state)
-            fight_log = [f"You were defeated by {enemy_type} and took {final_damage} damage. This was your final life."]
-            return render_template('fight_defeat.html', game_state=game_state, enemy_type=enemy_type, enemy_count=enemy_count, final_damage=final_damage, fight_log=fight_log)
+            fight_log.append("This was your final life.")
         else:
-            save_game_state(game_state)
-            fight_log = [f"You were defeated by {enemy_type} and took {final_damage} damage. You lost a life but can continue."]
-            return render_template('fight_defeat.html', game_state=game_state, enemy_type=enemy_type, enemy_count=enemy_count, final_damage=final_damage, fight_log=fight_log)
+            fight_log.append("You lost a life but can continue.")
+        save_game_state(game_state)
+
+        # Show defeat outcome in mud fight template
+        combat_active = False
+        return render_template('mud_fight.html', game_state=game_state, enemy_health=enemy_health, enemy_type=enemy_type, enemy_count=enemy_count, combat_active=combat_active, combat_id=combat_id, fight_log=fight_log, defeat=True)
 
     # Continue combat
     save_game_state(game_state)
     combat_active = enemy_health > 0
     return render_template('mud_fight.html', game_state=game_state, enemy_health=enemy_health, enemy_type=enemy_type, enemy_count=enemy_count, combat_active=combat_active, combat_id=combat_id)
+
+@app.route('/continue_after_fight', methods=['POST'])
+def continue_after_fight():
+    """Handle continue button after fight ends"""
+    game_state = get_game_state()
+    outcome = request.form.get('outcome')
+
+    if outcome == 'victory':
+        # Victory - return to city
+        flash("Victory! You have successfully defeated your enemies!", "success")
+        return redirect(url_for('city'))
+    elif outcome == 'defeat':
+        # Defeat - check if game over or continue
+        if game_state.lives <= 0:
+            # Game over
+            return redirect(url_for('game_over'))
+        else:
+            # Continue with reduced lives
+            flash(f"You were defeated but have {game_state.lives} lives remaining!", "warning")
+            return redirect(url_for('city'))
+
+    # Fallback
+    return redirect(url_for('city'))
 
 @app.route('/game_over')
 def game_over():

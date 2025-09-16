@@ -8,7 +8,7 @@
     <div class="combat-status">
         <div class="player-status">
             <h4>Your Status</h4>
-            <p>Health: {{ (10 - game_state.damage) if game_state.damage < 10 else 0 }}/10</p>
+            <p>Health: {{ game_state.health - game_state.damage }}/30</p>
             <p>Money: ${{ "{:,}".format(game_state.money) }}</p>
             <p>Gang Members: {{ game_state.members }}</p>
         </div>
@@ -19,6 +19,26 @@
             <p>Type: {{ enemy_type }}</p>
             {% if enemy_count > 1 %}
             <p>Enemies: {{ enemy_count }}</p>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Fight Information Window -->
+    <div class="fight-info-window">
+        <h3>⚔️ Combat Log ⚔️</h3>
+        <div class="fight-log-container">
+            {% if fight_log %}
+                {% for entry in fight_log %}
+                <div class="fight-log-entry">
+                    <span class="turn-marker">></span>
+                    <span class="turn-text">{{ entry }}</span>
+                </div>
+                {% endfor %}
+            {% else %}
+                <div class="fight-log-entry">
+                    <span class="turn-marker">></span>
+                    <span class="turn-text">Combat begins against {{ enemy_type }}!</span>
+                </div>
             {% endif %}
         </div>
     </div>
@@ -90,14 +110,56 @@
 
     <div class="combat-options">
         {% if not combat_active %}
-            {% if encounter_context %}
-                {% if encounter_context.type == 'wander' %}
-                    <a href="{{ url_for('continue_activity') }}" class="btn btn-success">Continue Wandering</a>
-                {% elif encounter_context.type == 'alleyway' %}
-                    <a href="{{ url_for('continue_activity') }}" class="btn btn-success">Continue in Alleyway</a>
+            {% if victory %}
+                <div class="victory-outcome">
+                    <h3>🎉 VICTORY! 🎉</h3>
+                    <p>You have successfully defeated your enemies!</p>
+                    {% if fight_log %}
+                        <div class="victory-log">
+                            <h4>Combat Summary:</h4>
+                            {% for entry in fight_log %}
+                                <div class="log-entry">{{ entry }}</div>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                    <div class="continue-options">
+                        <form method="POST" action="{{ url_for('continue_after_fight') }}">
+                            <input type="hidden" name="outcome" value="victory">
+                            <input type="hidden" name="combat_id" value="{{ combat_id }}">
+                            <button type="submit" class="btn btn-success">Continue</button>
+                        </form>
+                    </div>
+                </div>
+            {% elif defeat %}
+                <div class="defeat-outcome">
+                    <h3>💀 DEFEAT! 💀</h3>
+                    <p>You have been defeated in combat!</p>
+                    {% if fight_log %}
+                        <div class="defeat-log">
+                            <h4>Combat Summary:</h4>
+                            {% for entry in fight_log %}
+                                <div class="log-entry">{{ entry }}</div>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                    <div class="continue-options">
+                        <form method="POST" action="{{ url_for('continue_after_fight') }}">
+                            <input type="hidden" name="outcome" value="defeat">
+                            <input type="hidden" name="combat_id" value="{{ combat_id }}">
+                            <button type="submit" class="btn btn-danger">Continue</button>
+                        </form>
+                    </div>
+                </div>
+            {% else %}
+                {% if encounter_context %}
+                    {% if encounter_context.type == 'wander' %}
+                        <a href="{{ url_for('continue_activity') }}" class="btn btn-success">Continue Wandering</a>
+                    {% elif encounter_context.type == 'alleyway' %}
+                        <a href="{{ url_for('continue_activity') }}" class="btn btn-success">Continue in Alleyway</a>
+                    {% endif %}
                 {% endif %}
+                <a href="{{ url_for('city') }}" class="btn btn-primary">Return to City</a>
             {% endif %}
-            <a href="{{ url_for('city') }}" class="btn btn-primary">Return to City</a>
         {% endif %}
     </div>
 </div>
@@ -184,6 +246,80 @@
     padding: 4px 8px;
     margin: 2px;
     min-width: 120px;
+}
+
+/* Fight Information Window Styles */
+.fight-info-window {
+    margin: 20px 0;
+    padding: 15px;
+    border: 2px solid var(--border-primary, #00ff00);
+    border-radius: var(--radius-md, 8px);
+    background: var(--secondary-bg, #111);
+    box-shadow: var(--shadow-secondary, 0 4px 16px rgba(0, 0, 0, 0.3));
+}
+
+.fight-info-window h3 {
+    color: var(--text-accent, #00ff00);
+    margin-bottom: 15px;
+    border-bottom: 1px solid var(--text-accent, #00ff00);
+    padding-bottom: 5px;
+    text-align: center;
+}
+
+.fight-log-container {
+    max-height: 300px;
+    overflow-y: auto;
+    background-color: #000;
+    border: 1px solid #333;
+    padding: 10px;
+    font-family: 'Courier New', monospace;
+    font-size: 14px;
+    color: #0f0;
+    scrollbar-width: thin;
+    scrollbar-color: #00ff00 #000;
+}
+
+.fight-log-container::-webkit-scrollbar {
+    width: 8px;
+}
+
+.fight-log-container::-webkit-scrollbar-track {
+    background: #000;
+}
+
+.fight-log-container::-webkit-scrollbar-thumb {
+    background: #00ff00;
+    border-radius: 4px;
+}
+
+.fight-log-container::-webkit-scrollbar-thumb:hover {
+    background: #00cc00;
+}
+
+.fight-log-entry {
+    margin: 8px 0;
+    padding: 5px 0;
+    border-bottom: 1px solid #333;
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+}
+
+.fight-log-entry:last-child {
+    border-bottom: none;
+}
+
+.turn-marker {
+    color: var(--text-accent, #00ff00);
+    font-weight: bold;
+    flex-shrink: 0;
+    margin-top: 2px;
+}
+
+.turn-text {
+    color: var(--text-primary, #fff);
+    line-height: 1.4;
+    word-wrap: break-word;
 }
 
 /* Combat Chat Styles */

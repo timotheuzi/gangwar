@@ -48,6 +48,11 @@
                 <span class="player-name">{{ game_state.player_name }}</span>
                 <span class="player-score">Score: {{ game_state.current_score }}</span>
                 <span class="player-steps">Steps: {{ game_state.steps }}/{{ game_state.max_steps }}</span>
+                <span class="player-money">Money: ${{ "{:,}".format(game_state.money) }}</span>
+                <span class="player-day">Day: {{ game_state.day }}</span>
+                <span class="player-lives">Lives: {{ game_state.lives }}</span>
+                <span class="player-gang">Gang: {{ game_state.members }} members</span>
+                <span class="player-health">Health: {{ game_state.health - game_state.damage }}/30</span>
             </div>
         </header>
         {% endif %}
