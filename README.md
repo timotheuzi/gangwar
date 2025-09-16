@@ -1,6 +1,6 @@
 # The Gang Wars Are Upon Us
 
-Set in a dypstopian present, this is a gritty, text-based drug dealing and gang warfare simulation game built with Flask and SocketIO. Build your criminal empire, deal drugs, fight rival gangs, and survive the streets in this intense urban warfare experience.
+Set in a dypstopian present, this is a gritty, text-based drug dealing and gang warfare simulation game built with Flask and SocketIO. Build your criminal empire, deal drugs, fight rival gangs, and survive the streets in this intense urban warfare experience. Beauty and progress for all!
 
 ## 🎮 Game Overview
 
