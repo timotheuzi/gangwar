@@ -160,14 +160,14 @@ PYTHON_CMD=$(find_python)
 echo "Using Python: $PYTHON_CMD"
 
 # Check if we're in the dist directory and need to go up
-if [ -f "../app.py" ]; then
+if [ -f "../src/app.py" ]; then
     echo "Changing to parent directory..."
     cd ..
 fi
 
 # Check if app.py exists
-if [ ! -f "app.py" ]; then
-    echo "Error: app.py not found!"
+if [ ! -f "src/app.py" ]; then
+    echo "Error: src/app.py not found!"
     echo "Please ensure you're running this from the correct directory."
     exit 1
 fi
@@ -184,7 +184,7 @@ if ! "$PYTHON_CMD" -c "import flask, flask_socketio" 2>/dev/null; then
 fi
 
 echo "Starting Gangwar with Python..."
-"$PYTHON_CMD" app.py
+"$PYTHON_CMD" src/app.py
 EOF
 
 # Create Windows batch file equivalent
@@ -225,14 +225,14 @@ echo No executable found in current directory.
 echo Falling back to Python...
 
 REM Check if we're in the dist directory and need to go up
-if exist "..\app.py" (
+if exist "..\src\app.py" (
     echo Changing to parent directory...
     cd ..
 )
 
 REM Check if app.py exists
-if not exist "app.py" (
-    echo Error: app.py not found!
+if not exist "src\app.py" (
+    echo Error: src\app.py not found!
     echo Please ensure you're running this from the correct directory.
     pause
     exit /b 1
@@ -268,7 +268,7 @@ if errorlevel 1 (
 )
 
 echo Starting Gangwar with Python...
-%PYTHON_CMD% app.py
+%PYTHON_CMD% src\app.py
 EOF
 
 # Make run.sh executable
@@ -332,7 +332,7 @@ echo "Building application with PyInstaller..."
 # Generate spec file if it doesn't exist
 if [ ! -f "gangwar.spec" ]; then
     echo "Generating gangwar.spec file..."
-    pyinstaller --name gangwar --onefile app.py --specpath .
+    pyinstaller --name gangwar --onefile src/app.py --specpath .
     # Remove the generated executable and build files, keep only spec
     rm -rf build/ dist/
 fi

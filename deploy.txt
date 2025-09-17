@@ -55,7 +55,7 @@ from pythonanywhere import application
 
 # For SocketIO support, wrap with socketio WSGI app
 from flask_socketio import SocketIO
-from app import socketio
+from src.app import socketio
 
 application = socketio.WSGI_app()
 ```

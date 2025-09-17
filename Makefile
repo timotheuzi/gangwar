@@ -49,7 +49,7 @@ install-deps:
 # Run the application in development mode
 run:
 	@echo "Running Gangwar Game in development mode..."
-	@python app.py
+	@python src/app.py
 
 # Run the built executable
 run-dist:
@@ -66,7 +66,7 @@ run-dist:
 # Test the application
 test:
 	@echo "Testing Gangwar Game..."
-	@python -c "import app; print('✓ Flask app imports successfully')"
+	@python -c "import src.app; print('✓ Flask app imports successfully')"
 	@python -c "import flask_socketio; print('✓ Flask-SocketIO available')"
 	@python -c "import flask; print('✓ Flask available')"
 	@echo "Basic tests passed!"

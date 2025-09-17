@@ -99,7 +99,9 @@ When wandering around the city, you might encounter:
 
 ```
 pimpin/
-├── app.py                 # Main Flask application
+├── src/
+│   ├── app.py             # Main Flask application
+│   └── main.py            # Additional source files
 ├── run_app.py            # Wrapper script to run with correct PYTHONPATH
 ├── standalone_app.py      # Single-file version for easy deployment
 ├── requirements.txt       # Python dependencies
@@ -189,7 +191,7 @@ This game contains mature themes including:
 pip install -r requirements.txt
 
 # Run in debug mode
-python app.py
+python src/app.py
 ```
 
 ### Cross-Platform Executable

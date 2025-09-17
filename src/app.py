@@ -11,23 +11,27 @@ from typing import Dict, List, Optional, Tuple
 
 from flask import Flask, render_template, request, redirect, url_for, session, jsonify, abort, flash
 
+# Set paths relative to the script location
+SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
+PROJECT_ROOT = os.path.dirname(SCRIPT_DIR)
+
 # Load NPCs
 try:
-    with open('npcs.json', 'r') as f:
+    with open(os.path.join(PROJECT_ROOT, 'npcs.json'), 'r') as f:
         npcs_data = json.load(f)
 except FileNotFoundError:
     npcs_data = {}
 
 # Load Rooms
 try:
-    with open('rooms.json', 'r') as f:
+    with open(os.path.join(PROJECT_ROOT, 'rooms.json'), 'r') as f:
         rooms_data = json.load(f)
 except FileNotFoundError:
     rooms_data = {}
 
 # Load Wander Events
 try:
-    with open('wander_events.json', 'r') as f:
+    with open(os.path.join(PROJECT_ROOT, 'wander_events.json'), 'r') as f:
         wander_events_data = json.load(f)
 except FileNotFoundError:
     wander_events_data = {}
@@ -36,7 +40,7 @@ except FileNotFoundError:
 # High Scores
 # ============
 
-HIGH_SCORES_FILE = 'high_scores.json'
+HIGH_SCORES_FILE = os.path.join(PROJECT_ROOT, 'high_scores.json')
 
 @dataclass
 class HighScore:
@@ -93,6 +97,8 @@ def calculate_score(money_earned: int, days_survived: int, gang_wars_won: int, f
 class Flags:
     has_id: bool = False
     has_info: bool = False
+    eric_met: bool = False
+    steve_met: bool = False
 
 @dataclass
 class Drugs:
@@ -235,12 +241,14 @@ def save_game_state(game_state):
 
 app = Flask(__name__)
 app.secret_key = 'gangwar_secret_key_2024'
+app.template_folder = os.path.join(PROJECT_ROOT, 'templates')
+app.static_folder = os.path.join(PROJECT_ROOT, 'static')
 
 # Check if running in PyInstaller bundle
 try:
     # Try to import SocketIO
     from flask_socketio import SocketIO, emit, join_room, leave_room
-    socketio = SocketIO(app)
+    socketio = SocketIO(app, async_mode='threading')
 except (ImportError, AttributeError):
     # SocketIO not available - disable it
     socketio = None
@@ -355,6 +363,24 @@ def bar():
     """Vagabond's Pub"""
     game_state = get_game_state()
     return render_template('bar.html', game_state=game_state)
+
+@app.route('/meet_contact', methods=['POST'])
+def meet_contact():
+    """Handle meeting contacts in the bar"""
+    game_state = get_game_state()
+    contact = request.form.get('contact')
+
+    if contact == 'nox':
+        game_state.flags.eric_met = True
+        flash("You meet Nox the Informant. He gives you some useful street information!", "success")
+    elif contact == 'raze':
+        game_state.flags.steve_met = True
+        flash("You meet Raze the Supplier. He offers you access to his secret closet!", "success")
+    else:
+        flash("Unknown contact!", "danger")
+
+    save_game_state(game_state)
+    return redirect(url_for('bar'))
 
 @app.route('/bank')
 def bank():

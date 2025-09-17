@@ -11,7 +11,7 @@ import sys
 sys.path.insert(0, os.path.dirname(__file__))
 
 # Import the Flask application
-from app import app, socketio
+from src.app import app, socketio
 
 if __name__ == '__main__':
     # For local development/testing
