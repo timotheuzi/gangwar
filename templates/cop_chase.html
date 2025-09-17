@@ -67,14 +67,14 @@
         </form>
         {% endif %}
 
-        {% if game_state.weapons.vampire_bat > 0 %}
+        {% if game_state.weapons.barbed_wire_bat > 0 %}
         <form method="POST" action="{{ url_for('fight_cops') }}" class="chase-form">
             <input type="hidden" name="action" value="shoot">
-            <input type="hidden" name="weapon" value="vampire_bat">
+            <input type="hidden" name="weapon" value="barbed_wire_bat">
             <input type="hidden" name="num_cops" value="{{ num_cops }}">
-            <button type="submit" class="btn btn-danger">Fight Back (Vampire Bat)</button>
+            <button type="submit" class="btn btn-danger">Use Barbed Wire Bat</button>
         </form>
-        {% endif %}
+                    {% endif %}
 
         <form method="POST" action="{{ url_for('fight_cops') }}" class="chase-form">
             <input type="hidden" name="action" value="run">
