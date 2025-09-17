@@ -2,8 +2,9 @@
 
 // Global variables
 var socket = null;
-var currentRoom = 'city'; // Default to city
-var playerName = 'Unknown Player'; // Default name
+var currentRoom = 'global'; // Global chat room
+var locationRoom = 'city'; // Location-specific room for player list and PVP
+var playerName = 'Player'; // Default name
 var isConnected = false;
 
 // Initialize SocketIO connection
@@ -20,6 +21,9 @@ function initSocketIO() {
     if (window.currentRoom) {
         currentRoom = window.currentRoom;
     }
+    if (window.locationRoom) {
+        locationRoom = window.locationRoom;
+    }
 
     socket = io();
 
@@ -28,7 +32,7 @@ function initSocketIO() {
         isConnected = true;
         updateConnectionStatus(true);
 
-        socket.emit('join', {room: currentRoom, player_name: playerName});
+        socket.emit('join', {room: currentRoom, location_room: locationRoom, player_name: playerName});
         refreshPlayerList();
     });
 
@@ -46,11 +50,18 @@ function initSocketIO() {
 
     socket.on('status', function(data) {
         console.log(data.msg);
+        addChatMessage('System', data.msg, 'status');
         refreshPlayerList();
     });
 
     socket.on('chat_message', function(data) {
-        addChatMessage(data.player, data.message);
+        // Include room info in chat message if it's from a different room
+        var message = data.message;
+        if (data.room && data.room !== currentRoom) {
+            message = `[${data.room}] ${message}`;
+        }
+        var messageClass = data.message_class || null;
+        addChatMessage(data.player, message, messageClass);
     });
 
     socket.on('player_list', function(data) {
@@ -88,13 +99,30 @@ function getGameState() {
 }
 
 // Add chat message to chat area
-function addChatMessage(player, message) {
+function addChatMessage(player, message, messageClass) {
     var chatMessages = document.getElementById('chat-messages');
     if (chatMessages) {
         var messageDiv = document.createElement('div');
         messageDiv.className = 'chat-message';
-        messageDiv.innerHTML = '<strong>' + player + ':</strong> ' + message;
+        if (messageClass) {
+            messageDiv.classList.add(messageClass);
+        }
+
+        // Ensure we use the actual player name, not fallback "Player"
+        var displayName = player;
+        if (player === 'Player' && window.playerName && window.playerName !== 'Player') {
+            displayName = window.playerName;
+        }
+
+        messageDiv.innerHTML = '<strong>' + displayName + ':</strong> ' + message;
         chatMessages.appendChild(messageDiv);
+
+        // Limit chat messages to prevent overflow
+        var maxMessages = 50;
+        while (chatMessages.children.length > maxMessages) {
+            chatMessages.removeChild(chatMessages.firstChild);
+        }
+
         chatMessages.scrollTop = chatMessages.scrollHeight;
     }
 }
@@ -105,24 +133,20 @@ function updatePVPPlayerList(players) {
     if (!pvpListDiv) return;
 
     if (!players || players.length === 0) {
-        pvpListDiv.innerHTML = '<p>No other players online.</p>';
+        pvpListDiv.innerHTML = '<p>No players online</p>';
         return;
     }
 
-    var html = '<ul class="pvp-player-items">';
-    for (var i = 0; i < players.length; i++) {
-        var player = players[i];
-        if (player && player.id && (!socket || player.id !== socket.id)) {
-            var displayName = player.name || ('Player ' + String(player.id).substring(0, 8));
-            var status = player.in_fight ? ' (In Fight)' : '';
-            html += '<li class="pvp-player-item">';
-            html += '<span class="player-name">' + displayName + status + '</span>';
-            if (!player.in_fight) {
-                html += '<button onclick="challengePlayer(\'' + player.id + '\', \'' + displayName.replace(/'/g, '\\\'') + '\')" class="btn btn-danger btn-small">Challenge</button>';
-            }
-            html += '</li>';
-        }
-    }
+    var html = '<ul class="player-list">';
+    players.forEach(function(player) {
+        var playerStatus = player.in_fight ? ' (In Fight)' : '';
+        var joinTime = new Date(player.joined_at * 1000).toLocaleTimeString();
+        html += '<li class="player-item">';
+        html += '<span class="player-name">' + player.name + '</span>';
+        html += '<span class="player-info">Location: ' + player.room + playerStatus + '</span>';
+        html += '<span class="player-join-time">Joined: ' + joinTime + '</span>';
+        html += '</li>';
+    });
     html += '</ul>';
 
     pvpListDiv.innerHTML = html;
@@ -156,7 +180,7 @@ function refreshPlayerList() {
         return;
     }
 
-    socket.emit('get_player_list', {room: currentRoom});
+    socket.emit('get_player_list', {room: locationRoom});
 }
 
 // Challenge player to PVP
@@ -167,7 +191,7 @@ function challengePlayer(playerId, playerName) {
     }
 
     socket.emit('pvp_challenge', {
-        room: currentRoom,
+        room: locationRoom,
         target_id: playerId
     });
 }

@@ -13,7 +13,7 @@
     <div class="chase-status">
         <h3>Current Situation:</h3>
         <p><strong>Police Officers:</strong> {{ num_cops }} cops chasing you</p>
-        <p><strong>Your Health:</strong> {{ 10 - game_state.damage }}/10</p>
+        <p><strong>Your Health:</strong> {{ game_state.health - game_state.damage }}/30</p>
         <p><strong>Vest Protection:</strong> {{ game_state.weapons.vest }} hits remaining</p>
         <p><strong>Weapons:</strong> {{ game_state.weapons.pistols}}, {{ game_state.weapons.bullets }} bullets</p>
         <p><strong>Lives:</strong> {{ game_state.lives }}/5</p>
@@ -67,6 +67,15 @@
         </form>
         {% endif %}
 
+        {% if game_state.weapons.vampire_bat > 0 %}
+        <form method="POST" action="{{ url_for('fight_cops') }}" class="chase-form">
+            <input type="hidden" name="action" value="shoot">
+            <input type="hidden" name="weapon" value="vampire_bat">
+            <input type="hidden" name="num_cops" value="{{ num_cops }}">
+            <button type="submit" class="btn btn-danger">Fight Back (Vampire Bat)</button>
+        </form>
+        {% endif %}
+
         <form method="POST" action="{{ url_for('fight_cops') }}" class="chase-form">
             <input type="hidden" name="action" value="run">
             <input type="hidden" name="num_cops" value="{{ num_cops }}">
@@ -85,14 +94,5 @@
     </div>
 
     <div id="player-list"></div>
-
-    <div class="chat-section">
-        <h4>Chat with other players</h4>
-        <div id="chat-messages" class="chat-messages"></div>
-        <div class="chat-input">
-            <input type="text" id="chat-input" placeholder="Type a message..." maxlength="200">
-            <button id="send-chat" class="btn btn-secondary">Send</button>
-        </div>
-    </div>
 </div>
 {% endblock %}

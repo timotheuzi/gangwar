@@ -34,7 +34,7 @@
     <div class="current-status">
         <h3>Current Status:</h3>
         <p>Money: ${{ "{:,}".format(game_state.money) if game_state.money else "0" }}</p>
-        <p>Health: {{ (10 - game_state.damage) if game_state.damage else 10 }}/10</p>
+        <p>Health: {{ game_state.health - game_state.damage }}/30</p>
         {% if game_state.weapons %}
         <p>Weapons:
             {{ game_state.weapons.pistols if game_state.weapons.pistols else 0 }} pistols,
@@ -99,18 +99,16 @@
     </div>
 
     <div class="actions">
+        {% if encounter_context %}
+            {% if encounter_context.type == 'wander' %}
+                <a href="{{ url_for('continue_activity') }}" class="btn btn-success">Continue Wandering</a>
+            {% elif encounter_context.type == 'alleyway' %}
+                <a href="{{ url_for('continue_activity') }}" class="btn btn-success">Continue in Alleyway</a>
+            {% endif %}
+        {% endif %}
         <a href="{{ url_for('city') }}" class="btn btn-primary">Back to City (Give Up)</a>
     </div>
 
-    <div id="player-list"></div>
 
-    <div class="chat-section">
-        <h4>Chat with other players</h4>
-        <div id="chat-messages" class="chat-messages"></div>
-        <div class="chat-input">
-            <input type="text" id="chat-input" placeholder="Type a message..." maxlength="200">
-            <button id="send-chat" class="btn btn-secondary">Send</button>
-        </div>
-    </div>
 </div>
 {% endblock %}

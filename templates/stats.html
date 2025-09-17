@@ -10,7 +10,7 @@
             <p>Gang Name: {{ game_state.player_name }}</p>
             <p>Day: {{ game_state.day }}</p>
             <p>Lives Remaining: {{ game_state.lives }}</p>
-            <p>Health: {{ 10 - game_state.damage }}/10</p>
+            <p>Health: {{ game_state.health - game_state.damage }}/30</p>
             <p>Gang Members: {{ game_state.members }}</p>
         </div>
         
@@ -68,15 +68,6 @@
         <a href="{{ url_for('city') }}" class="btn btn-primary">Back to City</a>
     </div>
 
-    <div id="player-list"></div>
 
-    <div class="chat-section">
-        <h4>Chat with other players</h4>
-        <div id="chat-messages" class="chat-messages"></div>
-        <div class="chat-input">
-            <input type="text" id="chat-input" placeholder="Type a message..." maxlength="200">
-            <button id="send-chat" class="btn btn-secondary">Send</button>
-        </div>
-    </div>
 </div>
 {% endblock %}

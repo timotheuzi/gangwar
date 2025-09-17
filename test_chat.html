@@ -11,7 +11,7 @@
     <button onclick="sendMessage()">Send</button>
 
     <script>
-        var socket = io('http://localhost:5000');
+        var socket = io('http://localhost:5009');
         var playerName = 'TestPlayer';
 
         socket.on('connect', function() {

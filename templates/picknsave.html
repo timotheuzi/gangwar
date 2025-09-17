@@ -14,11 +14,19 @@
                     <h4>Food Supplies</h4>
                     <p>Keep your gang fed and happy</p>
                     <p>Cost: $500 per day</p>
+                    <form method="POST" action="{{ url_for('picknsave_action') }}" class="inline-form">
+                        <input type="hidden" name="action" value="buy_food">
+                        <button type="submit" class="btn btn-success">Buy Food Supplies</button>
+                    </form>
                 </div>
                 <div class="item">
                     <h4>Medical Supplies</h4>
                     <p>Heal your wounds and stay healthy</p>
                     <p>Cost: $1,000 per treatment</p>
+                    <form method="POST" action="{{ url_for('picknsave_action') }}" class="inline-form">
+                        <input type="hidden" name="action" value="buy_medical">
+                        <button type="submit" class="btn btn-info">Buy Medical Supplies</button>
+                    </form>
                 </div>
             </div>
         </div>
@@ -95,29 +103,7 @@
     
     <div class="actions">
         <a href="{{ url_for('city') }}" class="btn btn-primary">Back to City</a>
-    </div>
-
-    <div class="chat-pvp-container">
-        <div class="chat-section">
-            <h4>Pick n' Save Chat</h4>
-            <div id="chat-messages" class="chat-messages"></div>
-            <div class="chat-input">
-                <input type="text" id="chat-input" placeholder="Type your message..." maxlength="200">
-                <button id="send-chat" class="btn btn-primary btn-small">Send</button>
-            </div>
-        </div>
-
-        <!-- Chat Users Section -->
-        <div class="pvp-section">
-            <h3>👥 Chat Users</h3>
-            <div id="pvp-player-list" class="pvp-player-list">
-                <p>Loading users...</p>
-            </div>
-            <div id="player-list"></div>
-            <div class="pvp-actions">
-                <button onclick="refreshPlayerList()" class="btn btn-secondary btn-small">Refresh Users</button>
-            </div>
-        </div>
+        <a href="{{ url_for('search_picknsave') }}" class="btn btn-warning">🔍 Investigate Secrets</a>
     </div>
 </div>
 {% endblock %}

@@ -3,7 +3,7 @@
 {% block content %}
 <div class="new-game-screen">
     <h2>Start New Game</h2>
-    
+
     <form method="POST" class="new-game-form">
         <div class="form-group">
             <label for="player_name">What is your name, stranger?</label>
@@ -22,7 +22,7 @@
                 <option value="female">Female</option>
             </select>
         </div>
-        
+
         <div class="starting-stats">
             <h3>Starting Equipment:</h3>
             <ul>
@@ -34,9 +34,11 @@
                 <li>5 Lives</li>
             </ul>
         </div>
-        
+
         <button type="submit" class="btn btn-primary">Begin Your Criminal Career</button>
         <a href="{{ url_for('index') }}" class="btn btn-secondary">Back</a>
     </form>
 </div>
+
+{% block chat %}{% endblock %}
 {% endblock %}

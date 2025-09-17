@@ -10,8 +10,8 @@
 #### 1. Clone Your Repository
 ```bash
 # In PythonAnywhere bash console
-git clone https://github.com/timotheuzi/pimpin.git
-cd pimpin
+git clone https://github.com/timotheuzi/gangwar.git
+cd gangwar
 ```
 
 #### 2. Create Virtual Environment
@@ -32,8 +32,8 @@ pip install Flask==2.3.3 flask-socketio==5.3.6 python-socketio==5.8.0 eventlet==
 2. Click **Add a new web app**
 3. Choose **Manual configuration** (or **Flask** if available)
 4. Select **Python 3.10** (or latest available)
-5. Set the source code directory to `/home/yourusername/pimpin`
-6. Set the working directory to `/home/yourusername/pimpin`
+5. Set the source code directory to `/home/yourusername/gangwar`
+6. Set the working directory to `/home/yourusername/gangwar`
 
 #### 5. Create WSGI Configuration File
 Create a new file at `/var/www/yourusername_pythonanywhere_com_wsgi.py` with:
@@ -43,7 +43,7 @@ import os
 import sys
 
 # Add your project directory to the sys.path
-project_home = '/home/yourusername/pimpin'
+project_home = '/home/yourusername/gangwar'
 if project_home not in sys.path:
     sys.path.insert(0, project_home)
 
@@ -65,12 +65,12 @@ application = socketio.WSGI_app()
 #### 6. Update WSGI File Path in Web Configuration
 In the Web tab:
 - Set **WSGI configuration file** to `/var/www/yourusername_pythonanywhere_com_wsgi.py`
-- Set **Virtualenv** to `/home/yourusername/pimpin/venv`
+- Set **Virtualenv** to `/home/yourusername/gangwar/venv`
 
 #### 7. Configure Static Files (Optional)
 If you need to serve static files:
 - URL: `/static/`
-- Directory: `/home/yourusername/pimpin/static`
+- Directory: `/home/yourusername/gangwar/static`
 
 #### 8. Environment Variables (Optional)
 Set any required environment variables in the Web tab under **Environment variables**:

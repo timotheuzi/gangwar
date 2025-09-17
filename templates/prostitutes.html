@@ -2,193 +2,44 @@
 
 {% block content %}
 <div class="prostitutes-screen">
-    <h2>💋 X-Rated Services 💋</h2>
-    <p class="warning">⚠️ WARNING: These encounters can be dangerous! Prostitutes may heal you... or kill you. Choose wisely!</p>
+    <h2>Visit Prostitutes</h2>
+    <p>Welcome to the red-light district. Choose your entertainment:</p>
 
-    <div class="prostitutes-grid">
-        {% for prostitute in prostitutes %}
-        <div class="prostitute-card risk-{{ prostitute.risk_level }}">
-            <h3>{{ prostitute.name }}</h3>
-            <div class="prostitute-price">
-                <span class="price">${{ prostitute.price }}</span>
-                <span class="risk-badge risk-{{ prostitute.risk_level }}">{{ prostitute.risk_level|upper }} RISK</span>
-            </div>
-
-            <p class="description">{{ prostitute.description }}</p>
-
-            <div class="stats">
-                <div class="stat">
-                    <span class="label">Healing:</span>
-                    <span class="value">{{ prostitute.healing_amount }} HP</span>
-                </div>
-                <div class="stat">
-                    <span class="label">Death Risk:</span>
-                    <span class="value">{{ prostitute.death_risk }}%</span>
-                </div>
-                <div class="stat">
-                    <span class="label">Death Method:</span>
-                    <span class="value">{{ prostitute.death_method|upper }}</span>
-                </div>
-            </div>
-
-            {% if game_state.money >= prostitute.price %}
-            <form method="POST" action="{{ url_for('visit_prostitutes') }}">
-                <input type="hidden" name="prostitute_name" value="{{ prostitute.name }}">
-                <button type="submit" class="btn btn-danger">Hire {{ prostitute.name }}</button>
+    <div class="services">
+        <div class="service-option">
+            <h3>Quick Service</h3>
+            <p>Cost: $200</p>
+            <p>A quick encounter to relieve stress.</p>
+            <form method="POST" action="{{ url_for('prostitute_action') }}">
+                <input type="hidden" name="action" value="quick_service">
+                <button type="submit" class="btn btn-primary">Pay $200</button>
             </form>
-            {% else %}
-            <button class="btn btn-secondary" disabled>Not enough money</button>
-            {% endif %}
         </div>
-        {% endfor %}
-    </div>
 
-    <div class="risk-explanation">
-        <h3>Risk Levels Explained:</h3>
-        <ul>
-            <li><strong class="risk-low">LOW RISK:</strong> Safe encounters, minimal danger</li>
-            <li><strong class="risk-medium">MEDIUM RISK:</strong> Moderate danger, good rewards</li>
-            <li><strong class="risk-high">HIGH RISK:</strong> Very dangerous, but best healing</li>
-        </ul>
+        <div class="service-option">
+            <h3>VIP Experience</h3>
+            <p>Cost: $500</p>
+            <p>A premium experience with extras.</p>
+            <form method="POST" action="{{ url_for('prostitute_action') }}">
+                <input type="hidden" name="action" value="vip_experience">
+                <button type="submit" class="btn btn-danger">Pay $500</button>
+            </form>
+        </div>
 
-        <h3>Death Methods:</h3>
-        <ul>
-            <li><strong>AIDS:</strong> Slow, painful death from disease</li>
-            <li><strong>GUN:</strong> Instant death from gunshot</li>
-            <li><strong>KNIFE:</strong> Throat slit while in bed</li>
-        </ul>
+        <div class="service-option">
+            <h3>Recruit Hooker</h3>
+            <p>Cost: $1000</p>
+            <p>Convince a prostitute to join your gang.</p>
+            <form method="POST" action="{{ url_for('prostitute_action') }}">
+                <input type="hidden" name="action" value="recruit_hooker">
+                <button type="submit" class="btn btn-warning">Pay $1000</button>
+            </form>
+        </div>
     </div>
 
     <div class="actions">
-        <a href="{{ url_for('crackhouse') }}" class="btn btn-primary">Back to Crack House</a>
-    </div>
-
-    <div id="player-list"></div>
-
-    <div class="chat-section">
-        <h4>Chat with other players</h4>
-        <div id="chat-messages" class="chat-messages"></div>
-        <div class="chat-input">
-            <input type="text" id="chat-input" placeholder="Type a message..." maxlength="200">
-            <button type="button" id="send-chat" class="btn btn-secondary">Send</button>
-        </div>
+        <a href="{{ url_for('crackhouse') }}" class="btn btn-secondary">Back to Crack House</a>
+        <a href="{{ url_for('city') }}" class="btn btn-primary">Back to City</a>
     </div>
 </div>
-
-<style>
-.prostitutes-screen {
-    max-width: 1200px;
-    margin: 0 auto;
-}
-
-.warning {
-    background: #000000;
-    color: white;
-    padding: 15px;
-    border-radius: 5px;
-    margin-bottom: 20px;
-    text-align: center;
-    font-weight: bold;
-}
-
-.prostitutes-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-    gap: 20px;
-    margin-bottom: 30px;
-}
-
-.prostitute-card {
-    border: 2px solid #333;
-    border-radius: 10px;
-    padding: 20px;
-    background: #1a1a1a;
-    position: relative;
-}
-
-.prostitute-card.risk-low { border-color: #4CAF50; }
-.prostitute-card.risk-medium { border-color: #FF9800; }
-.prostitute-card.risk-high { border-color: #F44336; }
-
-.prostitute-card h3 {
-    margin-top: 0;
-    color: #FFD700;
-    text-align: center;
-}
-
-.prostitute-price {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 15px;
-}
-
-.price {
-    font-size: 24px;
-    font-weight: bold;
-    color: #4CAF50;
-}
-
-.risk-badge {
-    padding: 5px 10px;
-    border-radius: 15px;
-    font-size: 12px;
-    font-weight: bold;
-}
-
-.risk-low { background: #4CAF50; color: white; }
-.risk-medium { background: #FF9800; color: black; }
-.risk-high { background: #F44336; color: white; }
-
-.description {
-    margin-bottom: 15px;
-    font-style: italic;
-    color: #ccc;
-}
-
-.stats {
-    margin-bottom: 15px;
-}
-
-.stat {
-    display: flex;
-    justify-content: space-between;
-    margin-bottom: 5px;
-}
-
-.label {
-    font-weight: bold;
-    color: #FFD700;
-}
-
-.value {
-    color: #4CAF50;
-}
-
-.btn:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-}
-
-.risk-explanation {
-    background: #2a2a2a;
-    padding: 20px;
-    border-radius: 10px;
-    margin-bottom: 20px;
-}
-
-.risk-explanation h3 {
-    color: #FFD700;
-    margin-top: 0;
-}
-
-.risk-explanation ul {
-    margin: 10px 0;
-    padding-left: 20px;
-}
-
-.risk-explanation li {
-    margin-bottom: 5px;
-}
-</style>
 {% endblock %}

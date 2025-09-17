@@ -43,9 +43,7 @@ class EnvVarAnalyzer(ast.NodeVisitor):
 
     def _get_string_value(self, node):
         """Extract string value from AST node"""
-        if isinstance(node, ast.Str):
-            return node.s
-        elif isinstance(node, ast.Constant) and isinstance(node.value, str):
+        if isinstance(node, ast.Constant) and isinstance(node.value, str):
             return node.value
         return None
 
