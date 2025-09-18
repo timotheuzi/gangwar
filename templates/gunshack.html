@@ -51,13 +51,13 @@
         </div>
 
         <div class="weapon-item">
-            <h4>Vampire Bat</h4>
+            <h4>Barbed Wire Bat</h4>
             <p>Price: $2,500</p>
-            <p>You have: {{ game_state.weapons.vampire_bat }}</p>
+            <p>You have: {{ game_state.weapons.barbed_wire_bat }}</p>
             <form method="POST" action="{{ url_for('buy_weapon') }}" class="inline-form">
-                <input type="hidden" name="weapon_type" value="vampire_bat">
+                <input type="hidden" name="weapon_type" value="barbed_wire_bat">
                 <input type="hidden" name="quantity" value="1">
-                <button type="submit" class="btn btn-primary">Buy Vampire Bat</button>
+                <button type="submit" class="btn btn-primary">Buy Barbed Wire Bat ($2,500)</button>
             </form>
         </div>
         
