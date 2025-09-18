@@ -23,9 +23,9 @@
             <div class="stat-item">
                 <h4>Military Power</h4>
                 <p>Gang Members: {{ game_state.members }}</p>
-                <p>Pistols: {{ game_state.weapons.pistols }}</p>
-                <p>Uzis: {{ game_state.weapons.uzis }}</p>
-                <p>Heavy Weapons: {{ game_state.weapons.grenades + game_state.weapons.missiles }} total</p>
+                <p>Pistols: {{ game_state['weapons']['pistols }}</p>
+                <p>Uzis: {{ game_state['weapons']['uzis }}</p>
+                <p>Heavy Weapons: {{ game_state['weapons']['grenades'] + game_state['weapons']['missiles'] }} total</p>
             </div>
             
             <div class="stat-item">

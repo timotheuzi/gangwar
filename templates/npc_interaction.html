@@ -48,20 +48,26 @@
             <div id="fight-options" style="display: none; margin-top: 20px;">
                 <h4>Choose your weapon:</h4>
                 <form method="POST" action="{{ url_for('fight_npc', npc_id=npc.id) }}">
-                    {% if game_state.weapons.can_fight_with_pistol() %}
-                        <label><input type="radio" name="weapon" value="pistol" checked> Pistol ({{ game_state.weapons.bullets }} bullets)</label><br>
+                    {% if game_state['weapons']['pistols'] > 0 and game_state['weapons']['bullets'] > 0 %}
+                        <label><input type="radio" name="weapon" value="pistol" checked> Pistol ({{ game_state['weapons']['bullets'] }} bullets)</label><br>
                     {% endif %}
-                    {% if game_state.weapons.uzis > 0 and game_state.weapons.bullets > 1 %}
-                        <label><input type="radio" name="weapon" value="uzi"> Uzi ({{ game_state.weapons.bullets }} bullets)</label><br>
+                    {% if game_state['weapons']['uzis'] > 0 and game_state['weapons']['bullets'] > 1 %}
+                        <label><input type="radio" name="weapon" value="uzi"> Uzi ({{ game_state['weapons']['bullets'] }} bullets)</label><br>
                     {% endif %}
-                    {% if game_state.weapons.grenades > 0 %}
-                        <label><input type="radio" name="weapon" value="grenade"> Grenade ({{ game_state.weapons.grenades }} grenades)</label><br>
+                    {% if game_state['weapons']['grenades'] > 0 %}
+                        <label><input type="radio" name="weapon" value="grenade"> Grenade ({{ game_state['weapons']['grenades'] }} grenades)</label><br>
                     {% endif %}
-                    {% if game_state.weapons.missile_launcher > 0 and game_state.weapons.missiles > 0 %}
-                        <label><input type="radio" name="weapon" value="missile_launcher"> Missile Launcher ({{ game_state.weapons.missiles }} missiles)</label><br>
+                    {% if game_state['weapons']['missile_launcher'] > 0 and game_state['weapons']['missiles'] > 0 %}
+                        <label><input type="radio" name="weapon" value="missile_launcher"> Missile Launcher ({{ game_state['weapons']['missiles'] }} missiles)</label><br>
                     {% endif %}
-                    {% if game_state.weapons.barbed_wire_bat > 0 %}
+                    {% if game_state['weapons']['barbed_wire_bat'] > 0 %}
                         <label><input type="radio" name="weapon" value="barbed_wire_bat"> Barbed Wire Bat</label><br>
+                    {% endif %}
+                    {% if game_state['weapons']['knife'] > 0 %}
+                        <label><input type="radio" name="weapon" value="knife"> Knife</label><br>
+                    {% endif %}
+                    {% if game_state['weapons']['ghost_guns'] > 0 and game_state['weapons']['bullets'] > 0 %}
+                        <label><input type="radio" name="weapon" value="ghost_gun"> Ghost Gun ({{ game_state['weapons']['bullets'] }} bullets)</label><br>
                     {% endif %}
                     <br>
                     <button type="submit" class="btn btn-danger">Start Fight</button>

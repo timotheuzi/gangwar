@@ -9,11 +9,11 @@
             <h2>Your Forces</h2>
             <p><strong>Gang Name:</strong> {{ game_state.gang_name }}</p>
             <p><strong>Members:</strong> {{ game_state.members }}</p>
-            <p><strong>Pistols:</strong> {{ game_state.weapons.pistols }}</p>
-            <p><strong>UZIs:</strong> {{ game_state.weapons.uzis }}</p>
-            <p><strong>Grenades:</strong> {{ game_state.weapons.grenades }}</p>
-            <p><strong>RPG rounds:</strong> {{ game_state.weapons.missiles }}</p>
-            <p><strong>RPG-7 launchers:</strong> {{ game_state.weapons.missile_launcher }}</p>
+            <p><strong>Pistols:</strong> {{ game_state['weapons']['pistols }}</p>
+            <p><strong>UZIs:</strong> {{ game_state['weapons']['uzis }}</p>
+            <p><strong>Grenades:</strong> {{ game_state['weapons']['grenades }}</p>
+            <p><strong>RPG rounds:</strong> {{ game_state['weapons']['missiles }}</p>
+            <p><strong>RPG-7 launchers:</strong> {{ game_state['weapons']['missile_launcher }}</p>
         </div>
 
         <div class="enemy-stats">

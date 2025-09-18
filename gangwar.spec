@@ -8,7 +8,8 @@ a = Analysis(
     datas=[
         ('templates', 'templates'),
         ('static', 'static'),
-        ('npcs.json', '.'),
+        ('model/npcs.json', 'model'),
+        ('model/battle_descriptions.json', 'model'),
     ],
     hiddenimports=[
         'flask_socketio',

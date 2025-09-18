@@ -36,10 +36,10 @@
             {% if game_state.members < 15 %}
             <li>❌ Your gang was too small ({{ game_state.members }} members vs {{ game_state.squidies|int }} squidies )</li>
             {% endif %}
-            {% if game_state.weapons.pistols + game_state.weapons.uzis < game_state.squidies_pistols|int + game_state.squidies_uzis|int %}
+            {% if game_state['weapons']['pistols'] + game_state['weapons']['uzis'] < game_state.squidies_pistols|int + game_state.squidies_uzis|int %}
             <li>❌ You were outgunned by the squidies</li>
             {% endif %}
-            {% if game_state.weapons.grenades + game_state.weapons.missiles < game_state.squidies_grenades|int + game_state.squidies_missiles|int %}
+            {% if game_state['weapons']['grenades'] + game_state['weapons']['missiles'] < game_state.squidies_grenades|int + game_state.squidies_missiles|int %}
             <li>❌ You lacked heavy weapons compared to the enemy</li>
             {% endif %}
             <li>💡 Tip: Build a larger gang and stock up on heavy weapons before challenging the squidies </li>

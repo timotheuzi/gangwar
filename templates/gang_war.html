@@ -10,12 +10,12 @@
             <h3>Your Forces ({{ game_state.player_name }})</h3>
             <ul>
                 <li><strong>Members:</strong> {{ game_state.members }}</li>
-                <li><strong>Pistols:</strong> {{ game_state.weapons.pistols }}</li>
-                <li><strong>Uzis:</strong> {{ game_state.weapons.uzis }}</li>
-                <li><strong>Bullets:</strong> {{ game_state.weapons.bullets }}</li>
-                <li><strong>Grenades:</strong> {{ game_state.weapons.grenades }}</li>
-                <li><strong>RPG-7 launchers:</strong> {{ game_state.weapons.missile_launcher }}</li>
-                <li><strong>RPG rounds:</strong> {{ game_state.weapons.missiles }}</li>
+                <li><strong>Pistols:</strong> {{ game_state['weapons']['pistols }}</li>
+                <li><strong>Uzis:</strong> {{ game_state['weapons']['uzis }}</li>
+                <li><strong>Bullets:</strong> {{ game_state['weapons']['bullets }}</li>
+                <li><strong>Grenades:</strong> {{ game_state['weapons']['grenades }}</li>
+                <li><strong>RPG-7 launchers:</strong> {{ game_state['weapons']['missile_launcher }}</li>
+                <li><strong>RPG rounds:</strong> {{ game_state['weapons']['missiles }}</li>
             </ul>
         </div>
         

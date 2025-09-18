@@ -35,10 +35,10 @@
         <h3>Current Status:</h3>
         <p>Money: ${{ "{:,}".format(game_state.money) if game_state.money else "0" }}</p>
         <p>Health: {{ game_state.health - game_state.damage }}/30</p>
-        {% if game_state.weapons %}
+        {% if game_state.get('weapons') %}
         <p>Weapons:
-            {{ game_state.weapons.pistols if game_state.weapons.pistols else 0 }} pistols,
-            {{ game_state.weapons.bullets if game_state.weapons.bullets else 0 }} bullets
+            {{ game_state.get('weapons', {}).get('pistols', 0) }} pistols,
+            {{ game_state.get('weapons', {}).get('bullets', 0) }} bullets
         </p>
         {% endif %}
     </div>

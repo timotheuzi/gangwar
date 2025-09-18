@@ -23,10 +23,10 @@
             {{ game_state.drugs.pixie_dust if game_state.drugs.pixie_dust else 0 }} pixie dust
         </p>
         {% endif %}
-        {% if game_state.weapons %}
+        {% if game_state.get('weapons') %}
         <p>Weapons:
-            {{ game_state.weapons.pistols if game_state.weapons.pistols else 0 }} pistols,
-            {{ game_state.weapons.bullets if game_state.weapons.bullets else 0 }} bullets
+            {{ game_state.get('weapons', {}).get('pistols', 0) }} pistols,
+            {{ game_state.get('weapons', {}).get('bullets', 0) }} bullets
         </p>
         {% endif %}
     </div>

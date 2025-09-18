@@ -1,0 +1,126 @@
+{
+  "description": "Configuration for wandering events and encounters",
+  "police_chase": {
+    "chance": 0.1,
+    "fake_id_required": true,
+    "fake_id_message": "You see a police patrol but your fake ID saves you from getting stopped!",
+    "no_id_cops": [2, 6],
+    "message": "Oh no! {cops} police officers spot you and give chase!",
+    "health_per_cop": 10
+  },
+  "baby_momma_events": {
+    "chance": 0.08,
+    "events": [
+      "Your baby momma spots you from across the street and starts yelling about child support!",
+      "You run into one of your many baby mommas who demands money for the kids!",
+      "A woman approaches you claiming you're the father of her child and demands $500!",
+      "You see your ex approaching with a determined look - she wants money for the kids!"
+    ],
+    "payment_amount": 200,
+    "fallback_payment": 100,
+    "damage_if_no_money": 10,
+    "payment_message": "You pay her $200 to make her go away.",
+    "fallback_message": "You give her $100 to calm her down.",
+    "no_money_message": "You don't have any money to give her!"
+  },
+  "gang_fights": {
+    "chance": 0.12,
+    "enemy_count": [3, 8],
+    "message": "You encounter {count} rival gang members looking for trouble!",
+    "health_per_member": 15
+  },
+  "squidie_hit_squad": {
+    "base_chance": 0.02,
+    "gang_size_multiplier": 2.0,
+    "money_multiplier": 1.5,
+    "money_threshold": 10000,
+    "min_members": 3,
+    "squad_size": [2, 6],
+    "max_squad_size": 2,
+    "message": "Oh no! A Squidie hit squad of {count} members has tracked you down!",
+    "health_per_member": 25
+  },
+  "regular_wander_events": {
+    "chance": 0.7,
+    "events": [
+      {
+        "description": "wallet_found",
+        "message": "Amidst the shadowed streets, you discover a bloodstained wallet discarded in a puddle, containing $50 soaked in mystery.",
+        "money_gain": 50
+      },
+      {
+        "description": "street_performer",
+        "message": "A gaunt street performer, eyes hollow with desperation, shares whispered tips about the city's underbelly before vanishing into the fog."
+      },
+      {
+        "description": "gang_gossip",
+        "message": "In the dim glow of a flickering streetlight, you overhear scarred gang members plotting brutal turf wars and impending bloodshed."
+      },
+      {
+        "description": "rest_spot",
+        "message": "You collapse in a desolate corner, surrounded by the echoes of distant screams, regaining some health in uneasy respite.",
+        "health_gain": 10
+      },
+      {
+        "description": "suspicious_activity",
+        "message": "Shadows shift unnaturally as you witness a hushed exchange in the gloom, choosing to slink away before becoming entangled in darkness."
+      },
+      {
+        "description": "old_contact",
+        "message": "A haggard old contact emerges from the mist, sharing tales of betrayal and loss before melting back into the night."
+      },
+      {
+        "description": "rough_neighborhood",
+        "message": "Venturing into a forsaken district where hope has long since died, you barely escape the clutches of lurking predators."
+      },
+      {
+        "description": "discarded_drugs",
+        "message": "In a fetid gutter, you unearth abandoned drugs worth $200, their packaging stained with the remnants of shattered lives.",
+        "money_gain": 200
+      },
+      {
+        "description": "helpful_shopkeeper",
+        "message": "You assist a weary shopkeeper barricaded against the night's terrors, receiving cryptic information as your grim reward."
+      },
+      {
+        "description": "uneventful",
+        "message": "You traverse the oppressive silence of empty streets, where the weight of unseen eyes follows your every step."
+      },
+      {
+        "description": "police_patrol",
+        "message": "The ominous flash of police lights pierces the darkness; you dive into a reeking alley to evade their merciless pursuit."
+      },
+      {
+        "description": "weapon_stash",
+        "message": "Hidden in a crumbling wall, you uncover a cache of rusted weapons, relics of forgotten violence.",
+        "bullets_gain": 5
+      },
+      {
+        "description": "beggar_info",
+        "message": "A wretched beggar, eyes wild with madness, mutters about secret places where the damned congregate in shadows."
+      },
+      {
+        "description": "market_haggle",
+        "message": "In a decrepit market shrouded in perpetual twilight, you haggle with desperate vendors for scraps of survival."
+      },
+      {
+        "description": "gang_recruitment",
+        "message": "You stumble upon a sinister gang recruitment, where broken souls pledge allegiance in rituals of blood and shadow."
+      }
+    ],
+    "risky_damage_chance": 0.3,
+    "risky_damage": 5
+  },
+  "npc_encounter": {
+    "chance": 0.15,
+    "message": "You encounter {npc_name}. {npc_description}",
+    "locations": ["wander"]
+  },
+  "alleyway_encounter": {
+    "chance": 0.2,
+    "message": "You encounter {npc_name}! They look hostile...",
+    "locations": ["alleyway"]
+  },
+  "step_increment": 1,
+  "day_end_threshold": 15
+}

@@ -14,51 +14,51 @@
         <h3>Current Situation:</h3>
         <p><strong>Police Officers:</strong> {{ num_cops }} cops chasing you</p>
         <p><strong>Your Health:</strong> {{ game_state.health - game_state.damage }}/30</p>
-        <p><strong>Vest Protection:</strong> {{ game_state.weapons.vest }} hits remaining</p>
-        <p><strong>Weapons:</strong> {{ game_state.weapons.pistols}}, {{ game_state.weapons.bullets }} bullets</p>
+        <p><strong>Vest Protection:</strong> {{ game_state['weapons']['vest'] }} hits remaining</p>
+        <p><strong>Weapons:</strong> {{ game_state['weapons']['pistols'] }}, {{ game_state['weapons']['bullets'] }} bullets</p>
         <p><strong>Lives:</strong> {{ game_state.lives }}/5</p>
     </div>
     
     <div class="chase-actions">
         <h3>What do you want to do?</h3>
 
-        {% if game_state.weapons.pistols > 0 and game_state.weapons.bullets > 0 %}
+        {% if game_state['weapons']['pistols'] > 0 and game_state['weapons']['bullets'] > 0 %}
         <form method="POST" action="{{ url_for('fight_cops') }}" class="chase-form">
             <input type="hidden" name="action" value="shoot">
             <input type="hidden" name="weapon" value="pistol">
             <input type="hidden" name="num_cops" value="{{ num_cops }}">
-            <button type="submit" class="btn btn-danger">Fight Back (Pistol - {{ game_state.weapons.bullets }} bullets)</button>
+            <button type="submit" class="btn btn-danger">Fight Back (Pistol - {{ game_state['weapons']['bullets'] }} bullets)</button>
         </form>
         {% endif %}
 
-        {% if game_state.weapons.uzis > 0 and game_state.weapons.bullets > 0 %}
+        {% if game_state['weapons']['uzis'] > 0 and game_state['weapons']['bullets'] > 0 %}
         <form method="POST" action="{{ url_for('fight_cops') }}" class="chase-form">
             <input type="hidden" name="action" value="shoot">
             <input type="hidden" name="weapon" value="uzi">
             <input type="hidden" name="num_cops" value="{{ num_cops }}">
-            <button type="submit" class="btn btn-danger">Fight Back (Uzi - {{ game_state.weapons.bullets }} bullets)</button>
+            <button type="submit" class="btn btn-danger">Fight Back (Uzi - {{ game_state['weapons']['bullets'] }} bullets)</button>
         </form>
         {% endif %}
 
-        {% if game_state.weapons.grenades > 0 %}
+        {% if game_state['weapons']['grenades'] > 0 %}
         <form method="POST" action="{{ url_for('fight_cops') }}" class="chase-form">
             <input type="hidden" name="action" value="shoot">
             <input type="hidden" name="weapon" value="grenade">
             <input type="hidden" name="num_cops" value="{{ num_cops }}">
-            <button type="submit" class="btn btn-danger">Fight Back (Grenade - {{ game_state.weapons.grenades }} grenades)</button>
+            <button type="submit" class="btn btn-danger">Fight Back (Grenade - {{ game_state['weapons']['grenades'] }} grenades)</button>
         </form>
         {% endif %}
 
-        {% if game_state.weapons.missile_launcher > 0 and game_state.weapons.missiles > 0 %}
+        {% if game_state['weapons']['missile_launcher'] > 0 and game_state['weapons']['missiles'] > 0 %}
         <form method="POST" action="{{ url_for('fight_cops') }}" class="chase-form">
             <input type="hidden" name="action" value="shoot">
             <input type="hidden" name="weapon" value="missile_launcher">
             <input type="hidden" name="num_cops" value="{{ num_cops }}">
-            <button type="submit" class="btn btn-danger">Fight Back (RPG Launcher - {{ game_state.weapons.missiles }} missiles)</button>
+            <button type="submit" class="btn btn-danger">Fight Back (RPG Launcher - {{ game_state['weapons']['missiles'] }} missiles)</button>
         </form>
         {% endif %}
 
-        {% if game_state.weapons.knife > 0 %}
+        {% if game_state['weapons']['knife'] > 0 %}
         <form method="POST" action="{{ url_for('fight_cops') }}" class="chase-form">
             <input type="hidden" name="action" value="shoot">
             <input type="hidden" name="weapon" value="knife">
@@ -67,7 +67,7 @@
         </form>
         {% endif %}
 
-        {% if game_state.weapons.barbed_wire_bat > 0 %}
+        {% if game_state['weapons']['barbed_wire_bat'] > 0 %}
         <form method="POST" action="{{ url_for('fight_cops') }}" class="chase-form">
             <input type="hidden" name="action" value="shoot">
             <input type="hidden" name="weapon" value="barbed_wire_bat">

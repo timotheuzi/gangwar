@@ -7,7 +7,9 @@ __pycache__/
 *.so
 
 # Distribution/packaging
-/dist/gangwar
+#/dist/gangwar
+.env*
+*docker*
 .Python
 build/
 develop-eggs/
@@ -244,5 +246,5 @@ Thumbs.db
 .env.*.local
 
 # Build artifacts
-gangwar.exe
-gangwar.app
+#gangwar.exe
+#gangwar.app

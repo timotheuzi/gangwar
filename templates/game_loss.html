@@ -15,8 +15,8 @@
             <p><strong>Money:</strong> ${{ "{:,}".format(game_state.money) }}</p>
             <p><strong>Bank Account:</strong> ${{ "{:,}".format(game_state.account) }}</p>
             <p><strong>Gang Members:</strong> {{ game_state.members }}</p>
-            <p><strong>Weapons:</strong> {{ game_state.weapons.pistols }} pistols, {{ game_state.weapons.uzis }} uzis</p>
-        </div
+            <p><strong>Weapons:</strong> {{ game_state.get('weapons', {}).get('pistols', 0) }} pistols, {{ game_state.get('weapons', {}).get('uzis', 0) }} uzis</p>
+        </div>
 
         <div class="defeat-message">
             <p>The final battle was a disaster. The Squidies gang fought with desperate fury and overwhelmed your forces.</p>

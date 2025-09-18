@@ -1,0 +1,60 @@
+{
+  "description": "Grim dark battle descriptions and combat messages",
+  "attack_messages": {
+    "pistol": "You squeeze the trigger, unleashing a deafening roar that shatters the night, your bullet tearing through flesh with merciless precision!",
+    "ghost_gun": "The ghost gun bucks in your hands, spitting death from its shadowy depths, each shot a whispered curse to the damned!",
+    "uzi": "Your Uzi erupts in a symphony of carnage, spraying lead like the wrath of fallen angels, mowing down the wretched in a hail of gunfire!",
+    "grenade": "You hurl the grenade with grim satisfaction, watching it arc through the air before erupting in a cataclysm of shrapnel and screams!",
+    "missile_launcher": "The missile launcher roars like a beast unleashed, vomiting destruction that reduces your enemies to charred remnants of their former selves!",
+    "barbed_wire_bat": "You swing your barbed wire bat with savage force, the cruel spikes tearing through flesh and bone in a symphony of agony!",
+    "knife": "Your knife plunges into vital flesh with predatory grace, twisting in the wound as lifeblood spills in crimson torrents!"
+  },
+  "gang_attack_messages": {
+    "pistol": "Your gang member unleashes a hail of lead, each bullet finding its mark in the enemy's decaying flesh!",
+    "uzi": "Your gang member sprays death with ruthless efficiency, their Uzi singing a dirge for the fallen!",
+    "barbed_wire_bat": "Your gang member smashes bone and sinew with their barbed weapon, painting the ground in crimson!",
+    "knife": "Your gang member strikes with lethal precision, their blade drinking deep of enemy lifeblood!"
+  },
+  "damage_messages": {
+    "enemy_damage": "The enemy strikes back with savage fury, their attacks leaving bloody furrows in your flesh!",
+    "vest_absorbs": "Your vest catches the brunt of the assault, sparing you from the worst of the carnage!",
+    "vest_breaks": "Your vest shatters under the relentless assault, leaving you exposed to the enemy's merciless wrath!"
+  },
+  "kill_messages": {
+    "police_singular": "💀 You extinguish the life of a corrupt enforcer, their badge stained with the blood of the innocent!",
+    "police_plural": "💀 You slaughter {count} police dogs, their uniforms soaked in the blood of those they preyed upon!",
+    "gang_singular": "💀 You eradicate a rival predator from the streets, their corpse a warning to others in the shadows!",
+    "gang_plural": "💀 You butcher {count} rival gang scum, their bodies littering the ground like the refuse they are!",
+    "squidie_singular": "💀 You slay a Squidie abomination, their foul blood pooling in the gutters where it belongs!",
+    "squidie_plural": "💀 You massacre {count} Squidie monstrosities, their vile empire crumbling with each corpse!",
+    "generic_singular": "💀 You end the miserable existence of another wretched soul, their life extinguished in the darkness!",
+    "generic_plural": "💀 You annihilate {count} enemy wretches, their broken forms testament to your merciless dominance!"
+  },
+  "victory_messages": {
+    "complete_victory": "VICTORY! You have annihilated every last one of these pathetic wretches, their blood staining the ground!",
+    "partial_victory": "VICTORY! You slaughtered {killed} and drove the survivors into the shadows, broken and fleeing!",
+    "recruitment": "One of the defeated wretches begs for mercy and joins your ranks, their loyalty forged in terror and blood!",
+    "npc_defeated": "You vanquish {npc_name}, their body crumpling to the ground in a lifeless heap, looted for $100 of meager possessions!"
+  },
+  "defeat_messages": {
+    "standard": "DEFEAT! The enemy overwhelms you with brutal force, leaving you broken and bleeding on the cold ground!",
+    "final_death": "FINAL DEATH! Your last life is extinguished in a torrent of agony, your body joining the countless others in eternal darkness!",
+    "damage_taken": "You suffer {damage} grievous wounds, your flesh torn and blood flowing freely!"
+  },
+  "flee_messages": {
+    "success": "You flee into the shadows like a hunted animal, heart pounding with the terror of the pursuit!",
+    "failure": "Your desperate flight fails, and the enemy descends upon you with renewed savagery, tearing into your flesh!"
+  },
+  "combat_status": {
+    "start_combat": "COMBAT BEGINS! The air thickens with the stench of fear and blood as battle erupts!",
+    "enemy_counterattack": "The enemy retaliates with savage ferocity, their weapons seeking your vital organs!",
+    "defend_action": "You crouch in desperate defense, weathering the storm of blows that rains down upon you!",
+    "change_weapon": "You hesitate, your mind racing through the arsenal of death at your disposal!",
+    "use_drug_crack": "You consume crack with desperate hunger, your body surging with unholy power but taking damage from the foul substance!",
+    "use_drug_percs": "You swallow painkillers, dulling the agony and healing {healed} wounds through chemical oblivion!",
+    "drug_generic": "You ingest {drug_name}, feeling its dark influence course through your veins!"
+  },
+  "squidie_specific": {
+    "gang_loss": "The Squidies' foul empire suffers a grievous wound, losing {count} of their monstrous brethren to your righteous fury!"
+  }
+}

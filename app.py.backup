@@ -235,6 +235,8 @@ def save_game_state(game_state):
 
 app = Flask(__name__)
 app.secret_key = 'gangwar_secret_key_2024'
+app.template_folder = os.path.join(os.path.dirname(__file__), 'templates')
+app.static_folder = os.path.join(os.path.dirname(__file__), 'static')
 
 # Check if running in PyInstaller bundle
 try:

@@ -33,14 +33,16 @@ f{% extends "base.html" %}
         
         <div class="stat-section">
             <h3>Weapons & Equipment</h3>
-            <p>Pistols: {{ game_state.weapons.pistols }}</p>
-            <p>Uzis: {{ game_state.weapons.uzis }}</p>
-            <p>Bullets: {{ game_state.weapons.bullets }}</p>
-            <p>Grenades: {{ game_state.weapons.grenades }}</p>
-            <p>Barbed Wire Bats: {{ game_state.weapons.barbed_wire_bat }}</p>
-            <p>RPG-7 launchers: {{ game_state.weapons.missile_launcher }}</p>
-            <p>RPG rounds: {{ game_state.weapons.missiles }}</p>
-            <p>Vest Protection: {{ game_state.weapons.vest }} hits</p>
+            <p>Pistols: {{ game_state['weapons']['pistols'] }}</p>
+            <p>Uzis: {{ game_state['weapons']['uzis'] }}</p>
+            <p>Bullets: {{ game_state['weapons']['bullets'] }}</p>
+            <p>Grenades: {{ game_state['weapons']['grenades'] }}</p>
+            <p>Barbed Wire Bats: {{ game_state['weapons']['barbed_wire_bat'] }}</p>
+            <p>RPG-7 launchers: {{ game_state['weapons']['missile_launcher'] }}</p>
+            <p>RPG rounds: {{ game_state['weapons']['missiles'] }}</p>
+            <p>Vest Protection: {{ game_state['weapons']['vest'] }} hits</p>
+            <p>Knife: {{ game_state['weapons']['knife'] }}</p>
+            <p>Ghost Guns: {{ game_state['weapons']['ghost_guns'] }}</p>
         </div>
 
         <div class="stat-section">

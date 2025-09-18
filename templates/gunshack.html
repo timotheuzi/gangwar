@@ -9,41 +9,57 @@
         <div class="weapon-item">
             <h4>Pistol</h4>
             <p>Price: $1,200</p>
-            <p>You have: {{ game_state.weapons.pistols }}</p>
-            <form method="POST" action="{{ url_for('buy_weapon') }}" class="inline-form">
+            <p>You have: {{ game_state.get('weapons', {}).get('pistols', 0) }}</p>
+            <form method="POST" action="{{ url_for("buy_weapon") }}" class="inline-form">
                 <input type="hidden" name="weapon_type" value="pistol">
                 <input type="hidden" name="quantity" value="1">
                 <button type="submit" class="btn btn-primary">Buy Pistol</button>
             </form>
-        </div>
-        
-        <div class="weapon-item">
-            <h4>Bullets (50 pack)</h4>
-            <p>Price: $100</p>
-            <p>You have: {{ game_state.weapons.bullets }}</p>
-            <form method="POST" action="{{ url_for('buy_weapon') }}" class="inline-form">
-                <input type="hidden" name="weapon_type" value="bullets">
+            {% if game_state.get('weapons', {}).get('pistols', 0) > 0 %}
+            <form method="POST" action="{{ url_for("buy_weapon") }}" class="inline-form" style="margin-top: 5px;">
+                <input type="hidden" name="weapon_type" value="pistol_switch">
                 <input type="hidden" name="quantity" value="1">
-                <button type="submit" class="btn btn-primary">Buy Bullets</button>
+                <button type="submit" class="btn btn-warning">Upgrade with Switch ($2,500)</button>
             </form>
+            <p style="font-size: 12px; color: #ff6b35; margin-top: 5px;">Switch upgrade enables full-auto: fires 3-5 shots per turn!</p>
+            {% endif %}
+        </div>
+
+        <div class="weapon-item">
+            <h4>Ghost Gun</h4>
+            <p>Price: $600</p>
+            <p>You have: {{ game_state.get('weapons', {}).get('ghost_guns', 0) }}</p>
+            <form method="POST" action="{{ url_for("buy_weapon") }}" class="inline-form">
+                <input type="hidden" name="weapon_type" value="ghost_gun">
+                <input type="hidden" name="quantity" value="1">
+                <button type="submit" class="btn btn-primary">Buy Ghost Gun</button>
+            </form>
+            {% if game_state.get('weapons', {}).get('ghost_guns', 0) > 0 %}
+            <form method="POST" action="{{ url_for("buy_weapon") }}" class="inline-form" style="margin-top: 5px;">
+                <input type="hidden" name="weapon_type" value="ghost_gun_switch">
+                <input type="hidden" name="quantity" value="1">
+                <button type="submit" class="btn btn-warning">Upgrade with Switch ($1,500)</button>
+            </form>
+            <p style="font-size: 12px; color: #ff6b35; margin-top: 5px;">Switch upgrade enables full-auto: fires 3-5 shots per turn!</p>
+            {% endif %}
         </div>
         
         <div class="weapon-item">
             <h4>Uzi</h4>
             <p>Price: $100,000</p>
-            <p>You have: {{ game_state.weapons.uzis }}</p>
-            <form method="POST" action="{{ url_for('buy_weapon') }}" class="inline-form">
+            <p>You have: {{ game_state.get('weapons', {}).get('uzis', 0) }}</p>
+            <form method="POST" action="{{ url_for("buy_weapon") }}" class="inline-form">
                 <input type="hidden" name="weapon_type" value="uzi">
                 <input type="hidden" name="quantity" value="1">
                 <button type="submit" class="btn btn-primary">Buy Uzi</button>
             </form>
         </div>
-        
+
         <div class="weapon-item">
             <h4>Grenade</h4>
             <p>Price: $1,000</p>
-            <p>You have: {{ game_state.weapons.grenades }}</p>
-            <form method="POST" action="{{ url_for('buy_weapon') }}" class="inline-form">
+            <p>You have: {{ game_state.get('weapons', {}).get('grenades', 0) }}</p>
+            <form method="POST" action="{{ url_for("buy_weapon") }}" class="inline-form">
                 <input type="hidden" name="weapon_type" value="grenade">
                 <input type="hidden" name="quantity" value="1">
                 <button type="submit" class="btn btn-primary">Buy Grenade</button>
@@ -53,65 +69,65 @@
         <div class="weapon-item">
             <h4>Barbed Wire Bat</h4>
             <p>Price: $2,500</p>
-            <p>You have: {{ game_state.weapons.barbed_wire_bat }}</p>
-            <form method="POST" action="{{ url_for('buy_weapon') }}" class="inline-form">
+            <p>You have: {{ game_state.get('weapons', {}).get('barbed_wire_bat', 0) }}</p>
+            <form method="POST" action="{{ url_for("buy_weapon") }}" class="inline-form">
                 <input type="hidden" name="weapon_type" value="barbed_wire_bat">
                 <input type="hidden" name="quantity" value="1">
-                <button type="submit" class="btn btn-primary">Buy Barbed Wire Bat ($2,500)</button>
+                <button type="submit" class="btn btn-primary">Buy Barbed Wire Bat</button>
             </form>
         </div>
-        
+
         <div class="weapon-item">
             <h4>Missile Launcher</h4>
             <p>Price: $1,000,000</p>
-            <p>You have: {{ game_state.weapons.missile_launcher }}</p>
-            <form method="POST" action="{{ url_for('buy_weapon') }}" class="inline-form">
+            <p>You have: {{ game_state.get('weapons', {}).get('missile_launcher', 0) }}</p>
+            <form method="POST" action="{{ url_for("buy_weapon") }}" class="inline-form">
                 <input type="hidden" name="weapon_type" value="missile_launcher">
                 <input type="hidden" name="quantity" value="1">
                 <button type="submit" class="btn btn-primary">Buy Launcher</button>
             </form>
         </div>
-        
+
         <div class="weapon-item">
             <h4>Missile</h4>
             <p>Price: $100,000</p>
-            <p>You have: {{ game_state.weapons.missiles }}</p>
-            <form method="POST" action="{{ url_for('buy_weapon') }}" class="inline-form">
+            <p>You have: {{ game_state.get('weapons', {}).get('missiles', 0) }}</p>
+            <form method="POST" action="{{ url_for("buy_weapon") }}" class="inline-form">
                 <input type="hidden" name="weapon_type" value="missile">
                 <input type="hidden" name="quantity" value="1">
                 <button type="submit" class="btn btn-primary">Buy Missile</button>
             </form>
         </div>
-        
+
 
     </div>
-    
+
     <div class="vest-section">
         <h3>Body Armor</h3>
-        <p>Current protection: {{ game_state.weapons.vest }} hits</p>
+        <p>Current protection: {{ game_state.get('weapons', {}).get('vest', 0) }} hits</p>
         <div class="vest-options">
-            <form method="POST" action="{{ url_for('buy_weapon') }}" class="inline-form">
+            <form method="POST" action="{{ url_for("buy_weapon") }}" class="inline-form">
                 <input type="hidden" name="weapon_type" value="vest_light">
                 <input type="hidden" name="quantity" value="1">
                 <button type="submit" class="btn btn-secondary">Light Vest ($30,000) - 5 hits</button>
             </form>
-            
-            <form method="POST" action="{{ url_for('buy_weapon') }}" class="inline-form">
+
+            <form method="POST" action="{{ url_for("buy_weapon") }}" class="inline-form">
                 <input type="hidden" name="weapon_type" value="vest_medium">
                 <input type="hidden" name="quantity" value="1">
                 <button type="submit" class="btn btn-secondary">Medium Vest ($55,000) - 10 hits</button>
             </form>
-            
-            <form method="POST" action="{{ url_for('buy_weapon') }}" class="inline-form">
+
+            <form method="POST" action="{{ url_for("buy_weapon") }}" class="inline-form">
                 <input type="hidden" name="weapon_type" value="vest_heavy">
                 <input type="hidden" name="quantity" value="1">
                 <button type="submit" class="btn btn-secondary">Heavy Vest ($75,000) - 15 hits</button>
             </form>
         </div>
     </div>
-    
+
     <div class="actions">
-        <a href="{{ url_for('city') }}" class="btn btn-primary">Back to City</a>
+        <a href="{{ url_for("city") }}" class="btn btn-primary">Back to City</a>
     </div>
 </div>
 {% endblock %}
