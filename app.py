@@ -170,42 +170,58 @@ def save_game_state(game_state):
     session['game_state'] = asdict(game_state)
     session.modified = True
 
-# def check_and_update_high_scores(game_state: GameState, gang_wars_won: int = 0, fights_won: int = 0):
-#     """Check if current game qualifies for high score and update if necessary"""
-#     if not game_state.player_name or not game_state.gang_name:
-#         return
+def check_and_update_high_scores(game_state: GameState, gang_wars_won: int = 0, fights_won: int = 0):
+    """Check if current game qualifies for high score and update if necessary"""
+    if not game_state.player_name or not game_state.gang_name:
+        return
 
-#     # Calculate current achievements
-#     money_earned = game_state.money + game_state.account  # Include savings
-#     days_survived = game_state.day
+    # Calculate current achievements
+    money_earned = game_state.money + game_state.account  # Include savings
+    days_survived = game_state.day
 
-#     # Calculate score
-#     score = calculate_score(money_earned, days_survived, gang_wars_won, fights_won)
+    # Calculate score
+    score = calculate_score(money_earned, days_survived, gang_wars_won, fights_won)
 
-#     # Load existing high scores
-#     high_scores = load_high_scores()
+    # Load existing high scores
+    high_scores = load_high_scores()
 
-#     # Create new high score entry
-#     new_score = HighScore(
-#         player_name=game_state.player_name,
-#         gang_name=game_state.gang_name,
-#         score=score,
-#         money_earned=money_earned,
-#         days_survived=days_survived,
-#         gang_wars_won=gang_wars_won,
-#         fights_won=fights_won,
-#         date_achieved=time.strftime("%Y-%m-%d %H:%M:%S")
-#     )
+    # Create new high score entry
+    new_score = HighScore(
+        player_name=game_state.player_name,
+        gang_name=game_state.gang_name,
+        score=score,
+        money_earned=money_earned,
+        days_survived=days_survived,
+        gang_wars_won=gang_wars_won,
+        fights_won=fights_won,
+        date_achieved=time.strftime("%Y-%m-%d %H:%M:%S")
+    )
 
-#     # Add to list and sort by score (highest first)
-#     high_scores.append(new_score)
-#     high_scores.sort(key=lambda x: x.score, reverse=True)
+    # Add to list and sort by score (highest first)
+    high_scores.append(new_score)
+    high_scores.sort(key=lambda x: x.score, reverse=True)
 
-#     # Keep only top 10 scores
-#     high_scores = high_scores[:10]
+    # Ensure we have at least 10 scores, even if they are low
+    if len(high_scores) < 10:
+        # Fill with dummy entries if needed
+        while len(high_scores) < 10:
+            dummy_score = HighScore(
+                player_name="Anonymous",
+                gang_name="Unknown Gang",
+                score=max(1, high_scores[-1].score // 2 if high_scores else 100),  # Half of lowest score or 100
+                money_earned=1000,
+                days_survived=1,
+                gang_wars_won=0,
+                fights_won=0,
+                date_achieved="2024-01-01 00:00:00"
+            )
+            high_scores.append(dummy_score)
 
-#     # Save updated high scores
-#     save_high_scores(high_scores)
+    # Keep only top 10 scores (but we ensured there are at least 10)
+    high_scores = high_scores[:10]
+
+    # Save updated high scores
+    save_high_scores(high_scores)
 
 
 # ============
@@ -1489,6 +1505,11 @@ def fight_cops():
                 save_game_state(game_state)
                 return redirect(url_for('city'))
             else:
+                # Add kill message to flash
+                if cops_killed == 1:
+                    flash(f"💀 You killed 1 police officer!", "info")
+                else:
+                    flash(f"💀 You killed {cops_killed} police officers!", "info")
                 message = f"You killed {cops_killed} cop(s) but {num_cops} remain and shot back! You took {damage} damage."
                 if game_state.damage >= 10:
                     game_state.lives -= 1
@@ -1634,6 +1655,7 @@ def process_fight_action():
     if action == 'attack':
         weapon_name = weapon.replace('_', ' ').title()
         total_player_damage = 0
+        killed_this_turn = 0
 
         # Player's attack
         if weapon == 'pistol' and game_state.weapons.pistols > 0 and game_state.weapons.bullets > 0:
@@ -1710,11 +1732,45 @@ def process_fight_action():
                         gang_damage += member_damage
                         fight_log.append(f"Gang member {i+1} attacks with {weapon_choice.replace('_', ' ')}, dealing {member_damage} damage!")
 
-        # Apply total damage
-        enemy_health -= (total_player_damage + gang_damage)
+        # Calculate total damage and killed enemies
+        total_damage = total_player_damage + gang_damage
+        previous_enemy_health = enemy_health
+        enemy_health -= total_damage
+
+        # Calculate how many enemies were killed this turn
+        if total_damage > 0:
+            # Estimate killed enemies based on damage (rough approximation)
+            # Assuming each enemy has ~15-25 HP on average
+            avg_enemy_hp = 20
+            killed_this_turn = min(enemy_count, max(1, total_damage // avg_enemy_hp))
+
+            # Adjust for overkill - if we did more damage than remaining health
+            if previous_enemy_health > 0 and enemy_health <= 0:
+                killed_this_turn = enemy_count  # All remaining enemies killed
+
+            # Add kill messages to fight log
+            if killed_this_turn > 0:
+                if "Police" in enemy_type:
+                    if killed_this_turn == 1:
+                        fight_log.append(f"💀 You killed 1 police officer!")
+                    else:
+                        fight_log.append(f"💀 You killed {killed_this_turn} police officers!")
+                elif "Gang" in enemy_type or "Squidie" in enemy_type:
+                    if killed_this_turn == 1:
+                        fight_log.append(f"💀 You killed 1 gang member!")
+                    else:
+                        fight_log.append(f"💀 You killed {killed_this_turn} gang members!")
+                else:
+                    if killed_this_turn == 1:
+                        fight_log.append(f"💀 You killed 1 enemy!")
+                    else:
+                        fight_log.append(f"💀 You killed {killed_this_turn} enemies!")
+
+        # Update enemy count
+        enemy_count = max(0, enemy_count - killed_this_turn)
 
         # Enemy attacks back
-        if enemy_health > 0:
+        if enemy_health > 0 and enemy_count > 0:
             enemy_damage = random.randint(5, 15) * enemy_count
             if game_state.weapons.vest > 0 and random.random() < 0.5:
                 game_state.weapons.vest -= 1
@@ -1850,10 +1906,15 @@ if socketio:
         location_room = data.get('location_room', 'city')
         player_name = data.get('player_name', 'Unknown Player')
 
+        # Get the actual player name from game state if available
+        game_state = get_game_state()
+        if game_state and game_state.player_name and game_state.player_name != 'Player':
+            player_name = game_state.player_name
+
         join_room(room)
         join_room(location_room)
 
-        # Store player info
+        # Store player info with proper name
         connected_players[request.sid] = {
             'id': request.sid,
             'name': player_name,
@@ -1880,6 +1941,11 @@ if socketio:
         room = data.get('room', 'global')
         player_name = data.get('player_name', 'Unknown Player')
         message = data.get('message', '')
+
+        # Get the actual player name from game state if available
+        game_state = get_game_state()
+        if game_state and game_state.player_name and game_state.player_name != 'Player':
+            player_name = game_state.player_name
 
         if message.strip():
             emit('chat_message', {
@@ -1938,6 +2004,6 @@ else:
 
 if __name__ == '__main__':
     if socketio:
-        socketio.run(app, debug=True)
+        socketio.run(app, debug=True, allow_unsafe_werkzeug=True)
     else:
         app.run(debug=True)

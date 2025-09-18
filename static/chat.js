@@ -61,7 +61,17 @@ function initSocketIO() {
             message = `[${data.room}] ${message}`;
         }
         var messageClass = data.message_class || null;
-        addChatMessage(data.player, message, messageClass);
+
+        // Use the player name from server data, ensure it's not generic "Player"
+        var displayName = data.player;
+        if (data.player === 'Player' || data.player === 'Unknown Player') {
+            // Try to get actual name from server data or fallback to window.playerName
+            if (window.playerName && window.playerName !== 'Player') {
+                displayName = window.playerName;
+            }
+        }
+
+        addChatMessage(displayName, message, messageClass);
     });
 
     socket.on('player_list', function(data) {
