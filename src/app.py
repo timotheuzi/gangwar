@@ -22,8 +22,46 @@ except FileNotFoundError:
 try:
     with open('model/battle_descriptions.json', 'r') as f:
         battle_descriptions = json.load(f)
-except FileNotFoundError:
-    battle_descriptions = {}
+except (FileNotFoundError, json.JSONDecodeError) as e:
+    print(f"Error loading battle descriptions: {e}")
+    battle_descriptions = {
+        "attack_messages": {
+            "pistol": "You fire your pistol!",
+            "ghost_gun": "You fire your ghost gun!",
+            "uzi": "You fire your Uzi!",
+            "grenade": "You throw a grenade!",
+            "missile_launcher": "You fire a missile!",
+            "barbed_wire_bat": "You swing your barbed wire bat!",
+            "knife": "You stab with your knife!"
+        },
+        "kill_messages": {
+            "police_singular": "You killed a police officer!",
+            "police_plural": "You killed {count} police officers!",
+            "gang_singular": "You killed a gang member!",
+            "gang_plural": "You killed {count} gang members!",
+            "squidie_singular": "You killed a Squidie!",
+            "squidie_plural": "You killed {count} Squiddies!",
+            "generic_singular": "You killed an enemy!",
+            "generic_plural": "You killed {count} enemies!"
+        },
+        "victory_messages": {
+            "complete_victory": "Victory! You defeated all enemies!",
+            "partial_victory": "Victory! You killed {killed} enemies!"
+        },
+        "defeat_messages": {
+            "final_death": "Game Over! You have died!",
+            "standard": "Defeat! You were defeated!",
+            "damage_taken": "You took {damage} damage!"
+        },
+        "combat_status": {
+            "use_drug_crack": "You used crack!",
+            "use_drug_percs": "You healed {healed} damage with painkillers!",
+            "drug_generic": "You used {drug_name}!"
+        },
+        "squidie_specific": {
+            "gang_loss": "The Squiddies lost {count} members!"
+        }
+    }
 
 # Load room configurations
 try:
