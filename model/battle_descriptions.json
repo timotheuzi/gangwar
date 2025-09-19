@@ -36,9 +36,9 @@
     "recruitment": "One of the defeated wretches begs for mercy and joins your ranks, their loyalty forged in terror and blood!",
     "npc_defeated": "You vanquish {npc_name}, their body crumpling to the ground in a lifeless heap, looted for $100 of meager possessions!",
     "detailed_stats": "VICTORY! Combat Statistics - Killed: {killed}, Recruited: {recruited}, Escaped: {escaped}",
-    "police_victory": "VICTORY! You eliminated {killed} corrupt police officers! {recruited} survivors joined your gang in fear!",
-    "gang_victory": "VICTORY! You crushed {killed} rival gang members! {recruited} defeated enemies switched sides!",
-    "squidie_victory": "VICTORY! You slaughtered {killed} Squidie monstrosities! Their foul empire weakens!"
+    "police_victory": "VICTORY! You eliminated {killed} corrupt police officers, {recruited} joined your gang in fear, {escaped} escaped!",
+    "gang_victory": "VICTORY! You crushed {killed} rival gang members, {recruited} defeated enemies switched sides, {escaped} escaped!",
+    "squidie_victory": "VICTORY! You slaughtered {killed} Squidie monstrosities, {recruited} joined your gang, {escaped} escaped! Their foul empire weakens!"
   },
   "defeat_messages": {
     "standard": "DEFEAT! The enemy overwhelms you with brutal force, leaving you broken and bleeding on the cold ground!",

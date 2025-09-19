@@ -793,13 +793,13 @@ def search_closet():
         flash(result, "success")
 
     elif search_result < 0.25:  # 10% chance - money
-        money_found = random.randint(500, 2000)
+        money_found = random.randint(500, 2500)
         game_state['money'] += money_found
         result = f"You discover an old safe hidden behind some boxes! You gain ${money_found:,}!"
         flash(result, "success")
 
     elif search_result < 0.35:  # 10% chance - trap/alarm
-        damage = random.randint(5, 15)
+        damage = random.randint(2, 17)
         game_state['health'] = max(0, game_state['health'] - damage)
         result = f"You trigger a silent alarm system! Security arrives and roughs you up for {damage} damage!"
         flash(result, "danger")
@@ -1937,32 +1937,17 @@ def process_fight_action():
 
         # Use detailed victory messages from JSON
         if "Police" in enemy_type:
-            if escaped_count > 0:
-                victory_message = battle_descriptions['victory_messages']['police_victory'].format(
-                    killed=total_killed, recruited=total_recruited
-                )
-            else:
-                victory_message = battle_descriptions['victory_messages']['police_victory'].format(
-                    killed=total_killed, recruited=total_recruited
-                )
+            victory_message = battle_descriptions['victory_messages']['police_victory'].format(
+                killed=total_killed, recruited=total_recruited, escaped=escaped_count
+            )
         elif "Squidie" in enemy_type:
-            if escaped_count > 0:
-                victory_message = battle_descriptions['victory_messages']['squidie_victory'].format(
-                    killed=total_killed
-                )
-            else:
-                victory_message = battle_descriptions['victory_messages']['squidie_victory'].format(
-                    killed=total_killed
-                )
+            victory_message = battle_descriptions['victory_messages']['squidie_victory'].format(
+                killed=total_killed, recruited=total_recruited, escaped=escaped_count
+            )
         elif "Gang" in enemy_type:
-            if escaped_count > 0:
-                victory_message = battle_descriptions['victory_messages']['gang_victory'].format(
-                    killed=total_killed, recruited=total_recruited
-                )
-            else:
-                victory_message = battle_descriptions['victory_messages']['gang_victory'].format(
-                    killed=total_killed, recruited=total_recruited
-                )
+            victory_message = battle_descriptions['victory_messages']['gang_victory'].format(
+                killed=total_killed, recruited=total_recruited, escaped=escaped_count
+            )
         else:
             # Generic victory message with detailed stats
             victory_message = battle_descriptions['victory_messages']['detailed_stats'].format(
