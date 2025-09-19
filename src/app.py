@@ -1684,6 +1684,16 @@ def process_fight_action():
         session['initial_enemy_count'] = enemy_count
         session.modified = True
 
+    # Track recruited members during this fight
+    if 'total_recruited' not in session:
+        session['total_recruited'] = 0
+        session.modified = True
+
+    # Track escaped enemies
+    if 'total_escaped' not in session:
+        session['total_escaped'] = 0
+        session.modified = True
+
     # Process action
     if action == 'attack':
         weapon_name = weapon.replace('_', ' ').title()
@@ -1915,41 +1925,52 @@ def process_fight_action():
         # Chance to recruit a defeated enemy as a gang member
         if enemy_type != "Police Officers" and random.random() < 0.3:  # 30% chance
             game_state['members'] += 1
+            session['total_recruited'] = session.get('total_recruited', 0) + 1
+            session.modified = True
             fight_log.append("One of your defeated enemies has joined your gang!")
 
         # Calculate victory stats
         initial_count = session.get('initial_enemy_count', enemy_count)
         total_killed = session.get('total_killed', 0) + killed_this_turn
-        escaped_count = initial_count - total_killed
+        total_recruited = session.get('total_recruited', 0)
+        escaped_count = max(0, initial_count - total_killed)
 
-        # Create victory message with kill/escape breakdown
+        # Use detailed victory messages from JSON
         if "Police" in enemy_type:
-            enemy_type_singular = "police officer"
-            enemy_type_plural = "police officers"
-        elif "Gang" in enemy_type or "Squidie" in enemy_type:
-            enemy_type_singular = "gang member"
-            enemy_type_plural = "gang members"
+            if escaped_count > 0:
+                victory_message = battle_descriptions['victory_messages']['police_victory'].format(
+                    killed=total_killed, recruited=total_recruited
+                )
+            else:
+                victory_message = battle_descriptions['victory_messages']['police_victory'].format(
+                    killed=total_killed, recruited=total_recruited
+                )
+        elif "Squidie" in enemy_type:
+            if escaped_count > 0:
+                victory_message = battle_descriptions['victory_messages']['squidie_victory'].format(
+                    killed=total_killed
+                )
+            else:
+                victory_message = battle_descriptions['victory_messages']['squidie_victory'].format(
+                    killed=total_killed
+                )
+        elif "Gang" in enemy_type:
+            if escaped_count > 0:
+                victory_message = battle_descriptions['victory_messages']['gang_victory'].format(
+                    killed=total_killed, recruited=total_recruited
+                )
+            else:
+                victory_message = battle_descriptions['victory_messages']['gang_victory'].format(
+                    killed=total_killed, recruited=total_recruited
+                )
         else:
-            enemy_type_singular = "enemy"
-            enemy_type_plural = "enemies"
+            # Generic victory message with detailed stats
+            victory_message = battle_descriptions['victory_messages']['detailed_stats'].format(
+                killed=total_killed, recruited=total_recruited, escaped=escaped_count
+            )
 
-        if total_killed == 1:
-            killed_text = f"1 {enemy_type_singular}"
-        else:
-            killed_text = f"{total_killed} {enemy_type_plural}"
-
-        if escaped_count == 1:
-            escaped_text = f"1 {enemy_type_singular}"
-        elif escaped_count > 1:
-            escaped_text = f"{escaped_count} {enemy_type_plural}"
-        else:
-            escaped_text = None
-
-        if escaped_text:
-            victory_message = battle_descriptions['victory_messages']['partial_victory'].format(killed=total_killed)
-        else:
-            victory_message = battle_descriptions['victory_messages']['complete_victory']
-
+        # Add detailed combat summary to fight log
+        fight_log.append(f"Combat Summary: {total_killed} killed, {total_recruited} recruited, {escaped_count} escaped")
         fight_log.append(victory_message)
         save_game_state(game_state)
 
