@@ -15,28 +15,65 @@ from flask import Flask, render_template, request, redirect, url_for, session, j
 try:
     with open('model/npcs.json', 'r') as f:
         npcs_data = json.load(f)
-except FileNotFoundError:
+except (FileNotFoundError, json.JSONDecodeError):
     npcs_data = {}
 
 # Load battle descriptions
 try:
     with open('model/battle_descriptions.json', 'r') as f:
         battle_descriptions = json.load(f)
-except FileNotFoundError:
-    battle_descriptions = {}
+except (FileNotFoundError, json.JSONDecodeError):
+    battle_descriptions = {
+        "attack_messages": {
+            "pistol": "You fire your pistol!",
+            "ghost_gun": "You fire your ghost gun!",
+            "uzi": "You fire your Uzi!",
+            "grenade": "You throw a grenade!",
+            "missile_launcher": "You fire a missile!",
+            "barbed_wire_bat": "You swing your barbed wire bat!",
+            "knife": "You stab with your knife!"
+        },
+        "kill_messages": {
+            "police_singular": "You killed a police officer!",
+            "police_plural": "You killed {count} police officers!",
+            "gang_singular": "You killed a gang member!",
+            "gang_plural": "You killed {count} gang members!",
+            "squidie_singular": "You killed a Squidie!",
+            "squidie_plural": "You killed {count} Squiddies!",
+            "generic_singular": "You killed an enemy!",
+            "generic_plural": "You killed {count} enemies!"
+        },
+        "victory_messages": {
+            "complete_victory": "Victory! You defeated all enemies!",
+            "partial_victory": "Victory! You defeated some enemies!"
+        },
+        "defeat_messages": {
+            "standard": "Defeat! You were defeated!",
+            "final_death": "Final death! Game over!",
+            "damage_taken": "You took {damage} damage!"
+        },
+        "combat_status": {
+            "use_drug_crack": "You used crack and took damage!",
+            "use_drug_percs": "You used percs and healed!",
+            "drug_generic": "You used a drug!"
+        },
+        "squidie_specific": {
+            "gang_loss": "Squiddies lost {count} members!"
+        }
+    }
 
 # Load room configurations
 try:
     with open('model/rooms_config.json', 'r') as f:
         rooms_config = json.load(f)
-except FileNotFoundError:
+except (FileNotFoundError, json.JSONDecodeError):
     rooms_config = {}
 
 # Load room descriptions
 try:
     with open('model/rooms.json', 'r') as f:
         rooms_data = json.load(f)
-except FileNotFoundError:
+except (FileNotFoundError, json.JSONDecodeError):
     rooms_data = {}
 
 # ============t
@@ -1504,7 +1541,7 @@ def fight_cops():
                     game_state['health'] = 30
                     enemy_type = f"{num_cops} Police Officers"
                     enemy_count = num_cops
-                    if game_state.lives <= 0:
+                    if game_state['lives'] <= 0:
                         save_game_state(game_state)
                         fight_log = [f"You were defeated by {enemy_type} and took {final_damage} damage. This was your final life."]
                         return render_template('fight_defeat.html', game_state=game_state, enemy_type=enemy_type, enemy_count=enemy_count, final_damage=final_damage, fight_log=fight_log)
@@ -1597,7 +1634,7 @@ def fight_cops():
             game_state['health'] = 30
             enemy_type = f"{num_cops} Police Officers"
             enemy_count = num_cops
-            if game_state.lives <= 0:
+            if game_state['lives'] <= 0:
                 save_game_state(game_state)
                 fight_log = [f"You were defeated by {enemy_type} and took {final_damage} damage. This was your final life."]
                 return render_template('fight_defeat.html', game_state=game_state, enemy_type=enemy_type, enemy_count=enemy_count, final_damage=final_damage, fight_log=fight_log)
@@ -1658,12 +1695,12 @@ def process_fight_action():
             game_state['weapons']['bullets'] -= 1
             damage = random.randint(15, 25)
             total_player_damage += damage
-            fight_log.append(battle_descriptions['attack_messages']['pistol'])
+            fight_log.append(f"{battle_descriptions['attack_messages']['pistol']} ({damage} damage)")
         elif weapon == 'ghost_gun' and game_state['weapons']['ghost_guns'] > 0 and game_state['weapons']['bullets'] > 0:
             game_state['weapons']['bullets'] -= 1
             damage = random.randint(15, 25)
             total_player_damage += damage
-            fight_log.append(battle_descriptions['attack_messages']['ghost_gun'])
+            fight_log.append(f"{battle_descriptions['attack_messages']['ghost_gun']} ({damage} damage)")
         elif weapon == 'pistol_switch' and game_state['weapons'].get('upgraded_pistols', 0) > 0 and game_state['weapons']['bullets'] >= 2:
             # Full auto pistol fires 3-5 shots per turn
             shots_fired = random.randint(3, 5)
@@ -1700,25 +1737,25 @@ def process_fight_action():
             game_state['weapons']['bullets'] -= 3
             damage = random.randint(20, 40)
             total_player_damage += damage
-            fight_log.append(battle_descriptions['attack_messages']['uzi'])
+            fight_log.append(f"{battle_descriptions['attack_messages']['uzi']} ({damage} damage)")
         elif weapon == 'grenade' and game_state['weapons']['grenades'] > 0:
             game_state['weapons']['grenades'] -= 1
             damage = random.randint(30, 60)
             total_player_damage += damage
-            fight_log.append(battle_descriptions['attack_messages']['grenade'])
+            fight_log.append(f"{battle_descriptions['attack_messages']['grenade']} ({damage} damage)")
         elif weapon == 'missile_launcher' and game_state['weapons']['missile_launcher'] > 0 and game_state['weapons']['missiles'] > 0:
             game_state['weapons']['missiles'] -= 1
             damage = random.randint(50, 100)
             total_player_damage += damage
-            fight_log.append(battle_descriptions['attack_messages']['missile_launcher'])
+            fight_log.append(f"{battle_descriptions['attack_messages']['missile_launcher']} ({damage} damage)")
         elif weapon == 'barbed_wire_bat' and game_state['weapons']['barbed_wire_bat'] > 0:
             damage = random.randint(25, 45)
             total_player_damage += damage
-            fight_log.append(battle_descriptions['attack_messages']['barbed_wire_bat'])
+            fight_log.append(f"{battle_descriptions['attack_messages']['barbed_wire_bat']} ({damage} damage)")
         elif weapon == 'knife':
             damage = random.randint(10, 20)
             total_player_damage += damage
-            fight_log.append(battle_descriptions['attack_messages']['knife'])
+            fight_log.append(f"{battle_descriptions['attack_messages']['knife']} ({damage} damage)")
 
         # Gang members' attacks (if player has gang members)
         gang_damage = 0
@@ -1872,7 +1909,7 @@ def process_fight_action():
             npcs_data[npc_id]['is_alive'] = False
             with open('npcs.json', 'w') as f:
                 json.dump(npcs_data, f, indent=2)
-            game_state.money += 100  # Loot from defeated NPC
+            game_state['money'] += 100  # Loot from defeated NPC
             fight_log.append(f"You defeated {npcs_data[npc_id]['name']} and looted $100!")
 
         # Chance to recruit a defeated enemy as a gang member
@@ -1919,12 +1956,12 @@ def process_fight_action():
         # Show victory outcome in mud fight template before redirect
         combat_active = False
         return render_template('mud_fight.html', game_state=game_state, enemy_health=enemy_health, enemy_type=enemy_type, enemy_count=enemy_count, combat_active=combat_active, combat_id=combat_id, fight_log=fight_log, victory=True)
-    elif game_state.damage >= 10:
-        game_state.lives -= 1
-        final_damage = game_state.damage  # Store the final damage before resetting
-        game_state.damage = 0
-        game_state.health = 30
-        if game_state.lives <= 0:
+    elif game_state['damage'] >= 10:
+        game_state['lives'] -= 1
+        final_damage = game_state['damage']  # Store the final damage before resetting
+        game_state['damage'] = 0
+        game_state['health'] = 30
+        if game_state['lives'] <= 0:
             fight_log.append(battle_descriptions['defeat_messages']['final_death'])
         else:
             fight_log.append(battle_descriptions['defeat_messages']['standard'])
@@ -1954,12 +1991,12 @@ def continue_after_fight():
         return redirect(url_for('city'))
     elif outcome == 'defeat':
         # Defeat - check if game over or continue
-        if game_state.lives <= 0:
+        if game_state['lives'] <= 0:
             # Game over
             return redirect(url_for('game_over'))
         else:
             # Continue with reduced lives
-            flash(f"You were defeated but have {game_state.lives} lives remaining!", "warning")
+            flash(f"You were defeated but have {game_state['lives']} lives remaining!", "warning")
             return redirect(url_for('city'))
 
     # Fallback

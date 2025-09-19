@@ -1,13 +1,14 @@
 # Gangwar Game Makefile
 # Cross-platform build system for the Gangwar game
 
-.PHONY: all build clean distclean clean-disk install-deps run test help
+PHONY: all build clean distclean clean-disk install-deps run test help
 
 # Default target
 all: build
 
 # Build the application
 build:
+
 	@echo "Building Gangwar Game..."
 	@chmod +x build.sh
 	@./build.sh
@@ -49,7 +50,7 @@ install-deps:
 # Run the application in development mode
 run:
 	@echo "Running Gangwar Game in development mode..."
-	@python src/app.py
+	@FLASK_ENV=development python src/app.py
 
 # Run the built executable
 run-dist:
