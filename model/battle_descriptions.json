@@ -28,7 +28,11 @@
     "squidie_singular": "💀 You slay a Squidie abomination, their foul blood pooling in the gutters where it belongs!",
     "squidie_plural": "💀 You massacre {count} Squidie monstrosities, their vile empire crumbling with each corpse!",
     "generic_singular": "💀 You end the miserable existence of another wretched soul, their life extinguished in the darkness!",
-    "generic_plural": "💀 You annihilate {count} enemy wretches, their broken forms testament to your merciless dominance!"
+    "generic_plural": "💀 You annihilate {count} enemy wretches, their broken forms testament to your merciless dominance!",
+    "police_individual": "💀 You swing your barbed wire bat with savage force, the cruel spikes tearing through flesh and bone in a symphony of agony! A police officer falls, their life extinguished!",
+    "gang_individual": "💀 You swing your barbed wire bat with savage force, the cruel spikes tearing through flesh and bone in a symphony of agony! A gang member crumples to the ground, defeated!",
+    "squidie_individual": "💀 You swing your barbed wire bat with savage force, the cruel spikes tearing through flesh and bone in a symphony of agony! A Squidie monstrosity falls, their foul blood pooling!",
+    "generic_individual": "💀 You swing your barbed wire bat with savage force, the cruel spikes tearing through flesh and bone in a symphony of agony! An enemy falls, their life extinguished!"
   },
   "victory_messages": {
     "complete_victory": "VICTORY! You have annihilated every last one of these pathetic wretches, their blood staining the ground!",

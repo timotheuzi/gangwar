@@ -13,14 +13,14 @@ from flask import Flask, render_template, request, redirect, url_for, session, j
 
 # Load NPCs
 try:
-    with open('model/npcs.json', 'r') as f:
+    with open(os.path.join(os.path.dirname(__file__), '..', 'model', 'npcs.json'), 'r') as f:
         npcs_data = json.load(f)
 except (FileNotFoundError, json.JSONDecodeError):
     npcs_data = {}
 
 # Load battle descriptions
 try:
-    with open('model/battle_descriptions.json', 'r') as f:
+    with open(os.path.join(os.path.dirname(__file__), '..', 'model', 'battle_descriptions.json'), 'r') as f:
         battle_descriptions = json.load(f)
 except (FileNotFoundError, json.JSONDecodeError):
     battle_descriptions = {
@@ -41,12 +41,20 @@ except (FileNotFoundError, json.JSONDecodeError):
             "squidie_singular": "You killed a Squidie!",
             "squidie_plural": "You killed {count} Squiddies!",
             "generic_singular": "You killed an enemy!",
-            "generic_plural": "You killed {count} enemies!"
+            "generic_plural": "You killed {count} enemies!",
+            "police_individual": "💀 You swing your barbed wire bat with savage force, the cruel spikes tearing through flesh and bone in a symphony of agony! A police officer falls, their life extinguished!",
+            "gang_individual": "💀 You swing your barbed wire bat with savage force, the cruel spikes tearing through flesh and bone in a symphony of agony! A gang member crumples to the ground, defeated!",
+            "squidie_individual": "💀 You swing your barbed wire bat with savage force, the cruel spikes tearing through flesh and bone in a symphony of agony! A Squidie monstrosity falls, their foul blood pooling!",
+            "generic_individual": "💀 You swing your barbed wire bat with savage force, the cruel spikes tearing through flesh and bone in a symphony of agony! An enemy falls, their life extinguished!"
         },
-        "victory_messages": {
-            "complete_victory": "Victory! You defeated all enemies!",
-            "partial_victory": "Victory! You defeated some enemies!"
-        },
+    "victory_messages": {
+        "complete_victory": "Victory! You defeated all enemies!",
+        "partial_victory": "Victory! You defeated some enemies!",
+        "detailed_stats": "VICTORY! Combat Statistics - Killed: {killed}, Recruited: {recruited}, Escaped: {escaped}",
+        "police_victory": "VICTORY! You eliminated {killed} corrupt police officers, {recruited} joined your gang in fear, {escaped} escaped!",
+        "gang_victory": "VICTORY! You crushed {killed} rival gang members, {recruited} defeated enemies switched sides, {escaped} escaped!",
+        "squidie_victory": "VICTORY! You slaughtered {killed} Squidie monstrosities, {recruited} joined your gang, {escaped} escaped! Their foul empire weakens!"
+    },
         "defeat_messages": {
             "standard": "Defeat! You were defeated!",
             "final_death": "Final death! Game over!",
@@ -64,14 +72,14 @@ except (FileNotFoundError, json.JSONDecodeError):
 
 # Load room configurations
 try:
-    with open('model/rooms_config.json', 'r') as f:
+    with open(os.path.join(os.path.dirname(__file__), '..', 'model', 'rooms_config.json'), 'r') as f:
         rooms_config = json.load(f)
 except (FileNotFoundError, json.JSONDecodeError):
     rooms_config = {}
 
 # Load room descriptions
 try:
-    with open('model/rooms.json', 'r') as f:
+    with open(os.path.join(os.path.dirname(__file__), '..', 'model', 'rooms.json'), 'r') as f:
         rooms_data = json.load(f)
 except (FileNotFoundError, json.JSONDecodeError):
     rooms_data = {}
@@ -1830,30 +1838,20 @@ def process_fight_action():
             session['total_killed'] = session.get('total_killed', 0) + killed_this_turn
             session.modified = True
 
-            # Add kill messages to fight log
+            # Add individual kill messages to fight log
             if killed_this_turn > 0:
-                if "Police" in enemy_type:
-                    if killed_this_turn == 1:
-                        fight_log.append(battle_descriptions['kill_messages']['police_singular'])
+                for _ in range(killed_this_turn):
+                    if "Police" in enemy_type:
+                        fight_log.append(battle_descriptions['kill_messages']['police_individual'])
+                    elif "Squidie" in enemy_type:
+                        fight_log.append(battle_descriptions['kill_messages']['squidie_individual'])
+                        # Additional mention for Squidie kills (only once per turn)
+                        if _ == 0:
+                            fight_log.append(battle_descriptions['squidie_specific']['gang_loss'].format(count=killed_this_turn))
+                    elif "Gang" in enemy_type:
+                        fight_log.append(battle_descriptions['kill_messages']['gang_individual'])
                     else:
-                        fight_log.append(battle_descriptions['kill_messages']['police_plural'].format(count=killed_this_turn))
-                elif "Squidie" in enemy_type:
-                    if killed_this_turn == 1:
-                        fight_log.append(battle_descriptions['kill_messages']['squidie_singular'])
-                    else:
-                        fight_log.append(battle_descriptions['kill_messages']['squidie_plural'].format(count=killed_this_turn))
-                    # Additional mention for Squidie kills
-                    fight_log.append(battle_descriptions['squidie_specific']['gang_loss'].format(count=killed_this_turn))
-                elif "Gang" in enemy_type:
-                    if killed_this_turn == 1:
-                        fight_log.append(battle_descriptions['kill_messages']['gang_singular'])
-                    else:
-                        fight_log.append(battle_descriptions['kill_messages']['gang_plural'].format(count=killed_this_turn))
-                else:
-                    if killed_this_turn == 1:
-                        fight_log.append(battle_descriptions['kill_messages']['generic_singular'])
-                    else:
-                        fight_log.append(battle_descriptions['kill_messages']['generic_plural'].format(count=killed_this_turn))
+                        fight_log.append(battle_descriptions['kill_messages']['generic_individual'])
 
         # Update enemy count
         enemy_count = max(0, enemy_count - killed_this_turn)
@@ -1868,6 +1866,27 @@ def process_fight_action():
             else:
                 game_state['damage'] += enemy_damage
                 fight_log.append(f"The {enemy_type} counterattack, dealing {enemy_damage} damage!")
+
+        # Some enemies may attempt to escape during combat
+        if enemy_health > 0 and enemy_count > 1:  # Need at least 2 enemies for escape logic
+            # Chance for enemies to escape (10-20% chance depending on enemy type)
+            escape_chance = 0.15  # Base 15% chance
+            if "Police" in enemy_type:
+                escape_chance = 0.10  # Police are less likely to flee
+            elif "Squidie" in enemy_type:
+                escape_chance = 0.05  # Squiddies rarely flee
+
+            if random.random() < escape_chance:
+                # 1-2 enemies escape
+                escaped_this_turn = min(enemy_count - 1, random.randint(1, 2))  # Leave at least 1 enemy
+                enemy_count -= escaped_this_turn
+                session['total_escaped'] = session.get('total_escaped', 0) + escaped_this_turn
+                session.modified = True
+
+                if escaped_this_turn == 1:
+                    fight_log.append(f"One of the {enemy_type.lower()} manages to escape into the shadows!")
+                else:
+                    fight_log.append(f"{escaped_this_turn} of the {enemy_type.lower()} manage to escape into the shadows!")
 
     elif action == 'defend':
         # Reduced enemy damage
@@ -1917,7 +1936,7 @@ def process_fight_action():
         npc_id = request.form.get('npc_id')
         if npc_id and npc_id in npcs_data:
             npcs_data[npc_id]['is_alive'] = False
-            with open('npcs.json', 'w') as f:
+            with open(os.path.join(os.path.dirname(__file__), '..', 'model', 'npcs.json'), 'w') as f:
                 json.dump(npcs_data, f, indent=2)
             game_state['money'] += 100  # Loot from defeated NPC
             fight_log.append(f"You defeated {npcs_data[npc_id]['name']} and looted $100!")
@@ -1933,7 +1952,15 @@ def process_fight_action():
         initial_count = session.get('initial_enemy_count', enemy_count)
         total_killed = session.get('total_killed', 0) + killed_this_turn
         total_recruited = session.get('total_recruited', 0)
-        escaped_count = max(0, initial_count - total_killed)
+        total_escaped = session.get('total_escaped', 0)
+        # Calculate remaining enemies that must have escaped
+        accounted_for = total_killed + total_recruited + total_escaped
+        remaining_unaccounted = max(0, initial_count - accounted_for)
+        if remaining_unaccounted > 0:
+            total_escaped += remaining_unaccounted
+            session['total_escaped'] = total_escaped
+            session.modified = True
+        escaped_count = total_escaped
 
         # Use detailed victory messages from JSON
         if "Police" in enemy_type:
