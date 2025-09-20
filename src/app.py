@@ -1822,12 +1822,20 @@ def process_fight_action():
 
         # Calculate how many enemies were killed this turn
         if total_damage > 0:
-            # Estimate killed enemies based on damage (rough approximation)
-            # Assuming each enemy has ~15-25 HP on average
-            avg_enemy_hp = 20
-            killed_this_turn = min(enemy_count, max(1, total_damage // avg_enemy_hp))
+            # Calculate individual enemy health based on enemy type
+            if "Police" in enemy_type:
+                individual_hp = 10  # Each cop has 10 HP
+            elif "Squidie" in enemy_type:
+                individual_hp = 25  # Each squidie has 25 HP
+            elif "Gang" in enemy_type:
+                individual_hp = 15  # Each gang member has 15 HP
+            else:
+                individual_hp = 20  # Default fallback
 
-            # Adjust for overkill - if we did more damage than remaining health
+            # Calculate how many enemies can be killed with the damage dealt
+            killed_this_turn = min(enemy_count, total_damage // individual_hp)
+
+            # Handle overkill - if we did more damage than needed to kill remaining enemies
             if previous_enemy_health > 0 and enemy_health <= 0:
                 killed_this_turn = enemy_count  # All remaining enemies killed
 
