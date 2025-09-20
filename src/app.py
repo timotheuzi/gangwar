@@ -151,6 +151,8 @@ def get_game_state():
             'squidies': 25,
             'squidies_pistols': 10,
             'squidies_ar15s': 5,
+            'squidies_ghost_guns': 0,
+            'squidies_barbed_wire_bat': 0,
             'squidies_bullets': 100,
             'squidies_grenades': 20,
             'squidies_missile_launcher': 2,
@@ -477,6 +479,11 @@ def final_battle():
     combat_active = True
     combat_id = f"final_battle_{random.randint(1000, 9999)}"
 
+    # Clear previous combat session variables
+    for key in ['total_killed', 'total_recruited', 'total_escaped', 'initial_enemy_count']:
+        if key in session:
+            del session[key]
+
     # Initialize fight log
     fight_log = [f"You launch your final assault on the Squidies gang headquarters!", f"Combat begins against {enemy_type}!"]
     session['fight_log'] = fight_log
@@ -504,6 +511,11 @@ def wander():
             enemy_type = f"{num_cops} Police Officers"
             combat_active = True
             combat_id = f"police_{random.randint(1000, 9999)}"
+
+            # Clear previous combat session variables
+            for key in ['total_killed', 'total_recruited', 'total_escaped', 'initial_enemy_count']:
+                if key in session:
+                    del session[key]
 
             # Initialize fight log
             fight_log = [f"Oh no! {num_cops} police officers spot you and give chase!", f"Combat begins against {enemy_type}!"]
@@ -543,6 +555,11 @@ def wander():
         combat_active = True
         combat_id = f"gang_{random.randint(1000, 9999)}"
 
+        # Clear previous combat session variables
+        for key in ['total_killed', 'total_recruited', 'total_escaped', 'initial_enemy_count']:
+            if key in session:
+                del session[key]
+
         # Initialize fight log
         fight_log = [f"You encounter {enemy_members} rival gang members looking for trouble!", f"Combat begins against {enemy_type}!"]
         session['fight_log'] = fight_log
@@ -567,6 +584,11 @@ def wander():
             enemy_type = f"{squidie_members} Squidie Hit Squad"
             combat_active = True
             combat_id = f"squidie_{random.randint(1000, 9999)}"
+
+            # Clear previous combat session variables
+            for key in ['total_killed', 'total_recruited', 'total_escaped', 'initial_enemy_count']:
+                if key in session:
+                    del session[key]
 
             # Initialize fight log
             fight_log = [f"Oh no! A Squidie hit squad of {squidie_members} members has tracked you down!", f"Combat begins against {enemy_type}!"]
@@ -1127,35 +1149,35 @@ def search_room():
 
         if current_room_id == 'secret_room':
             # Secret room has better rewards but also traps
-            if search_result < 0.1:  # 10% chance - trap
+            if search_result < 0.08:  # 8% chance - trap
                 damage = random.randint(15, 35)
                 game_state['health'] = max(0, game_state['health'] - damage)
                 result = f"You trigger a trap! A hidden spike pit injures you for {damage} damage!"
                 flash(result, "danger")
-            elif search_result < 0.25:  # 15% chance - secret hint
+            elif search_result < 0.18:  # 10% chance - secret hint
                 result = "You find a mysterious inscription on the wall: 'The true treasure lies deeper within.' You sense there might be more to discover!"
                 flash(result, "warning")
                 # Store that a secret was found for deeper search
                 session['secret_found'] = True
                 session['secret_room'] = current_room_id
                 session.modified = True
-            elif search_result < 0.45:  # 20% chance - weapon cache
+            elif search_result < 0.28:  # 10% chance - weapon cache
                 game_state['weapons']['bullets'] += random.randint(10, 25)
                 result = f"You find a hidden weapon cache! You gain {game_state['weapons']['bullets']} bullets!"
                 flash(result, "success")
-            elif search_result < 0.65:  # 20% chance - drug stash
-                drug_types = ['weed', 'crack', 'coke']
+            elif search_result < 0.58:  # 30% chance - drug stash (increased from 20%)
+                drug_types = ['weed', 'crack', 'coke', 'ice']
                 drug = random.choice(drug_types)
-                amount = random.randint(2, 5)
+                amount = random.randint(3, 8)
                 game_state['drugs'][drug] += amount
                 result = f"You discover a drug stash! You find {amount} kilos of {drug}!"
                 flash(result, "success")
-            elif search_result < 0.85:  # 20% chance - money
+            elif search_result < 0.78:  # 20% chance - money
                 money_found = random.randint(200, 800)
                 game_state['money'] += money_found
                 result = f"You find a hidden stash of cash! You gain ${money_found}!"
                 flash(result, "success")
-            else:  # 15% chance - nothing special
+            else:  # 22% chance - nothing special
                 result = "You search thoroughly but find nothing of value."
                 flash(result, "info")
 
@@ -1290,6 +1312,11 @@ def move_room(direction):
             combat_active = True
             combat_id = f"npc_{list(npcs_data.keys())[list(npcs_data.values()).index(npc)]}_{random.randint(1000, 9999)}"
 
+            # Clear previous combat session variables
+            for key in ['total_killed', 'total_recruited', 'total_escaped', 'initial_enemy_count']:
+                if key in session:
+                    del session[key]
+
             # Initialize fight log
             fight_log = [f"You encounter {npc['name']}! They look hostile...", f"Combat begins against {enemy_type}!"]
             session['fight_log'] = fight_log
@@ -1419,6 +1446,11 @@ def fight_npc(npc_id):
     enemy_type = npc['name']
     combat_active = True
     combat_id = f"npc_{npc_id}_{random.randint(1000, 9999)}"
+
+    # Clear previous combat session variables
+    for key in ['total_killed', 'total_recruited', 'total_escaped', 'initial_enemy_count']:
+        if key in session:
+            del session[key]
 
     # Initialize fight log
     fight_log = [f"You engage in combat with {npc['name']}!", f"Combat begins against {enemy_type}!"]
@@ -1822,86 +1854,90 @@ def process_fight_action():
 
                     if member_damage > 0:
                         gang_damage += member_damage
-                        fight_log.append(f"Gang member {i+1} attacks with {weapon_choice.replace('_', ' ')}, dealing {member_damage} damage!")
+                        # Use street slang for gang member descriptions
+                        street_names = ["Your homey", "Your bruh", "Your dawg", "Your boy", "Your goon"]
+                        street_name = random.choice(street_names)
+                        fight_log.append(f"{street_name} attacks with {weapon_choice.replace('_', ' ')}, dealing {member_damage} damage!")
 
         # Calculate total damage and killed enemies
         total_damage = total_player_damage + gang_damage
-        previous_enemy_health = enemy_health
-        enemy_health -= total_damage
+
+        # Calculate individual enemy health based on enemy type
+        if "Police" in enemy_type:
+            individual_hp = 10  # Each cop has 10 HP
+        elif "Squidie" in enemy_type:
+            individual_hp = 25  # Each squidie has 25 HP
+        elif "Gang" in enemy_type:
+            individual_hp = 15  # Each gang member has 15 HP
+        else:
+            individual_hp = 20  # Default fallback
 
         # Calculate how many enemies were killed this turn
+        killed_this_turn = 0
         if total_damage > 0:
-            # Calculate individual enemy health based on enemy type
-            if "Police" in enemy_type:
-                individual_hp = 10  # Each cop has 10 HP
-            elif "Squidie" in enemy_type:
-                individual_hp = 25  # Each squidie has 25 HP
-            elif "Gang" in enemy_type:
-                individual_hp = 15  # Each gang member has 15 HP
-            else:
-                individual_hp = 20  # Default fallback
+            # More precise calculation: simulate damage distribution to enemies
+            remaining_damage = total_damage
+            potential_kills = 0
 
-            # Calculate how many enemies can be killed with the damage dealt
-            killed_this_turn = min(enemy_count, total_damage // individual_hp)
+            # Calculate how many enemies we can kill with the damage
+            for i in range(enemy_count):
+                if remaining_damage >= individual_hp:
+                    potential_kills += 1
+                    remaining_damage -= individual_hp
+                else:
+                    break
 
-            # Handle overkill - if we did more damage than needed to kill remaining enemies
-            # Only set to enemy_count if we actually killed all remaining enemies
-            if previous_enemy_health > 0 and enemy_health <= 0:
-                # Calculate how many enemies we actually killed based on damage
-                max_possible_kills = total_damage // individual_hp
-                killed_this_turn = min(enemy_count, max_possible_kills)
+            killed_this_turn = potential_kills
 
-            # Ensure enemy health is consistent with remaining enemies
-            # Total health should always equal remaining enemies * individual HP
-            expected_health = enemy_count * individual_hp
-            if enemy_health != expected_health:
-                # Fix the inconsistency by recalculating based on remaining enemies
-                enemy_health = enemy_count * individual_hp
+            # Double-check: if we have enough damage to kill all remaining enemies
+            if total_damage >= enemy_health:
+                killed_this_turn = enemy_count
 
-            # Deduct from Squidies gang total for any enemy kills (police or gangs)
-            game_state['squidies'] = max(0, game_state['squidies'] - killed_this_turn)
-
-            # Update total killed counter
-            session['total_killed'] = session.get('total_killed', 0) + killed_this_turn
-            session.modified = True
-
-            # Add individual kill messages to fight log
-            if killed_this_turn > 0:
-                # Create weapon-specific kill messages based on current weapon
-                weapon_kill_messages = {
-                    'pistol': '💀 You fire your pistol with deadly precision! An enemy falls, their life extinguished!',
-                    'ghost_gun': '💀 You fire your ghost gun with deadly precision! An enemy falls, their life extinguished!',
-                    'ar15': '💀 You unleash a hail of bullets from your AR-15! An enemy falls, their life extinguished!',
-                    'exploding_bullets': '💥 BOOM! Your exploding bullet detonates in a shower of gore and shrapnel! An enemy is obliterated!',
-                    'grenade': '💀 You throw a grenade with deadly accuracy! An enemy falls, their life extinguished!',
-                    'missile_launcher': '💀 You fire a missile with devastating force! An enemy falls, their life extinguished!',
-                    'barbed_wire_bat': '💀 You swing your barbed wire bat with savage force, the cruel spikes tearing through flesh and bone in a symphony of agony! An enemy falls, their life extinguished!',
-                    'knife': '💀 You stab with your knife in a swift, deadly motion! An enemy falls, their life extinguished!',
-                    'default': '💀 You attack with deadly force! An enemy falls, their life extinguished!'
-                }
-
-                # Get the appropriate kill message based on current weapon
-                current_kill_message = weapon_kill_messages.get(weapon, weapon_kill_messages['default'])
-
-                for _ in range(killed_this_turn):
-                    if "Police" in enemy_type:
-                        # Use weapon-specific message for police
-                        fight_log.append(current_kill_message.replace('An enemy', 'A police officer'))
-                    elif "Squidie" in enemy_type:
-                        # Use weapon-specific message for squidies
-                        fight_log.append(current_kill_message.replace('An enemy', 'A Squidie monstrosity'))
-                        # Additional mention for Squidie kills (only once per turn)
-                        if _ == 0:
-                            fight_log.append(battle_descriptions['squidie_specific']['gang_loss'].format(count=killed_this_turn))
-                    elif "Gang" in enemy_type:
-                        # Use weapon-specific message for gang members
-                        fight_log.append(current_kill_message.replace('An enemy', 'A gang member'))
-                    else:
-                        # Generic enemy
-                        fight_log.append(current_kill_message)
-
-        # Update enemy count
+        # Update enemy count and health
         enemy_count = max(0, enemy_count - killed_this_turn)
+        enemy_health = max(0, enemy_health - total_damage)
+
+        # Deduct from Squidies gang total for any enemy kills (police or gangs)
+        game_state['squidies'] = max(0, game_state['squidies'] - killed_this_turn)
+
+        # Update total killed counter
+        session['total_killed'] = session.get('total_killed', 0) + killed_this_turn
+        session.modified = True
+
+        # Add individual kill messages to fight log
+        if killed_this_turn > 0:
+            # Create weapon-specific kill messages based on current weapon
+            weapon_kill_messages = {
+                'pistol': '💀 You fire your pistol with deadly precision! An enemy falls, their life extinguished!',
+                'ghost_gun': '💀 You fire your ghost gun with deadly precision! An enemy falls, their life extinguished!',
+                'ar15': '💀 You unleash a hail of bullets from your AR-15! An enemy falls, their life extinguished!',
+                'exploding_bullets': '💥 BOOM! Your exploding bullet detonates in a shower of gore and shrapnel! An enemy is obliterated!',
+                'grenade': '💀 You throw a grenade with deadly accuracy! An enemy falls, their life extinguished!',
+                'missile_launcher': '💀 You fire a missile with devastating force! An enemy falls, their life extinguished!',
+                'barbed_wire_bat': '💀 You swing your barbed wire bat with savage force, the cruel spikes tearing through flesh and bone in a symphony of agony! An enemy falls, their life extinguished!',
+                'knife': '💀 You stab with your knife in a swift, deadly motion! An enemy falls, their life extinguished!',
+                'default': '💀 You attack with deadly force! An enemy falls, their life extinguished!'
+            }
+
+            # Get the appropriate kill message based on current weapon
+            current_kill_message = weapon_kill_messages.get(weapon, weapon_kill_messages['default'])
+
+            for _ in range(killed_this_turn):
+                if "Police" in enemy_type:
+                    # Use weapon-specific message for police
+                    fight_log.append(current_kill_message.replace('An enemy', 'A police officer'))
+                elif "Squidie" in enemy_type:
+                    # Use weapon-specific message for squidies
+                    fight_log.append(current_kill_message.replace('An enemy', 'A Squidie monstrosity'))
+                    # Additional mention for Squidie kills (only once per turn)
+                    if _ == 0:
+                        fight_log.append(battle_descriptions['squidie_specific']['gang_loss'].format(count=killed_this_turn))
+                elif "Gang" in enemy_type:
+                    # Use weapon-specific message for gang members
+                    fight_log.append(current_kill_message.replace('An enemy', 'A gang member'))
+                else:
+                    # Generic enemy
+                    fight_log.append(current_kill_message)
 
         # Enemy attacks back
         if enemy_health > 0 and enemy_count > 0:
@@ -1978,7 +2014,7 @@ def process_fight_action():
             fight_log.append(f"You try to use {drug_name} but have none!")
 
     # Check win/lose conditions
-    if enemy_health <= 0:
+    if enemy_count <= 0:
         # Handle NPC-specific victory logic
         npc_id = request.form.get('npc_id')
         if npc_id and npc_id in npcs_data:
@@ -1995,19 +2031,25 @@ def process_fight_action():
             session.modified = True
             fight_log.append("One of your defeated enemies has joined your gang!")
 
-        # Calculate victory stats
+        # Calculate victory stats with improved tracking
         initial_count = session.get('initial_enemy_count', enemy_count)
-        total_killed = session.get('total_killed', 0) + killed_this_turn
+        total_killed = session.get('total_killed', 0)
         total_recruited = session.get('total_recruited', 0)
         total_escaped = session.get('total_escaped', 0)
-        # Calculate remaining enemies that must have escaped
+
+        # Ensure all enemies are accounted for
         accounted_for = total_killed + total_recruited + total_escaped
         remaining_unaccounted = max(0, initial_count - accounted_for)
+
+        # If there are unaccounted enemies, they must have escaped
         if remaining_unaccounted > 0:
             total_escaped += remaining_unaccounted
             session['total_escaped'] = total_escaped
             session.modified = True
+
         escaped_count = total_escaped
+
+        # All enemies are now properly accounted for
 
         # Use detailed victory messages from JSON
         if "Police" in enemy_type:
@@ -2028,8 +2070,7 @@ def process_fight_action():
                 killed=total_killed, recruited=total_recruited, escaped=escaped_count
             )
 
-        # Add detailed combat summary to fight log
-        fight_log.append(f"Combat Summary: {total_killed} killed, {total_recruited} recruited, {escaped_count} escaped")
+        # Add victory message to fight log
         fight_log.append(victory_message)
         save_game_state(game_state)
 

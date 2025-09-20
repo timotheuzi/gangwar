@@ -15,7 +15,15 @@
 
         <div class="enemy-status">
             <h4>Enemy Status</h4>
-            <p>Health: {{ enemy_health }}/10</p>
+            {% if "Police" in enemy_type %}
+            <p>Health: {{ enemy_health }}/{{ enemy_count * 10 }}</p>
+            {% elif "Gang" in enemy_type %}
+            <p>Health: {{ enemy_health }}/{{ enemy_count * 15 }}</p>
+            {% elif "Squidie" in enemy_type %}
+            <p>Health: {{ enemy_health }}/{{ enemy_count * 25 }}</p>
+            {% else %}
+            <p>Health: {{ enemy_health }}/{{ enemy_count * 20 }}</p>
+            {% endif %}
             <p>Type: {{ enemy_type }}</p>
             {% if enemy_count > 1 %}
             <p>Enemies: {{ enemy_count }}</p>
