@@ -20,8 +20,8 @@ if __name__ == '__main__':
 
 # For PythonAnywhere WSGI
 # This will be used by PythonAnywhere's WSGI configuration
-# Use socketio.wsgi_app if socketio is enabled, otherwise use app
+# Use socketio middleware if socketio is enabled, otherwise use app
 if socketio:
-    application = socketio.wsgi_app
+    application = socketio.sockio_mw
 else:
     application = app

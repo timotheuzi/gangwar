@@ -16,12 +16,12 @@ from src.app import app, socketio
 if __name__ == '__main__':
     # For local development/testing
     print("Starting Game server...")
-    socketio.run(app, host='0.0.0.0', port=int(os.environ.get('PORT', 5009)), debug=False)
+    socketio.run(app, host='0.0.0.0', port=int(os.environ.get('PORT', 6006)), debug=False)
 
 # For PythonAnywhere WSGI
 # This will be used by PythonAnywhere's WSGI configuration
-# Use socketio.wsgi_app if socketio is enabled, otherwise use app
+# Use socketio middleware if socketio is enabled, otherwise use app
 if socketio:
-    application = socketio.wsgi_app
+    application = socketio.sockio_mw
 else:
     application = app
