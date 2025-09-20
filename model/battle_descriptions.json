@@ -1,17 +1,18 @@
 {
   "description": "Grim dark battle descriptions and combat messages",
-  "attack_messages": {
-    "pistol": "You squeeze the trigger, unleashing a deafening roar that shatters the night, your bullet tearing through flesh with merciless precision!",
-    "ghost_gun": "The ghost gun bucks in your hands, spitting death from its shadowy depths, each shot a whispered curse to the damned!",
-    "uzi": "Your Uzi erupts in a symphony of carnage, spraying lead like the wrath of fallen angels, mowing down the wretched in a hail of gunfire!",
-    "grenade": "You hurl the grenade with grim satisfaction, watching it arc through the air before erupting in a cataclysm of shrapnel and screams!",
-    "missile_launcher": "The missile launcher roars like a beast unleashed, vomiting destruction that reduces your enemies to charred remnants of their former selves!",
-    "barbed_wire_bat": "You swing your barbed wire bat with savage force, the cruel spikes tearing through flesh and bone in a symphony of agony!",
-    "knife": "Your knife plunges into vital flesh with predatory grace, twisting in the wound as lifeblood spills in crimson torrents!"
-  },
+        "attack_messages": {
+            "pistol": "You fire your pistol!",
+            "ghost_gun": "You fire your ghost gun!",
+            "ar15": "You fire your AR-15!",
+            "exploding_bullets": "You fire an exploding bullet! 💥 BOOM!",
+            "grenade": "You throw a grenade!",
+            "missile_launcher": "You fire a missile!",
+            "barbed_wire_bat": "You swing your barbed wire bat!",
+            "knife": "You stab with your knife!"
+        },
   "gang_attack_messages": {
     "pistol": "Your gang member unleashes a hail of lead, each bullet finding its mark in the enemy's decaying flesh!",
-    "uzi": "Your gang member sprays death with ruthless efficiency, their Uzi singing a dirge for the fallen!",
+    "ar15": "Your gang member sprays death with ruthless efficiency, their AR-15 singing a dirge for the fallen!",
     "barbed_wire_bat": "Your gang member smashes bone and sinew with their barbed weapon, painting the ground in crimson!",
     "knife": "Your gang member strikes with lethal precision, their blade drinking deep of enemy lifeblood!"
   },

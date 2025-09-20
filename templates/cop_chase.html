@@ -31,12 +31,12 @@
         </form>
         {% endif %}
 
-        {% if game_state['weapons']['uzis'] > 0 and game_state['weapons']['bullets'] > 0 %}
+        {% if game_state['weapons']['ar15s'] > 0 and game_state['weapons']['bullets'] > 0 %}
         <form method="POST" action="{{ url_for('fight_cops') }}" class="chase-form">
             <input type="hidden" name="action" value="shoot">
-            <input type="hidden" name="weapon" value="uzi">
+            <input type="hidden" name="weapon" value="ar15">
             <input type="hidden" name="num_cops" value="{{ num_cops }}">
-            <button type="submit" class="btn btn-danger">Fight Back (Uzi - {{ game_state['weapons']['bullets'] }} bullets)</button>
+            <button type="submit" class="btn btn-danger">Fight Back (AR-15 - {{ game_state['weapons']['bullets'] }} bullets)</button>
         </form>
         {% endif %}
 

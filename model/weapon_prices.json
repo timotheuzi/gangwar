@@ -10,9 +10,14 @@
       "description": "50 bullets per pack",
       "quantity_per_purchase": 50
     },
-    "uzi": {
+    "exploding_bullets": {
+      "price": 500,
+      "description": "10 exploding bullets per pack",
+      "quantity_per_purchase": 10
+    },
+    "ar15": {
       "price": 100000,
-      "description": "An automatic Uzi submachine gun"
+      "description": "An automatic AR-15 assault rifle"
     },
     "grenade": {
       "price": 1000,
@@ -49,8 +54,9 @@
   "weapon_effects": {
     "pistol_damage": [15, 25],
     "ghost_gun_damage": [15, 25],
-    "uzi_damage": [20, 40],
-    "uzi_bullets_used": 3,
+    "ar15_damage": [20, 40],
+    "ar15_bullets_used": 3,
+    "exploding_bullet_damage": [45, 75],
     "grenade_damage": [30, 60],
     "missile_damage": [50, 100],
     "barbed_bat_damage": [25, 45],

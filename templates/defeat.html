@@ -24,7 +24,9 @@
                 <h4>What You Fought Against</h4>
                 <p>Squidies Members: {{ game_state.squidies|int }}</p>
                 <p>Squidies Pistols: {{ game_state.squidies_pistols|int }}</p>
-                <p>Squidies Uzis: {{ game_state.squidies_uzis|int }}</p>
+                <p>Squidies AR-15s: {{ game_state.squidies_ar15s|int }}</p>
+                <p>Squidies Ghost Guns: {{ game_state.squidies_ghost_guns|int }}</p>
+                <p>Squidies Barbed Wire Bats: {{ game_state.squidies_barbed_wire_bat|int }}</p>
                 <p>Squidies Heavy Weapons: {{ game_state.squidies_grenades|int + game_state.squidies_missiles|int }} total</p>
             </div>
         </div>
@@ -36,7 +38,7 @@
             {% if game_state.members < 15 %}
             <li>❌ Your gang was too small ({{ game_state.members }} members vs {{ game_state.squidies|int }} squidies )</li>
             {% endif %}
-            {% if game_state['weapons']['pistols'] + game_state['weapons']['uzis'] < game_state.squidies_pistols|int + game_state.squidies_uzis|int %}
+            {% if game_state['weapons']['pistols'] + game_state['weapons']['ar15s'] + game_state['weapons']['ghost_guns'] + game_state['weapons']['barbed_wire_bat'] < game_state.squidies_pistols|int + game_state.squidies_ar15s|int + game_state.squidies_ghost_guns|int + game_state.squidies_barbed_wire_bat|int %}
             <li>❌ You were outgunned by the squidies</li>
             {% endif %}
             {% if game_state['weapons']['grenades'] + game_state['weapons']['missiles'] < game_state.squidies_grenades|int + game_state.squidies_missiles|int %}

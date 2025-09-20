@@ -15,7 +15,7 @@
             <p><strong>Money:</strong> ${{ "{:,}".format(game_state.money) }}</p>
             <p><strong>Bank Account:</strong> ${{ "{:,}".format(game_state.account) }}</p>
             <p><strong>Gang Members:</strong> {{ game_state.members }}</p>
-            <p><strong>Weapons:</strong> {{ game_state.get('weapons', {}).get('pistols', 0) }} pistols, {{ game_state.get('weapons', {}).get('uzis', 0) }} uzis</p>
+            <p><strong>Weapons:</strong> {{ game_state.get('weapons', {}).get('pistols', 0) }} pistols, {{ game_state.get('weapons', {}).get('ar15s', 0) }} AR-15s, {{ game_state.get('weapons', {}).get('ghost_guns', 0) }} ghost guns, {{ game_state.get('weapons', {}).get('barbed_wire_bat', 0) }} barbed wire bats</p>
         </div>
 
         <div class="defeat-message">

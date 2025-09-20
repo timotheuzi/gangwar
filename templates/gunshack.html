@@ -45,13 +45,13 @@
         </div>
         
         <div class="weapon-item">
-            <h4>Uzi</h4>
+            <h4>AR-15</h4>
             <p>Price: $100,000</p>
-            <p>You have: {{ game_state.get('weapons', {}).get('uzis', 0) }}</p>
+            <p>You have: {{ game_state.get('weapons', {}).get('ar15s', 0) }}</p>
             <form method="POST" action="{{ url_for("buy_weapon") }}" class="inline-form">
-                <input type="hidden" name="weapon_type" value="uzi">
+                <input type="hidden" name="weapon_type" value="ar15">
                 <input type="hidden" name="quantity" value="1">
-                <button type="submit" class="btn btn-primary">Buy Uzi</button>
+                <button type="submit" class="btn btn-primary">Buy AR-15</button>
             </form>
         </div>
 

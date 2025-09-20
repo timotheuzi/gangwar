@@ -34,7 +34,7 @@ f{% extends "base.html" %}
         <div class="stat-section">
             <h3>Weapons & Equipment</h3>
             <p>Pistols: {{ game_state['weapons']['pistols'] }}</p>
-            <p>Uzis: {{ game_state['weapons']['uzis'] }}</p>
+            <p>AR-15s: {{ game_state['weapons']['ar15s'] }}</p>
             <p>Bullets: {{ game_state['weapons']['bullets'] }}</p>
             <p>Grenades: {{ game_state['weapons']['grenades'] }}</p>
             <p>Barbed Wire Bats: {{ game_state['weapons']['barbed_wire_bat'] }}</p>
@@ -49,7 +49,7 @@ f{% extends "base.html" %}
             <h3>Squidies Intel</h3>
             <p>Members: {{ game_state.squidies|int }}</p>
             <p>Pistols: {{ game_state.squidies_pistols|int }}</p>
-            <p>Uzis: {{ game_state.squidies_uzis|int }}</p>
+            <p>AR-15s: {{ game_state.squidies_ar15s|int }}</p>
             <p>Bullets: {{ game_state.squidies_bullets|int }}</p>
             <p>Grenades: {{ game_state.squidies_grenades|int }}</p>
             <p>RPG-7 launchers: {{ game_state.squidies_missile_launcher|int }}</p>

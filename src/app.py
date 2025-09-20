@@ -27,7 +27,7 @@ except (FileNotFoundError, json.JSONDecodeError):
         "attack_messages": {
             "pistol": "You fire your pistol!",
             "ghost_gun": "You fire your ghost gun!",
-            "uzi": "You fire your Uzi!",
+            "ar15": "You fire your AR-15!",
             "grenade": "You throw a grenade!",
             "missile_launcher": "You fire a missile!",
             "barbed_wire_bat": "You swing your barbed wire bat!",
@@ -150,7 +150,7 @@ def get_game_state():
             'members': 1,
             'squidies': 25,
             'squidies_pistols': 10,
-            'squidies_uzis': 5,
+            'squidies_ar15s': 5,
             'squidies_bullets': 100,
             'squidies_grenades': 20,
             'squidies_missile_launcher': 2,
@@ -175,7 +175,8 @@ def get_game_state():
             'weapons': {
                 'pistols': 0,
                 'bullets': 0,
-                'uzis': 0,
+                'exploding_bullets': 0,
+                'ar15s': 0,
                 'grenades': 0,
                 'barbed_wire_bat': 0,
                 'missile_launcher': 0,
@@ -331,7 +332,8 @@ def buy_weapon():
         'pistol': 1200,
         'ghost_gun': 600,
         'bullets': 100,
-        'uzi': 100000,
+        'exploding_bullets': 500,
+        'ar15': 100000,
         'grenade': 1000,
         'barbed_wire_bat': 2500,
         'missile_launcher': 1000000,
@@ -357,8 +359,10 @@ def buy_weapon():
             game_state['weapons']['pistols'] += quantity
         elif weapon_type == 'bullets':
             game_state['weapons']['bullets'] += quantity * 50  # 50 bullets per pack
-        elif weapon_type == 'uzi':
-            game_state['weapons']['uzis'] += quantity
+        elif weapon_type == 'exploding_bullets':
+            game_state['weapons']['exploding_bullets'] += quantity * 10  # 10 exploding bullets per pack
+        elif weapon_type == 'ar15':
+            game_state['weapons']['ar15s'] += quantity
         elif weapon_type == 'grenade':
             game_state['weapons']['grenades'] += quantity
         elif weapon_type == 'barbed_wire_bat':
@@ -788,11 +792,11 @@ def search_closet():
             ('bullets', random.randint(20, 50), "bullets"),
             ('grenades', random.randint(2, 5), "grenades"),
             ('vampire_bat', 1, "a vampire bat"),
-            ('uzis', 1, "an Uzi with 25 bullets")
+            ('ar15s', 1, "an AR-15 with 25 bullets")
         ]
         weapon_choice = random.choice(weapons)
-        if weapon_choice[0] == 'uzis':
-            game_state['weapons']['uzis'] += weapon_choice[1]
+        if weapon_choice[0] == 'ar15s':
+            game_state['weapons']['ar15s'] += weapon_choice[1]
             game_state['weapons']['bullets'] += 25
             result = f"You find a dusty crate containing {weapon_choice[2]}!"
         else:
@@ -989,12 +993,12 @@ def search_deeper():
             flash(result, "success")
         else:
             # Rare weapon
-            rare_weapons = ['uzi', 'grenade', 'missile_launcher']
+            rare_weapons = ['ar15', 'grenade', 'missile_launcher']
             weapon = random.choice(rare_weapons)
-            if weapon == 'uzi':
-                game_state['weapons']['uzis'] += 1
+            if weapon == 'ar15':
+                game_state['weapons']['ar15s'] += 1
                 game_state['weapons']['bullets'] += 50
-                result = "You find a hidden Uzi with 50 bullets!"
+                result = "You find a hidden AR-15 with 50 bullets!"
             elif weapon == 'grenade':
                 game_state['weapons']['grenades'] += random.randint(2, 5)
                 result = f"You find a crate of grenades! You gain {game_state['weapons']['grenades']} grenades!"
@@ -1319,7 +1323,7 @@ def new_game():
             'members': 1,
             'squidies': 25,
             'squidies_pistols': 10,
-            'squidies_uzis': 5,
+            'squidies_ar15s': 5,
             'squidies_bullets': 100,
             'squidies_grenades': 20,
             'squidies_missile_launcher': 2,
@@ -1344,7 +1348,7 @@ def new_game():
             'weapons': {
                 'pistols': 1,  # Start with 1 pistol
                 'bullets': 10,  # Start with 10 bullets
-                'uzis': 0,
+                'ar15s': 0,
                 'grenades': 0,
                 'barbed_wire_bat': 0,
                 'missile_launcher': 0,
@@ -1558,8 +1562,8 @@ def fight_cops():
                         fight_log = [f"You were defeated by {enemy_type} and took {final_damage} damage. You lost a life but can continue."]
                         return render_template('fight_defeat.html', game_state=game_state, enemy_type=enemy_type, enemy_count=enemy_count, final_damage=final_damage, fight_log=fight_log)
 
-        elif weapon == 'uzi' and game_state['weapons']['bullets'] > 0:
-            game_state['weapons']['bullets'] -= min(10, game_state['weapons']['bullets'])  # Uzi uses 10 bullets
+        elif weapon == 'ar15' and game_state['weapons'].get('ar15s', 0) > 0 and game_state['weapons']['bullets'] >= 3:
+            game_state['weapons']['bullets'] -= 3  # AR-15 uses 3 bullets
             cops_killed = min(num_cops, random.randint(2, 5))
             num_cops -= cops_killed
 
@@ -1571,7 +1575,7 @@ def fight_cops():
             game_state['damage'] += damage
 
             if num_cops <= 0:
-                flash(f"You sprayed the cops with your Uzi! {cops_killed} officers down!", "success")
+                flash(f"You sprayed the cops with your AR-15! {cops_killed} officers down!", "success")
                 save_game_state(game_state)
                 return redirect(url_for('city'))
             else:
@@ -1751,11 +1755,11 @@ def process_fight_action():
                 fight_log.append(f"You unleash a full-auto burst from your upgraded ghost gun, firing {shots_fired} shots for {total_damage} total damage!")
             else:
                 fight_log.append("You don't have enough bullets for a full-auto burst!")
-        elif weapon == 'uzi' and game_state['weapons']['uzis'] > 0 and game_state['weapons']['bullets'] >= 3:
+        elif weapon == 'ar15' and game_state['weapons']['ar15s'] > 0 and game_state['weapons']['bullets'] >= 3:
             game_state['weapons']['bullets'] -= 3
             damage = random.randint(20, 40)
             total_player_damage += damage
-            fight_log.append(f"{battle_descriptions['attack_messages']['uzi']} ({damage} damage)")
+            fight_log.append(f"{battle_descriptions['attack_messages']['ar15']} ({damage} damage)")
         elif weapon == 'grenade' and game_state['weapons']['grenades'] > 0:
             game_state['weapons']['grenades'] -= 1
             damage = random.randint(30, 60)
@@ -1774,6 +1778,11 @@ def process_fight_action():
             damage = random.randint(10, 20)
             total_player_damage += damage
             fight_log.append(f"{battle_descriptions['attack_messages']['knife']} ({damage} damage)")
+        elif weapon == 'exploding_bullets' and game_state['weapons']['exploding_bullets'] > 0:
+            game_state['weapons']['exploding_bullets'] -= 1
+            damage = random.randint(45, 75)  # 1-3x normal bullet damage (15-25 * 3 = 45-75)
+            total_player_damage += damage
+            fight_log.append(f"You fire an exploding bullet! 💥 BOOM! ({damage} damage)")
 
         # Gang members' attacks (if player has gang members)
         gang_damage = 0
@@ -1784,8 +1793,8 @@ def process_fight_action():
             # Check what weapons are available for gang members
             if game_state['weapons']['pistols'] > 1 and game_state['weapons']['bullets'] >= gang_member_count:
                 weapons_available.append('pistol')
-            if game_state['weapons']['uzis'] > 0 and game_state['weapons']['bullets'] >= gang_member_count * 3:
-                weapons_available.append('uzi')
+            if game_state['weapons'].get('ar15s', 0) > 0 and game_state['weapons']['bullets'] >= gang_member_count * 3:
+                weapons_available.append('ar15')
             if game_state['weapons']['barbed_wire_bat'] > 0:
                 weapons_available.append('barbed_wire_bat')
             if game_state['weapons']['knife'] > 0:
@@ -1803,7 +1812,7 @@ def process_fight_action():
                     if weapon_choice == 'pistol' and game_state['weapons']['bullets'] > 0:
                         game_state['weapons']['bullets'] -= 1
                         member_damage = random.randint(10, 20)
-                    elif weapon_choice == 'uzi' and game_state['weapons']['bullets'] >= 3:
+                    elif weapon_choice == 'ar15' and game_state['weapons']['bullets'] >= 3:
                         game_state['weapons']['bullets'] -= 3
                         member_damage = random.randint(15, 30)
                     elif weapon_choice == 'barbed_wire_bat':
@@ -1862,7 +1871,8 @@ def process_fight_action():
                 weapon_kill_messages = {
                     'pistol': '💀 You fire your pistol with deadly precision! An enemy falls, their life extinguished!',
                     'ghost_gun': '💀 You fire your ghost gun with deadly precision! An enemy falls, their life extinguished!',
-                    'uzi': '💀 You unleash a hail of bullets from your Uzi! An enemy falls, their life extinguished!',
+                    'ar15': '💀 You unleash a hail of bullets from your AR-15! An enemy falls, their life extinguished!',
+                    'exploding_bullets': '💥 BOOM! Your exploding bullet detonates in a shower of gore and shrapnel! An enemy is obliterated!',
                     'grenade': '💀 You throw a grenade with deadly accuracy! An enemy falls, their life extinguished!',
                     'missile_launcher': '💀 You fire a missile with devastating force! An enemy falls, their life extinguished!',
                     'barbed_wire_bat': '💀 You swing your barbed wire bat with savage force, the cruel spikes tearing through flesh and bone in a symphony of agony! An enemy falls, their life extinguished!',

@@ -10,7 +10,7 @@
       "members": {"type": "int", "default": 1},
       "squidies": {"type": "int", "default": 25},
       "squidies_pistols": {"type": "int", "default": 10},
-      "squidies_uzis": {"type": "int", "default": 5},
+      "squidies_ar15s": {"type": "int", "default": 5},
       "squidies_bullets": {"type": "int", "default": 100},
       "squidies_grenades": {"type": "int", "default": 20},
       "squidies_missile_launcher": {"type": "int", "default": 2},
@@ -62,7 +62,7 @@
     "fields": {
       "pistols": {"type": "int", "default": 0},
       "bullets": {"type": "int", "default": 0},
-      "uzis": {"type": "int", "default": 0},
+      "ar15s": {"type": "int", "default": 0},
       "grenades": {"type": "int", "default": 0},
       "barbed_wire_bat": {"type": "int", "default": 0},
       "missile_launcher": {"type": "int", "default": 0},

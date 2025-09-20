@@ -51,8 +51,8 @@
                     {% if game_state['weapons']['pistols'] > 0 and game_state['weapons']['bullets'] > 0 %}
                         <label><input type="radio" name="weapon" value="pistol" checked> Pistol ({{ game_state['weapons']['bullets'] }} bullets)</label><br>
                     {% endif %}
-                    {% if game_state['weapons']['uzis'] > 0 and game_state['weapons']['bullets'] > 1 %}
-                        <label><input type="radio" name="weapon" value="uzi"> Uzi ({{ game_state['weapons']['bullets'] }} bullets)</label><br>
+                    {% if game_state['weapons']['ar15s'] > 0 and game_state['weapons']['bullets'] > 1 %}
+                        <label><input type="radio" name="weapon" value="ar15"> AR-15 ({{ game_state['weapons']['bullets'] }} bullets)</label><br>
                     {% endif %}
                     {% if game_state['weapons']['grenades'] > 0 %}
                         <label><input type="radio" name="weapon" value="grenade"> Grenade ({{ game_state['weapons']['grenades'] }} grenades)</label><br>

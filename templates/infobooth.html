@@ -36,7 +36,9 @@
                 <div class="stat-item">
                     <h4>Weapons & Equipment</h4>
                     <p>Pistols: {{ game_state.get('weapons', {}).get('pistols', 0) }}</p>
-                    <p>Uzis: {{ game_state.get('weapons', {}).get('uzis', 0) }}</p>
+                    <p>Ghost Guns: {{ game_state.get('weapons', {}).get('ghost_gun', 0) }}</p>
+                    <p>AR-15s: {{ game_state.get('weapons', {}).get('ar15s', 0) }}</p>
+                    <p>Barbed Wire Bats: {{ game_state.get('weapons', {}).get('barbed_wire_bat', 0) }}</p>
                     <p>Bullets: {{ game_state.get('weapons', {}).get('bullets', 0) }}</p>
                     <p>Grenades: {{ game_state.get('weapons', {}).get('grenades', 0) }}</p>
                     <p>RPG-7 launchers: {{ game_state.get('weapons', {}).get('missile_launcher', 0) }}</p>
@@ -66,7 +68,9 @@
             <div class="squidies-info">
                 <p><strong>Members:</strong> {{ game_state.squidies|int }}</p>
                 <p><strong>Pistols:</strong> {{ game_state.squidies_pistols|int }}</p>
-                <p><strong>Uzis:</strong> {{ game_state.squidies_uzis|int }}</p>
+                <p><strong>AR-15s:</strong> {{ game_state.squidies_ar15s|int }}</p>
+                <p><strong>Ghost Guns:</strong> {{ game_state.squidies_ghost_guns|int }}</p>
+                <p><strong>Barbed Wire Bats:</strong> {{ game_state.squidies_barbed_wire_bat|int }}</p>
                 <p><strong>Bullets:</strong> {{ game_state.squidies_bullets|int }}</p>
                 <p><strong>Grenades:</strong> {{ game_state.squidies_grenades|int }}</p>
                 <p><strong>RPG-7 launchers:</strong> {{ game_state.squidies_missile_launcher|int }}</p>

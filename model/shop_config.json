@@ -93,7 +93,7 @@
           {"type": "bullets", "range": [20, 50], "name": "bullets"},
           {"type": "grenades", "range": [2, 5], "name": "grenades"},
           {"type": "vampire_bat", "quantity": 1, "name": "a vampire bat"},
-          {"type": "uzis", "quantity": 1, "bullets": 25, "name": "an Uzi with 25 bullets"}
+          {"type": "ar15s", "quantity": 1, "bullets": 25, "name": "an AR-15 with 25 bullets"}
         ],
         "message_template": "You find a dusty crate containing {weapon}!"
       },
