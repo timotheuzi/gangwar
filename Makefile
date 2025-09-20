@@ -6,6 +6,32 @@ PHONY: all build clean distclean clean-disk install-deps run test help
 # Default target
 all: build
 
+# Kill all running instances of the game
+kill:
+	@echo "Killing all running instances of Gangwar Game..."
+	@pkill -f "python.*app.py" 2>/dev/null || true
+	@pkill -f "gangwar" 2>/dev/null || true
+	@pkill -f "flask" 2>/dev/null || true
+	@ps aux | grep -E "(gangwar|app\.py|flask.*gangwar)" | grep -v grep | awk '{print $$2}' | xargs kill -9 2>/dev/null || true
+	@echo "All running instances killed."
+
+# Kill all instances and clean up (force stop)
+killall: kill
+	@echo "Force cleanup completed."
+
+# Kill ALL Python processes (nuclear option)
+kill-python:
+	@echo "KILLING ALL PYTHON PROCESSES..."
+	@pkill -f python 2>/dev/null || true
+	@pkill -f python3 2>/dev/null || true
+	@pkill -f python3.* 2>/dev/null || true
+	@ps aux | grep -E "python" | grep -v grep | awk '{print $$2}' | xargs kill -9 2>/dev/null || true
+	@echo "ALL PYTHON PROCESSES TERMINATED."
+
+# Emergency kill - kills everything Python-related
+emergency-kill: kill-python
+	@echo "Emergency cleanup completed - all Python processes killed."
+
 # Build the application
 build:
 
@@ -79,22 +105,30 @@ help:
 	@echo "========================="
 	@echo ""
 	@echo "Available targets:"
-	@echo "  all          - Build the application (default)"
-	@echo "  build        - Build standalone executable"
-	@echo "  clean        - Clean build artifacts"
-	@echo "  distclean    - Clean everything including logs and config"
-	@echo "  clean-disk   - Aggressive disk cleanup to free space"
-	@echo "  install-deps - Install Python dependencies"
-	@echo "  run          - Run in development mode"
-	@echo "  run-dist     - Run the built executable"
-	@echo "  test         - Run basic tests"
-	@echo "  help         - Show this help"
+	@echo "  all             - Build the application (default)"
+	@echo "  build           - Build standalone executable"
+	@echo "  clean           - Clean build artifacts"
+	@echo "  distclean       - Clean everything including logs and config"
+	@echo "  clean-disk      - Aggressive disk cleanup to free space"
+	@echo "  install-deps    - Install Python dependencies"
+	@echo "  run             - Run in development mode"
+	@echo "  run-dist        - Run the built executable"
+	@echo "  test            - Run basic tests"
+	@echo "  kill            - Kill all running instances of the game"
+	@echo "  killall         - Kill all instances and force cleanup"
+	@echo "  kill-python     - Kill ALL Python processes (nuclear option)"
+	@echo "  emergency-kill  - Emergency kill - kills everything Python-related"
+	@echo "  help            - Show this help"
 	@echo ""
 	@echo "Usage examples:"
-	@echo "  make build          # Build the executable"
-	@echo "  make run            # Run in development"
-	@echo "  make run-dist       # Run built executable"
-	@echo "  make clean && make  # Clean and rebuild"
+	@echo "  make build              # Build the executable"
+	@echo "  make run                # Run in development"
+	@echo "  make run-dist           # Run built executable"
+	@echo "  make clean && make      # Clean and rebuild"
+	@echo "  make kill               # Stop all running instances"
+	@echo "  make killall            # Force stop everything"
+	@echo "  make kill-python        # Kill ALL Python processes"
+	@echo "  make emergency-kill     # Nuclear option - kills all Python"
 
 # Development setup
 setup: install-deps

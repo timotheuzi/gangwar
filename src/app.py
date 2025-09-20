@@ -1836,8 +1836,18 @@ def process_fight_action():
             killed_this_turn = min(enemy_count, total_damage // individual_hp)
 
             # Handle overkill - if we did more damage than needed to kill remaining enemies
+            # Only set to enemy_count if we actually killed all remaining enemies
             if previous_enemy_health > 0 and enemy_health <= 0:
-                killed_this_turn = enemy_count  # All remaining enemies killed
+                # Calculate how many enemies we actually killed based on damage
+                max_possible_kills = total_damage // individual_hp
+                killed_this_turn = min(enemy_count, max_possible_kills)
+
+            # Ensure enemy health is consistent with remaining enemies
+            # Total health should always equal remaining enemies * individual HP
+            expected_health = enemy_count * individual_hp
+            if enemy_health != expected_health:
+                # Fix the inconsistency by recalculating based on remaining enemies
+                enemy_health = enemy_count * individual_hp
 
             # Deduct from Squidies gang total for any enemy kills (police or gangs)
             game_state['squidies'] = max(0, game_state['squidies'] - killed_this_turn)
@@ -1848,18 +1858,37 @@ def process_fight_action():
 
             # Add individual kill messages to fight log
             if killed_this_turn > 0:
+                # Create weapon-specific kill messages based on current weapon
+                weapon_kill_messages = {
+                    'pistol': '💀 You fire your pistol with deadly precision! An enemy falls, their life extinguished!',
+                    'ghost_gun': '💀 You fire your ghost gun with deadly precision! An enemy falls, their life extinguished!',
+                    'uzi': '💀 You unleash a hail of bullets from your Uzi! An enemy falls, their life extinguished!',
+                    'grenade': '💀 You throw a grenade with deadly accuracy! An enemy falls, their life extinguished!',
+                    'missile_launcher': '💀 You fire a missile with devastating force! An enemy falls, their life extinguished!',
+                    'barbed_wire_bat': '💀 You swing your barbed wire bat with savage force, the cruel spikes tearing through flesh and bone in a symphony of agony! An enemy falls, their life extinguished!',
+                    'knife': '💀 You stab with your knife in a swift, deadly motion! An enemy falls, their life extinguished!',
+                    'default': '💀 You attack with deadly force! An enemy falls, their life extinguished!'
+                }
+
+                # Get the appropriate kill message based on current weapon
+                current_kill_message = weapon_kill_messages.get(weapon, weapon_kill_messages['default'])
+
                 for _ in range(killed_this_turn):
                     if "Police" in enemy_type:
-                        fight_log.append(battle_descriptions['kill_messages']['police_individual'])
+                        # Use weapon-specific message for police
+                        fight_log.append(current_kill_message.replace('An enemy', 'A police officer'))
                     elif "Squidie" in enemy_type:
-                        fight_log.append(battle_descriptions['kill_messages']['squidie_individual'])
+                        # Use weapon-specific message for squidies
+                        fight_log.append(current_kill_message.replace('An enemy', 'A Squidie monstrosity'))
                         # Additional mention for Squidie kills (only once per turn)
                         if _ == 0:
                             fight_log.append(battle_descriptions['squidie_specific']['gang_loss'].format(count=killed_this_turn))
                     elif "Gang" in enemy_type:
-                        fight_log.append(battle_descriptions['kill_messages']['gang_individual'])
+                        # Use weapon-specific message for gang members
+                        fight_log.append(current_kill_message.replace('An enemy', 'A gang member'))
                     else:
-                        fight_log.append(battle_descriptions['kill_messages']['generic_individual'])
+                        # Generic enemy
+                        fight_log.append(current_kill_message)
 
         # Update enemy count
         enemy_count = max(0, enemy_count - killed_this_turn)
