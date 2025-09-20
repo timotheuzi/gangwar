@@ -264,7 +264,7 @@ if getattr(sys, 'frozen', False):
 else:
     # Running in development - enable SocketIO
     from flask_socketio import SocketIO, emit, join_room, leave_room
-    socketio = SocketIO(app, async_mode='eventlet')
+    socketio = SocketIO(app, async_mode='threading')
 
 # Global player tracking
 connected_players = {}

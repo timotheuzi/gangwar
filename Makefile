@@ -70,6 +70,7 @@ test:
 	@python -c "import src.app; print('✓ Flask app imports successfully')"
 	@python -c "import flask_socketio; print('✓ Flask-SocketIO available')"
 	@python -c "import flask; print('✓ Flask available')"
+	@python -c "import eventlet" 2>/dev/null && echo "⚠ Warning: eventlet is installed but not needed with threading mode" || echo "✓ eventlet not installed (good for Python 3.13 compatibility)"
 	@echo "Basic tests passed!"
 
 # Show help

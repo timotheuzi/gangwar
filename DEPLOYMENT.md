@@ -1,114 +1,213 @@
 # PythonAnywhere Deployment Guide
 
-This guide explains how to deploy the Pimpin Game to PythonAnywhere using the Docker-based build process to avoid GLIBC compatibility issues.
+This guide explains how to deploy the Gangwar Game to PythonAnywhere. This updated guide uses the source code deployment approach with proper SocketIO support for WebSockets.
 
 ## Prerequisites
 
-- PythonAnywhere account (free tier works)
-- Docker installed on your local machine
+- PythonAnywhere account (free tier works, but paid plans offer better performance)
 - Git (for cloning/updating the repository)
+- Basic familiarity with PythonAnywhere's interface
 
-## Step 1: Build the Application Locally
+## Step 1: Prepare Your Code
 
-1. Clone or update your repository:
+1. **Clone or update your repository** locally:
    ```bash
-   git clone https://github.com/timotheuzi/pimpin.git
-   cd pimpin
+   git clone https://github.com/timotheuzi/gangwar.git
+   cd gangwar
    ```
 
-2. Build the application using Docker:
+2. **Test locally** (optional but recommended):
    ```bash
-   ./build.sh
+   pip install -r requirements.txt
+   python pythonanywhere.py
+   ```
+   Visit `http://localhost:5009` to ensure everything works.
+
+## Step 2: Create PythonAnywhere Web App
+
+1. **Log in to PythonAnywhere** and go to the **Web** tab
+2. **Click "Add a new web app"**
+3. **Choose "Flask"** as the framework
+4. **Select Python version**: Choose Python 3.8 or 3.9 (avoid 3.10+ for better compatibility)
+5. **Enter your app name** and click **Next**
+6. **Set the PythonAnywhere path** to your desired URL path
+
+## Step 3: Upload Source Files
+
+1. **Navigate to your web app directory** using the **Files** tab:
+   - Usually located at `/home/yourusername/yourappname`
+
+2. **Upload the following files and directories**:
+   - `pythonanywhere.py` (main deployment entry point)
+   - `src/` directory (contains `app.py`)
+   - `templates/` directory
+   - `static/` directory
+   - `model/` directory (contains JSON config files)
+   - `requirements.txt`
+
+3. **Alternative: Use Git** (recommended for easier updates):
+   ```bash
+   git clone https://github.com/timotheuzi/gangwar.git .
    ```
 
-   This will create a standalone executable in the `dist/` directory that's compatible with PythonAnywhere's older Linux environment.
+## Step 4: Configure the Web App
 
-## Step 2: Upload Files to PythonAnywhere
+1. **Go back to the Web tab** and click on your app
+2. **Update the WSGI configuration**:
+   - The WSGI file should already be set to `/home/yourusername/yourappname/pythonanywhere.py`
+   - If not, update it manually
 
-1. **Create a new web app** on PythonAnywhere:
-   - Go to the Web tab
-   - Click "Add a new web app"
-   - Choose "Manual configuration" (or "Flask" if available)
-   - Select Python 3.9 or 3.8 (avoid 3.10+ if possible)
+3. **Configure static files**:
+   - Add a static files mapping:
+     - **URL**: `/static/`
+     - **Directory**: `/home/yourusername/yourappname/static/`
 
-2. **Upload the built files**:
-   - Use the Files tab to navigate to your web app directory (usually `/home/yourusername/yourappname`)
-   - Upload all files from your local `dist/` directory
-   - Also upload:
-     - `templates/` directory
-     - `static/` directory
-     - `npcs.json`
-     - `requirements.txt`
+4. **Set up virtual environment** (optional but recommended):
+   - In the Web tab, create a virtual environment
+   - Update the Python path to use the virtual environment
 
-## Step 3: Configure PythonAnywhere
+## Step 5: Install Dependencies
 
-1. **Install dependencies**:
+1. **Open a Bash console** from the **Consoles** tab
+2. **Navigate to your app directory**:
+   ```bash
+   cd yourappname
+   ```
+
+3. **Install requirements**:
    ```bash
    pip install -r requirements.txt
    ```
 
-2. **Set up the WSGI file**:
-   - In your web app configuration, set the WSGI file to point to `pythonanywhere.py`
-   - Make sure `pythonanywhere.py` is executable: `chmod +x pythonanywhere.py`
-
-3. **Configure static files** (optional but recommended):
-   - In the Web tab, add a static files mapping:
-     - URL: `/static/`
-     - Directory: `/home/yourusername/yourappname/static/`
-
-## Step 4: Reload and Test
-
-1. **Reload your web app** in the PythonAnywhere Web tab
-2. **Check the server logs** for any errors
-3. **Visit your app's URL** to test the deployment
-
-## Troubleshooting GLIBC Issues
-
-If you still encounter GLIBC errors:
-
-1. **Ensure you're using the Docker build** - this builds on Ubuntu 20.04 which has compatible GLIBC versions
-2. **Check PythonAnywhere's Python version** - use Python 3.8 or 3.9, avoid 3.10+
-3. **Verify the executable** - make sure the `pimpin` executable in `dist/` is built correctly
-4. **Alternative approach**: If the standalone executable still fails, you can:
-   - Use the source code directly: set WSGI to import from `app.py`
-   - Install dependencies and run as a regular Python app
-
-## Alternative: Source Code Deployment
-
-If the standalone executable continues to have issues:
-
-1. Upload the source files instead of the `dist/` directory
-2. Set your WSGI file to:
-   ```python
-   from app import app as application
+   **Note**: If using a virtual environment, activate it first:
+   ```bash
+   source venv/bin/activate  # or your virtual environment path
+   pip install -r requirements.txt
    ```
-3. Make sure all dependencies are installed
-4. This approach avoids PyInstaller compatibility issues entirely
 
-## Performance Considerations
+## Step 6: Configure Environment Variables (Optional)
 
-- PythonAnywhere free tier has limitations on CPU and memory
-- For better performance, consider upgrading to a paid plan
-- Monitor your app's resource usage in the Account tab
+If your app uses environment variables, set them in the Web tab:
+- Go to **Web** → **Environment variables**
+- Add any required variables (e.g., `SECRET_KEY`, `DEBUG=false`)
+
+## Step 7: Reload and Test
+
+1. **Reload your web app** using the green **Reload** button in the Web tab
+2. **Check the server logs**:
+   - Click **Log files** in the Web tab
+   - Look for any error messages in `error.log` or `server.log`
+
+3. **Visit your app's URL** to test:
+   - Your app should be available at `https://yourusername.pythonanywhere.com`
+   - Test all major features including chat (WebSocket functionality)
+
+## WebSocket/SocketIO Considerations
+
+This deployment includes proper SocketIO support for real-time features:
+
+- **Eventlet**: Used for WebSocket handling (included in requirements.txt)
+- **WSGI Compatibility**: The `pythonanywhere.py` file properly handles SocketIO for WSGI deployment
+- **Free Tier Limitations**: PythonAnywhere's free tier may have WebSocket connection limits
+
+If WebSockets don't work on the free tier, consider upgrading to a paid plan for better real-time performance.
+
+## File Permissions and Security
+
+1. **Set proper permissions**:
+   ```bash
+   chmod 755 pythonanywhere.py
+   chmod -R 755 static/
+   chmod -R 755 templates/
+   ```
+
+2. **Database files**: If your app creates files (like high scores), ensure write permissions:
+   ```bash
+   touch high_scores.json
+   chmod 666 high_scores.json
+   ```
 
 ## Updating Your App
 
-1. Make changes locally
-2. Rebuild with `./build.sh`
-3. Upload updated files to PythonAnywhere
-4. Reload the web app
+1. **Make changes locally** and test
+2. **Push to GitHub** (if using Git)
+3. **Pull updates on PythonAnywhere**:
+   ```bash
+   cd yourappname
+   git pull origin main
+   ```
+4. **Reinstall dependencies** if requirements.txt changed:
+   ```bash
+   pip install -r requirements.txt
+   ```
+5. **Reload the web app** in the Web tab
 
-## Common Issues
+## Performance Optimization
 
-- **Module not found**: Make sure all requirements are installed
-- **Static files not loading**: Check static file mappings
-- **WebSocket issues**: PythonAnywhere may have limitations with WebSockets on free tier
-- **Timeout errors**: Increase timeout settings in Web tab if needed
+- **Free Tier**: Limited CPU and memory, occasional timeouts
+- **Paid Plans**: Better performance, more concurrent connections
+- **Caching**: Consider adding caching headers for static files
+- **Database**: For better performance, consider using PythonAnywhere's MySQL instead of file-based storage
 
-## Support
+## Troubleshooting
 
-If you encounter issues:
-1. Check PythonAnywhere's help pages
-2. Review server logs in the Web tab
-3. Ensure your local build completed successfully
-4. Test locally before deploying
+### Common Issues:
+
+1. **Import Errors / Module Not Found**:
+   - Ensure all dependencies are installed
+   - Check Python path in Web configuration
+   - Verify virtual environment is activated
+
+2. **Static Files Not Loading**:
+   - Check static file mappings in Web tab
+   - Ensure correct directory paths
+   - Verify file permissions
+
+3. **WebSocket Connection Issues**:
+   - Check browser console for errors
+   - Verify eventlet is installed
+   - Free tier may have connection limits
+
+4. **Application Timeout**:
+   - Increase timeout settings in Web tab
+   - Optimize code for better performance
+   - Consider upgrading to paid plan
+
+5. **500 Internal Server Error**:
+   - Check error logs in Web tab
+   - Test locally first
+   - Verify all required files are uploaded
+
+### Debug Steps:
+
+1. **Check logs**: Always check `error.log` and `server.log`
+2. **Test locally**: Ensure app works on your machine first
+3. **Console testing**: Use PythonAnywhere's Bash console to test imports:
+   ```bash
+   python -c "from src.app import app; print('Import successful')"
+   ```
+
+## Backup and Recovery
+
+- **Regular backups**: PythonAnywhere automatically backs up your files
+- **Manual backup**: Download important files regularly
+- **Version control**: Use Git for change tracking
+
+## Support Resources
+
+- **PythonAnywhere Help**: Check their official documentation
+- **Flask-SocketIO Docs**: For WebSocket-specific issues
+- **Community Forums**: PythonAnywhere and Flask communities
+- **Logs**: Always check server logs first for error details
+
+## Security Best Practices
+
+1. **Environment Variables**: Store sensitive data in environment variables
+2. **File Permissions**: Set appropriate permissions on sensitive files
+3. **HTTPS**: PythonAnywhere provides free SSL certificates
+4. **Updates**: Keep dependencies updated for security patches
+
+---
+
+**Last Updated**: September 2025
+**Tested With**: Python 3.8, Flask 2.3.3, Flask-SocketIO 5.3.6
