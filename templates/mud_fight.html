@@ -110,8 +110,20 @@
                     {% if game_state['weapons']['ghost_guns'] > 0 and game_state['weapons']['bullets'] > 0 %}
                     <option value="ghost_gun">Ghost Gun ({{ game_state['weapons']['bullets'] }} bullets) - 1 attack/turn</option>
                     {% endif %}
+                    {% if game_state['weapons'].get('upgraded_pistols', 0) > 0 and game_state['weapons']['bullets'] > 0 %}
+                    <option value="pistol_exploding_bullets">Pistol (Exploding Bullets) ({{ game_state['weapons']['bullets'] }} bullets) - 1 attack/turn</option>
+                    {% endif %}
+                    {% if game_state['weapons'].get('upgraded_ghost_guns', 0) > 0 and game_state['weapons']['bullets'] > 0 %}
+                    <option value="ghost_gun_exploding_bullets">Ghost Gun (Exploding Bullets) ({{ game_state['weapons']['bullets'] }} bullets) - 1 attack/turn</option>
+                    {% endif %}
                     {% if game_state['weapons'].get('exploding_bullets', 0) > 0 %}
                     <option value="exploding_bullets">Exploding Bullets ({{ game_state['weapons']['exploding_bullets'] }} available) - 1 attack/turn</option>
+                    {% endif %}
+                    {% if game_state['weapons']['pistols'] > 0 and game_state['weapons'].get('exploding_bullets', 0) > 0 %}
+                    <option value="pistol_exploding_ammo">Pistol with Exploding Bullets ({{ game_state['weapons']['exploding_bullets'] }} available) - 2 attacks/turn</option>
+                    {% endif %}
+                    {% if game_state['weapons'].get('ar15s', 0) > 0 and game_state['weapons'].get('exploding_bullets', 0) >= 3 %}
+                    <option value="ar15_exploding_ammo">AR-15 with Exploding Bullets ({{ game_state['weapons']['exploding_bullets'] }} available) - 4 attacks/turn</option>
                     {% endif %}
                 </select>
             </div>

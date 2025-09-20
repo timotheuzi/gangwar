@@ -10,6 +10,12 @@
             "barbed_wire_bat": "You swing your barbed wire bat!",
             "knife": "You stab with your knife!"
         },
+        "exploding_damage_messages": {
+            "police": "💥 The exploding bullet detonates on impact, shredding the police officer's body in a horrific explosion of blood and bone fragments!",
+            "gang": "💥 The exploding bullet erupts inside the gang member's chest, blasting apart their ribcage in a shower of gore and splintered bone!",
+            "squidie": "💥 The exploding bullet detonates within the Squidie monstrosity, their foul flesh exploding outward in a putrid spray of ichor and viscera!",
+            "generic": "💥 The exploding bullet detonates with devastating force, tearing through flesh and bone in a catastrophic explosion of tissue and blood!"
+        },
   "gang_attack_messages": {
     "pistol": "Your gang member unleashes a hail of lead, each bullet finding its mark in the enemy's decaying flesh!",
     "ar15": "Your gang member sprays death with ruthless efficiency, their AR-15 singing a dirge for the fallen!",

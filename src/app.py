@@ -60,6 +60,12 @@ except (FileNotFoundError, json.JSONDecodeError):
             "final_death": "Final death! Game over!",
             "damage_taken": "You took {damage} damage!"
         },
+        "exploding_damage_messages": {
+            "police": "💥 The exploding bullet detonates on impact, shredding the police officer's body in a horrific explosion of blood and bone fragments!",
+            "gang": "💥 The exploding bullet erupts inside the gang member's chest, blasting apart their ribcage in a shower of gore and splintered bone!",
+            "squidie": "💥 The exploding bullet detonates within the Squidie monstrosity, their foul flesh exploding outward in a putrid spray of ichor and viscera!",
+            "generic": "💥 The exploding bullet detonates with devastating force, tearing through flesh and bone in a catastrophic explosion of tissue and blood!"
+        },
         "combat_status": {
             "use_drug_crack": "You used crack and took damage!",
             "use_drug_percs": "You used percs and healed!",
@@ -67,6 +73,46 @@ except (FileNotFoundError, json.JSONDecodeError):
         },
         "squidie_specific": {
             "gang_loss": "Squiddies lost {count} members!"
+        }
+    }
+
+# Load weapon kill messages
+try:
+    with open(os.path.join(os.path.dirname(__file__), '..', 'model', 'weapon_kill_messages.json'), 'r') as f:
+        weapon_kill_messages = json.load(f)
+except (FileNotFoundError, json.JSONDecodeError):
+    weapon_kill_messages = {
+        "weapons": {
+            "pistol": ["💀 You fire your pistol with deadly precision! An enemy falls, their life is over!"],
+            "ghost_gun": ["💀 You fire your ghost gun with deadly precision! An enemy falls, trying to cover the hole in their neck!"],
+            "ar15": ["💀 You unleash a hail of bullets from your AR-15! An enemy falls, their life has been mowed down!"],
+            "exploding_bullets": ["💥 BOOM! Your exploding bullet detonates in a shower of gore and shrapnel! An enemy is obliterated!"],
+            "grenade": ["💀 You throw a grenade with deadly accuracy! An enemy falls, their life is in shambles!"],
+            "missile_launcher": ["💀 You fire a missile with devastating force! An enemy falls, their life and body parts blown apart!"],
+            "barbed_wire_bat": ["💀 You swing your barbed wire bat with savage force, the cruel spikes tearing through flesh and bone in a symphony of agony! An enemy falls, their life extinguished!"],
+            "knife": ["💀 You stab with your knife in a swift, deadly motion! An enemy falls, their life blood seeps onto the ground!"],
+            "default": ["💀 You attack with deadly force! An enemy falls, their timeline ends here!"]
+        }
+    }
+
+# Load weapon prices
+try:
+    with open(os.path.join(os.path.dirname(__file__), '..', 'model', 'weapon_prices.json'), 'r') as f:
+        weapon_prices_data = json.load(f)
+except (FileNotFoundError, json.JSONDecodeError):
+    weapon_prices_data = {
+        "weapons": {
+            "pistol": {"price": 1200, "description": "A basic pistol"},
+            "bullets": {"price": 100, "description": "50 bullets per pack", "quantity_per_purchase": 50},
+            "exploding_bullets": {"price": 500, "description": "10 exploding bullets per pack", "quantity_per_purchase": 10},
+            "ar15": {"price": 100000, "description": "An automatic AR-15 assault rifle"},
+            "grenade": {"price": 1000, "description": "Hand grenade"},
+            "barbed_wire_bat": {"price": 2500, "description": "A baseball bat wrapped in barbed wire"},
+            "missile_launcher": {"price": 1000000, "description": "RPG-7 missile launcher"},
+            "missile": {"price": 100000, "description": "Missile for RPG-7"},
+            "vest_light": {"price": 30000, "description": "Light bulletproof vest (+5 defense)", "defense_bonus": 5},
+            "vest_medium": {"price": 55000, "description": "Medium bulletproof vest (+10 defense)", "defense_bonus": 10},
+            "vest_heavy": {"price": 75000, "description": "Heavy bulletproof vest (+15 defense)", "defense_bonus": 15}
         }
     }
 
@@ -196,6 +242,19 @@ def get_game_state():
                 'pixie_dust': 0
             }
         }
+    else:
+        # Ensure missing keys are added to existing game states
+        game_state = session['game_state']
+        # Add missing squidies keys if they don't exist
+        if 'squidies_ghost_guns' not in game_state:
+            game_state['squidies_ghost_guns'] = 0
+        if 'squidies_barbed_wire_bat' not in game_state:
+            game_state['squidies_barbed_wire_bat'] = 0
+        if 'exploding_bullets' not in game_state.get('weapons', {}):
+            game_state['weapons']['exploding_bullets'] = 0
+        # Update session with modified game_state
+        session['game_state'] = game_state
+        session.modified = True
     return session['game_state']
 
 def update_current_score(game_state):
@@ -205,6 +264,128 @@ def update_current_score(game_state):
     # For current score, we don't track gang wars/fights won in real-time,
     # so we'll base it on money and days survived for now
     game_state['current_score'] = calculate_score(money_earned, days_survived, 0, 0)
+
+def update_drug_prices(game_state):
+    """Update drug prices at the end of each day based on market fluctuations"""
+    # Base prices for reference
+    base_prices = {
+        'weed': 500,
+        'crack': 1000,
+        'coke': 2000,
+        'ice': 1500,
+        'percs': 800,
+        'pixie_dust': 3000
+    }
+
+    # Market events that can affect prices
+    market_events = [
+        "supply_shortage", "police_raid", "new_supplier", "gang_war",
+        "economic_boom", "festival_season", "drought", "overproduction",
+        "quality_drop", "premium_batch", "street_war", "peace_treaty"
+    ]
+
+    # Random market event
+    event = random.choice(market_events)
+
+    # Price fluctuation messages for NPCs
+    price_messages = []
+
+    for drug, base_price in base_prices.items():
+        current_price = game_state['drug_prices'][drug]
+
+        # Base fluctuation: ±10-30%
+        fluctuation = random.uniform(0.7, 1.3)
+
+        # Event modifiers
+        if event == "supply_shortage":
+            if drug in ['weed', 'coke', 'ice']:
+                fluctuation *= random.uniform(1.2, 1.8)  # Prices up for hard drugs
+                if random.random() < 0.3:
+                    price_messages.append(f"Heard about a {drug} shortage - prices are sky-high!")
+        elif event == "police_raid":
+            if drug in ['crack', 'coke']:
+                fluctuation *= random.uniform(1.1, 1.6)  # Police targeting these
+                if random.random() < 0.4:
+                    price_messages.append(f"Cops busted a major {drug} operation - prices spiking!")
+        elif event == "new_supplier":
+            if drug in ['weed', 'percs']:
+                fluctuation *= random.uniform(0.6, 0.9)  # Competition brings prices down
+                if random.random() < 0.3:
+                    price_messages.append(f"New {drug} supplier in town - prices dropping!")
+        elif event == "gang_war":
+            fluctuation *= random.uniform(1.1, 1.4)  # General price increase due to instability
+            if random.random() < 0.2:
+                price_messages.append("Gang war disrupting supply lines - all prices up!")
+        elif event == "economic_boom":
+            if drug in ['coke', 'pixie_dust']:
+                fluctuation *= random.uniform(1.1, 1.3)  # Luxury drugs more expensive
+        elif event == "festival_season":
+            if drug in ['weed', 'percs']:
+                fluctuation *= random.uniform(0.8, 1.2)  # Party drugs fluctuate
+        elif event == "drought":
+            if drug == 'weed':
+                fluctuation *= random.uniform(1.3, 2.0)  # Weed drought
+                if random.random() < 0.5:
+                    price_messages.append("Major weed drought - prices through the roof!")
+        elif event == "overproduction":
+            if drug in ['crack', 'ice']:
+                fluctuation *= random.uniform(0.5, 0.8)  # Oversupply
+        elif event == "quality_drop":
+            fluctuation *= random.uniform(0.9, 1.1)  # Slight decrease due to poor quality
+        elif event == "premium_batch":
+            if drug in ['coke', 'pixie_dust']:
+                fluctuation *= random.uniform(1.2, 1.6)  # Premium quality commands higher price
+                if random.random() < 0.3:
+                    price_messages.append(f"Premium {drug} batch hitting the streets - top dollar!")
+        elif event == "street_war":
+            fluctuation *= random.uniform(1.0, 1.3)  # Minor disruptions
+        elif event == "peace_treaty":
+            fluctuation *= random.uniform(0.9, 1.1)  # Stabilization
+
+        # Random volatility factor
+        volatility = random.uniform(0.8, 1.2)
+        fluctuation *= volatility
+
+        # Calculate new price (ensure it's not too extreme)
+        new_price = int(base_price * fluctuation)
+        new_price = max(50, min(10000, new_price))  # Keep prices reasonable
+
+        # Update the price
+        game_state['drug_prices'][drug] = new_price
+
+    # Store market event and messages for NPCs to reference
+    game_state['market_event'] = event
+    game_state['price_messages'] = price_messages
+
+    # Add a general market summary
+    if not price_messages:
+        # Generate a generic message if no specific ones were created
+        if event == "supply_shortage":
+            price_messages.append("Market's tight - suppliers are scarce today.")
+        elif event == "police_raid":
+            price_messages.append("Cops are cracking down hard - stay low.")
+        elif event == "new_supplier":
+            price_messages.append("New players in town shaking things up.")
+        elif event == "gang_war":
+            price_messages.append("Turf wars making everyone nervous.")
+        elif event == "economic_boom":
+            price_messages.append("Money's flowing - everyone's spending.")
+        elif event == "festival_season":
+            price_messages.append("Party season is here!")
+        elif event == "drought":
+            price_messages.append("Some goods are getting hard to find.")
+        elif event == "overproduction":
+            price_messages.append("Market's flooded with product.")
+        elif event == "quality_drop":
+            price_messages.append("Quality's been inconsistent lately.")
+        elif event == "premium_batch":
+            price_messages.append("Some real premium stuff circulating.")
+        elif event == "street_war":
+            price_messages.append("Streets are heating up.")
+        elif event == "peace_treaty":
+            price_messages.append("Things are stabilizing for now.")
+
+        game_state['price_messages'] = price_messages
 
 def save_game_state(game_state):
     """Save game state to session"""
@@ -330,28 +511,16 @@ def buy_weapon():
     weapon_type = request.form.get('weapon_type')
     quantity = int(request.form.get('quantity', 1))
 
-    weapon_prices = {
-        'pistol': 1200,
-        'ghost_gun': 600,
-        'bullets': 100,
-        'exploding_bullets': 500,
-        'ar15': 100000,
-        'grenade': 1000,
-        'barbed_wire_bat': 2500,
-        'missile_launcher': 1000000,
-        'missile': 100000,
-        'vest_light': 30000,
-        'vest_medium': 55000,
-        'vest_heavy': 75000,
-        'pistol_switch': 2500,
-        'ghost_gun_switch': 1500
-    }
+    # Get weapon data from JSON
+    weapon_data = weapon_prices_data.get('weapons', {})
+    weapon_effects = weapon_prices_data.get('weapon_effects', {})
 
-    if weapon_type not in weapon_prices:
+    if weapon_type not in weapon_data:
         flash("Invalid weapon type!", "danger")
         return redirect(url_for('gunshack'))
 
-    price = weapon_prices[weapon_type]
+    weapon_info = weapon_data[weapon_type]
+    price = weapon_info['price']
     total_cost = price * quantity
 
     if game_state['money'] >= total_cost:
@@ -362,6 +531,8 @@ def buy_weapon():
         elif weapon_type == 'bullets':
             game_state['weapons']['bullets'] += quantity * 50  # 50 bullets per pack
         elif weapon_type == 'exploding_bullets':
+            if 'exploding_bullets' not in game_state['weapons']:
+                game_state['weapons']['exploding_bullets'] = 0
             game_state['weapons']['exploding_bullets'] += quantity * 10  # 10 exploding bullets per pack
         elif weapon_type == 'ar15':
             game_state['weapons']['ar15s'] += quantity
@@ -392,6 +563,28 @@ def buy_weapon():
                 game_state['weapons']['upgraded_ghost_guns'] += game_state['weapons']['ghost_guns']
                 game_state['weapons']['ghost_guns'] = 0
                 flash("All ghost guns upgraded with switch! They now fire full auto.", "success")
+            else:
+                flash("You don't have any ghost guns to upgrade!", "danger")
+                return redirect(url_for('gunshack'))
+        elif weapon_type == 'pistol_exploding_bullets':
+            # Upgrade all pistols to use exploding bullets
+            if game_state['weapons']['pistols'] > 0:
+                if 'upgraded_pistols' not in game_state['weapons']:
+                    game_state['weapons']['upgraded_pistols'] = 0
+                game_state['weapons']['upgraded_pistols'] += game_state['weapons']['pistols']
+                game_state['weapons']['pistols'] = 0
+                flash("All pistols upgraded with exploding bullets! They now fire devastating explosive rounds.", "success")
+            else:
+                flash("You don't have any pistols to upgrade!", "danger")
+                return redirect(url_for('gunshack'))
+        elif weapon_type == 'ghost_gun_exploding_bullets':
+            # Upgrade all ghost guns to use exploding bullets
+            if game_state['weapons']['ghost_guns'] > 0:
+                if 'upgraded_ghost_guns' not in game_state['weapons']:
+                    game_state['weapons']['upgraded_ghost_guns'] = 0
+                game_state['weapons']['upgraded_ghost_guns'] += game_state['weapons']['ghost_guns']
+                game_state['weapons']['ghost_guns'] = 0
+                flash("All ghost guns upgraded with exploding bullets! They now fire devastating explosive rounds.", "success")
             else:
                 flash("You don't have any ghost guns to upgrade!", "danger")
                 return redirect(url_for('gunshack'))
@@ -480,7 +673,7 @@ def final_battle():
     combat_id = f"final_battle_{random.randint(1000, 9999)}"
 
     # Clear previous combat session variables
-    for key in ['total_killed', 'total_recruited', 'total_escaped', 'initial_enemy_count']:
+    for key in ['total_killed', 'total_recruited', 'total_escaped']:
         if key in session:
             del session[key]
 
@@ -513,7 +706,7 @@ def wander():
             combat_id = f"police_{random.randint(1000, 9999)}"
 
             # Clear previous combat session variables
-            for key in ['total_killed', 'total_recruited', 'total_escaped', 'initial_enemy_count']:
+            for key in ['total_killed', 'total_recruited', 'total_escaped']:
                 if key in session:
                     del session[key]
 
@@ -556,7 +749,7 @@ def wander():
         combat_id = f"gang_{random.randint(1000, 9999)}"
 
         # Clear previous combat session variables
-        for key in ['total_killed', 'total_recruited', 'total_escaped', 'initial_enemy_count']:
+        for key in ['total_killed', 'total_recruited', 'total_escaped']:
             if key in session:
                 del session[key]
 
@@ -586,7 +779,7 @@ def wander():
             combat_id = f"squidie_{random.randint(1000, 9999)}"
 
             # Clear previous combat session variables
-            for key in ['total_killed', 'total_recruited', 'total_escaped', 'initial_enemy_count']:
+            for key in ['total_killed', 'total_recruited', 'total_escaped']:
                 if key in session:
                     del session[key]
 
@@ -644,6 +837,8 @@ def wander():
     if game_state['steps'] >= game_state['max_steps']:
         game_state['day'] += 1
         game_state['steps'] = 0
+        # Update drug prices at the end of each day
+        update_drug_prices(game_state)
         # Reset some daily things if needed
 
     # Check for NPC encounter (15% chance, down from 30% since we have more events now)
@@ -858,6 +1053,8 @@ def search_closet():
     if game_state['steps'] >= game_state['max_steps']:
         game_state['day'] += 1
         game_state['steps'] = 0
+        # Update drug prices at the end of each day
+        update_drug_prices(game_state)
 
     save_game_state(game_state)
     return redirect(url_for('closet'))
@@ -1313,7 +1510,7 @@ def move_room(direction):
             combat_id = f"npc_{list(npcs_data.keys())[list(npcs_data.values()).index(npc)]}_{random.randint(1000, 9999)}"
 
             # Clear previous combat session variables
-            for key in ['total_killed', 'total_recruited', 'total_escaped', 'initial_enemy_count']:
+            for key in ['total_killed', 'total_recruited', 'total_escaped']:
                 if key in session:
                     del session[key]
 
@@ -1351,6 +1548,8 @@ def new_game():
             'squidies': 25,
             'squidies_pistols': 10,
             'squidies_ar15s': 5,
+            'squidies_ghost_guns': 0,
+            'squidies_barbed_wire_bat': 0,
             'squidies_bullets': 100,
             'squidies_grenades': 20,
             'squidies_missile_launcher': 2,
@@ -1448,7 +1647,7 @@ def fight_npc(npc_id):
     combat_id = f"npc_{npc_id}_{random.randint(1000, 9999)}"
 
     # Clear previous combat session variables
-    for key in ['total_killed', 'total_recruited', 'total_escaped', 'initial_enemy_count']:
+    for key in ['total_killed', 'total_recruited', 'total_escaped']:
         if key in session:
             del session[key]
 
@@ -1787,6 +1986,18 @@ def process_fight_action():
                 fight_log.append(f"You unleash a full-auto burst from your upgraded ghost gun, firing {shots_fired} shots for {total_damage} total damage!")
             else:
                 fight_log.append("You don't have enough bullets for a full-auto burst!")
+        elif weapon == 'pistol_exploding_bullets' and game_state['weapons'].get('upgraded_pistols', 0) > 0 and game_state['weapons']['bullets'] > 0:
+            # Exploding bullets pistol fires 1 shot with explosive damage
+            game_state['weapons']['bullets'] -= 1
+            damage = random.randint(45, 75)  # 1-3x normal bullet damage (15-25 * 3 = 45-75)
+            total_player_damage += damage
+            fight_log.append(f"You fire an exploding bullet from your upgraded pistol! 💥 BOOM! ({damage} damage)")
+        elif weapon == 'ghost_gun_exploding_bullets' and game_state['weapons'].get('upgraded_ghost_guns', 0) > 0 and game_state['weapons']['bullets'] > 0:
+            # Exploding bullets ghost gun fires 1 shot with explosive damage
+            game_state['weapons']['bullets'] -= 1
+            damage = random.randint(45, 75)  # 1-3x normal bullet damage (15-25 * 3 = 45-75)
+            total_player_damage += damage
+            fight_log.append(f"You fire an exploding bullet from your upgraded ghost gun! 💥 BOOM! ({damage} damage)")
         elif weapon == 'ar15' and game_state['weapons']['ar15s'] > 0 and game_state['weapons']['bullets'] >= 3:
             game_state['weapons']['bullets'] -= 3
             damage = random.randint(20, 40)
@@ -1814,7 +2025,76 @@ def process_fight_action():
             game_state['weapons']['exploding_bullets'] -= 1
             damage = random.randint(45, 75)  # 1-3x normal bullet damage (15-25 * 3 = 45-75)
             total_player_damage += damage
-            fight_log.append(f"You fire an exploding bullet! 💥 BOOM! ({damage} damage)")
+
+            # Use specific exploding bullet damage messages based on enemy type
+            if "Police" in enemy_type:
+                exploding_message = battle_descriptions['exploding_damage_messages']['police']
+            elif "Squidie" in enemy_type:
+                exploding_message = battle_descriptions['exploding_damage_messages']['squidie']
+            elif "Gang" in enemy_type:
+                exploding_message = battle_descriptions['exploding_damage_messages']['gang']
+            else:
+                exploding_message = battle_descriptions['exploding_damage_messages']['generic']
+
+            fight_log.append(f"{exploding_message} ({damage} damage)")
+        elif weapon == 'pistol_exploding_ammo' and game_state['weapons']['pistols'] > 0 and game_state['weapons'].get('exploding_bullets', 0) > 0:
+            # Pistol with exploding bullets - 2 attacks per turn
+            attacks_this_turn = 2
+            for attack in range(attacks_this_turn):
+                if game_state['weapons']['exploding_bullets'] <= 0:
+                    fight_log.append("You run out of exploding bullets mid-turn!")
+                    break
+                game_state['weapons']['exploding_bullets'] -= 1
+                damage = random.randint(45, 75)
+                total_player_damage += damage
+
+                # Use specific exploding bullet damage messages based on enemy type
+                if "Police" in enemy_type:
+                    exploding_message = battle_descriptions['exploding_damage_messages']['police']
+                elif "Squidie" in enemy_type:
+                    exploding_message = battle_descriptions['exploding_damage_messages']['squidie']
+                elif "Gang" in enemy_type:
+                    exploding_message = battle_descriptions['exploding_damage_messages']['gang']
+                else:
+                    exploding_message = battle_descriptions['exploding_damage_messages']['generic']
+
+                fight_log.append(f"Shot {attack + 1}: {exploding_message} ({damage} damage)")
+
+                # Risk of gun exploding (5% chance per shot)
+                if random.random() < 0.05:
+                    gun_damage = random.randint(15, 35)
+                    game_state['damage'] += gun_damage
+                    fight_log.append(f"💥 OH NO! The exploding bullet causes your pistol to malfunction and explode! You take {gun_damage} damage!")
+                    break  # Gun explodes, can't continue firing this turn
+        elif weapon == 'ar15_exploding_ammo' and game_state['weapons'].get('ar15s', 0) > 0 and game_state['weapons'].get('exploding_bullets', 0) >= 3:
+            # AR-15 with exploding bullets - 4 attacks per turn
+            attacks_this_turn = 4
+            for attack in range(attacks_this_turn):
+                if game_state['weapons']['exploding_bullets'] <= 0:
+                    fight_log.append("You run out of exploding bullets mid-turn!")
+                    break
+                game_state['weapons']['exploding_bullets'] -= 1
+                damage = random.randint(45, 75)
+                total_player_damage += damage
+
+                # Use specific exploding bullet damage messages based on enemy type
+                if "Police" in enemy_type:
+                    exploding_message = battle_descriptions['exploding_damage_messages']['police']
+                elif "Squidie" in enemy_type:
+                    exploding_message = battle_descriptions['exploding_damage_messages']['squidie']
+                elif "Gang" in enemy_type:
+                    exploding_message = battle_descriptions['exploding_damage_messages']['gang']
+                else:
+                    exploding_message = battle_descriptions['exploding_damage_messages']['generic']
+
+                fight_log.append(f"Shot {attack + 1}: {exploding_message} ({damage} damage)")
+
+                # Risk of gun exploding (5% chance per shot)
+                if random.random() < 0.05:
+                    gun_damage = random.randint(15, 35)
+                    game_state['damage'] += gun_damage
+                    fight_log.append(f"💥 OH NO! The exploding bullet causes your AR-15 to malfunction and explode! You take {gun_damage} damage!")
+                    break  # Gun explodes, can't continue firing this turn
 
         # Gang members' attacks (if player has gang members)
         gang_damage = 0
@@ -1875,27 +2155,27 @@ def process_fight_action():
         # Calculate how many enemies were killed this turn
         killed_this_turn = 0
         if total_damage > 0:
-            # More precise calculation: simulate damage distribution to enemies
-            remaining_damage = total_damage
-            potential_kills = 0
+            # Calculate remaining health before this attack
+            old_enemy_health = enemy_health
 
-            # Calculate how many enemies we can kill with the damage
-            for i in range(enemy_count):
-                if remaining_damage >= individual_hp:
-                    potential_kills += 1
-                    remaining_damage -= individual_hp
-                else:
-                    break
+            # Apply damage to enemy health
+            enemy_health = max(0, enemy_health - total_damage)
 
-            killed_this_turn = potential_kills
+            # Calculate how many enemies were actually killed based on health lost
+            health_lost = old_enemy_health - enemy_health
+            killed_this_turn = health_lost // individual_hp
 
-            # Double-check: if we have enough damage to kill all remaining enemies
-            if total_damage >= enemy_health:
-                killed_this_turn = enemy_count
+            # Handle any remaining damage that might kill a partial enemy
+            remaining_damage_after_kills = health_lost % individual_hp
+            if remaining_damage_after_kills > 0 and enemy_health == 0 and enemy_count > killed_this_turn:
+                # If we have remaining damage and no health left, we killed one more enemy
+                killed_this_turn += 1
 
-        # Update enemy count and health
+            # Ensure we don't kill more enemies than exist
+            killed_this_turn = min(killed_this_turn, enemy_count)
+
+        # Update enemy count
         enemy_count = max(0, enemy_count - killed_this_turn)
-        enemy_health = max(0, enemy_health - total_damage)
 
         # Deduct from Squidies gang total for any enemy kills (police or gangs)
         game_state['squidies'] = max(0, game_state['squidies'] - killed_this_turn)
@@ -1906,21 +2186,15 @@ def process_fight_action():
 
         # Add individual kill messages to fight log
         if killed_this_turn > 0:
-            # Create weapon-specific kill messages based on current weapon
-            weapon_kill_messages = {
-                'pistol': '💀 You fire your pistol with deadly precision! An enemy falls, their life extinguished!',
-                'ghost_gun': '💀 You fire your ghost gun with deadly precision! An enemy falls, their life extinguished!',
-                'ar15': '💀 You unleash a hail of bullets from your AR-15! An enemy falls, their life extinguished!',
-                'exploding_bullets': '💥 BOOM! Your exploding bullet detonates in a shower of gore and shrapnel! An enemy is obliterated!',
-                'grenade': '💀 You throw a grenade with deadly accuracy! An enemy falls, their life extinguished!',
-                'missile_launcher': '💀 You fire a missile with devastating force! An enemy falls, their life extinguished!',
-                'barbed_wire_bat': '💀 You swing your barbed wire bat with savage force, the cruel spikes tearing through flesh and bone in a symphony of agony! An enemy falls, their life extinguished!',
-                'knife': '💀 You stab with your knife in a swift, deadly motion! An enemy falls, their life extinguished!',
-                'default': '💀 You attack with deadly force! An enemy falls, their life extinguished!'
-            }
+            # Get the appropriate kill message based on current weapon from loaded JSON
+            weapon_messages = weapon_kill_messages.get('weapons', {})
+            weapon_message_list = weapon_messages.get(weapon, weapon_messages.get('default', []))
 
-            # Get the appropriate kill message based on current weapon
-            current_kill_message = weapon_kill_messages.get(weapon, weapon_kill_messages['default'])
+            # Select a random message from the available options for variety
+            if weapon_message_list:
+                current_kill_message = random.choice(weapon_message_list)
+            else:
+                current_kill_message = "💀 You attack with deadly force! An enemy falls, their timeline ends here!"
 
             for _ in range(killed_this_turn):
                 if "Police" in enemy_type:

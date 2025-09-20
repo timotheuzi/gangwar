@@ -99,6 +99,30 @@
             </form>
         </div>
 
+        <div class="weapon-item">
+            <h4>Bullets</h4>
+            <p>Price: $100 (50 bullets)</p>
+            <p>You have: {{ game_state.get('weapons', {}).get('bullets', 0) }}</p>
+            <form method="POST" action="{{ url_for("buy_weapon") }}" class="inline-form">
+                <input type="hidden" name="weapon_type" value="bullets">
+                <input type="hidden" name="quantity" value="1">
+                <button type="submit" class="btn btn-primary">Buy Bullets</button>
+            </form>
+            <p style="font-size: 12px; color: #666; margin-top: 5px;">Standard ammunition for pistols and rifles</p>
+        </div>
+
+        <div class="weapon-item">
+            <h4>Exploding Bullets</h4>
+            <p>Price: $500 (10 bullets)</p>
+            <p>You have: {{ game_state.get('weapons', {}).get('exploding_bullets', 0) }}</p>
+            <form method="POST" action="{{ url_for("buy_weapon") }}" class="inline-form">
+                <input type="hidden" name="weapon_type" value="exploding_bullets">
+                <input type="hidden" name="quantity" value="1">
+                <button type="submit" class="btn btn-danger">Buy Exploding Bullets</button>
+            </form>
+            <p style="font-size: 12px; color: #ff4444; margin-top: 5px;">Devastating explosive rounds that cause massive damage!</p>
+        </div>
+
 
     </div>
 
