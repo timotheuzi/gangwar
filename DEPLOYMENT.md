@@ -19,7 +19,8 @@ This guide explains how to deploy the Gangwar Game to PythonAnywhere. This updat
 2. **Test locally** (optional but recommended):
    ```bash
    pip install -r requirements.txt
-   python pythonanywhere.py
+   python test_deployment.py  # Run deployment configuration tests
+   python pythonanywhere.py  # Start the server
    ```
    Visit `http://localhost:5009` to ensure everything works.
 
@@ -106,8 +107,9 @@ If your app uses environment variables, set them in the Web tab:
 
 This deployment includes proper SocketIO support for real-time features:
 
-- **Eventlet**: Used for WebSocket handling (included in requirements.txt)
-- **WSGI Compatibility**: The `pythonanywhere.py` file properly handles SocketIO for WSGI deployment
+- **Eventlet**: Used for WebSocket handling in production WSGI environments (included in requirements.txt)
+- **Async Mode**: SocketIO uses `eventlet` mode for production deployment and `threading` for development
+- **WSGI Compatibility**: The `pythonanywhere.py` file properly handles SocketIO WSGI middleware for deployment
 - **Free Tier Limitations**: PythonAnywhere's free tier may have WebSocket connection limits
 
 If WebSockets don't work on the free tier, consider upgrading to a paid plan for better real-time performance.
