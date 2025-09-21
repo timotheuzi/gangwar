@@ -1545,7 +1545,7 @@ def new_game():
                 'missile_launcher': 0,
                 'missiles': 0,
                 'vest': 0,
-                'knife': 0,
+                'knife': 1,  # Start with 1 knife
                 'ghost_guns': 0
             },
             'drugs': {
@@ -2263,9 +2263,7 @@ def process_fight_action():
             game_state['damage'] += enemy_damage
             fight_log.append(f"You try to flee but the {enemy_type} attack, dealing {enemy_damage} damage!")
 
-    elif action == 'change_weapon':
-        # No combat action, just return to fight with same state
-        fight_log.append("You take a moment to consider changing weapons.")
+
 
     elif action == 'use_drug':
         # Handle drug usage
