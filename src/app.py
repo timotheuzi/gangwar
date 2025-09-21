@@ -13,119 +13,83 @@ from flask import Flask, render_template, request, redirect, url_for, session, j
 
 # Load NPCs
 try:
-    with open(os.path.join(os.path.dirname(__file__), '..', 'model', 'npcs.json'), 'r') as f:
+    if getattr(sys, 'frozen', False):
+        # Running in PyInstaller bundle
+        model_dir = os.path.join(sys._MEIPASS, 'model')
+    else:
+        # Running in development
+        model_dir = os.path.join(os.path.dirname(__file__), '..', 'model')
+
+    with open(os.path.join(model_dir, 'npcs.json'), 'r') as f:
         npcs_data = json.load(f)
 except (FileNotFoundError, json.JSONDecodeError):
     npcs_data = {}
 
 # Load battle descriptions
 try:
-    with open(os.path.join(os.path.dirname(__file__), '..', 'model', 'battle_descriptions.json'), 'r') as f:
+    if getattr(sys, 'frozen', False):
+        # Running in PyInstaller bundle
+        model_dir = os.path.join(sys._MEIPASS, 'model')
+    else:
+        # Running in development
+        model_dir = os.path.join(os.path.dirname(__file__), '..', 'model')
+
+    with open(os.path.join(model_dir, 'battle_descriptions.json'), 'r') as f:
         battle_descriptions = json.load(f)
 except (FileNotFoundError, json.JSONDecodeError):
-    battle_descriptions = {
-        "attack_messages": {
-            "pistol": "You fire your pistol!",
-            "ghost_gun": "You fire your ghost gun!",
-            "ar15": "You fire your AR-15!",
-            "grenade": "You throw a grenade!",
-            "missile_launcher": "You fire a missile!",
-            "barbed_wire_bat": "You swing your barbed wire bat!",
-            "knife": "You stab with your knife!"
-        },
-        "kill_messages": {
-            "police_singular": "You killed a police officer!",
-            "police_plural": "You killed {count} police officers!",
-            "gang_singular": "You killed a gang member!",
-            "gang_plural": "You killed {count} gang members!",
-            "squidie_singular": "You killed a Squidie!",
-            "squidie_plural": "You killed {count} Squiddies!",
-            "generic_singular": "You killed an enemy!",
-            "generic_plural": "You killed {count} enemies!",
-            "police_individual": "💀 You swing your barbed wire bat with savage force, the cruel spikes tearing through flesh and bone in a symphony of agony! A police officer falls, their life extinguished!",
-            "gang_individual": "💀 You swing your barbed wire bat with savage force, the cruel spikes tearing through flesh and bone in a symphony of agony! A gang member crumples to the ground, defeated!",
-            "squidie_individual": "💀 You swing your barbed wire bat with savage force, the cruel spikes tearing through flesh and bone in a symphony of agony! A Squidie monstrosity falls, their foul blood pooling!",
-            "generic_individual": "💀 You swing your barbed wire bat with savage force, the cruel spikes tearing through flesh and bone in a symphony of agony! An enemy falls, their life extinguished!"
-        },
-    "victory_messages": {
-        "complete_victory": "Victory! You defeated all enemies!",
-        "partial_victory": "Victory! You defeated some enemies!",
-        "detailed_stats": "VICTORY! Combat Statistics - Killed: {killed}, Recruited: {recruited}, Escaped: {escaped}",
-        "police_victory": "VICTORY! You eliminated {killed} corrupt police officers, {recruited} joined your gang in fear, {escaped} escaped!",
-        "gang_victory": "VICTORY! You crushed {killed} rival gang members, {recruited} defeated enemies switched sides, {escaped} escaped!",
-        "squidie_victory": "VICTORY! You slaughtered {killed} Squidie monstrosities, {recruited} joined your gang, {escaped} escaped! Their foul empire weakens!"
-    },
-        "defeat_messages": {
-            "standard": "Defeat! You were defeated!",
-            "final_death": "Final death! Game over!",
-            "damage_taken": "You took {damage} damage!"
-        },
-        "exploding_damage_messages": {
-            "police": "💥 The exploding bullet detonates on impact, shredding the police officer's body in a horrific explosion of blood and bone fragments!",
-            "gang": "💥 The exploding bullet erupts inside the gang member's chest, blasting apart their ribcage in a shower of gore and splintered bone!",
-            "squidie": "💥 The exploding bullet detonates within the Squidie monstrosity, their foul flesh exploding outward in a putrid spray of ichor and viscera!",
-            "generic": "💥 The exploding bullet detonates with devastating force, tearing through flesh and bone in a catastrophic explosion of tissue and blood!"
-        },
-        "combat_status": {
-            "use_drug_crack": "You used crack and took damage!",
-            "use_drug_percs": "You used percs and healed!",
-            "drug_generic": "You used a drug!"
-        },
-        "squidie_specific": {
-            "gang_loss": "Squiddies lost {count} members!"
-        }
-    }
-
+    battle_descriptions = {}
 # Load weapon kill messages
 try:
-    with open(os.path.join(os.path.dirname(__file__), '..', 'model', 'weapon_kill_messages.json'), 'r') as f:
+    if getattr(sys, 'frozen', False):
+        # Running in PyInstaller bundle
+        model_dir = os.path.join(sys._MEIPASS, 'model')
+    else:
+        # Running in development
+        model_dir = os.path.join(os.path.dirname(__file__), '..', 'model')
+
+    with open(os.path.join(model_dir, 'weapon_kill_messages.json'), 'r') as f:
         weapon_kill_messages = json.load(f)
 except (FileNotFoundError, json.JSONDecodeError):
-    weapon_kill_messages = {
-        "weapons": {
-            "pistol": ["💀 You fire your pistol with deadly precision! An enemy falls, their life is over!"],
-            "ghost_gun": ["💀 You fire your ghost gun with deadly precision! An enemy falls, trying to cover the hole in their neck!"],
-            "ar15": ["💀 You unleash a hail of bullets from your AR-15! An enemy falls, their life has been mowed down!"],
-            "exploding_bullets": ["💥 BOOM! Your exploding bullet detonates in a shower of gore and shrapnel! An enemy is obliterated!"],
-            "grenade": ["💀 You throw a grenade with deadly accuracy! An enemy falls, their life is in shambles!"],
-            "missile_launcher": ["💀 You fire a missile with devastating force! An enemy falls, their life and body parts blown apart!"],
-            "barbed_wire_bat": ["💀 You swing your barbed wire bat with savage force, the cruel spikes tearing through flesh and bone in a symphony of agony! An enemy falls, their life extinguished!"],
-            "knife": ["💀 You stab with your knife in a swift, deadly motion! An enemy falls, their life blood seeps onto the ground!"],
-            "default": ["💀 You attack with deadly force! An enemy falls, their timeline ends here!"]
-        }
-    }
+    weapon_kill_messages = {}
 
 # Load weapon prices
 try:
-    with open(os.path.join(os.path.dirname(__file__), '..', 'model', 'weapon_prices.json'), 'r') as f:
+    if getattr(sys, 'frozen', False):
+        # Running in PyInstaller bundle
+        model_dir = os.path.join(sys._MEIPASS, 'model')
+    else:
+        # Running in development
+        model_dir = os.path.join(os.path.dirname(__file__), '..', 'model')
+
+    with open(os.path.join(model_dir, 'weapon_prices.json'), 'r') as f:
         weapon_prices_data = json.load(f)
 except (FileNotFoundError, json.JSONDecodeError):
-    weapon_prices_data = {
-        "weapons": {
-            "pistol": {"price": 1200, "description": "A basic pistol"},
-            "bullets": {"price": 100, "description": "50 bullets per pack", "quantity_per_purchase": 50},
-            "exploding_bullets": {"price": 500, "description": "10 exploding bullets per pack", "quantity_per_purchase": 10},
-            "ar15": {"price": 100000, "description": "An automatic AR-15 assault rifle"},
-            "grenade": {"price": 1000, "description": "Hand grenade"},
-            "barbed_wire_bat": {"price": 2500, "description": "A baseball bat wrapped in barbed wire"},
-            "missile_launcher": {"price": 1000000, "description": "RPG-7 missile launcher"},
-            "missile": {"price": 100000, "description": "Missile for RPG-7"},
-            "vest_light": {"price": 30000, "description": "Light bulletproof vest (+5 defense)", "defense_bonus": 5},
-            "vest_medium": {"price": 55000, "description": "Medium bulletproof vest (+10 defense)", "defense_bonus": 10},
-            "vest_heavy": {"price": 75000, "description": "Heavy bulletproof vest (+15 defense)", "defense_bonus": 15}
-        }
-    }
+    weapon_prices_data = {}
 
 # Load room configurations
 try:
-    with open(os.path.join(os.path.dirname(__file__), '..', 'model', 'rooms_config.json'), 'r') as f:
+    if getattr(sys, 'frozen', False):
+        # Running in PyInstaller bundle
+        model_dir = os.path.join(sys._MEIPASS, 'model')
+    else:
+        # Running in development
+        model_dir = os.path.join(os.path.dirname(__file__), '..', 'model')
+
+    with open(os.path.join(model_dir, 'rooms_config.json'), 'r') as f:
         rooms_config = json.load(f)
 except (FileNotFoundError, json.JSONDecodeError):
     rooms_config = {}
 
 # Load room descriptions
 try:
-    with open(os.path.join(os.path.dirname(__file__), '..', 'model', 'rooms.json'), 'r') as f:
+    if getattr(sys, 'frozen', False):
+        # Running in PyInstaller bundle
+        model_dir = os.path.join(sys._MEIPASS, 'model')
+    else:
+        # Running in development
+        model_dir = os.path.join(os.path.dirname(__file__), '..', 'model')
+
+    with open(os.path.join(model_dir, 'rooms.json'), 'r') as f:
         rooms_data = json.load(f)
 except (FileNotFoundError, json.JSONDecodeError):
     rooms_data = {}
@@ -631,17 +595,18 @@ def alleyway():
     # Get current room from session, default to entrance
     current_room_id = session.get('current_alleyway_room', 'entrance')
 
-    # Use room data from JSON files
-    if rooms_data and current_room_id in rooms_data:
+    # Use room data from rooms_config.json first (simpler, more reliable)
+    if rooms_config and 'rooms' in rooms_config and current_room_id in rooms_config['rooms']:
+        current_room = rooms_config['rooms'][current_room_id]
+    elif rooms_data and current_room_id in rooms_data:
+        # Fallback to rooms.json if config doesn't have the room
         current_room = {
             'title': rooms_data[current_room_id]['title'],
             'description': rooms_data[current_room_id]['description'],
             'exits': rooms_data[current_room_id]['exits']
         }
-    elif rooms_config and 'rooms' in rooms_config and current_room_id in rooms_config['rooms']:
-        current_room = rooms_config['rooms'][current_room_id]
     else:
-        # Fallback if JSON files are not available
+        # Final fallback if JSON files are not available
         current_room = {
             'title': 'Dark Alley Entrance',
             'description': 'You stand at the entrance of a dark alleyway. The streetlights cast long shadows, and you can hear distant sounds echoing off the walls.',
@@ -2139,9 +2104,6 @@ def process_fight_action():
                         street_name = random.choice(street_names)
                         fight_log.append(f"{street_name} attacks with {weapon_choice.replace('_', ' ')}, dealing {member_damage} damage!")
 
-        # Calculate total damage and killed enemies
-        total_damage = total_player_damage + gang_damage
-
         # Calculate individual enemy health based on enemy type
         if "Police" in enemy_type:
             individual_hp = 10  # Each cop has 10 HP
@@ -2152,27 +2114,48 @@ def process_fight_action():
         else:
             individual_hp = 20  # Default fallback
 
-        # Calculate how many enemies were killed this turn
+        # Calculate kills more accurately by considering each attack separately
         killed_this_turn = 0
-        if total_damage > 0:
-            # Calculate remaining health before this attack
-            old_enemy_health = enemy_health
 
-            # Apply damage to enemy health
-            enemy_health = max(0, enemy_health - total_damage)
+        # Calculate kills from player attacks
+        if total_player_damage > 0:
+            # Calculate kills from player's attacks
+            player_kills = total_player_damage // individual_hp
+            killed_this_turn += player_kills
 
-            # Calculate how many enemies were actually killed based on health lost
-            health_lost = old_enemy_health - enemy_health
-            killed_this_turn = health_lost // individual_hp
+            # Handle remaining damage that might kill one more enemy
+            remaining_damage = total_player_damage % individual_hp
+            if remaining_damage > 0:
+                # Check if remaining damage is enough to kill another enemy
+                # For now, be conservative and only count it if it's at least 70% of individual HP
+                if remaining_damage >= individual_hp * 0.7:
+                    killed_this_turn += 1
 
-            # Handle any remaining damage that might kill a partial enemy
-            remaining_damage_after_kills = health_lost % individual_hp
-            if remaining_damage_after_kills > 0 and enemy_health == 0 and enemy_count > killed_this_turn:
-                # If we have remaining damage and no health left, we killed one more enemy
-                killed_this_turn += 1
+        # Calculate kills from gang member attacks
+        if gang_damage > 0:
+            # Calculate kills from gang member attacks
+            gang_kills = gang_damage // individual_hp
+            killed_this_turn += gang_kills
 
-            # Ensure we don't kill more enemies than exist
-            killed_this_turn = min(killed_this_turn, enemy_count)
+            # Handle remaining damage from gang attacks
+            remaining_gang_damage = gang_damage % individual_hp
+            if remaining_gang_damage > 0:
+                if remaining_gang_damage >= individual_hp * 0.7:
+                    killed_this_turn += 1
+
+        # Only limit kills if we have more potential kills than enemies
+        # But don't limit to current enemy_count since damage can kill multiple enemies
+        if killed_this_turn > enemy_count:
+            killed_this_turn = enemy_count
+
+        # Debug logging to see what's happening
+        print(f"DEBUG: total_player_damage={total_player_damage}, gang_damage={gang_damage}, individual_hp={individual_hp}")
+        print(f"DEBUG: player_kills={total_player_damage // individual_hp}, gang_kills={gang_damage // individual_hp}")
+        print(f"DEBUG: killed_this_turn={killed_this_turn}, enemy_count={enemy_count}")
+
+        # Update enemy health pool (for display purposes)
+        total_damage = total_player_damage + gang_damage
+        enemy_health = max(0, enemy_health - total_damage)
 
         # Update enemy count
         enemy_count = max(0, enemy_count - killed_this_turn)
@@ -2184,34 +2167,48 @@ def process_fight_action():
         session['total_killed'] = session.get('total_killed', 0) + killed_this_turn
         session.modified = True
 
-        # Add individual kill messages to fight log
+        # Add exactly one kill message per enemy killed
         if killed_this_turn > 0:
-            # Get the appropriate kill message based on current weapon from loaded JSON
-            weapon_messages = weapon_kill_messages.get('weapons', {})
-            weapon_message_list = weapon_messages.get(weapon, weapon_messages.get('default', []))
-
-            # Select a random message from the available options for variety
-            if weapon_message_list:
-                current_kill_message = random.choice(weapon_message_list)
-            else:
-                current_kill_message = "💀 You attack with deadly force! An enemy falls, their timeline ends here!"
-
-            for _ in range(killed_this_turn):
+            # Show exactly one message per enemy killed, regardless of weapon used
+            for i in range(killed_this_turn):
+                # Get the appropriate kill message based on enemy type
                 if "Police" in enemy_type:
-                    # Use weapon-specific message for police
-                    fight_log.append(current_kill_message.replace('An enemy', 'A police officer'))
+                    # Use police-specific kill message
+                    weapon_messages = weapon_kill_messages.get('weapons', {})
+                    weapon_message_list = weapon_messages.get('police', weapon_messages.get('default', []))
+                    if weapon_message_list:
+                        kill_message = random.choice(weapon_message_list)
+                    else:
+                        kill_message = "💀 You take down a police officer with lethal force!"
                 elif "Squidie" in enemy_type:
-                    # Use weapon-specific message for squidies
-                    fight_log.append(current_kill_message.replace('An enemy', 'A Squidie monstrosity'))
-                    # Additional mention for Squidie kills (only once per turn)
-                    if _ == 0:
+                    # Use squidie-specific kill message
+                    weapon_messages = weapon_kill_messages.get('weapons', {})
+                    weapon_message_list = weapon_messages.get('squidie', weapon_messages.get('default', []))
+                    if weapon_message_list:
+                        kill_message = random.choice(weapon_message_list)
+                    else:
+                        kill_message = "💀 A Squidie monstrosity falls before your might!"
+                    # Additional squidie-specific message only once per turn
+                    if i == 0:
                         fight_log.append(battle_descriptions['squidie_specific']['gang_loss'].format(count=killed_this_turn))
                 elif "Gang" in enemy_type:
-                    # Use weapon-specific message for gang members
-                    fight_log.append(current_kill_message.replace('An enemy', 'A gang member'))
+                    # Use gang-specific kill message
+                    weapon_messages = weapon_kill_messages.get('weapons', {})
+                    weapon_message_list = weapon_messages.get('gang', weapon_messages.get('default', []))
+                    if weapon_message_list:
+                        kill_message = random.choice(weapon_message_list)
+                    else:
+                        kill_message = "💀 A rival gang member meets their end!"
                 else:
-                    # Generic enemy
-                    fight_log.append(current_kill_message)
+                    # Generic enemy kill message
+                    weapon_messages = weapon_kill_messages.get('weapons', {})
+                    weapon_message_list = weapon_messages.get('default', [])
+                    if weapon_message_list:
+                        kill_message = random.choice(weapon_message_list)
+                    else:
+                        kill_message = "💀 An enemy falls, their timeline ends here!"
+
+                fight_log.append(kill_message)
 
         # Enemy attacks back
         if enemy_health > 0 and enemy_count > 0:
@@ -2293,35 +2290,44 @@ def process_fight_action():
         npc_id = request.form.get('npc_id')
         if npc_id and npc_id in npcs_data:
             npcs_data[npc_id]['is_alive'] = False
-            with open(os.path.join(os.path.dirname(__file__), '..', 'model', 'npcs.json'), 'w') as f:
+            # Save updated NPC data with PyInstaller compatibility
+            if getattr(sys, 'frozen', False):
+                # Running in PyInstaller bundle
+                model_dir = os.path.join(sys._MEIPASS, 'model')
+            else:
+                # Running in development
+                model_dir = os.path.join(os.path.dirname(__file__), '..', 'model')
+
+            with open(os.path.join(model_dir, 'npcs.json'), 'w') as f:
                 json.dump(npcs_data, f, indent=2)
             game_state['money'] += 100  # Loot from defeated NPC
             fight_log.append(f"You defeated {npcs_data[npc_id]['name']} and looted $100!")
 
-        # Chance to recruit a defeated enemy as a gang member
-        if enemy_type != "Police Officers" and random.random() < 0.3:  # 30% chance
-            game_state['members'] += 1
-            session['total_recruited'] = session.get('total_recruited', 0) + 1
-            session.modified = True
-            fight_log.append("One of your defeated enemies has joined your gang!")
+
 
         # Calculate victory stats with improved tracking
-        initial_count = session.get('initial_enemy_count', enemy_count)
+        initial_count = session.get('initial_enemy_count', 0)
         total_killed = session.get('total_killed', 0)
         total_recruited = session.get('total_recruited', 0)
         total_escaped = session.get('total_escaped', 0)
 
-        # Ensure all enemies are accounted for
-        accounted_for = total_killed + total_recruited + total_escaped
-        remaining_unaccounted = max(0, initial_count - accounted_for)
+        # Debug logging
+        print(f"DEBUG: initial_count={initial_count}, total_killed={total_killed}, total_recruited={total_recruited}, total_escaped={total_escaped}")
 
-        # If there are unaccounted enemies, they must have escaped
-        if remaining_unaccounted > 0:
-            total_escaped += remaining_unaccounted
+        # Ensure all enemies are accounted for
+        # The total should equal initial count
+        current_accounted = total_killed + total_recruited + total_escaped
+        if current_accounted < initial_count:
+            # Add the difference to escaped (enemies that got away)
+            additional_escaped = initial_count - current_accounted
+            total_escaped += additional_escaped
             session['total_escaped'] = total_escaped
             session.modified = True
 
         escaped_count = total_escaped
+
+        # Debug logging
+        print(f"DEBUG: Final stats - killed={total_killed}, recruited={total_recruited}, escaped={escaped_count}")
 
         # All enemies are now properly accounted for
 
