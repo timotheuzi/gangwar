@@ -105,12 +105,22 @@ If your app uses environment variables, set them in the Web tab:
 
 ## WebSocket/SocketIO Considerations
 
-This deployment includes proper SocketIO support for real-time features:
+This deployment includes robust SocketIO support for real-time features:
 
 - **Gevent**: Used for WebSocket handling in production WSGI environments (included in requirements.txt)
-- **Async Mode**: SocketIO uses `gevent` mode for production deployment and `threading` for development
+- **Async Mode**: SocketIO automatically uses `gevent` mode for production deployment and `threading` for development
 - **WSGI Compatibility**: The `pythonanywhere.py` file properly handles SocketIO WSGI middleware for deployment
+- **Error Handling**: Improved error handling ensures graceful fallback if SocketIO initialization fails
 - **Free Tier Limitations**: PythonAnywhere's free tier may have WebSocket connection limits
+
+### WebSocket Troubleshooting
+
+If you encounter WebSocket connection issues (500 errors during handshake):
+
+1. **Check Server Logs**: Look for SocketIO initialization messages in PythonAnywhere's error logs
+2. **Verify Gevent Installation**: Ensure gevent is properly installed in your PythonAnywhere environment
+3. **Test Locally First**: Run the deployment test locally to verify SocketIO works
+4. **Check Browser Console**: Look for specific WebSocket error messages in browser developer tools
 
 If WebSockets don't work on the free tier, consider upgrading to a paid plan for better real-time performance.
 

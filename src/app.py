@@ -544,28 +544,55 @@ else:
     app.template_folder = os.path.join(os.path.dirname(__file__), '..', 'templates')
     app.static_folder = os.path.join(os.path.dirname(__file__), '..', 'static')
 
-# Check if running in PyInstaller bundle
-if getattr(sys, 'frozen', False):
-    # Running in PyInstaller bundle - enable SocketIO with threading mode
-    try:
-        from flask_socketio import SocketIO, emit, join_room, leave_room
-        socketio = SocketIO(app, async_mode='threading')
-        print("SocketIO enabled in PyInstaller mode with threading")
-    except ImportError as e:
-        print(f"Failed to import SocketIO in PyInstaller mode: {e}")
-        socketio = None
-else:
-    # Running in development - enable SocketIO
+# SocketIO initialization with robust error handling
+socketio = None
+try:
     from flask_socketio import SocketIO, emit, join_room, leave_room
-    # Use gevent for production WSGI deployment (PythonAnywhere)
-    try:
-        import gevent
-        from gevent import monkey
-        monkey.patch_all()
-        socketio = SocketIO(app, async_mode='gevent')
-    except ImportError:
-        # Fallback to threading for development
-        socketio = SocketIO(app, async_mode='threading')
+
+    # Check if running in PyInstaller bundle
+    if getattr(sys, 'frozen', False):
+        # Running in PyInstaller bundle - use threading mode without async_mode
+        try:
+            socketio = SocketIO(app, async_mode='threading')
+            print("SocketIO enabled in PyInstaller mode with threading")
+        except (ValueError, TypeError) as e:
+            print(f"Threading mode failed: {e}, trying without async_mode")
+            socketio = SocketIO(app)
+            print("SocketIO enabled in PyInstaller mode without async_mode")
+    else:
+        # Running in development or production
+        # Try gevent first (required for PythonAnywhere WSGI)
+        try:
+            import gevent
+            from gevent import monkey
+            monkey.patch_all()
+            socketio = SocketIO(app, async_mode='gevent')
+            print("SocketIO enabled with gevent (production mode)")
+        except ImportError:
+            # Fallback to threading for development only
+            print("Warning: gevent not available, falling back to threading mode")
+            print("Note: Threading mode may not work properly in production WSGI environments")
+            try:
+                socketio = SocketIO(app, async_mode='threading')
+                print("SocketIO enabled with threading (development mode)")
+            except (ValueError, TypeError) as e:
+                print(f"Threading mode failed: {e}, trying without async_mode")
+                socketio = SocketIO(app)
+                print("SocketIO enabled without async_mode")
+        except (ValueError, TypeError) as e:
+            print(f"Gevent mode failed: {e}, trying threading mode")
+            try:
+                socketio = SocketIO(app, async_mode='threading')
+                print("SocketIO enabled with threading (fallback mode)")
+            except (ValueError, TypeError) as e2:
+                print(f"Threading mode also failed: {e2}, trying without async_mode")
+                socketio = SocketIO(app)
+                print("SocketIO enabled without async_mode")
+
+except ImportError as e:
+    print(f"Failed to import SocketIO: {e}")
+    print("SocketIO functionality will be disabled")
+    socketio = None
 
 # Global player tracking
 connected_players = {}

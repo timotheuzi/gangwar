@@ -16,12 +16,19 @@ from src.app import app, socketio
 if __name__ == '__main__':
     # For local development/testing
     print("Starting Game server...")
-    socketio.run(app, host='0.0.0.0', port=int(os.environ.get('PORT', 6006)), debug=False)
+    if socketio:
+        socketio.run(app, host='0.0.0.0', port=int(os.environ.get('PORT', 6006)), debug=False)
+    else:
+        print("Warning: SocketIO not available, running Flask app only")
+        app.run(host='0.0.0.0', port=int(os.environ.get('PORT', 6006)), debug=False)
 
 # For PythonAnywhere WSGI
 # This will be used by PythonAnywhere's WSGI configuration
 # Use socketio middleware if socketio is enabled, otherwise use app
 if socketio:
+    print("Using SocketIO middleware for WSGI deployment")
     application = socketio.sockio_mw
 else:
+    print("Warning: SocketIO not available, using Flask app only")
+    print("WebSocket functionality will not work - check gevent installation")
     application = app
