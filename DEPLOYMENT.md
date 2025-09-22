@@ -29,7 +29,7 @@ This guide explains how to deploy the Gangwar Game to PythonAnywhere. This updat
 1. **Log in to PythonAnywhere** and go to the **Web** tab
 2. **Click "Add a new web app"**
 3. **Choose "Flask"** as the framework
-4. **Select Python version**: Choose Python 3.8 or 3.9 (avoid 3.10+ for better compatibility)
+4. **Select Python version**: Choose Python 3.10 or later (Python 3.13 recommended for best compatibility)
 5. **Enter your app name** and click **Next**
 6. **Set the PythonAnywhere path** to your desired URL path
 
@@ -107,8 +107,8 @@ If your app uses environment variables, set them in the Web tab:
 
 This deployment includes proper SocketIO support for real-time features:
 
-- **Eventlet**: Used for WebSocket handling in production WSGI environments (included in requirements.txt)
-- **Async Mode**: SocketIO uses `eventlet` mode for production deployment and `threading` for development
+- **Gevent**: Used for WebSocket handling in production WSGI environments (included in requirements.txt)
+- **Async Mode**: SocketIO uses `gevent` mode for production deployment and `threading` for development
 - **WSGI Compatibility**: The `pythonanywhere.py` file properly handles SocketIO WSGI middleware for deployment
 - **Free Tier Limitations**: PythonAnywhere's free tier may have WebSocket connection limits
 
@@ -167,7 +167,7 @@ If WebSockets don't work on the free tier, consider upgrading to a paid plan for
 
 3. **WebSocket Connection Issues**:
    - Check browser console for errors
-   - Verify eventlet is installed
+   - Verify gevent is installed
    - Free tier may have connection limits
 
 4. **Application Timeout**:
@@ -212,4 +212,4 @@ If WebSockets don't work on the free tier, consider upgrading to a paid plan for
 ---
 
 **Last Updated**: September 2025
-**Tested With**: Python 3.8, Flask 2.3.3, Flask-SocketIO 5.3.6
+**Tested With**: Python 3.13, Flask 2.3.3, Flask-SocketIO 5.3.6, Gevent 24.2.1

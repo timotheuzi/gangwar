@@ -20,12 +20,12 @@ def test_imports():
         from flask_socketio import SocketIO
         print("✓ Flask-SocketIO imported successfully")
 
-        print("Testing eventlet import...")
+        print("Testing gevent import...")
         try:
-            import eventlet
-            print("✓ eventlet imported successfully")
+            import gevent
+            print("✓ gevent imported successfully")
         except ImportError:
-            print("⚠ eventlet not available (expected in development, required for production)")
+            print("⚠ gevent not available (expected in development, required for production)")
 
         print("Testing python-socketio import...")
         import socketio

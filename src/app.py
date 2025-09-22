@@ -420,10 +420,12 @@ if getattr(sys, 'frozen', False):
 else:
     # Running in development - enable SocketIO
     from flask_socketio import SocketIO, emit, join_room, leave_room
-    # Use eventlet for production WSGI deployment (PythonAnywhere)
+    # Use gevent for production WSGI deployment (PythonAnywhere)
     try:
-        import eventlet
-        socketio = SocketIO(app, async_mode='eventlet')
+        import gevent
+        from gevent import monkey
+        monkey.patch_all()
+        socketio = SocketIO(app, async_mode='gevent')
     except ImportError:
         # Fallback to threading for development
         socketio = SocketIO(app, async_mode='threading')
