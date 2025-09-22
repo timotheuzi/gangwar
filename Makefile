@@ -92,9 +92,24 @@ run-dist:
 
 # Test the application
 test:
-	@echo "Testing Gangwar Game..."
+	@echo "Testing GTraceback (most recent call last):
+  File "/home/gangwars/gangwar/src/app.py", line 425, in <module>
+    import eventlet
+  File "/home/gangwars/.local/lib/python3.13/site-packages/eventlet/__init__.py", line 17, in <module>
+    from eventlet import convenience
+  File "/home/gangwars/.local/lib/python3.13/site-packages/eventlet/convenience.py", line 7, in <module>
+    from eventlet.green import socket
+  File "/home/gangwars/.local/lib/python3.13/site-packages/eventlet/green/socket.py", line 21, in <module>
+    from eventlet.support import greendns
+  File "/home/gangwars/.local/lib/python3.13/site-packages/eventlet/support/greendns.py", line 45, in <module>
+    from eventlet.green import ssl
+  File "/home/gangwars/.local/lib/python3.13/site-packages/eventlet/green/ssl.py", line 25, in <module>
+    _original_wrap_socket = __ssl.wrap_socket
+                            ^^^^^^^^^^^^^^^^^
+AttributeError: module 'ssl' has no attribute 'wrap_socket'angwar Game..."
 	@python -c "import src.app; print('✓ Flask app imports successfully')"
-	@python -c "import flask_socketio; print('✓ Flask-SocketIO available')"
+	@python -c "import flask_socketio; print('✓ Flask-SocketIO available')" (0.17.4)
+Requirement already satisfied: packaging>=22.0 in /usr/local/lib/python3.13/site-packages (from pyinstaller) (24.
 	@python -c "import flask; print('✓ Flask available')"
 	@python -c "import eventlet" 2>/dev/null && echo "⚠ Warning: eventlet is installed but not needed with threading mode" || echo "✓ eventlet not installed (good for Python 3.13 compatibility)"
 	@echo "Basic tests passed!"
