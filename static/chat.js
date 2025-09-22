@@ -34,6 +34,11 @@ function initSocketIO() {
 
         socket.emit('join', {room: currentRoom, location_room: locationRoom, player_name: playerName});
         refreshPlayerList();
+
+        // Request player list immediately after joining
+        setTimeout(function() {
+            refreshPlayerList();
+        }, 1000);
     });
 
     socket.on('disconnect', function() {
@@ -62,19 +67,14 @@ function initSocketIO() {
         }
         var messageClass = data.message_class || null;
 
-        // Use the player name from server data, ensure it's not generic "Player"
-        var displayName = data.player;
-        if (data.player === 'Player' || data.player === 'Unknown Player') {
-            // Try to get actual name from server data or fallback to window.playerName
-            if (window.playerName && window.playerName !== 'Player') {
-                displayName = window.playerName;
-            }
-        }
+        // Use the player name from server data directly - server already handles name resolution
+        var displayName = data.player || data.player_name || 'Unknown Player';
 
         addChatMessage(displayName, message, messageClass);
     });
 
     socket.on('player_list', function(data) {
+        console.log('Received player list:', data);
         updatePVPPlayerList(data.players || []);
     });
 
@@ -118,11 +118,11 @@ function addChatMessage(player, message, messageClass) {
             messageDiv.classList.add(messageClass);
         }
 
-        // Ensure we use the actual player name, not fallback "Player"
-        var displayName = player;
-        if (player === 'Player' && window.playerName && window.playerName !== 'Player') {
-            displayName = window.playerName;
-        }
+        // Use the player name as provided by server - no client-side overrides needed
+        var displayName = player || 'Unknown Player';
+
+        // Debug logging
+        console.log('Adding chat message:', { player: displayName, message: message, messageClass: messageClass });
 
         messageDiv.innerHTML = '<strong>' + displayName + ':</strong> ' + message;
         chatMessages.appendChild(messageDiv);
@@ -134,6 +134,8 @@ function addChatMessage(player, message, messageClass) {
         }
 
         chatMessages.scrollTop = chatMessages.scrollHeight;
+    } else {
+        console.error('Chat messages container not found!');
     }
 }
 

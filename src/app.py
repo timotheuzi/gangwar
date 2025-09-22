@@ -358,6 +358,137 @@ def save_game_state(game_state):
     session['game_state'] = game_state
     session.modified = True
 
+def search_dead_body():
+    """Search a dead body for loot"""
+    loot = {
+        'money': 0,
+        'drugs': {},
+        'weapons': {}
+    }
+
+    # Random chance for different types of loot
+    loot_chance = random.random()
+
+    if loot_chance < 0.3:  # 30% chance - money only
+        loot['money'] = random.randint(50, 300)
+    elif loot_chance < 0.5:  # 20% chance - drugs
+        drug_types = ['weed', 'crack', 'coke', 'ice', 'percs']
+        drug = random.choice(drug_types)
+        amount = random.randint(1, 5)
+        loot['drugs'][drug] = amount
+    elif loot_chance < 0.7:  # 20% chance - weapons/ammo
+        weapon_types = ['bullets', 'grenades', 'knife']
+        weapon = random.choice(weapon_types)
+        if weapon == 'bullets':
+            amount = random.randint(3, 12)
+            loot['weapons']['bullets'] = amount
+        elif weapon == 'grenades':
+            amount = random.randint(1, 2)
+            loot['weapons']['grenades'] = amount
+        elif weapon == 'knife':
+            loot['weapons']['knife'] = 1
+    elif loot_chance < 0.85:  # 15% chance - mixed loot
+        # Money + one other item
+        loot['money'] = random.randint(25, 150)
+        if random.random() < 0.5:
+            # Add drugs
+            drug_types = ['weed', 'crack', 'percs']
+            drug = random.choice(drug_types)
+            amount = random.randint(1, 3)
+            loot['drugs'][drug] = amount
+        else:
+            # Add weapon
+            weapon_types = ['bullets', 'knife']
+            weapon = random.choice(weapon_types)
+            if weapon == 'bullets':
+                amount = random.randint(2, 8)
+                loot['weapons']['bullets'] = amount
+            else:
+                loot['weapons']['knife'] = 1
+    else:  # 15% chance - nothing
+        pass  # Empty loot
+
+    return loot
+
+def generate_loot_drops(killed_count, enemy_type):
+    """Generate random loot drops from defeated enemies"""
+    loot = {
+        'money': 0,
+        'drugs': {},
+        'weapons': {}
+    }
+
+    # Base loot chance per enemy killed
+    base_loot_chance = 0.4  # 40% chance per enemy for some loot
+
+    for _ in range(killed_count):
+        if random.random() < base_loot_chance:
+            loot_type = random.random()
+
+            if loot_type < 0.4:  # 40% chance - money
+                money_amount = random.randint(25, 100)
+                loot['money'] += money_amount
+
+            elif loot_type < 0.7:  # 30% chance - drugs
+                drug_types = ['weed', 'crack', 'percs']
+                drug = random.choice(drug_types)
+                amount = random.randint(1, 3)
+                if drug not in loot['drugs']:
+                    loot['drugs'][drug] = 0
+                loot['drugs'][drug] += amount
+
+            elif loot_type < 0.9:  # 20% chance - weapons/ammo
+                weapon_types = ['bullets', 'knife']
+                weapon = random.choice(weapon_types)
+                if weapon == 'bullets':
+                    amount = random.randint(2, 8)
+                    loot['weapons']['bullets'] = loot['weapons'].get('bullets', 0) + amount
+                else:
+                    loot['weapons']['knife'] = loot['weapons'].get('knife', 0) + 1
+
+            else:  # 10% chance - mixed loot
+                # Small amount of money + one other item
+                loot['money'] += random.randint(15, 50)
+                if random.random() < 0.5:
+                    # Add drugs
+                    drug_types = ['weed', 'crack']
+                    drug = random.choice(drug_types)
+                    amount = random.randint(1, 2)
+                    if drug not in loot['drugs']:
+                        loot['drugs'][drug] = 0
+                    loot['drugs'][drug] += amount
+                else:
+                    # Add weapon
+                    loot['weapons']['bullets'] = loot['weapons'].get('bullets', 0) + random.randint(1, 4)
+
+    # Bonus loot for special enemy types
+    if "Squidie" in enemy_type:
+        # Squidies have better loot
+        if random.random() < 0.3:  # 30% chance for bonus
+            bonus_type = random.random()
+            if bonus_type < 0.4:
+                loot['money'] += random.randint(100, 300)
+            elif bonus_type < 0.7:
+                drug_types = ['coke', 'ice']
+                drug = random.choice(drug_types)
+                amount = random.randint(2, 5)
+                if drug not in loot['drugs']:
+                    loot['drugs'][drug] = 0
+                loot['drugs'][drug] += amount
+            else:
+                loot['weapons']['bullets'] = loot['weapons'].get('bullets', 0) + random.randint(5, 15)
+
+    elif "Police" in enemy_type:
+        # Police have different loot (more money, less drugs)
+        if random.random() < 0.5:  # 50% chance for bonus
+            bonus_type = random.random()
+            if bonus_type < 0.6:
+                loot['money'] += random.randint(50, 200)
+            else:
+                loot['weapons']['bullets'] = loot['weapons'].get('bullets', 0) + random.randint(3, 10)
+
+    return loot
+
 def check_and_update_high_scores(game_state, gang_wars_won: int = 0, fights_won: int = 0):
     """Check if current game qualifies for high score and update if necessary"""
     if not game_state['player_name'] or not game_state['gang_name']:
@@ -415,8 +546,14 @@ else:
 
 # Check if running in PyInstaller bundle
 if getattr(sys, 'frozen', False):
-    # Running in PyInstaller bundle - disable SocketIO for now
-    socketio = None
+    # Running in PyInstaller bundle - enable SocketIO with threading mode
+    try:
+        from flask_socketio import SocketIO, emit, join_room, leave_room
+        socketio = SocketIO(app, async_mode='threading')
+        print("SocketIO enabled in PyInstaller mode with threading")
+    except ImportError as e:
+        print(f"Failed to import SocketIO in PyInstaller mode: {e}")
+        socketio = None
 else:
     # Running in development - enable SocketIO
     from flask_socketio import SocketIO, emit, join_room, leave_room
@@ -432,6 +569,49 @@ else:
 
 # Global player tracking
 connected_players = {}
+
+# Idle timeout management
+IDLE_TIMEOUT = 60  # 1 minute in seconds
+last_cleanup_time = time.time()
+
+def cleanup_idle_players():
+    """Remove players who have been idle for more than IDLE_TIMEOUT seconds"""
+    global last_cleanup_time
+    current_time = time.time()
+
+    # Only run cleanup every 10 seconds to avoid excessive processing
+    if current_time - last_cleanup_time < 10:
+        return
+
+    last_cleanup_time = current_time
+    to_remove = []
+
+    for sid, player in connected_players.items():
+        last_active = player.get('last_active', player.get('joined_at', current_time))
+        if current_time - last_active > IDLE_TIMEOUT:
+            to_remove.append(sid)
+
+    for sid in to_remove:
+        player_name = connected_players[sid]['name']
+        del connected_players[sid]
+        socketio.emit('status', {'msg': f'{player_name} left the chat (idle timeout)'}, broadcast=True)
+        update_player_lists()
+
+# Start a background thread to run cleanup more frequently
+def start_cleanup_thread():
+    """Start background thread for idle player cleanup"""
+    def cleanup_loop():
+        while True:
+            try:
+                cleanup_idle_players()
+                time.sleep(5)  # Check every 5 seconds
+            except Exception as e:
+                print(f"Error in cleanup loop: {e}")
+                time.sleep(5)
+
+    if socketio:
+        cleanup_thread = threading.Thread(target=cleanup_loop, daemon=True)
+        cleanup_thread.start()
 
 # ============
 # Routes
@@ -710,8 +890,8 @@ def wander():
             result += " You don't have any money to give her!"
             game_state['health'] = max(0, game_state['health'] - 10)  # She beats you up
 
-    # Check for small gang fight (12% chance)
-    elif random.random() < 0.12:
+    # Check for small gang fight (15% chance - increased from 12%)
+    elif random.random() < 0.15:
         enemy_members = random.randint(3, 8)
         message = f"You encounter {enemy_members} rival gang members looking for trouble!"
         save_game_state(game_state)
@@ -781,7 +961,10 @@ def wander():
             "You find a hidden stash of weapons.",
             "You encounter a beggar who tells you about secret locations.",
             "You wander through a market district and haggle for better prices.",
-            "You stumble upon a gang recruitment drive."
+            "You stumble upon a gang recruitment drive.",
+            "You find a dead body in the alley and search it for valuables.",
+            "You discover an abandoned stash of drugs hidden in a dumpster.",
+            "You come across some discarded weapons and ammunition."
         ]
 
         # Ensure randomness by seeding with current time
@@ -798,6 +981,42 @@ def wander():
             game_state['health'] = min(100, game_state['health'] + 10)
         elif "hidden stash of weapons" in result:
             game_state['weapons']['bullets'] += 5
+        elif "dead body" in result:
+            # Search dead body for loot
+            loot_result = search_dead_body()
+            if loot_result['money'] > 0:
+                game_state['money'] += loot_result['money']
+                result += f" You found ${loot_result['money']} on the body!"
+            if loot_result['drugs']:
+                for drug, amount in loot_result['drugs'].items():
+                    game_state['drugs'][drug] += amount
+                    result += f" You found {amount} kilos of {drug}!"
+            if loot_result['weapons']:
+                for weapon, amount in loot_result['weapons'].items():
+                    game_state['weapons'][weapon] += amount
+                    result += f" You found {amount} {weapon.replace('_', ' ')}!"
+        elif "abandoned stash of drugs" in result:
+            # Find random drugs
+            drug_types = ['weed', 'crack', 'coke', 'ice', 'percs']
+            drug = random.choice(drug_types)
+            amount = random.randint(2, 5)
+            game_state['drugs'][drug] += amount
+            result += f" You found {amount} kilos of {drug} in the stash!"
+        elif "discarded weapons" in result:
+            # Find random weapons/ammo
+            weapon_types = ['bullets', 'grenades', 'knife']
+            weapon = random.choice(weapon_types)
+            if weapon == 'bullets':
+                amount = random.randint(5, 15)
+                game_state['weapons']['bullets'] += amount
+                result += f" You found {amount} bullets!"
+            elif weapon == 'grenades':
+                amount = random.randint(1, 3)
+                game_state['weapons']['grenades'] += amount
+                result += f" You found {amount} grenades!"
+            elif weapon == 'knife':
+                game_state['weapons']['knife'] += 1
+                result += f" You found a knife!"
         elif "without incident" not in result and "trouble" not in result and "police" not in result:
             # Minor health damage for risky wanders
             if random.random() < 0.3:
@@ -1448,6 +1667,9 @@ def move_room(direction):
             'west': 'dumpster'
         }
 
+    # Normalize direction to lowercase for comparison
+    direction = direction.lower()
+
     # Get the exit for the given direction
     if direction in exits:
         next_room = exits[direction]
@@ -1462,7 +1684,7 @@ def move_room(direction):
             session.modified = True
     else:
         # Invalid direction, stay in current room
-        pass
+        flash(f"You cannot go {direction} from here.", "warning")
 
     # Increment steps for exploration
     game_state['steps'] += 1
@@ -2171,6 +2393,22 @@ def process_fight_action():
         # Deduct from Squidies gang total for any enemy kills (police or gangs)
         game_state['squidies'] = max(0, game_state['squidies'] - killed_this_turn)
 
+        # Add loot drops for defeated enemies
+        if killed_this_turn > 0:
+            loot_drops = generate_loot_drops(killed_this_turn, enemy_type)
+            if loot_drops['money'] > 0:
+                game_state['money'] += loot_drops['money']
+                fight_log.append(f"💰 You looted ${loot_drops['money']} from the defeated enemies!")
+            if loot_drops['drugs']:
+                for drug, amount in loot_drops['drugs'].items():
+                    game_state['drugs'][drug] += amount
+                    fight_log.append(f"💊 You found {amount} kilos of {drug} on the bodies!")
+            if loot_drops['weapons']:
+                for weapon, amount in loot_drops['weapons'].items():
+                    game_state['weapons'][weapon] += amount
+                    weapon_name = weapon.replace('_', ' ')
+                    fight_log.append(f"🔫 You looted {amount} {weapon_name} from the defeated enemies!")
+
         # Update total killed counter
         session['total_killed'] = session.get('total_killed', 0) + killed_this_turn
         session.modified = True
@@ -2435,13 +2673,15 @@ if socketio:
         join_room(room)
         join_room(location_room)
 
-        # Store player info with proper name
+        # Store player info with proper name and timestamps
+        current_time = time.time()
         connected_players[request.sid] = {
             'id': request.sid,
             'name': player_name,
             'room': location_room,
             'in_fight': False,
-            'joined_at': time.time()
+            'joined_at': current_time,
+            'last_active': current_time
         }
 
         emit('status', {'msg': f'{player_name} joined the chat'})
@@ -2469,8 +2709,20 @@ if socketio:
             player_name = game_state['player_name']
 
         if message.strip():
-            emit('chat_message', {
+            # Update player's last active timestamp
+            if request.sid in connected_players:
+                connected_players[request.sid]['last_active'] = time.time()
+
+            # Run cleanup to remove idle players
+            cleanup_idle_players()
+
+            # Debug logging
+            print(f"DEBUG: Broadcasting chat message from {player_name} in room {room}: {message}")
+
+            # Broadcast message to all clients in the room
+            socketio.emit('chat_message', {
                 'player': player_name,
+                'player_name': player_name,  # Include both for compatibility
                 'message': message,
                 'room': room
             }, room=room)
@@ -2483,7 +2735,9 @@ if socketio:
             player for player in connected_players.values()
             if player['room'] == room
         ]
-        emit('player_list', {'players': players_in_room})
+        print(f"DEBUG: Sending player list for room '{room}': {len(players_in_room)} players")
+        print(f"DEBUG: Players in room: {[p['name'] for p in players_in_room]}")
+        emit('player_list', {'players': players_in_room}, room=room)
 
     @socketio.on('pvp_challenge')
     def handle_pvp_challenge(data):
@@ -2517,6 +2771,11 @@ if socketio:
         # Send updated lists to all clients in each room
         for room, players in room_players.items():
             socketio.emit('player_list', {'players': players}, room=room)
+
+        # Also broadcast to global room for general updates
+        if connected_players:
+            all_players = list(connected_players.values())
+            socketio.emit('player_list', {'players': all_players}, room='global')
 else:
     def update_player_lists():
         """Dummy function when SocketIO is disabled"""
@@ -2525,6 +2784,8 @@ else:
 
 if __name__ == '__main__':
     if socketio:
+        # Start the cleanup thread for idle player management
+        start_cleanup_thread()
         socketio.run(app, debug=True, allow_unsafe_werkzeug=True)
     else:
         app.run(debug=True)
