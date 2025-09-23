@@ -35,7 +35,7 @@ cleanup_disk_space() {
 # Check if PyInstaller is installed
 if ! command -v pyinstaller &> /dev/null; then
     echo "PyInstaller not found. Installing..."
-    pip install pyinstaller
+    python3 -m pip install --break-system-packages pyinstaller
 fi
 
 # Delete and recreate dist directory
@@ -341,7 +341,7 @@ pyinstaller --clean gangwar.spec
 
 # Generate environment variables file
 echo "Generating environment variables file..."
-python generate_env.py
+python3 generate_env.py
 
 # Check if build was successful
 if [ -f "dist/gangwar" ] || [ -f "dist/gangwar.exe" ]; then

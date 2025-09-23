@@ -43,13 +43,13 @@ clean-disk:
 # Install Python dependencies
 install-deps:
 	@echo "Installing Python dependencies..."
-	@pip install -r requirements.txt
-	@pip install pyinstaller
+	@python3 -m pip install --break-system-packages -r requirements.txt
+	@python3 -m pip install --break-system-packages pyinstaller
 
 # Run the application in development mode
 run:
 	@echo "Running Gangwar Game in development mode..."
-	@python app.py
+	@python3 app.py
 
 # Run the built executable
 run-dist:
@@ -66,9 +66,9 @@ run-dist:
 # Test the application
 test:
 	@echo "Testing Gangwar Game..."
-	@python -c "import app; print('✓ Flask app imports successfully')"
-	@python -c "import flask_socketio; print('✓ Flask-SocketIO available')"
-	@python -c "import flask; print('✓ Flask available')"
+	@python3 -c "import app; print('✓ Flask app imports successfully')"
+	@python3 -c "import flask_socketio; print('✓ Flask-SocketIO available')"
+	@python3 -c "import flask; print('✓ Flask available')"
 	@echo "Basic tests passed!"
 
 # Show help

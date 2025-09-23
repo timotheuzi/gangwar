@@ -1,254 +1,71 @@
-# The Gang Wars Are Upon Us
+# Gang War: Blood in the Streets
 
-Set in a dypstopian present, this is a gritty, text-based drug dealing and gang warfare simulation game built with Flask and SocketIO. Build your criminal empire, deal drugs, fight rival gangs, and survive the streets in this intense urban warfare experience.
+## Game Overview
 
-## 🎮 Game Overview
+Gang War is a brutal text-based role-playing game set in a dystopian urban wasteland where you build and command a criminal empire through drug trafficking, violent gang warfare, and ruthless street survival. As a rising gang leader, you'll navigate treacherous streets filled with rival gangs, corrupt police, and deadly encounters.
 
-You start as a small-time entrepreneur with $1000, 5 kilos of crack, and a pistol. Your goal is to build a massive gang empire, defeat the rival Squidies gang, and become the ultimate pimp king of the city.
+Start with nothing but a pistol and $1000, then expand your criminal operations by dealing drugs, recruiting violent thugs, and eliminating competition through bloody combat. The city streets run red with blood as you fight for dominance.
 
-### Key Features
-
-- **Drug Empire**: Buy and sell various drugs (weed, crack, coke, ice, percs, pixie dust) with dynamic pricing
-- **Gang Warfare**: Recruit members, purchase weapons, and engage in epic gang battles
-- **Real-time Multiplayer**: Challenge other players to PVP fights using SocketIO
-- **Dynamic World**: Random encounters, police chases, and unpredictable street events
-- **Economic Simulation**: Banking, loans, and interest calculations
-- **Multiple Locations**: Explore the city, crackhouse, gun shack, bank, bar, and dark alleyways
-- **Day/Night Cycle**: Each day brings new prices, stronger enemies, and growing challenges
-
-## 🚀 Quick Start
-
-### Prerequisites
-
-- Python 3.7+
-- pip (Python package manager)
-
-## 🎯 How to Play
+## How to Play
 
 ### Getting Started
+1. Launch the game and create a new character
+2. Choose your player name and gang name
+3. Begin in the city with basic starting equipment
 
-1. **Create a New Game**: Enter your player name, gang name, and choose your gender
-2. **Explore the City**: Visit different locations to buy/sell drugs, purchase weapons, and meet contacts
-3. **Build Your Empire**: Use profits from drug dealing to recruit gang members and buy better weapons
-4. **Survive Encounters**: Random events include police chases, robberies, and rival gang encounters
-5. **Challenge Rivals**: Once your gang is strong enough (10+ members), start the final gang war
-
-### Core Mechanics
-
-#### Drug Dealing
-- Visit the **Crackhouse** to buy and sell drugs
-- Prices fluctuate daily - buy low, sell high
-- Different drugs have different profit margins and risks
-
-#### Combat System
-- **Weapons Available**: Pistol, Uzi, Grenade, Missile Launcher, Knife
-- **Ammo Management**: Track bullets, grenades, and missiles
-- **Win Probabilities**: Each weapon has different success rates based on your gang size
-
-#### Economic Management
-- **Bank**: Deposit money for 1% daily interest, take loans at 5% interest
-- **Savings Account**: Safe storage with compound interest
-- **Loans**: High-risk borrowing to fuel your expansion
-
-#### Gang Building
-- **Recruit Members**: Spend money at Pick n' Save and achieve greatness to grow your gang
-- **Gang Power**: More members increase your combat effectiveness
-- **Territory Control**: Larger gangs attract more followers automatically
+### Core Gameplay Loop
+- **Explore Locations**: Move between different areas of the city
+- **Deal Drugs**: Buy low, sell high, and expand your criminal network
+- **Recruit Members**: Grow your gang through successful operations and intimidation
+- **Combat**: Fight rival gangs, police, and other threats in turn-based battles
+- **Manage Resources**: Balance money, weapons, health, and gang morale
 
 ### Locations
+- **City Hub**: Central navigation point
+- **Crackhouse**: Buy/sell drugs and engage in risky encounters
+- **Gun Shack**: Purchase weapons and ammunition
+- **Bank**: Deposit money for interest or take high-risk loans
+- **Bar**: Gather information and meet shady contacts
+- **Alleyway**: Explore dark alleys for hidden opportunities and dangers
+- **Pick n' Save**: Buy supplies, fake IDs, and recruit new members
 
-- **City**: Central hub with access to all locations
-- **Crackhouse**: Buy/sell drugs and visit prostitutes (dangerous!)
-- **Gun Shack**: Purchase weapons, ammo, and protective vests
-- **Bank**: Manage your finances and take loans
-- **Bar**: Meet contacts and gather intelligence
-- **Pick n' Save**: Buy fake IDs, recruit members, purchase information
-- **Alleyway**: Explore dark alleys for hidden opportunities
+### Combat System
+Fight using various weapons in real-time turn-based combat:
+- Pistols and bullets
+- Uzis for spray-and-pray tactics
+- Grenades for area destruction
+- Missile launchers for massive damage
+- Vampire bats and knives for close-quarters brutality
 
-### Random Events
-
-When wandering around the city, you might encounter:
-- **Money Finds**: Discover cash on the ground
-- **Drug Stashes**: Find random drug supplies
-- **Robberies**: Get mugged by street criminals
-- **Police Chases**: Evade law enforcement
-- **Gang Fights**: Battle rival gang members
-- **NPC Encounters**: Meet informants, dealers, and contacts
-- **Weapon Drops**: Find abandoned firearms
-- **Injuries**: Take damage from street violence
+Enemies include police, rival gang members, and the deadly Squidies gang.
 
 ### Winning the Game
+Build your gang to 10+ members, gather intelligence, and launch a final assault on the Squidies' headquarters. Survive long enough to become the ultimate gang lord of the city.
 
-1. **Build Your Gang**: Recruit at least 10 members
-2. **Arm Your Crew**: Purchase powerful weapons and ammo
-3. **Gather Intelligence**: Use contacts and information to learn about the Squidies
-4. **Final Battle**: Challenge the Squidies to a massive gang war
-5. **Victory**: Defeat the Squidies and become the undisputed king of the streets!
+### Losing the Game
+Die in combat, get arrested, or run out of lives. The streets are unforgiving.
 
-## 🛠️ Technical Details
+## Technical Requirements
+- Python 3.7+
+- Flask web framework
+- Modern web browser
 
-### Architecture
+## Installation & Running
+1. Install dependencies: `pip install -r requirements.txt`
+2. Run the game: `python app.py`
+3. Open your browser to the displayed URL
 
-- **Backend**: Flask web framework with SocketIO for real-time features
-- **Frontend**: HTML5, CSS3, vanilla JavaScript
-- **Real-time Communication**: WebSocket connections for multiplayer features
-- **Session Management**: Flask sessions for game state persistence
-- **Template Engine**: Jinja2 for dynamic HTML generation
+## Features
+- Dynamic economy with fluctuating drug prices
+- Real-time multiplayer chat and PVP combat
+- Multiple save slots and high score tracking
+- Procedurally generated encounters and events
+- Extensive weapon and drug customization
+- Day/night cycle affecting gameplay
 
-### File Structure
-
-```
-pimpin/
-├── app.py                 # Main Flask application
-├── run_app.py            # Wrapper script to run with correct PYTHONPATH
-├── standalone_app.py      # Single-file version for easy deployment
-├── requirements.txt       # Python dependencies
-├── README.md             # This file
-├── npcs.json             # NPC data (if used)
-├── templates/            # HTML templates
-│   ├── index.html
-│   ├── city.html
-│   ├── crackhouse.html
-│   └── ...
-├── static/               # CSS and static assets
-│   └── style.css
-└── src/                  # Source code (if applicable)
-    └── main.py
-```
-
-### Dependencies
-
-- **Flask 2.3.3**: Web framework
-- **flask-socketio 5.3.6**: Real-time communication
-- **python-socketio 5.8.0**: SocketIO client library
-
-### Game State Management
-
-The game uses Python dataclasses to manage complex game state:
-- Player stats (money, health, lives)
-- Inventory (drugs, weapons, ammo)
-- Gang information (members, name)
-- World state (day, prices, enemy strength)
-- Flags and achievements
-
-### Multiplayer Features
-
-- **Real-time Chat**: Communicate with all other players globally
-- **PVP Combat**: Challenge other players to turn-based fights
-- **Room System**: Location-based player grouping
-- **Live Updates**: Real-time game state synchronization
-
-## 🎨 Customization
-
-### Adding New Drugs
-
-Edit the `DRUG_PRICE_RANGES` in `Config` class:
-
-```python
-DRUG_PRICE_RANGES = {
-    'weed': (50, 270),
-    'crack': (300, 4500),
-    'new_drug': (min_price, max_price)
-}
-```
-
-### Modifying Weapon Stats
-
-Update the `WEAPON_PRICES` and weapon logic in the `GameLogic` class.
-
-### Creating New Locations
-
-1. Add route in Flask app
-2. Create HTML template
-3. Add location to city grid
-4. Implement location-specific mechanics
-
-## 🚨 Content Warning
-
-This game contains mature themes including:
-- Drug dealing and substance abuse
-- Violence and gang warfare
-- Criminal activities
-- Sexual content (prostitute encounters)
-- Strong language and gritty urban themes
-
-**This game is intended for entertainment purposes only and does not condone or promote real-world criminal activities.**
-
-## 🤝 Contributing
-
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Test thoroughly
-5. Submit a pull request
-
-### Development Setup
-
-```bash
-# Install development dependencies
-pip install -r requirements.txt
-
-# Run in debug mode
-python app.py
-```
-
-### Cross-Platform Executable
-
-The game can be built as a standalone executable that works on any system:
-
-```bash
-# Build standalone executable
-make build
-
-# Or manually
-./build.sh
-
-# Run the executable
-cd dist && ./run.sh    # Linux/macOS
-cd dist && ./run.bat   # Windows
-
-# Clean build artifacts
-make clean
-```
-
-The executable includes:
-- All Python dependencies bundled
-- Cross-platform launcher scripts
-- No external Python installation required
-- Works on Linux, macOS, and Windows
-
-## 📄 License
-
-This project is licensed under the terms specified in the LICENSE file.
-
-## 🙏 Acknowledgments
-
-- Inspired by classic text-based adventure games
-- Built with modern web technologies
-- Community contributions welcome
-
-## 🐛 Known Issues & Future Plans
-
-### Current Limitations
-- Mobile responsiveness could be improved
-- Some browser compatibility issues with older versions
-- Limited save/load functionality
-
-### Planned Features
-- More detailed NPC interactions
-- Expanded weapon variety
-- Additional locations and side quests
-- Enhanced multiplayer features
-- Mobile app version
+## Content Warning
+This game contains extreme violence, gore, drug use, criminal activity, and mature themes. All depictions are fictional and for entertainment purposes only.
 
 ---
 
-**Remember**: In the streets, only the strong survive. Build your empire wisely, and may the best pimp win! 💰🔫🏙️
-
-- Created and Maintained by timotheuzi@hotmail.com
-- Public Address to Receive 
-- LTC ltc1qcx3xsrpxqm7q7gpkxhxhtaeqgdqpmq0jdrw7vh
-- SOL 4sAaizpXmFS4yedakv7mLN1Z2myGh2CWnes3YJBhF1Hb
-- XLM GCVYEJ7GC7LZZ2EBZL5DXWCLTZPTXX7YEUXLS36YGE6BA37R5BHRI2XG
-- BTC bc1qfv69rux98r7u3sr786j2qpsenmkskvkf58ynkk
-- ETH 0xD1A6b95958dE597c2D9478A3b4212adF0789BF81
+*Built with Flask and SocketIO. All rights reserved.*
