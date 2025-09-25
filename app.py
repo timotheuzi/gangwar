@@ -373,11 +373,12 @@ def final_battle():
     message = "You launch your final assault on the Squidies gang headquarters!"
     # Start MUD fight with Squidies
     enemy_health = game_state.squidies * 20  # Each Squidie has 20 health
+    max_enemy_hp = enemy_health
     enemy_type = f"The Squidies Gang ({game_state.squidies} members)"
     combat_active = True
     fight_log = [message]
     combat_id = f"final_battle_{random.randint(1000, 9999)}"
-    return render_template('mud_fight.html', game_state=game_state, enemy_health=enemy_health, enemy_type=enemy_type, enemy_count=game_state.squidies, combat_active=combat_active, fight_log=fight_log, combat_id=combat_id)
+    return render_template('mud_fight.html', game_state=game_state, enemy_health=enemy_health, max_enemy_hp=max_enemy_hp, enemy_type=enemy_type, enemy_count=game_state.squidies, combat_active=combat_active, fight_log=fight_log, combat_id=combat_id)
 
 @app.route('/wander')
 def wander():
@@ -428,11 +429,12 @@ def wander():
         save_game_state(game_state)
         # Start MUD fight
         enemy_health = enemy_members * 15  # Each gang member has 15 health
+        max_enemy_hp = enemy_health
         enemy_type = f"{enemy_members} Rival Gang Members"
         combat_active = True
         fight_log = [message]
         combat_id = f"gang_{random.randint(1000, 9999)}"
-        return render_template('mud_fight.html', game_state=game_state, enemy_health=enemy_health, enemy_type=enemy_type, enemy_count=enemy_members, combat_active=combat_active, fight_log=fight_log, combat_id=combat_id)
+        return render_template('mud_fight.html', game_state=game_state, enemy_health=enemy_health, max_enemy_hp=max_enemy_hp, enemy_type=enemy_type, enemy_count=enemy_members, combat_active=combat_active, fight_log=fight_log, combat_id=combat_id)
 
     # Check for Squidie hit squad (scales with gang power)
     elif game_state.members >= 3:  # Only when you have some gang presence
@@ -448,11 +450,12 @@ def wander():
             save_game_state(game_state)
             # Start MUD fight with Squidies
             enemy_health = squidie_members * 25  # Squidies are tougher (25 HP each)
+            max_enemy_hp = enemy_health
             enemy_type = f"{squidie_members} Squidie Hit Squad"
             combat_active = True
             fight_log = [message]
             combat_id = f"squidie_{random.randint(1000, 9999)}"
-            return render_template('mud_fight.html', game_state=game_state, enemy_health=enemy_health, enemy_type=enemy_type, enemy_count=squidie_members, combat_active=combat_active, fight_log=fight_log, combat_id=combat_id)
+            return render_template('mud_fight.html', game_state=game_state, enemy_health=enemy_health, max_enemy_hp=max_enemy_hp, enemy_type=enemy_type, enemy_count=squidie_members, combat_active=combat_active, fight_log=fight_log, combat_id=combat_id)
 
     # Regular wander results (remaining ~70% chance)
     else:
@@ -972,11 +975,12 @@ def fight_npc(npc_id):
     message = f"You engage in combat with {npc['name']}!"
     # Start MUD fight with NPC
     enemy_health = npc.get('hp', 50)  # Default 50 HP if not specified
+    max_enemy_hp = npc.get('max_hp', 50)  # Default 50 max HP if not specified
     enemy_type = npc['name']
     combat_active = True
     fight_log = [message]
     combat_id = f"npc_{npc_id}_{random.randint(1000, 9999)}"
-    return render_template('mud_fight.html', game_state=game_state, enemy_health=enemy_health, enemy_type=enemy_type, enemy_count=1, combat_active=combat_active, fight_log=fight_log, combat_id=combat_id, npc_id=npc_id)
+    return render_template('mud_fight.html', game_state=game_state, enemy_health=enemy_health, max_enemy_hp=max_enemy_hp, enemy_type=enemy_type, enemy_count=1, combat_active=combat_active, fight_log=fight_log, combat_id=combat_id, npc_id=npc_id)
 
 @app.route('/pickup_loot/<npc_id>')
 def pickup_loot(npc_id):
