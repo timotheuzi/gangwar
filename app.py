@@ -459,23 +459,23 @@ def wander():
 
     # Regular wander results (remaining ~70% chance)
     else:
-        # List of possible wander results
+        # List of possible wander results - now ultra bloody and violent
         wander_messages = [
-            "You wander the streets and find a discarded wallet with $50!",
-            "You encounter a street performer who gives you some tips on the local scene.",
-            "You overhear some gang members talking about upcoming turf wars.",
-            "You find a quiet spot to rest and regain some health.",
-            "You notice some suspicious activity but decide to keep moving.",
-            "You bump into an old contact who shares some gossip.",
-            "You wander into a rough neighborhood and narrowly avoid trouble.",
-            "You find some discarded drugs worth $200 on the street.",
-            "You help a local shopkeeper and get rewarded with information.",
-            "You wander around the city without incident.",
-            "You see a police patrol and quickly hide in an alley.",
-            "You find a hidden stash of weapons.",
-            "You encounter a beggar who tells you about secret locations.",
-            "You wander through a market district and haggle for better prices.",
-            "You stumble upon a gang recruitment drive."
+            "You stumble upon a @gutted corpse in an alleyway, blood pooling around the severed limbs. You search the remains and find $50 in bloody cash!",
+            "A street performer lies @slaughtered on the sidewalk, throat slit ear to ear. You overhear whispers of upcoming turf wars from nearby shadows.",
+            "You witness a @drive-by shooting where rival gang members get their brains @blown out onto the pavement, painting the walls red.",
+            "You find a quiet spot littered with @mangled body parts to rest, regaining health amidst the stench of death.",
+            "You notice suspicious activity - a @beheaded body hanging from a streetlight - but decide to keep moving before you're next.",
+            "You bump into an old contact who's @missing an eye and bleeding profusely, sharing gossip about the bloody underworld.",
+            "You wander into a rough neighborhood where @limbs are strewn across the streets and narrowly avoid getting @gutted yourself.",
+            "You find some discarded drugs worth $200 on the street, next to a @tortured corpse with @carved flesh.",
+            "You help a local shopkeeper who's @covered in blood from a recent @massacre, getting rewarded with information about safe havens.",
+            "You wander around the city, stepping over @dismembered bodies without incident, the air thick with the coppery smell of blood.",
+            "You see a police patrol investigating a @pile of corpses and quickly hide in an alley reeking of @rotting flesh.",
+            "You find a hidden stash of weapons beneath a @freshly killed body, blood still warm on the ground.",
+            "You encounter a beggar @missing limbs who tells you about secret locations while @bleeding out from multiple stab wounds.",
+            "You wander through a market district where @bodies hang from hooks like meat, haggling for better prices amidst the gore.",
+            "You stumble upon a gang recruitment drive where initiates are @branded with hot irons and @tortured to prove loyalty."
         ]
 
         # Ensure randomness by seeding with current time
@@ -484,16 +484,16 @@ def wander():
         result = random.choice(wander_messages)
 
         # Apply effects based on the result
-        if "wallet with $50" in result:
+        if "bloody cash" in result:
             game_state.money += 50
-        elif "discarded drugs worth $200" in result:
+        elif "discarded drugs" in result:
             game_state.money += 200
-        elif "find a quiet spot" in result:
+        elif "quiet spot" in result:
             game_state.health = min(100, game_state.health + 10)
         elif "hidden stash of weapons" in result:
             game_state.weapons.bullets += 5
         elif "without incident" not in result and "trouble" not in result and "police" not in result:
-            # Minor health damage for risky wanders
+            # Minor health damage for risky wanders - now with violent consequences
             if random.random() < 0.3:
                 game_state.health = max(0, game_state.health - 5)
 
@@ -1457,6 +1457,6 @@ else:
 
 if __name__ == '__main__':
     if socketio:
-        socketio.run(app, debug=True)
+        socketio.run(app, debug=True, allow_unsafe_werkzeug=True)
     else:
         app.run(debug=True)
