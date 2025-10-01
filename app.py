@@ -93,7 +93,6 @@ class Drugs:
 class Weapons:
     pistols: int = 0
     bullets: int = 0
-    uzis: int = 0
     grenades: int = 0
     vampire_bat: int = 0
     missile_launcher: int = 0
@@ -101,6 +100,10 @@ class Weapons:
     vest: int = 0
     knife: int = 0
     ghost_guns: int = 0
+    ar15: int = 0
+    exploding_bullets: int = 0
+    pistol_automatic: bool = False
+    ghost_gun_automatic: bool = False
 
     def can_fight_with_pistol(self):
         return self.pistols > 0 and self.bullets > 0
@@ -115,7 +118,6 @@ class GameState:
     members: int = 1
     squidies: int = 25
     squidies_pistols: int = 10
-    squidies_uzis: int = 5
     squidies_bullets: int = 100
     squidies_grenades: int = 20
     squidies_missile_launcher: int = 2
@@ -170,42 +172,42 @@ def save_game_state(game_state):
     session['game_state'] = asdict(game_state)
     session.modified = True
 
-# def check_and_update_high_scores(game_state: GameState, gang_wars_won: int = 0, fights_won: int = 0):
-#     """Check if current game qualifies for high score and update if necessary"""
-#     if not game_state.player_name or not game_state.gang_name:
-#         return
+def check_and_update_high_scores(game_state: GameState, gang_wars_won: int = 0, fights_won: int = 0):
+    """Check if current game qualifies for high score and update if necessary"""
+    if not game_state.player_name or not game_state.gang_name:
+        return
 
-#     # Calculate current achievements
-#     money_earned = game_state.money + game_state.account  # Include savings
-#     days_survived = game_state.day
+    # Calculate current achievements
+    money_earned = game_state.money + game_state.account  # Include savings
+    days_survived = game_state.day
 
-#     # Calculate score
-#     score = calculate_score(money_earned, days_survived, gang_wars_won, fights_won)
+    # Calculate score
+    score = calculate_score(money_earned, days_survived, gang_wars_won, fights_won)
 
-#     # Load existing high scores
-#     high_scores = load_high_scores()
+    # Load existing high scores
+    high_scores = load_high_scores()
 
-#     # Create new high score entry
-#     new_score = HighScore(
-#         player_name=game_state.player_name,
-#         gang_name=game_state.gang_name,
-#         score=score,
-#         money_earned=money_earned,
-#         days_survived=days_survived,
-#         gang_wars_won=gang_wars_won,
-#         fights_won=fights_won,
-#         date_achieved=time.strftime("%Y-%m-%d %H:%M:%S")
-#     )
+    # Create new high score entry
+    new_score = HighScore(
+        player_name=game_state.player_name,
+        gang_name=game_state.gang_name,
+        score=score,
+        money_earned=money_earned,
+        days_survived=days_survived,
+        gang_wars_won=gang_wars_won,
+        fights_won=fights_won,
+        date_achieved=time.strftime("%Y-%m-%d %H:%M:%S")
+    )
 
-#     # Add to list and sort by score (highest first)
-#     high_scores.append(new_score)
-#     high_scores.sort(key=lambda x: x.score, reverse=True)
+    # Add to list and sort by score (highest first)
+    high_scores.append(new_score)
+    high_scores.sort(key=lambda x: x.score, reverse=True)
 
-#     # Keep only top 10 scores
-#     high_scores = high_scores[:10]
+    # Keep only top 10 scores
+    high_scores = high_scores[:10]
 
-#     # Save updated high scores
-#     save_high_scores(high_scores)
+    # Save updated high scores
+    save_high_scores(high_scores)
 
 
 # ============
@@ -266,9 +268,127 @@ def crackhouse():
 
 @app.route('/gunshack')
 def gunshack():
-    """Little Johnny's Gun Shack"""
+    """The Boom Shack"""
     game_state = get_game_state()
     return render_template('gunshack.html', game_state=game_state)
+
+@app.route('/buy_weapon', methods=['POST'])
+def buy_weapon():
+    """Handle weapon purchases"""
+    game_state = get_game_state()
+    weapon_type = request.form.get('weapon_type')
+    quantity = int(request.form.get('quantity', 1))
+
+    # Define weapon prices
+    weapon_prices = {
+        'pistol': 1200,
+        'bullets': 100,
+        'exploding_bullets': 500,
+        'grenade': 1000,
+        'vampire_bat': 2500,
+        'missile_launcher': 1000000,
+        'missile': 100000,
+        'vest_light': 15000,
+        'vest_medium': 25000,
+        'vest_heavy': 35000,
+        'ar15': 50000,
+        'ghost_gun': 900
+    }
+
+    if weapon_type not in weapon_prices:
+        flash("Invalid weapon type!", "danger")
+        return redirect(url_for('gunshack'))
+
+    price = weapon_prices[weapon_type]
+    total_cost = price * quantity
+
+    if game_state.money < total_cost:
+        flash(f"You don't have enough money! Need ${total_cost:,}.", "danger")
+        return redirect(url_for('gunshack'))
+
+    # Deduct money
+    game_state.money -= total_cost
+
+    # Add weapon to inventory
+    if weapon_type == 'pistol':
+        game_state.weapons.pistols += quantity
+    elif weapon_type == 'bullets':
+        game_state.weapons.bullets += quantity * 50  # Bullets come in packs of 50
+    elif weapon_type == 'exploding_bullets':
+        game_state.weapons.exploding_bullets += quantity * 50  # Exploding bullets come in packs of 50
+    elif weapon_type == 'grenade':
+        game_state.weapons.grenades += quantity
+    elif weapon_type == 'vampire_bat':
+        game_state.weapons.vampire_bat += quantity
+    elif weapon_type == 'missile_launcher':
+        game_state.weapons.missile_launcher += quantity
+    elif weapon_type == 'missile':
+        game_state.weapons.missiles += quantity
+    elif weapon_type == 'vest_light':
+        game_state.weapons.vest += 5  # Light vest gives 5 hits
+    elif weapon_type == 'vest_medium':
+        game_state.weapons.vest += 10  # Medium vest gives 10 hits
+    elif weapon_type == 'vest_heavy':
+        game_state.weapons.vest += 15  # Heavy vest gives 15 hits
+    elif weapon_type == 'ar15':
+        game_state.weapons.ar15 += quantity
+    elif weapon_type == 'ghost_gun':
+        game_state.weapons.ghost_guns += quantity
+
+    # Save and flash success
+    save_game_state(game_state)
+    flash(f"You bought {quantity} {weapon_type.replace('_', ' ')}(s) for ${total_cost:,}!", "success")
+    return redirect(url_for('gunshack'))
+
+@app.route('/upgrade_weapon', methods=['POST'])
+def upgrade_weapon():
+    """Handle weapon upgrades"""
+    game_state = get_game_state()
+    weapon_type = request.form.get('weapon_type')
+
+    # Define upgrade prices
+    upgrade_prices = {
+        'pistol': 15000,
+        'ghost_gun': 10000
+    }
+
+    if weapon_type not in upgrade_prices:
+        flash("Invalid weapon type for upgrade!", "danger")
+        return redirect(url_for('gunshack'))
+
+    price = upgrade_prices[weapon_type]
+
+    if game_state.money < price:
+        flash(f"You don't have enough money! Need ${price:,}.", "danger")
+        return redirect(url_for('gunshack'))
+
+    # Check if weapon exists and is not already upgraded
+    if weapon_type == 'pistol':
+        if game_state.weapons.pistols <= 0:
+            flash("You don't have a pistol to upgrade!", "danger")
+            return redirect(url_for('gunshack'))
+        if game_state.weapons.pistol_automatic:
+            flash("Your pistol is already automatic!", "info")
+            return redirect(url_for('gunshack'))
+        game_state.weapons.pistol_automatic = True
+        weapon_name = "Pistol"
+    elif weapon_type == 'ghost_gun':
+        if game_state.weapons.ghost_guns <= 0:
+            flash("You don't have a ghost gun to upgrade!", "danger")
+            return redirect(url_for('gunshack'))
+        if game_state.weapons.ghost_gun_automatic:
+            flash("Your ghost gun is already automatic!", "info")
+            return redirect(url_for('gunshack'))
+        game_state.weapons.ghost_gun_automatic = True
+        weapon_name = "Ghost Gun"
+
+    # Deduct money
+    game_state.money -= price
+
+    # Save and flash success
+    save_game_state(game_state)
+    flash(f"You upgraded your {weapon_name} to automatic for ${price:,}!", "success")
+    return redirect(url_for('gunshack'))
 
 @app.route('/bar')
 def bar():
@@ -319,14 +439,16 @@ def alleyway():
             'description': 'You emerge onto a narrow side street. Cars occasionally drive by, and you see a few shady figures watching you.',
             'exits': {
                 'west': 'entrance',
-                'north': 'hidden_entrance'
+                'north': 'hidden_entrance',
+                'east': 'abandoned_building'
             }
         },
         'dumpster': {
             'title': 'Behind the Dumpster',
             'description': 'You hide behind a large dumpster. The smell is awful, but you\'re well concealed. You find some discarded items.',
             'exits': {
-                'east': 'entrance'
+                'east': 'entrance',
+                'north': 'maintenance_shaft'
             }
         },
         'hidden_entrance': {
@@ -334,7 +456,8 @@ def alleyway():
             'description': 'You find a hidden entrance to an underground network. This could lead to interesting places...',
             'exits': {
                 'south': 'side_street',
-                'down': 'underground'
+                'down': 'underground',
+                'east': 'sewer_entrance'
             }
         },
         'underground': {
@@ -342,14 +465,99 @@ def alleyway():
             'description': 'You descend into a dimly lit underground passage. Water drips from the ceiling, and you hear echoes of distant footsteps.',
             'exits': {
                 'up': 'hidden_entrance',
-                'north': 'secret_room'
+                'north': 'secret_room',
+                'east': 'underground_market'
             }
         },
         'secret_room': {
             'title': 'Secret Room',
             'description': 'You enter a secret room filled with old crates and mysterious artifacts. There might be valuable items here.',
             'exits': {
-                'south': 'underground'
+                'south': 'underground',
+                'west': 'storage_room'
+            }
+        },
+        'abandoned_building': {
+            'title': 'Abandoned Building',
+            'description': 'You enter a crumbling abandoned building. The floors are covered in dust and debris, and you can hear rats scurrying in the walls.',
+            'exits': {
+                'west': 'side_street',
+                'up': 'rooftop_access',
+                'north': 'old_warehouse'
+            }
+        },
+        'sewer_entrance': {
+            'title': 'Sewer Entrance',
+            'description': 'A rusty manhole cover leads down into the city\'s sewer system. The air smells of decay and chemicals.',
+            'exits': {
+                'west': 'hidden_entrance',
+                'down': 'sewer_tunnels'
+            }
+        },
+        'rooftop_access': {
+            'title': 'Rooftop Access',
+            'description': 'You climb a rickety ladder to the rooftop. The city lights spread out before you, and you can see other buildings nearby.',
+            'exits': {
+                'down': 'abandoned_building'
+            }
+        },
+        'underground_market': {
+            'title': 'Underground Market',
+            'description': 'You stumble upon a hidden underground market. Shady merchants sell illegal goods under dim fluorescent lights.',
+            'exits': {
+                'west': 'underground',
+                'north': 'hidden_lab'
+            }
+        },
+        'storage_room': {
+            'title': 'Storage Room',
+            'description': 'This room is filled with old storage containers and forgotten equipment. Dust covers everything, but there might be valuables hidden here.',
+            'exits': {
+                'east': 'secret_room'
+            }
+        },
+        'maintenance_shaft': {
+            'title': 'Maintenance Shaft',
+            'description': 'A narrow maintenance shaft runs along the alley. It\'s dark and cramped, but you can hear the hum of machinery nearby.',
+            'exits': {
+                'south': 'dumpster',
+                'up': 'utility_room'
+            }
+        },
+        'old_warehouse': {
+            'title': 'Old Warehouse',
+            'description': 'You enter an old warehouse filled with rusted machinery and broken crates. The air is thick with the smell of oil and decay.',
+            'exits': {
+                'south': 'abandoned_building'
+            }
+        },
+        'sewer_tunnels': {
+            'title': 'Sewer Tunnels',
+            'description': 'The sewer tunnels are dark and damp. Water flows through channels, and you can hear the distant rumble of the city above.',
+            'exits': {
+                'up': 'sewer_entrance',
+                'north': 'flooded_chamber'
+            }
+        },
+        'hidden_lab': {
+            'title': 'Hidden Lab',
+            'description': 'You discover a clandestine laboratory hidden in the underground. Beakers bubble and strange equipment hums with activity.',
+            'exits': {
+                'south': 'underground_market'
+            }
+        },
+        'utility_room': {
+            'title': 'Utility Room',
+            'description': 'This utility room contains electrical panels and plumbing. The walls are lined with pipes and conduits.',
+            'exits': {
+                'down': 'maintenance_shaft'
+            }
+        },
+        'flooded_chamber': {
+            'title': 'Flooded Chamber',
+            'description': 'This chamber is partially flooded with murky water. Strange shapes move in the depths, and the air is thick with humidity.',
+            'exits': {
+                'south': 'sewer_tunnels'
             }
         }
     }
@@ -461,18 +669,18 @@ def wander():
             "You stumble upon a @gutted corpse in an alleyway, blood pooling around the severed limbs. You search the remains and find $50 in bloody cash!",
             "A street performer lies @slaughtered on the sidewalk, throat slit ear to ear. You overhear whispers of upcoming turf wars from nearby shadows.",
             "You witness a @drive-by shooting where rival gang members get their brains @blown out onto the pavement, painting the walls red.",
-            "You find a quiet spot littered with @mangled body parts to rest, regaining health amidst the stench of death.",
-            "You notice suspicious activity - a @beheaded body hanging from a streetlight - but decide to keep moving before you're next.",
-            "You bump into an old contact who's @missing an eye and bleeding profusely, sharing gossip about the bloody underworld.",
-            "You wander into a rough neighborhood where @limbs are strewn across the streets and narrowly avoid getting @gutted yourself.",
+            "You find a quiet spot littered with mangled body parts to rest, regaining health amidst the stench of death.",
+            "You notice suspicious activity - a beheaded body hanging from a streetlight - but decide to keep moving before you're next.",
+            "You bump into an old contact who's missing an eye and bleeding profusely, sharing gossip about the bloody underworld.",
+            "You wander into a rough neighborhood where @limbs are strewn across the streets and narrowly avoid getting gutted yourself.",
             "You find some discarded drugs worth $200 on the street, next to a @tortured corpse with @carved flesh.",
-            "You help a local shopkeeper who's @covered in blood from a recent @massacre, getting rewarded with information about safe havens.",
-            "You wander around the city, stepping over @dismembered bodies without incident, the air thick with the coppery smell of blood.",
-            "You see a police patrol investigating a @pile of corpses and quickly hide in an alley reeking of @rotting flesh.",
-            "You find a hidden stash of weapons beneath a @freshly killed body, blood still warm on the ground.",
-            "You encounter a beggar @missing limbs who tells you about secret locations while @bleeding out from multiple stab wounds.",
-            "You wander through a market district where @bodies hang from hooks like meat, haggling for better prices amidst the gore.",
-            "You stumble upon a gang recruitment drive where initiates are @branded with hot irons and @tortured to prove loyalty."
+            "You help a local shopkeeper who's @covered in blood from a recent massacre, getting rewarded with information about safe havens.",
+            "You wander around the city, stepping over dismembered bodies without incident, the air thick with the coppery smell of blood.",
+            "You see a police patrol investigating a pile of corpses and quickly hide in an alley reeking of @rotting flesh.",
+            "You find a hidden stash of weapons beneath a freshly killed body, blood still warm on the ground.",
+            "You encounter a beggar missing limbs who tells you about secret locations while @bleeding out from multiple stab wounds.",
+            "You wander through a market district where bodies hang from hooks like meat, haggling for better prices amidst the gore.",
+            "You stumble upon a gang recruitment drive where initiates are branded with hot irons and @tortured to prove loyalty."
         ]
 
         # Ensure randomness by seeding with current time
@@ -645,14 +853,16 @@ def search_room():
             'description': 'You emerge onto a narrow side street. Cars occasionally drive by, and you see a few shady figures watching you.',
             'exits': {
                 'west': 'entrance',
-                'north': 'hidden_entrance'
+                'north': 'hidden_entrance',
+                'east': 'abandoned_building'
             }
         },
         'dumpster': {
             'title': 'Behind the Dumpster',
             'description': 'You hide behind a large dumpster. The smell is awful, but you\'re well concealed. You find some discarded items.',
             'exits': {
-                'east': 'entrance'
+                'east': 'entrance',
+                'north': 'maintenance_shaft'
             }
         },
         'hidden_entrance': {
@@ -660,7 +870,8 @@ def search_room():
             'description': 'You find a hidden entrance to an underground network. This could lead to interesting places...',
             'exits': {
                 'south': 'side_street',
-                'down': 'underground'
+                'down': 'underground',
+                'east': 'sewer_entrance'
             }
         },
         'underground': {
@@ -668,14 +879,99 @@ def search_room():
             'description': 'You descend into a dimly lit underground passage. Water drips from the ceiling, and you hear echoes of distant footsteps.',
             'exits': {
                 'up': 'hidden_entrance',
-                'north': 'secret_room'
+                'north': 'secret_room',
+                'east': 'underground_market'
             }
         },
         'secret_room': {
             'title': 'Secret Room',
             'description': 'You enter a secret room filled with old crates and mysterious artifacts. There might be valuable items here.',
             'exits': {
-                'south': 'underground'
+                'south': 'underground',
+                'west': 'storage_room'
+            }
+        },
+        'abandoned_building': {
+            'title': 'Abandoned Building',
+            'description': 'You enter a crumbling abandoned building. The floors are covered in dust and debris, and you can hear rats scurrying in the walls.',
+            'exits': {
+                'west': 'side_street',
+                'up': 'rooftop_access',
+                'north': 'old_warehouse'
+            }
+        },
+        'sewer_entrance': {
+            'title': 'Sewer Entrance',
+            'description': 'A rusty manhole cover leads down into the city\'s sewer system. The air smells of decay and chemicals.',
+            'exits': {
+                'west': 'hidden_entrance',
+                'down': 'sewer_tunnels'
+            }
+        },
+        'rooftop_access': {
+            'title': 'Rooftop Access',
+            'description': 'You climb a rickety ladder to the rooftop. The city lights spread out before you, and you can see other buildings nearby.',
+            'exits': {
+                'down': 'abandoned_building'
+            }
+        },
+        'underground_market': {
+            'title': 'Underground Market',
+            'description': 'You stumble upon a hidden underground market. Shady merchants sell illegal goods under dim fluorescent lights.',
+            'exits': {
+                'west': 'underground',
+                'north': 'hidden_lab'
+            }
+        },
+        'storage_room': {
+            'title': 'Storage Room',
+            'description': 'This room is filled with old storage containers and forgotten equipment. Dust covers everything, but there might be valuables hidden here.',
+            'exits': {
+                'east': 'secret_room'
+            }
+        },
+        'maintenance_shaft': {
+            'title': 'Maintenance Shaft',
+            'description': 'A narrow maintenance shaft runs along the alley. It\'s dark and cramped, but you can hear the hum of machinery nearby.',
+            'exits': {
+                'south': 'dumpster',
+                'up': 'utility_room'
+            }
+        },
+        'old_warehouse': {
+            'title': 'Old Warehouse',
+            'description': 'You enter an old warehouse filled with rusted machinery and broken crates. The air is thick with the smell of oil and decay.',
+            'exits': {
+                'south': 'abandoned_building'
+            }
+        },
+        'sewer_tunnels': {
+            'title': 'Sewer Tunnels',
+            'description': 'The sewer tunnels are dark and damp. Water flows through channels, and you can hear the distant rumble of the city above.',
+            'exits': {
+                'up': 'sewer_entrance',
+                'north': 'flooded_chamber'
+            }
+        },
+        'hidden_lab': {
+            'title': 'Hidden Lab',
+            'description': 'You discover a clandestine laboratory hidden in the underground. Beakers bubble and strange equipment hums with activity.',
+            'exits': {
+                'south': 'underground_market'
+            }
+        },
+        'utility_room': {
+            'title': 'Utility Room',
+            'description': 'This utility room contains electrical panels and plumbing. The walls are lined with pipes and conduits.',
+            'exits': {
+                'down': 'maintenance_shaft'
+            }
+        },
+        'flooded_chamber': {
+            'title': 'Flooded Chamber',
+            'description': 'This chamber is partially flooded with murky water. Strange shapes move in the depths, and the air is thick with humidity.',
+            'exits': {
+                'south': 'sewer_tunnels'
             }
         }
     }
@@ -823,14 +1119,16 @@ def move_room(direction):
             'description': 'You emerge onto a narrow side street. Cars occasionally drive by, and you see a few shady figures watching you.',
             'exits': {
                 'west': 'entrance',
-                'north': 'hidden_entrance'
+                'north': 'hidden_entrance',
+                'east': 'abandoned_building'
             }
         },
         'dumpster': {
             'title': 'Behind the Dumpster',
             'description': 'You hide behind a large dumpster. The smell is awful, but you\'re well concealed. You find some discarded items.',
             'exits': {
-                'east': 'entrance'
+                'east': 'entrance',
+                'north': 'maintenance_shaft'
             }
         },
         'hidden_entrance': {
@@ -838,7 +1136,8 @@ def move_room(direction):
             'description': 'You find a hidden entrance to an underground network. This could lead to interesting places...',
             'exits': {
                 'south': 'side_street',
-                'down': 'underground'
+                'down': 'underground',
+                'east': 'sewer_entrance'
             }
         },
         'underground': {
@@ -846,14 +1145,99 @@ def move_room(direction):
             'description': 'You descend into a dimly lit underground passage. Water drips from the ceiling, and you hear echoes of distant footsteps.',
             'exits': {
                 'up': 'hidden_entrance',
-                'north': 'secret_room'
+                'north': 'secret_room',
+                'east': 'underground_market'
             }
         },
         'secret_room': {
             'title': 'Secret Room',
             'description': 'You enter a secret room filled with old crates and mysterious artifacts. There might be valuable items here.',
             'exits': {
-                'south': 'underground'
+                'south': 'underground',
+                'west': 'storage_room'
+            }
+        },
+        'abandoned_building': {
+            'title': 'Abandoned Building',
+            'description': 'You enter a crumbling abandoned building. The floors are covered in dust and debris, and you can hear rats scurrying in the walls.',
+            'exits': {
+                'west': 'side_street',
+                'up': 'rooftop_access',
+                'north': 'old_warehouse'
+            }
+        },
+        'sewer_entrance': {
+            'title': 'Sewer Entrance',
+            'description': 'A rusty manhole cover leads down into the city\'s sewer system. The air smells of decay and chemicals.',
+            'exits': {
+                'west': 'hidden_entrance',
+                'down': 'sewer_tunnels'
+            }
+        },
+        'rooftop_access': {
+            'title': 'Rooftop Access',
+            'description': 'You climb a rickety ladder to the rooftop. The city lights spread out before you, and you can see other buildings nearby.',
+            'exits': {
+                'down': 'abandoned_building'
+            }
+        },
+        'underground_market': {
+            'title': 'Underground Market',
+            'description': 'You stumble upon a hidden underground market. Shady merchants sell illegal goods under dim fluorescent lights.',
+            'exits': {
+                'west': 'underground',
+                'north': 'hidden_lab'
+            }
+        },
+        'storage_room': {
+            'title': 'Storage Room',
+            'description': 'This room is filled with old storage containers and forgotten equipment. Dust covers everything, but there might be valuables hidden here.',
+            'exits': {
+                'east': 'secret_room'
+            }
+        },
+        'maintenance_shaft': {
+            'title': 'Maintenance Shaft',
+            'description': 'A narrow maintenance shaft runs along the alley. It\'s dark and cramped, but you can hear the hum of machinery nearby.',
+            'exits': {
+                'south': 'dumpster',
+                'up': 'utility_room'
+            }
+        },
+        'old_warehouse': {
+            'title': 'Old Warehouse',
+            'description': 'You enter an old warehouse filled with rusted machinery and broken crates. The air is thick with the smell of oil and decay.',
+            'exits': {
+                'south': 'abandoned_building'
+            }
+        },
+        'sewer_tunnels': {
+            'title': 'Sewer Tunnels',
+            'description': 'The sewer tunnels are dark and damp. Water flows through channels, and you can hear the distant rumble of the city above.',
+            'exits': {
+                'up': 'sewer_entrance',
+                'north': 'flooded_chamber'
+            }
+        },
+        'hidden_lab': {
+            'title': 'Hidden Lab',
+            'description': 'You discover a clandestine laboratory hidden in the underground. Beakers bubble and strange equipment hums with activity.',
+            'exits': {
+                'south': 'underground_market'
+            }
+        },
+        'utility_room': {
+            'title': 'Utility Room',
+            'description': 'This utility room contains electrical panels and plumbing. The walls are lined with pipes and conduits.',
+            'exits': {
+                'down': 'maintenance_shaft'
+            }
+        },
+        'flooded_chamber': {
+            'title': 'Flooded Chamber',
+            'description': 'This chamber is partially flooded with murky water. Strange shapes move in the depths, and the air is thick with humidity.',
+            'exits': {
+                'south': 'sewer_tunnels'
             }
         }
     }
@@ -1102,24 +1486,7 @@ def fight_cops():
                         save_game_state(game_state)
                         return render_template('fight_defeat.html', game_state=game_state, enemy_type=enemy_type, enemy_count=enemy_count, fight_log=fight_log, final_damage=final_damage)
 
-        elif weapon == 'uzi' and game_state.weapons.bullets > 0:
-            game_state.weapons.bullets -= min(10, game_state.weapons.bullets)  # Uzi uses 10 bullets
-            cops_killed = min(num_cops, random.randint(2, 5))
-            num_cops -= cops_killed
 
-            damage = random.randint(10, 40) * (num_cops if num_cops > 0 else 1)
-            if game_state.weapons.vest > 0:
-                game_state.weapons.vest -= 1
-                damage = max(0, damage - 20)
-
-            game_state.damage += damage
-
-            if num_cops <= 0:
-                flash(f"You sprayed the cops with your Uzi! {cops_killed} officers down!", "success")
-                save_game_state(game_state)
-                return redirect(url_for('city'))
-            else:
-                message = f"You sprayed {cops_killed} cop(s) but {num_cops} remain! Massive shootout - you took {damage} damage."
 
         elif weapon == 'grenade' and game_state.weapons.grenades > 0:
             game_state.weapons.grenades -= 1
@@ -1222,21 +1589,49 @@ def process_fight_action():
 
     # Process action
     if action == 'attack':
+        use_exploding = weapon in ['pistol', 'ghost_gun', 'ar15'] and game_state.weapons.exploding_bullets > 0
+
         if weapon == 'pistol' and game_state.weapons.pistols > 0 and game_state.weapons.bullets > 0:
             game_state.weapons.bullets -= 1
-            damage = random.randint(15, 25)
+            base_damage = random.randint(15, 25)
+            if use_exploding:
+                game_state.weapons.exploding_bullets -= 1
+                base_damage *= 2  # Exploding bullet doubles damage
+            if game_state.weapons.pistol_automatic:
+                # Automatic pistol fires 3 shots
+                damage = base_damage * 3
+                fight_log.append(f"You fire your automatic pistol in burst mode and deal {damage} damage{' (exploding bullets have devastating effect!)' if use_exploding else ''}!")
+            else:
+                damage = base_damage
+                fight_log.append(f"You fire your pistol and deal {damage} damage{' (exploding bullet!)' if use_exploding else ''}!")
             enemy_health -= damage
-            fight_log.append(f"You fire your pistol and deal {damage} damage!")
+        elif weapon == 'ar15' and game_state.weapons.ar15 > 0 and game_state.weapons.bullets > 0:
+            game_state.weapons.bullets -= 1
+            damage = random.randint(25, 45)
+            if use_exploding:
+                game_state.weapons.exploding_bullets -= 1
+                damage *= 2  # Exploding bullet doubles damage
+            enemy_health -= damage
+            fight_log.append(f"You fire your AR-15 and deal {damage} damage{' (exploding ammunition shreds through!)' if use_exploding else ''}!")
         elif weapon == 'ghost_gun' and game_state.weapons.ghost_guns > 0 and game_state.weapons.bullets > 0:
             game_state.weapons.bullets -= 1
-            damage = random.randint(15, 25)
+            base_damage = random.randint(15, 25)
+            # Ghost gun jam chance - 20% chance to jam and do no damage
+            if random.random() < 0.2:
+                fight_log.append("Your ghost gun jammed! No damage dealt.")
+                damage = 0
+            else:
+                if use_exploding:
+                    game_state.weapons.exploding_bullets -= 1
+                    base_damage *= 2  # Exploding bullet doubles damage
+                if game_state.weapons.ghost_gun_automatic:
+                    # Automatic ghost gun fires 2 shots
+                    damage = base_damage * 2
+                    fight_log.append(f"You fire your automatic ghost gun in burst mode and deal {damage} damage{' (exploding havoc!)' if use_exploding else ''}!")
+                else:
+                    damage = base_damage
+                    fight_log.append(f"You fire your ghost gun and deal {damage} damage{' (exploding impact!)' if use_exploding else ''}!")
             enemy_health -= damage
-            fight_log.append(f"You fire your ghost gun and deal {damage} damage!")
-        elif weapon == 'uzi' and game_state.weapons.uzis > 0 and game_state.weapons.bullets >= 3:
-            game_state.weapons.bullets -= 3
-            damage = random.randint(20, 40)
-            enemy_health -= damage
-            fight_log.append(f"You spray with your Uzi and deal {damage} damage!")
         elif weapon == 'grenade' and game_state.weapons.grenades > 0:
             game_state.weapons.grenades -= 1
             damage = random.randint(30, 60)
@@ -1312,8 +1707,6 @@ def process_fight_action():
 
     # Check win/lose conditions
     if enemy_health <= 0:
-        flash("Victory! You defeated your enemies!", "success")
-
         # Handle NPC-specific victory logic
         npc_id = request.form.get('npc_id')
         if npc_id and npc_id in npcs_data:
@@ -1321,21 +1714,24 @@ def process_fight_action():
             with open('npcs.json', 'w') as f:
                 json.dump(npcs_data, f, indent=2)
             game_state.money += 100  # Loot from defeated NPC
-            flash(f"You defeated {npcs_data[npc_id]['name']} and looted $100!", "success")
+            fight_log.append(f"You defeated {npcs_data[npc_id]['name']} and looted $100!")
 
         # Chance to recruit a defeated enemy as a gang member
         if enemy_type != "Police Officers" and random.random() < 0.3:  # 30% chance
             game_state.members += 1
-            flash("One of your defeated enemies has joined your gang!", "success")
+            fight_log.append("One of your defeated enemies has joined your gang!")
 
+        fight_log.append(f"VICTORY! You have defeated the {enemy_type}!")
         save_game_state(game_state)
-        return redirect(url_for('city'))
+        return render_template('battle_log.html', game_state=game_state, fight_log=fight_log, victory=True)
     elif game_state.damage >= 10:
         game_state.lives -= 1
         final_damage = game_state.damage  # Store the final damage before resetting
         game_state.damage = 0
         game_state.health = 100
         if game_state.lives <= 0:
+            # Update high scores when player dies
+            check_and_update_high_scores(game_state)
             save_game_state(game_state)
             return render_template('fight_defeat.html', game_state=game_state, enemy_type=enemy_type, enemy_count=enemy_count, fight_log=fight_log, final_damage=final_damage)
         else:
@@ -1351,6 +1747,8 @@ def process_fight_action():
 def game_over():
     """Game Over screen"""
     game_state = get_game_state()
+    # Update high scores when game ends
+    check_and_update_high_scores(game_state)
     return render_template('game_over.html', game_state=game_state)
 
 # ============
@@ -1453,6 +1851,6 @@ else:
 
 if __name__ == '__main__':
     if socketio:
-        socketio.run(app, debug=True, allow_unsafe_werkzeug=True)
+        socketio.run(app, debug=True, allow_unsafe_werkzeug=True, host='0.0.0.0', port=5000)
     else:
-        app.run(debug=True)
+        app.run(debug=True, host='0.0.0.0', port=5000)

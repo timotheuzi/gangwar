@@ -76,7 +76,10 @@
                     <option value="vampire_bat">Vampire Bat - 2 attacks/turn</option>
                     {% endif %}
                     {% if game_state.weapons.ghost_guns > 0 and game_state.weapons.bullets > 0 %}
-                    <option value="ghost_gun">Ghost Gun ({{ game_state.weapons.bullets }} bullets) - 1 attack/turn</option>
+                    <option value="ghost_gun">Ghost Gun ({{ game_state.weapons.bullets }} bullets) - 1 attack/turn{% if game_state.weapons.ghost_gun_automatic %} (Auto){% endif %}</option>
+                    {% endif %}
+                    {% if game_state.weapons.ar15 > 0 and game_state.weapons.bullets > 0 %}
+                    <option value="ar15">AR-15 ({{ game_state.weapons.bullets }} bullets) - 1 attack/turn</option>
                     {% endif %}
                     <option value="knife">Knife - 3 attacks/turn</option>
                 </select>

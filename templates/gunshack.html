@@ -2,7 +2,7 @@
 
 {% block content %}
 <div class="gunshack-screen">
-    <h2>Little Johnny's Gun Shack</h2>
+    <h2>The Boom Shack</h2>
     <p>Get armed and dangerous! Stock up on weapons and protection.</p>
     
     <div class="weapon-grid">
@@ -25,6 +25,17 @@
                 <input type="hidden" name="weapon_type" value="bullets">
                 <input type="hidden" name="quantity" value="1">
                 <button type="submit" class="btn btn-primary">Buy Bullets</button>
+            </form>
+        </div>
+
+        <div class="weapon-item">
+            <h4>Exploding Bullets (50 pack)</h4>
+            <p>Price: $500</p>
+            <p>You have: {{ game_state.weapons.exploding_bullets }}</p>
+            <form method="POST" action="{{ url_for('buy_weapon') }}" class="inline-form">
+                <input type="hidden" name="weapon_type" value="exploding_bullets">
+                <input type="hidden" name="quantity" value="1">
+                <button type="submit" class="btn btn-primary">Buy Exploding Bullets</button>
             </form>
         </div>
         
@@ -82,10 +93,45 @@
                 <button type="submit" class="btn btn-primary">Buy Missile</button>
             </form>
         </div>
-        
+
+        <div class="weapon-item">
+            <h4>AR-15</h4>
+            <p>Price: $50,000</p>
+            <p>You have: {{ game_state.weapons.ar15 }}</p>
+            <form method="POST" action="{{ url_for('buy_weapon') }}" class="inline-form">
+                <input type="hidden" name="weapon_type" value="ar15">
+                <input type="hidden" name="quantity" value="1">
+                <button type="submit" class="btn btn-primary">Buy AR-15</button>
+            </form>
+        </div>
+
 
     </div>
     
+    <div class="upgrade-section">
+        <h3>Weapon Upgrades</h3>
+        <p>Upgrade your weapons for better performance!</p>
+        <div class="upgrade-options">
+            {% if game_state.weapons.pistols > 0 and not game_state.weapons.pistol_automatic %}
+            <form method="POST" action="{{ url_for('upgrade_weapon') }}" class="inline-form">
+                <input type="hidden" name="weapon_type" value="pistol">
+                <button type="submit" class="btn btn-warning">Upgrade Pistol to Automatic ($15,000)</button>
+            </form>
+            {% elif game_state.weapons.pistol_automatic %}
+            <p>✅ Pistol is already automatic</p>
+            {% endif %}
+
+            {% if game_state.weapons.ghost_guns > 0 and not game_state.weapons.ghost_gun_automatic %}
+            <form method="POST" action="{{ url_for('upgrade_weapon') }}" class="inline-form">
+                <input type="hidden" name="weapon_type" value="ghost_gun">
+                <button type="submit" class="btn btn-warning">Upgrade Ghost Gun to Automatic ($10,000)</button>
+            </form>
+            {% elif game_state.weapons.ghost_gun_automatic %}
+            <p>✅ Ghost Gun is already automatic</p>
+            {% endif %}
+        </div>
+    </div>
+
     <div class="vest-section">
         <h3>Body Armor</h3>
         <p>Current protection: {{ game_state.weapons.vest }} hits</p>
@@ -93,19 +139,19 @@
             <form method="POST" action="{{ url_for('buy_weapon') }}" class="inline-form">
                 <input type="hidden" name="weapon_type" value="vest_light">
                 <input type="hidden" name="quantity" value="1">
-                <button type="submit" class="btn btn-secondary">Light Vest ($30,000) - 5 hits</button>
+                <button type="submit" class="btn btn-secondary">Light Vest ($15,000) - 5 hits</button>
             </form>
-            
+
             <form method="POST" action="{{ url_for('buy_weapon') }}" class="inline-form">
                 <input type="hidden" name="weapon_type" value="vest_medium">
                 <input type="hidden" name="quantity" value="1">
-                <button type="submit" class="btn btn-secondary">Medium Vest ($55,000) - 10 hits</button>
+                <button type="submit" class="btn btn-secondary">Medium Vest ($25,000) - 10 hits</button>
             </form>
-            
+
             <form method="POST" action="{{ url_for('buy_weapon') }}" class="inline-form">
                 <input type="hidden" name="weapon_type" value="vest_heavy">
                 <input type="hidden" name="quantity" value="1">
-                <button type="submit" class="btn btn-secondary">Heavy Vest ($75,000) - 15 hits</button>
+                <button type="submit" class="btn btn-secondary">Heavy Vest ($35,000) - 15 hits</button>
             </form>
         </div>
     </div>
