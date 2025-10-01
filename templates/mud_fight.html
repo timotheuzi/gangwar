@@ -15,12 +15,12 @@
 
         <div class="enemy-status">
             <h4>Enemy Status</h4>
-            <p>Health: {{ enemy_health }}/10</p>
+            <p>Health: {{ enemy_health }}/{{ max_enemy_hp }}</p>
             <p>Type: {{ enemy_type }}</p>
             {% if enemy_count > 1 %}
             <p>Enemies: {{ enemy_count }}</p>
             {% endif %}
-        </div>
+
     </div>
 
     {% if combat_active %}
