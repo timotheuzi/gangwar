@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="victory-screen">
+    <h2>Victory!</h2>
+    
+    <div class="victory-message">
+        <h3>You defeated the police!</h3>
+        <p>Your reputation on the streets has grown significantly!</p>
+        <p><strong>New gang members recruited:</strong> {{ new_members }}</p>
+        <p>Word spreads about your victory, and more people want to join your gang.</p>
+    </div>
+    
+    <div class="victory-status">
+        <h3>Updated Status:</h3>
+        <p><strong>Gang Members:</strong> {{ game_state.members }}</p>
+        <p><strong>Gang Strength:</strong> 
+            {% if game_state.members >= 20 %}Elite (Ready for war)
+            {% elif game_state.members >= 15 %}Strong (Getting there)
+            {% elif game_state.members >= 10 %}Formidable (Good progress)
+            {% elif game_state.members >= 5 %}Growing (Need more members)
+            {% else %}Small (Very vulnerable)
+            {% endif %}
+        </p>
+        <p><strong>Health:</strong> {{ 10 - game_state.damage }}/10</p>
+        <p><strong>Vest Protection:</strong> {{ game_state.vest }} hits remaining</p>
+    </div>
+    
+    <div class="victory-tips">
+        <h3>What's Next?</h3>
+        <ul>
+            <li>With more gang members, you're stronger in battles</li>
+            <li>Consider challenging the Squidies when you have enough members</li>
+            <li>Keep building your drug empire</li>
+            <li>Stay armed and protected</li>
+        </ul>
+    </div>
+
+    <div class="actions">
+        <a href="{{ url_for('city') }}" class="btn btn-primary">Continue Your Empire</a>
+    </div>
+</div>
+{% endblock %}

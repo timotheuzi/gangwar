@@ -1,0 +1,89 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="bank-screen">
+    <h2>Savings and Loan</h2>
+    <p>Keep your money safe and earn interest on your savings.</p>
+    
+    <div class="bank-info">
+        <h3>Account Information</h3>
+        <div class="account-details">
+            <p><strong>Cash on Hand:</strong> ${{ "{:,}".format(game_state.money) }}</p>
+            <p><strong>Savings Account:</strong> ${{ "{:,}".format(game_state.account|int) }}</p>
+            <p><strong>Outstanding Loan:</strong> ${{ "{:,}".format(game_state.loan|int) }}</p>
+        </div>
+    </div>
+    
+    <div class="bank-services">
+        <div class="service-section">
+            <h3>Deposit Money</h3>
+            <form method="POST" action="{{ url_for('bank_transaction') }}">
+                <input type="hidden" name="action" value="deposit">
+                <div class="form-group">
+                    <label for="deposit_amount">Amount to Deposit:</label>
+                    <input type="number" name="amount" id="deposit_amount" min="1" max="{{ game_state.money }}" value="1000" required>
+                </div>
+                <button type="submit" class="btn btn-primary">Deposit</button>
+            </form>
+        </div>
+        
+        <div class="service-section">
+            <h3>Withdraw Money</h3>
+            <form method="POST" action="{{ url_for('bank_transaction') }}">
+                <input type="hidden" name="action" value="withdraw">
+                <div class="form-group">
+                    <label for="withdraw_amount">Amount to Withdraw:</label>
+                    <input type="number" name="amount" id="withdraw_amount" min="1" max="{{ game_state.account|int }}" value="1000" required>
+                </div>
+                <button type="submit" class="btn btn-secondary">Withdraw</button>
+            </form>
+        </div>
+        
+        <div class="service-section">
+            <h3>Take Out Loan</h3>
+            <form method="POST" action="{{ url_for('bank_transaction') }}">
+                <input type="hidden" name="action" value="loan">
+                <div class="form-group">
+                    <label for="loan_amount">Loan Amount:</label>
+                    <select name="amount" id="loan_amount" required>
+                        <option value="5000">$5,000</option>
+                        <option value="10000">$10,000</option>
+                        <option value="25000">$25,000</option>
+                        <option value="50000">$50,000</option>
+                        <option value="100000">$100,000</option>
+                    </select>
+                </div>
+                <button type="submit" class="btn btn-danger">Get Loan</button>
+            </form>
+        </div>
+        
+        <div class="service-section">
+            <h3>Pay Off Loan</h3>
+            <form method="POST" action="{{ url_for('bank_transaction') }}">
+                <input type="hidden" name="action" value="pay_loan">
+                <div class="form-group">
+                    <label for="pay_loan_amount">Amount to Pay:</label>
+                    <input type="number" name="amount" id="pay_loan_amount" min="1" max="{{ game_state.loan|int }}" value="{{ game_state.loan|int }}" required>
+                </div>
+                <button type="submit" class="btn btn-warning">Pay Loan</button>
+            </form>
+        </div>
+    </div>
+    
+    <div class="bank-tips">
+        <h3>Banking Tips</h3>
+        <ul>
+            <li>Keep some money in savings for emergencies</li>
+            <li>Loans have high interest rates - pay them off quickly</li>
+            <li>Don't carry all your cash on the streets</li>
+            <li>The bank is the safest place for your money</li>
+        </ul>
+    </div>
+    
+    <div class="actions">
+        <a href="{{ url_for('city') }}" class="btn btn-primary">Back to City</a>
+    </div>
+
+
+</div>
+{% endblock %}

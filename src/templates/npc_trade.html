@@ -1,0 +1,79 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="npc-trade-screen">
+    <h2>Trading with {{ npc.name }}</h2>
+
+    {% if error %}
+    <div class="alert alert-danger">
+        {{ error }}
+    </div>
+    {% endif %}
+
+    <div class="npc-info">
+        <h3>{{ npc.name }}</h3>
+        <p><strong>Personality:</strong> {{ npc.personality.title() }}</p>
+    </div>
+
+    <div class="trade-section">
+        <h3>Buy from {{ npc.name }}</h3>
+        <p>What would you like to buy?</p>
+
+        <form method="POST" class="trade-form">
+            <input type="hidden" name="trade_type" value="buy">
+            <div class="form-group">
+                <label for="buy_item">Item:</label>
+                <select name="item_type" id="buy_item" required>
+                    <option value="">Select item...</option>
+                    {% for drug in ['weed', 'crack', 'coke', 'ice', 'percs', 'pixie_dust'] %}
+                        {% set amount = npc.drugs[drug] %}
+                        {% if amount > 0 %}
+                            {% set price = (game_state.drug_prices[drug] * npc.drug_price_modifier)|int %}
+                            <option value="{{ drug }}">{{ drug.title() }} (${{ price }} each, {{ amount }} available)</option>
+                        {% endif %}
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="buy_quantity">Quantity:</label>
+                <input type="number" name="quantity" id="buy_quantity" min="1" required>
+            </div>
+            <button type="submit" class="btn btn-success">Buy</button>
+        </form>
+    </div>
+
+    <div class="trade-section">
+        <h3>Sell to {{ npc.name }}</h3>
+        <p>What would you like to sell?</p>
+
+        <form method="POST" class="trade-form">
+            <input type="hidden" name="trade_type" value="sell">
+            <div class="form-group">
+                <label for="sell_item">Item:</label>
+                <select name="item_type" id="sell_item" required>
+                    <option value="">Select item...</option>
+                    {% for drug in ['weed', 'crack', 'coke', 'ice', 'percs', 'pixie_dust'] %}
+                        {% set amount = game_state.drugs[drug] %}
+                        {% if amount > 0 %}
+                            <option value="{{ drug }}">{{ drug.title() }} (${{ (game_state.drug_prices[drug] * 0.7)|int }} each, {{ amount }} available)</option>
+                        {% endif %}
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="sell_quantity">Quantity:</label>
+                <input type="number" name="quantity" id="sell_quantity" min="1" required>
+            </div>
+            <button type="submit" class="btn btn-warning">Sell</button>
+        </form>
+    </div>
+
+    <div class="actions">
+        <a href="{{ url_for('talk_to_npc', npc_id=npc.id) }}" class="btn btn-primary">Talk Instead</a>
+        <a href="{{ url_for('npcs') }}" class="btn btn-secondary">Back to People</a>
+        <a href="{{ url_for('city') }}" class="btn btn-secondary">Back to City</a>
+    </div>
+
+    <div id="player-list"></div>
+</div>
+{% endblock %}

@@ -8,13 +8,20 @@ all: build
 
 # Build the application
 build:
+	@echo "Cleaning previous build artifacts..."
+	@rm -rf build/
+	@rm -rf dist/
+	@find . -maxdepth 1 -name "*.spec" ! -name "gangwar.spec" -delete 2>/dev/null || true
 	@echo "Building Gangwar Game..."
-	@chmod +x build.sh
-	@./build.sh
+	@chmod +x scripts/build.sh
+	@./scripts/build.sh
 
 # Clean build artifacts
 clean:
 	@echo "Cleaning build artifacts..."
+	@echo "Killing existing gangwar processes..."
+	@pkill -f gangwar 2>/dev/null || true
+	@lsof -ti :5000 | xargs kill -9 2>/dev/null || true
 	@rm -rf build/
 	@rm -rf dist/
 	@find . -maxdepth 1 -name "*.spec" ! -name "gangwar.spec" -delete 2>/dev/null || true
@@ -49,15 +56,15 @@ install-deps:
 # Run the application in development mode
 run:
 	@echo "Running Gangwar Game in development mode..."
-	@python3 app.py
+	@./run.sh
 
 # Run the built executable
 run-dist:
 	@echo "Running built executable..."
 	@if [ -f "dist/gangwar" ]; then \
-		cd dist && ./run.sh; \
+		cd dist && ../scripts/run.sh; \
 	elif [ -f "dist/gangwar.exe" ]; then \
-		cd dist && ./run.bat; \
+		cd dist && ../scripts/run.bat; \
 	else \
 		echo "No executable found. Run 'make build' first."; \
 		exit 1; \
@@ -66,7 +73,7 @@ run-dist:
 # Test the application
 test:
 	@echo "Testing Gangwar Game..."
-	@python3 -c "import app; print('✓ Flask app imports successfully')"
+	@python3 -c "import sys; sys.path.insert(0, 'src'); import app; print('✓ Flask app imports successfully')"
 	@python3 -c "import flask_socketio; print('✓ Flask-SocketIO available')"
 	@python3 -c "import flask; print('✓ Flask available')"
 	@echo "Basic tests passed!"
