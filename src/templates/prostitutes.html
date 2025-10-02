@@ -10,21 +10,30 @@
             <h3>Quick Service</h3>
             <p>Cost: $200</p>
             <p>A quick encounter to relieve stress.</p>
-            <button class="btn btn-primary">Pay $200</button>
+            <form method="POST" action="{{ url_for('prostitute_action') }}">
+                <input type="hidden" name="action" value="quick_service">
+                <button type="submit" class="btn btn-primary">Pay $200</button>
+            </form>
         </div>
 
         <div class="service-option">
             <h3>VIP Experience</h3>
             <p>Cost: $500</p>
             <p>A premium experience with extras.</p>
-            <button class="btn btn-danger">Pay $500</button>
+            <form method="POST" action="{{ url_for('prostitute_action') }}">
+                <input type="hidden" name="action" value="vip_experience">
+                <button type="submit" class="btn btn-danger">Pay $500</button>
+            </form>
         </div>
 
         <div class="service-option">
             <h3>Recruit Hooker</h3>
             <p>Cost: $1000</p>
             <p>Convince a prostitute to join your gang.</p>
-            <button class="btn btn-warning">Pay $1000</button>
+            <form method="POST" action="{{ url_for('prostitute_action') }}">
+                <input type="hidden" name="action" value="recruit_hooker">
+                <button type="submit" class="btn btn-warning">Pay $1000</button>
+            </form>
         </div>
     </div>
 

@@ -15,37 +15,57 @@
         {% endif %}
     </div>
 
-    <div class="fight-summary">
-        <h3>Fight Summary</h3>
-        <div class="summary-details">
-            <p><strong>Opponent:</strong> {{ enemy_type }}</p>
-            {% if enemy_count > 1 %}
-            <p><strong>Number of Enemies:</strong> {{ enemy_count }}</p>
-            {% endif %}
-            <p><strong>Final Damage Taken:</strong> {{ final_damage }}</p>
-        </div>
 
+
+    <div class="defeat-details">
+        <h3>MUD Combat Report</h3>
         {% if fight_log %}
         <div class="combat-log">
-            <h4>Full Combat Log:</h4>
-            <div class="log-entries">
-                {% for entry in fight_log %}
-                <p>{{ entry }}</p>
-                {% endfor %}
+            <div class="mud-style-header">
+                <p><strong>⚔️ COMBAT LOG - TURN BY TURN ⚔️</strong></p>
+                <p><em>Opponent: {{ enemy_type }}{% if enemy_count > 1 %} ({{ enemy_count }} enemies){% endif %}</em></p>
+            </div>
+            {% for entry in fight_log %}
+            <div class="combat-turn">
+                <span class="turn-marker">></span>
+                <span class="turn-text">{{ entry }}</span>
+            </div>
+            {% endfor %}
+            <div class="defeat-summary">
+                <p><strong>FINAL OUTCOME:</strong> Defeated by {{ enemy_type }} - {{ final_damage }} total damage taken</p>
+            </div>
+        </div>
+        {% else %}
+        <div class="combat-log">
+            <div class="mud-style-header">
+                <p><strong>⚔️ COMBAT LOG - TURN BY TURN ⚔️</strong></p>
+                <p><em>Opponent: {{ enemy_type }}{% if enemy_count > 1 %} ({{ enemy_count }} enemies){% endif %}</em></p>
+            </div>
+            <div class="combat-turn">
+                <span class="turn-marker">></span>
+                <span class="turn-text">You engaged in fierce combat with {{ enemy_type }}</span>
+            </div>
+            <div class="combat-turn">
+                <span class="turn-marker">></span>
+                <span class="turn-text">The battle raged back and forth with heavy casualties</span>
+            </div>
+            <div class="combat-turn">
+                <span class="turn-marker">></span>
+                <span class="turn-text">Despite your best efforts, you were overwhelmed</span>
+            </div>
+            <div class="defeat-summary">
+                <p><strong>FINAL OUTCOME:</strong> Defeated by {{ enemy_type }} - {{ final_damage }} total damage taken</p>
             </div>
         </div>
         {% endif %}
-    </div>
-
-    <div class="defeat-details">
-        <h3>What Happened</h3>
-        <p>Your health was depleted in combat. You were overwhelmed by your enemies.</p>
         {% if game_state.lives > 0 %}
         <p>You've been revived in the city with full health, but you're one step closer to total defeat.</p>
         {% else %}
         <p>This was your final life. Your gang's reign has come to an end.</p>
         {% endif %}
     </div>
+
+
 
     <div class="current-stats">
         <h3>Your Current Status</h3>
@@ -100,7 +120,7 @@
     margin: 20px 0;
 }
 
-.defeat-details, .current-stats, .warning {
+.defeat-details, .fight-recap, .current-stats, .warning {
     background: rgba(0, 0, 0, 0.1);
     border-radius: 10px;
     padding: 15px;

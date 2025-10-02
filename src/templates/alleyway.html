@@ -25,6 +25,9 @@
         {% if 'secret' in current_room.title.lower() or 'mysterious' in current_room.description.lower() or 'hidden' in current_room.title.lower() %}
         <a href="{{ url_for('search_room') }}" class="btn btn-warning">🔍 Search Area</a>
         {% endif %}
+        {% if session.get('secret_found', False) %}
+        <a href="{{ url_for('search_deeper') }}" class="btn btn-danger">🔍🔍 Search Deeper!</a>
+        {% endif %}
     </div>
 
     <div class="room-navigation">

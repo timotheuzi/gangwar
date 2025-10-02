@@ -1,0 +1,125 @@
+{
+  "description": "Shop configurations for various locations",
+  "picknsave": {
+    "name": "Pick n Save",
+    "location": "picknsave",
+    "services": {
+      "buy_food": {
+        "cost": 500,
+        "message": "You bought food supplies for your gang! Morale is high."
+      },
+      "buy_medical": {
+        "cost": 1000,
+        "heal_amount": 50,
+        "message": "You bought medical supplies! Health restored."
+      },
+      "buy_id": {
+        "cost": 5000,
+        "sets_flag": "has_id",
+        "message": "You bought a fake ID! You're now protected from random police checks."
+      },
+      "buy_info": {
+        "cost": 2000,
+        "sets_flag": "has_info",
+        "message": "You bought information! You now have insider knowledge about police activity."
+      },
+      "recruit": {
+        "cost": 10000,
+        "message": "You recruited a new gang member! Your gang grows stronger."
+      }
+    },
+    "search_results": {
+      "0.03": {
+        "description": "rare_item",
+        "items": [
+          {"name": "fake_id", "sets_flag": "has_id", "message": "a fake ID kit"},
+          {"name": "police_docs", "sets_flag": "has_info", "message": "classified police documents"},
+          {"name": "recruitment_flyer", "recruits_member": true, "message": "a gang recruitment flyer"}
+        ],
+        "message_template": "You find {item} hidden in the store's back office!"
+      },
+      "0.13": {
+        "description": "weapon",
+        "weapons": ["bullets", "grenades", "knife"],
+        "bullets_range": [10, 30],
+        "grenades_range": [1, 3],
+        "message": "You find a hidden compartment containing {quantity} {weapon}!"
+      },
+      "0.23": {
+        "description": "drugs",
+        "drug_types": ["weed", "crack", "percs"],
+        "amount_range": [3, 8],
+        "message": "You discover some contraband hidden in the storage room! You gain {amount} kilos of {drug}!"
+      },
+      "0.33": {
+        "description": "money",
+        "money_range": [200, 600],
+        "message": "You find a forgotten cash register drawer! You gain ${money}!"
+      },
+      "0.43": {
+        "description": "trap",
+        "damage_range": [8, 20],
+        "message": "You accidentally knock over some cleaning supplies! The store manager confronts you and deals {damage} damage!"
+      },
+      "0.58": {
+        "description": "small_find",
+        "finds": [
+          {"type": "money", "range": [15, 75], "message": "some spare change"},
+          {"type": "bullets", "range": [3, 10], "message": "a few loose bullets"},
+          {"type": "health", "amount": 5, "message": "a candy bar"}
+        ],
+        "message_template": "You find {find} while searching the shelves."
+      },
+      "1.0": {
+        "description": "nothing",
+        "message": "You search the store discreetly but find nothing unusual. The employees are watching you closely."
+      }
+    }
+  },
+  "closet": {
+    "name": "Steve's Secret Closet",
+    "location": "closet",
+    "search_results": {
+      "0.05": {
+        "description": "major_drug_stash",
+        "drug_types": ["weed", "crack", "coke", "ice", "pixie_dust"],
+        "amount_range": [15, 30],
+        "message": "You find a hidden compartment! Steve must have forgotten about this stash. You gain {amount} kilos of {drug}!"
+      },
+      "0.15": {
+        "description": "weapon_cache",
+        "weapons": [
+          {"type": "pistols", "quantity": 1, "name": "an extra pistol"},
+          {"type": "bullets", "range": [20, 50], "name": "bullets"},
+          {"type": "grenades", "range": [2, 5], "name": "grenades"},
+          {"type": "vampire_bat", "quantity": 1, "name": "a vampire bat"},
+          {"type": "ar15s", "quantity": 1, "bullets": 25, "name": "an AR-15 with 25 bullets"}
+        ],
+        "message_template": "You find a dusty crate containing {weapon}!"
+      },
+      "0.25": {
+        "description": "money",
+        "money_range": [500, 2000],
+        "message": "You discover an old safe hidden behind some boxes! You gain ${money}!"
+      },
+      "0.35": {
+        "description": "trap",
+        "damage_range": [5, 15],
+        "message": "You trigger a silent alarm system! Security arrives and roughs you up for {damage} damage!"
+      },
+      "0.5": {
+        "description": "small_find",
+        "finds": [
+          {"type": "money", "range": [25, 100], "message": "some loose change"},
+          {"type": "bullets", "range": [5, 15], "message": "a few stray bullets"},
+          {"type": "knife", "quantity": 1, "message": "an old knife"}
+        ],
+        "message_template": "You find {find} while rummaging through the storage."
+      },
+      "1.0": {
+        "description": "nothing",
+        "message": "You search thoroughly but find nothing out of the ordinary. Steve keeps his closet well-organized."
+      }
+    }
+  }
+}

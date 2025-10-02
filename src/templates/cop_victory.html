@@ -22,7 +22,7 @@
             {% else %}Small (Very vulnerable)
             {% endif %}
         </p>
-        <p><strong>Health:</strong> {{ 10 - game_state.damage }}/10</p>
+        <p><strong>Health:</strong> {{ game_state.health - game_state.damage }}/30</p>
         <p><strong>Vest Protection:</strong> {{ game_state.vest }} hits remaining</p>
     </div>
     
