@@ -54,6 +54,7 @@ fi
 echo "Deleting and recreating dist/ directory..."
 rm -rf dist
 mkdir -p dist
+chmod -R u+rwx dist 2>/dev/null || true
 
 # Create run.sh script in dist
 cat > dist/run.sh << 'EOF'
@@ -344,11 +345,15 @@ echo "Building application with PyInstaller..."
 # Generate or regenerate spec file with updated paths
 echo "Regenerating gangwar.spec file with models, templates, and static data..."
 rm -f gangwar.spec
-pyinstaller --name gangwar --onefile --add-data "models:models" --add-data "src/templates:templates" --add-data "src/static:static" src/app.py --specpath .
+pyinstaller --name gangwar --onefile --add-data "model:model" --add-data "src/templates:templates" --add-data "src/static:static" src/app.py --specpath .
 # Remove the generated executable and build files, keep only spec
 rm -rf build/ dist/
 
 pyinstaller --clean gangwar.spec
+
+# Set permissions to ensure directories can be deleted
+chmod -R u+rwx build 2>/dev/null || true
+chmod -R u+rwx dist 2>/dev/null || true
 
 # Generate environment variables file
 echo "Generating environment variables file..."

@@ -12,7 +12,7 @@
     <div class="current-status">
         <h3>Current Status:</h3>
         <p>Money: ${{ "{:,}".format(game_state.money) if game_state.money else "0" }}</p>
-        <p>Health: {{ game_state.health - game_state.damage }}/30</p>
+        <p>Health: {{ game_state.health - game_state.damage }}</p>
         {% if game_state.drugs %}
         <p>Drugs:
             {{ game_state.drugs.weed if game_state.drugs.weed else 0 }} weed,
@@ -23,12 +23,10 @@
             {{ game_state.drugs.pixie_dust if game_state.drugs.pixie_dust else 0 }} pixie dust
         </p>
         {% endif %}
-        {% if game_state.get('weapons') %}
         <p>Weapons:
-            {{ game_state.get('weapons', {}).get('pistols', 0) }} pistols,
-            {{ game_state.get('weapons', {}).get('bullets', 0) }} bullets
+            {{ game_state.weapons.pistols }} pistols,
+            {{ game_state.weapons.bullets }} bullets
         </p>
-        {% endif %}
     </div>
     {% endif %}
 

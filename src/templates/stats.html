@@ -10,7 +10,7 @@
             <p>Gang Name: {{ game_state.player_name }}</p>
             <p>Day: {{ game_state.day }}</p>
             <p>Lives Remaining: {{ game_state.lives }}</p>
-            <p>Health: {{ 10 - game_state.damage }}/10</p>
+            <p>Health: {{ game_state.health - game_state.damage }}</p>
             <p>Gang Members: {{ game_state.members }}</p>
         </div>
         
@@ -33,10 +33,14 @@
         
         <div class="stat-section">
             <h3>Weapons & Equipment</h3>
-            <p>Pistols: {{ game_state.weapons.pistols }}</p>
-
+            <p>Pistols: {{ game_state.weapons.pistols }}{% if game_state.weapons.pistol_automatic %} (Automatic){% endif %}</p>
+            <p>Ghost Guns: {{ game_state.weapons.ghost_guns }}{% if game_state.weapons.ghost_gun_automatic %} (Automatic){% endif %}</p>
+            <p>AR-15: {{ game_state.weapons.ar15 }}</p>
             <p>Bullets: {{ game_state.weapons.bullets }}</p>
+            <p>Exploding Bullets: {{ game_state.weapons.exploding_bullets }}</p>
             <p>Grenades: {{ game_state.weapons.grenades }}</p>
+            <p>Vampire Bats: {{ game_state.weapons.vampire_bat }}</p>
+            <p>Knives: {{ game_state.weapons.knife }}</p>
             <p>RPG-7 launchers: {{ game_state.weapons.missile_launcher }}</p>
             <p>RPG rounds: {{ game_state.weapons.missiles }}</p>
             <p>Vest Protection: {{ game_state.weapons.vest }} hits</p>

@@ -22,6 +22,8 @@ clean:
 	@echo "Killing existing gangwar processes..."
 	@pkill -f gangwar 2>/dev/null || true
 	@lsof -ti :5000 | xargs kill -9 2>/dev/null || true
+	@chmod -R u+rwx build/ 2>/dev/null || true
+	@chmod -R u+rwx dist/ 2>/dev/null || true
 	@rm -rf build/
 	@rm -rf dist/
 	@find . -maxdepth 1 -name "*.spec" ! -name "gangwar.spec" -delete 2>/dev/null || true
@@ -29,8 +31,12 @@ clean:
 	@find . -name "__pycache__" -type d -exec rm -rf {} + 2>/dev/null || true
 
 # Clean everything including dependencies
-distclean: clean
+distclean:
 	@echo "Cleaning all generated files..."
+	@chmod -R u+rwx build/ 2>/dev/null || true
+	@chmod -R u+rwx dist/ 2>/dev/null || true
+	@rm -rf build/
+	@rm -rf dist/
 	@rm -rf logs/
 	@rm -f high_scores.json
 	@rm -f .env
@@ -38,6 +44,8 @@ distclean: clean
 # Clean disk space (aggressive cleanup)
 clean-disk:
 	@echo "Performing aggressive disk cleanup..."
+	@chmod -R u+rwx build/ 2>/dev/null || true
+	@chmod -R u+rwx dist/ 2>/dev/null || true
 	@rm -rf build/ dist/
 	@find . -maxdepth 1 -name "*.spec" ! -name "gangwar.spec" -delete 2>/dev/null || true
 	@find . -name "__pycache__" -type d -exec rm -rf {} + 2>/dev/null || true

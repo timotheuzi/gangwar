@@ -21,28 +21,19 @@
         .combat-system { color: #90a4ae !important; }
     </style>
     <script src="https://cdn.socket.io/4.0.0/socket.io.min.js"></script>
-    {% if game_state and game_state.player_name %}
     <script>
         // Set global variables from Flask template
-        window.playerName = "{{ game_state.player_name }}";
+        window.playerName = "{{ game_state.player_name or 'Player' }}";
         window.currentRoom = "global";
-        window.locationRoom = "{{ game_state.current_location }}";
+        window.locationRoom = "{{ game_state.current_location or 'city' }}";
     </script>
-    {% else %}
-    <script>
-        // Fallback for pages without game_state
-        window.playerName = "Player";
-        window.currentRoom = "global";
-        window.locationRoom = "city";
-    </script>
-    {% endif %}
  
     <script src="{{ url_for('static', filename='chat.js') }}"></script>
 </head>
 <body>
     <div class="container">
         <!-- Player Info Header -->
-        {% if game_state and game_state.player_name %}
+        {% if game_state and game_state.player_name and request.endpoint not in ['index', 'new_game'] %}
         <header class="player-info-header">
             <div class="player-info">
                 <div class="player-basic">
@@ -52,7 +43,7 @@
                 </div>
                 <div class="player-stats">
                     <span class="player-money">💰 ${{ "{:,}".format(game_state.money) }}</span>
-                    <span class="player-health">❤️ {{ (10 - game_state.damage) if game_state.damage < 10 else 0 }}/10</span>
+                    <span class="player-health">❤️ {{ game_state.health - game_state.damage }}/30</span>
                     <span class="player-members">👥 {{ game_state.members }}</span>
                     <span class="player-lives">💊 {{ game_state.lives }}</span>
                 </div>

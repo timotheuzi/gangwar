@@ -155,7 +155,7 @@ class GameState:
     squidies_missile_launcher: int = 2
     squidies_missiles: int = 10
     day: int = 1
-    health: int = 100
+    health: int = 30
     steps: int = 0
     max_steps: int = 24
     current_score: int = 0
@@ -252,19 +252,19 @@ connected_players = {}
 @app.route('/')
 def index():
     """Main index page"""
-    return render_template('index.html')
+    return render_template('index.html', game_state=get_game_state())
 
 @app.route('/high_scores')
 def high_scores():
     """Display all-time high scores"""
     scores = load_high_scores()
-    return render_template('high_scores.html', high_scores=scores)
+    return render_template('high_scores.html', high_scores=scores, game_state=get_game_state())
 
 @app.route('/credits')
 def credits():
     """Display credits and high scores"""
     scores = load_high_scores()
-    return render_template('credits.html', high_scores=scores)
+    return render_template('credits.html', high_scores=scores, game_state=get_game_state())
 
 @app.route('/city')
 def city():
@@ -687,7 +687,7 @@ def wander():
         wander_messages = [
             "You stumble upon a @gutted corpse in an alleyway, blood pooling around the severed limbs. You search the remains and find $50 in bloody cash!",
             "A street performer lies slaughtered on the sidewalk, throat slit ear to ear. You overhear whispers of upcoming turf wars from nearby shadows.",
-            "You witness a @drive-by shooting where rival gang members get their brains blown out onto the pavement, painting the walls red.",
+            "You witness a drive-by shooting where rival gang members get their brains blown out onto the pavement, painting the walls red.",
             "You find a quiet spot littered with mangled body parts to rest, regaining health amidst the stench of death.",
             "You notice suspicious activity - a beheaded body hanging from a streetlight - but decide to keep moving before you're next.",
             "You bump into an old contact who's missing an eye and bleeding profusely, sharing gossip about the bloody underworld.",
@@ -699,7 +699,7 @@ def wander():
             "You find a hidden stash of weapons beneath a freshly killed body, blood still warm on the ground.",
             "You encounter a beggar missing limbs who tells you about secret locations while bleeding out from multiple stab wounds.",
             "You wander through a market district where bodies hang from hooks like meat, haggling for better prices amidst the gore.",
-            "You stumble upon a gang recruitment drive where initiates are branded with hot irons and @tortured to prove loyalty."
+            "You stumble upon a gang recruitment drive where initiates are branded with hot irons and tortured to prove loyalty."
         ]
 
         # Ensure randomness by seeding with current time
@@ -709,7 +709,7 @@ def wander():
 
         # Apply effects based on the result
         if "bloody cash" in result:
-            game_state.money += 50
+            game_state.money += 500
         elif "discarded drugs" in result:
             # Increased chance to find drugs instead of just money
             if random.random() < 0.7:  # 70% chance to find drugs
@@ -721,7 +721,7 @@ def wander():
             else:
                 game_state.money += 200
         elif "quiet spot" in result:
-            game_state.health = min(100, game_state.health + 10)
+            game_state.health = min(30, game_state.health + 10)
         elif "hidden stash of weapons" in result:
             game_state.weapons.bullets += 5
         elif "without incident" not in result and "trouble" not in result and "police" not in result:
@@ -772,7 +772,7 @@ def picknsave_action():
     elif action == 'buy_medical':
         if game_state.money >= 1000:
             game_state.money -= 1000
-            game_state.health = min(100, game_state.health + 50)  # Heal up to 100
+            game_state.health = min(30, game_state.health + 50)  # Heal up to 30
             flash("You bought medical supplies! Health restored.", "success")
         else:
             flash("You don't have enough money for medical supplies!", "danger")
@@ -1337,7 +1337,7 @@ def new_game():
         save_game_state(game_state)
         return redirect(url_for('city'))
 
-    return render_template('new_game.html')
+    return render_template('new_game.html', game_state=get_game_state())
 
 @app.route('/npc_interaction/<npc_id>')
 def npc_interaction(npc_id):
@@ -1455,11 +1455,11 @@ def fight_cops():
                 message = f"You failed to escape and took {damage} damage from police gunfire!"
 
             game_state.damage += damage
-            if game_state.damage >= 10:
+            if game_state.damage >= 30:
                 game_state.lives -= 1
                 final_damage = game_state.damage  # Store before resetting
                 game_state.damage = 0
-                game_state.health = 100
+                game_state.health = 30
                 enemy_type = f"{num_cops} Police Officers"
                 enemy_count = num_cops
                 fight_log = [message]
@@ -1499,11 +1499,11 @@ def fight_cops():
                 return redirect(url_for('city'))
             else:
                 message = f"You killed {cops_killed} cop(s) but {num_cops} remain and shot back! You took {damage} damage."
-                if game_state.damage >= 10:
+                if game_state.damage >= 30:
                     game_state.lives -= 1
                     final_damage = game_state.damage  # Store before resetting
                     game_state.damage = 0
-                    game_state.health = 100
+                    game_state.health = 30
                     enemy_type = f"{num_cops} Police Officers"
                     enemy_count = num_cops
                     fight_log = [message]
@@ -1574,11 +1574,11 @@ def fight_cops():
                 message = f"You smashed {cops_killed} cop(s) with your vampire bat but {num_cops} remain! You took {damage} damage."
 
         # Check if player died
-        if game_state.damage >= 10:
+        if game_state.damage >= 30:
             game_state.lives -= 1
             final_damage = game_state.damage  # Store before resetting
             game_state.damage = 0
-            game_state.health = 100
+            game_state.health = 30
             enemy_type = f"{num_cops} Police Officers"
             enemy_count = num_cops
             fight_log = [message] if 'message' in locals() else ["Combat with police officers"]
@@ -1746,10 +1746,27 @@ def process_fight_action():
             game_state.money += 100  # Loot from defeated NPC
             fight_log.append(f"You defeated {npcs_data[npc_id]['name']} and looted $100!")
 
-        # Chance to recruit a defeated enemy as a gang member
-        if enemy_type != "Police Officers" and random.random() < 0.3:  # 30% chance
-            game_state.members += 1
-            fight_log.append("One of your defeated enemies has joined your gang!")
+        # All enemies are defeated, but some defect or flee instead of dying
+        killed = enemy_count
+
+        # Chance to recruit defeated enemies
+        if enemy_type != "Police Officers":
+            recruits = random.randint(0, min(2, enemy_count))
+        else:
+            recruits = 0
+
+        # Some of those defeated flee or surrender
+        if recruits < enemy_count:
+            fled_count = random.randint(0, enemy_count - recruits)
+        else:
+            fled_count = 0
+
+        killed = enemy_count - recruits - fled_count
+
+        # Recruit the defectors
+        if recruits > 0:
+            game_state.members += recruits
+            fight_log.append(f"{recruits} of the defeated enemies joined your gang!")
 
         # Chance to find drugs on defeated enemies
         if random.random() < 0.4:  # 40% chance to find drugs
@@ -1759,14 +1776,16 @@ def process_fight_action():
             setattr(game_state.drugs, drug, getattr(game_state.drugs, drug) + amount)
             fight_log.append(f"You found {amount} kilos of {drug} on the defeated enemy!")
 
+        # Victory outcome breakdown
         fight_log.append(f"VICTORY! You have defeated the {enemy_type}!")
+        fight_log.append(f"Battle outcome: {killed} killed, {fled_count} fled, {recruits} defected.")
         save_game_state(game_state)
         return render_template('battle_log.html', game_state=game_state, fight_log=fight_log, victory=True)
-    elif game_state.damage >= 10:
+    elif game_state.damage >= 30:
         game_state.lives -= 1
         final_damage = game_state.damage  # Store the final damage before resetting
         game_state.damage = 0
-        game_state.health = 100
+        game_state.health = 30
         if game_state.lives <= 0:
             # Update high scores when player dies
             check_and_update_high_scores(game_state)
