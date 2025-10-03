@@ -1,15 +1,15 @@
-FROM python:3.13-slim
+FROM python:3.12-slim
 
 # Prevent interactive prompts during package installation
 ENV DEBIAN_FRONTEND=noninteractive
 
-# Install build dependencies
+# Install build dependencies (if needed for PyInstaller)
 RUN apt-get update && apt-get install -y \
     build-essential \
     && rm -rf /var/lib/apt/lists/*
 
 # Create symlink for python
-RUN ln -s /usr/local/bin/python3.13 /usr/bin/python
+RUN ln -s /usr/local/bin/python3.12 /usr/bin/python
 
 WORKDIR /app
 
@@ -23,9 +23,9 @@ RUN pip install pyinstaller
 COPY . .
 
 # Build the application
-RUN pyinstaller --clean pimpin.spec
+RUN pyinstaller --clean gangwar.spec
 
 WORKDIR /app/dist
-RUN chmod +x pimpin
+RUN chmod +x gangwar
 
-CMD ["./pimpin"]
+CMD ["./gangwar"]

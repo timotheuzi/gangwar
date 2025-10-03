@@ -1,0 +1,76 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="stats-screen">
+    <h2>Your Stats</h2>
+    
+    <div class="stats-grid">
+        <div class="stat-section">
+            <h3>Personal Info</h3>
+            <p>Gang Name: {{ game_state.player_name }}</p>
+            <p>Day: {{ game_state.day }}</p>
+            <p>Lives Remaining: {{ game_state.lives }}</p>
+            <p>Health: {{ game_state.health - game_state.damage }}</p>
+            <p>Gang Members: {{ game_state.members }}</p>
+        </div>
+        
+        <div class="stat-section">
+            <h3>Money & Banking</h3>
+            <p>Cash: ${{ "{:,}".format(game_state.money) }}</p>
+            <p>Savings: ${{ "{:,}".format(game_state.account|int) }}</p>
+            <p>Loan Debt: ${{ "{:,}".format(game_state.loan|int) }}</p>
+        </div>
+        
+        <div class="stat-section">
+            <h3>Drug Inventory</h3>
+            <p>Weed: {{ game_state.drugs.weed }} kilos</p>
+            <p>Crack: {{ game_state.drugs.crack }} kilos</p>
+            <p>Cocaine: {{ game_state.drugs.coke }} kilos</p>
+            <p>Ice: {{ game_state.drugs.ice }} kilos</p>
+            <p>Percs: {{ game_state.drugs.percs }} kilos</p>
+            <p>Pixie Dust: {{ game_state.drugs.pixie_dust }} kilos</p>
+        </div>
+        
+        <div class="stat-section">
+            <h3>Weapons & Equipment</h3>
+            <p>Pistols: {{ game_state.weapons.pistols }}{% if game_state.weapons.pistol_automatic %} (Automatic){% endif %}</p>
+            <p>Ghost Guns: {{ game_state.weapons.ghost_guns }}{% if game_state.weapons.ghost_gun_automatic %} (Automatic){% endif %}</p>
+            <p>AR-15: {{ game_state.weapons.ar15 }}</p>
+            <p>Bullets: {{ game_state.weapons.bullets }}</p>
+            <p>Exploding Bullets: {{ game_state.weapons.exploding_bullets }}</p>
+            <p>Grenades: {{ game_state.weapons.grenades }}</p>
+            <p>Vampire Bats: {{ game_state.weapons.vampire_bat }}</p>
+            <p>Knives: {{ game_state.weapons.knife }}</p>
+            <p>RPG-7 launchers: {{ game_state.weapons.missile_launcher }}</p>
+            <p>RPG rounds: {{ game_state.weapons.missiles }}</p>
+            <p>Vest Protection: {{ game_state.weapons.vest }} hits</p>
+        </div>
+
+        <div class="stat-section">
+            <h3>Squidies Intel</h3>
+            <p>Members: {{ game_state.squidies|int }}</p>
+            <p>Pistols: {{ game_state.squidies_pistols|int }}</p>
+            <p>Bullets: {{ game_state.squidies_bullets|int }}</p>
+            <p>Grenades: {{ game_state.squidies_grenades|int }}</p>
+            <p>RPG-7 launchers: {{ game_state.squidies_missile_launcher|int }}</p>
+            <p>RPG rounds: {{ game_state.squidies_missiles|int }}</p>
+        </div>
+        
+        <div class="stat-section">
+            <h3>Current Market Prices</h3>
+            <p>Weed: ${{ game_state.drug_prices['weed'] }}</p>
+            <p>Crack: ${{ "{:,}".format(game_state.drug_prices['crack']) }}</p>
+            <p>Cocaine: ${{ "{:,}".format(game_state.drug_prices['coke']) }}</p>
+            <p>Ice: ${{ "{:,}".format(game_state.drug_prices['ice']) }}</p>
+            <p>Percs: ${{ "{:,}".format(game_state.drug_prices['percs']) }}</p>
+            <p>Pixie Dust: ${{ "{:,}".format(game_state.drug_prices['pixie_dust']) }}</p>
+        </div>
+    </div>
+    
+    <div class="actions">
+        <a href="{{ url_for('city') }}" class="btn btn-primary">Back to City</a>
+    </div>
+
+
+</div>
+{% endblock %}

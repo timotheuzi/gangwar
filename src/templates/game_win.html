@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="victory-screen">
+    <h1>🎉 VICTORY! 🎉</h1>
+
+    <div class="victory-content">
+        <h2>You Have Conquered the City!</h2>
+
+        <div class="victory-stats">
+            <h3>Final Statistics</h3>
+            <p><strong>Player:</strong> {{ game_state.player_name }}</p>
+            <p><strong>Gang:</strong> {{ game_state.gang_name }}</p>
+            <p><strong>Days Survived:</strong> {{ game_state.day }}</p>
+            <p><strong>Money:</strong> ${{ "{:,}".format(game_state.money) }}</p>
+            <p><strong>Bank Account:</strong> ${{ "{:,}".format(game_state.account) }}</p>
+            <p><strong>Gang Members:</strong> {{ game_state.members }}</p>
+            <p><strong>Weapons:</strong> {{ game_state.weapons.pistols }} pistols</p>
+        </div>
+
+        <div class="victory-message">
+            <p>After a brutal and bloody campaign, you have finally defeated the Squidies gang!</p>
+            <p>The streets now run red with their blood, and you stand as the undisputed king of the underworld.</p>
+            <p>Your name will be whispered in fear and respect throughout the city. You have become a legend.</p>
+            <p><strong>THE END - VICTORIOUS</strong></p>
+        </div>
+
+        <div class="victory-actions">
+            <a href="{{ url_for('new_game') }}" class="btn btn-primary">Play Again</a>
+            <a href="{{ url_for('index') }}" class="btn btn-secondary">Return to Main Menu</a>
+        </div>
+
+        <div id="player-list"></div>
+    </div>
+</div>
+{% endblock %}

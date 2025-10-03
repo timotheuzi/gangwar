@@ -1,0 +1,85 @@
+{
+  "description": "Weapon prices and configurations",
+  "weapons": {
+    "pistol": {
+      "price": 1200,
+      "description": "A basic pistol"
+    },
+    "ghost_gun": {
+      "price": 3000,
+      "description": "An untraceable firearm"
+    },
+    "bullets": {
+      "price": 100,
+      "description": "50 bullets per pack",
+      "quantity_per_purchase": 50
+    },
+    "exploding_bullets": {
+      "price": 2000,
+      "description": "20 exploding bullets per pack",
+      "quantity_per_purchase": 20
+    },
+    "ar15": {
+      "price": 100000,
+      "description": "An automatic AR-15 assault rifle"
+    },
+    "grenade": {
+      "price": 1000,
+      "description": "Hand grenade"
+    },
+    "barbed_wire_bat": {
+      "price": 2500,
+      "description": "A baseball bat wrapped in barbed wire"
+    },
+    "missile_launcher": {
+      "price": 1000000,
+      "description": "RPG-7 missile launcher"
+    },
+    "missile": {
+      "price": 100000,
+      "description": "Missile for RPG-7"
+    },
+    "vest_light": {
+      "price": 30000,
+      "description": "Light bulletproof vest (+5 defense)",
+      "defense_bonus": 5
+    },
+    "vest_medium": {
+      "price": 55000,
+      "description": "Medium bulletproof vest (+10 defense)",
+      "defense_bonus": 10
+    },
+    "vest_heavy": {
+      "price": 75000,
+      "description": "Heavy bulletproof vest (+15 defense)",
+      "defense_bonus": 15
+    },
+    "sword": {
+      "price": 800,
+      "description": "A sharp melee weapon"
+    },
+    "axe": {
+      "price": 1200,
+      "description": "A heavy two-handed axe"
+    }
+  },
+  "weapon_effects": {
+    "pistol_damage": [15, 25],
+    "ghost_gun_damage": [15, 25],
+    "ar15_damage": [20, 40],
+    "ar15_bullets_used": 3,
+    "exploding_bullet_damage": [45, 75],
+    "grenade_damage": [30, 60],
+    "missile_damage": [50, 100],
+    "barbed_bat_damage": [25, 45],
+    "knife_damage": [10, 20],
+    "sword_damage": [50, 80],
+    "axe_damage": [60, 90],
+    "vest_damage_reduction": 20
+  },
+  "combat_chances": {
+    "escape_chance": 0.4,
+    "vest_damage_absorption": 0.5,
+    "recruit_chance": 0.3
+  }
+}

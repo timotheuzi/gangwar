@@ -1,0 +1,23 @@
+{
+  "description": "High score system configuration",
+  "file_name": "high_scores.json",
+  "max_scores": 10,
+  "score_calculation": {
+    "money_points_per_1000": 1,
+    "days_survived_points": 100,
+    "gang_wars_won_points": 1000,
+    "fights_won_points": 50
+  },
+  "default_score_entry": {
+    "player_name": "Anonymous",
+    "gang_name": "Unknown Gang",
+    "score": 100,
+    "money_earned": 1000,
+    "days_survived": 1,
+    "gang_wars_won": 0,
+    "fights_won": 0,
+    "date_achieved": "2024-01-01 00:00:00"
+  },
+  "dummy_score_base": 100,
+  "dummy_score_half_of_last": true
+}

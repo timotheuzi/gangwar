@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="alleyway-screen">
+    <h2>The Dark Alleyway</h2>
+    <p>Player: {{ game_state.player_name }} | Steps: {{ game_state.steps }}/{{ game_state.max_steps }}</p>
+
+    <div class="room-description">
+        <h3 id="room-title">{{ current_room.title }}</h3>
+        <p id="room-description">{{ current_room.description }}</p>
+
+        <div class="exits">
+            <strong>Exits:</strong>
+            <span id="room-exits">
+                {% for direction, room_id in current_room.exits.items() %}
+                    <span class="exit">{{ direction }}</span>
+                {% endfor %}
+            </span>
+        </div>
+    </div>
+
+    <div class="alleyway-actions">
+        <a href="{{ url_for('city') }}" class="btn btn-secondary">Return to City</a>
+        <a href="{{ url_for('stats') }}" class="btn btn-secondary">View Stats</a>
+        {% if 'secret' in current_room.title.lower() or 'mysterious' in current_room.description.lower() or 'hidden' in current_room.title.lower() %}
+        <a href="{{ url_for('search_room') }}" class="btn btn-warning">🔍 Search Area</a>
+        {% endif %}
+        {% if session.get('secret_found', False) %}
+        <a href="{{ url_for('search_deeper') }}" class="btn btn-danger">🔍🔍 Search Deeper!</a>
+        {% endif %}
+    </div>
+
+    <div class="room-navigation">
+        <h4>Navigation</h4>
+        <div class="direction-buttons">
+            {% for direction, room_id in current_room.exits.items() %}
+                <a href="{{ url_for('move_room', direction=direction) }}" class="btn btn-primary direction-btn">
+                    Go {{ direction|title }}
+                </a>
+            {% endfor %}
+        </div>
+    </div>
+
+
+</div>
+{% endblock %}

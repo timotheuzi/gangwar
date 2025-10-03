@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="welcome-screen">
+    <h3>Welcome to Downtown Minneapolis</h3>
+    <div class="intro-text">
+        <p>Set in a dystopian present, you are an inner city entrepreneur trying to make it in the underground economy.
+        Starting with just $1000, 5 keys of crack, and a pistol with 10 bullets,you must build
+        your empire and defeat the rival Squidies gang.</p>
+
+        <p><strong>Warning:</strong> This game contains mature themes including drug dealing,
+        violence, and criminal activities. It is intended for entertainment purposes only.</p>
+    </div>
+
+    <div class="menu-options">
+        <a href="{{ url_for('new_game') }}" class="btn btn-primary">Start New Game</a>
+        {% if 'game_state' in session %}
+        <a href="{{ url_for('city') }}" class="btn btn-secondary">Continue Game</a>
+        {% endif %}
+    </div>
+
+    <div class="instructions">
+        <h3>How to Play:</h3>
+        <ul>
+            <li>Buy and sell drugs to make money</li>
+            <li>Purchase weapons and recruit gang members</li>
+            <li>Avoid the police and rival gangs</li>
+            <li>Build your empire day by day</li>
+            <li>When you're strong enough, challenge the Squidies to a gang war</li>
+        </ul>
+    </div>
+
+
+</div>
+
+{% block chat %}{% endblock %}
+
+{% block footer %}{% endblock %}
+{% endblock %}

@@ -2,19 +2,11 @@
 
 
 a = Analysis(
-    ['app.py'],
+    ['src/app.py'],
     pathex=[],
     binaries=[],
-    datas=[
-        ('templates', 'templates'),
-        ('static', 'static'),
-        ('npcs.json', '.'),
-    ],
-    hiddenimports=[
-        'flask_socketio',
-        'eventlet',
-        'gevent',
-    ],
+    datas=[('model', 'model'), ('src/templates', 'templates'), ('src/static', 'static')],
+    hiddenimports=[],
     hookspath=[],
     hooksconfig={},
     runtime_hooks=[],

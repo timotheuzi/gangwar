@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="victory-screen">
+    <h2>🎉 VICTORY! 🎉</h2>
+    
+    <div class="victory-message">
+        <h3>You've Won the Gang War!</h3>
+        <p>Congratulations! You have defeated the Squidies and taken control of the entire city!</p>
+        <p>Your gang, <strong>{{ game_state.player_name }}</strong>, is now the undisputed ruler of the streets.</p>
+    </div>
+    
+    <div class="victory-stats">
+        <h3>Final Empire Statistics:</h3>
+        <div class="stats-grid">
+            <div class="stat-item">
+                <h4>Financial Empire</h4>
+                <p>Cash: ${{ "{:,}".format(game_state.money) }}</p>
+                <p>Savings: ${{ "{:,}".format(game_state.account|int) }}</p>
+                <p>Drug Inventory: ${{ "{:,}".format(game_state.drugs.weed * game_state.drug_prices['weed'] + game_state.drugs.crack * game_state.drug_prices['crack'] + game_state.drugs.coke * game_state.drug_prices['coke'] + game_state.drugs.ice * game_state.drug_prices['ice'] + game_state.drugs.percs * game_state.drug_prices['percs'] + game_state.drugs.pixie_dust * game_state.drug_prices['pixie_dust']) }}</p>
+            </div>
+            
+            <div class="stat-item">
+                <h4>Military Power</h4>
+                <p>Gang Members: {{ game_state.members }}</p>
+                <p>Pistols: {{ game_state.weapons.pistols }}</p>
+                <p>Heavy Weapons: {{ game_state.weapons.grenades + game_state.weapons.missiles }} total</p>
+            </div>
+            
+            <div class="stat-item">
+                <h4>Drug Empire</h4>
+                <p>Weed: {{ game_state.drugs.weed }} kilos</p>
+                <p>Crack: {{ game_state.drugs.crack }} kilos</p>
+                <p>Cocaine: {{ game_state.drugs.coke }} kilos</p>
+                <p>ice: {{ game_state.drugs.ice }} kilos</p>
+                <p>percs: {{ game_state.drugs.percs }} kilos</p>
+                <p>Pixie Dust: {{ game_state.drugs.pixie_dust }} kilos</p>
+            </div>
+        </div>
+    </div>
+    
+    <div class="victory-achievement">
+        <h3>🏆 Achievement Unlocked: Street King 🏆</h3>
+        <p>You have successfully built a criminal empire and defeated all rivals!</p>
+        <p>You are now the most powerful gang leader in the city.</p>
+        {% if achievement_bonus %}
+        <p><strong>Victory Bonus:</strong> Your legendary victory has attracted {{ achievement_bonus }} new gang members who want to join the winning team!</p>
+        {% endif %}
+    </div>
+    
+    <div class="victory-epilogue">
+        <h3>Epilogue</h3>
+        <p>With the Squidies defeated, you now control all drug trafficking in the city. 
+        The police are too afraid to challenge you, and other gangs either work for you or stay out of your territory.</p>
+        <p>Your name is whispered in fear and respect throughout the criminal underworld. 
+        You have achieved what few ever do - complete domination of the streets.</p>
+    </div>
+    
+    <div class="actions">
+        <a href="{{ url_for('index') }}" class="btn btn-primary">Play Again</a>
+    </div>
+</div>
+{% endblock %}
