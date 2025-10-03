@@ -20,13 +20,8 @@ except ImportError as e:
     print(f"Import error: {e}")
     sys.exit(1)
 
-# For WSGI deployment
-if socketio:
-    # Apply SocketIO middleware for gevent compatibility
-    from flask_socketio import wsgi
-    application = wsgi.WSGIApp(socketio, app)
-else:
-    application = app
+# For WSGI deployment - Flask app with SocketIO middleware (auto-applied)
+application = app
 
 # For local development (if someone runs this directly)
 if __name__ == '__main__':
