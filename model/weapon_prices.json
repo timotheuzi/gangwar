@@ -5,15 +5,19 @@
       "price": 1200,
       "description": "A basic pistol"
     },
+    "ghost_gun": {
+      "price": 3000,
+      "description": "An untraceable firearm"
+    },
     "bullets": {
       "price": 100,
       "description": "50 bullets per pack",
       "quantity_per_purchase": 50
     },
     "exploding_bullets": {
-      "price": 500,
-      "description": "10 exploding bullets per pack",
-      "quantity_per_purchase": 10
+      "price": 2000,
+      "description": "20 exploding bullets per pack",
+      "quantity_per_purchase": 20
     },
     "ar15": {
       "price": 100000,

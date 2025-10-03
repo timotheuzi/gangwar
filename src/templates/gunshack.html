@@ -16,6 +16,17 @@
                 <button type="submit" class="btn btn-primary">Buy Pistol</button>
             </form>
         </div>
+
+        <div class="weapon-item">
+            <h4>Ghost Gun</h4>
+            <p>Price: $3,000</p>
+            <p>You have: {{ game_state.weapons.ghost_guns }}</p>
+            <form method="POST" action="{{ url_for('buy_weapon') }}" class="inline-form">
+                <input type="hidden" name="weapon_type" value="ghost_gun">
+                <input type="hidden" name="quantity" value="1">
+                <button type="submit" class="btn btn-primary">Buy Ghost Gun</button>
+            </form>
+        </div>
         
         <div class="weapon-item">
             <h4>Bullets (50 pack)</h4>
@@ -29,8 +40,8 @@
         </div>
 
         <div class="weapon-item">
-            <h4>Exploding Bullets (50 pack)</h4>
-            <p>Price: $500</p>
+            <h4>Exploding Bullets (20 pack)</h4>
+            <p>Price: $2,000</p>
             <p>You have: {{ game_state.weapons.exploding_bullets }}</p>
             <form method="POST" action="{{ url_for('buy_weapon') }}" class="inline-form">
                 <input type="hidden" name="weapon_type" value="exploding_bullets">

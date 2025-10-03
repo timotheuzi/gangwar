@@ -374,5 +374,108 @@
       "east": "sewer_main_line",
       "north": "toxic_storage"
     }
+  },
+  "abandoned_warehouse": {
+    "title": "Abandoned Warehouse",
+    "description": "You discover a massive abandoned warehouse that looms like a forgotten cathedral to industrial decay, its cavernous interior filled with the ghosts of manufacturing equipment and the promise of hidden treasures. Towering metal shelves stretch into the shadows, their contents a chaotic archive of forgotten inventory - wooden crates stamped with faded shipping labels, rusted machinery parts that gleam with potential value, and mysterious containers that rattle with unknown contents. The air is thick with the scent of aged wood, machine oil, and the faint, acrid tang of chemicals that have seeped into the concrete floor over decades. Sunlight filters through grimy skylights high above, casting dramatic beams that illuminate floating dust motes and create deep pools of shadow where anything could be concealed. The warehouse feels like a treasure hunter's paradise, where the careless abandonment of the past could translate into your financial salvation in the present. Hidden among the debris, you notice several locked storage rooms that might contain valuable electronics worth $800, and a concealed floor safe beneath a pile of pallets that holds $1,200 in cash and rare collectibles worth $600. However, searching too aggressively risks alerting the homeless squatters who have claimed parts of the warehouse as their territory, potentially leading to a dangerous confrontation.",
+    "exits": {
+      "south": "loading_dock",
+      "east": "warehouse_office"
+    }
+  },
+  "loading_dock": {
+    "title": "Loading Dock",
+    "description": "You step onto a weathered loading dock that extends from the warehouse like a concrete tongue, its surface cracked and stained from years of heavy truck traffic and neglect. Massive roll-up doors stand partially open, their mechanisms frozen with rust, while loading ramps slope down to where trucks once backed up to receive shipments. The air carries the scent of rain-soaked concrete mixed with the faint diesel exhaust that seems to linger like a ghost of the dock's busier days. Scattered around the area are abandoned shipping containers, their doors hanging open to reveal shadowy interiors that could conceal anything from forgotten cargo to illicit activities. You notice several containers that look promising - one contains discarded electronics worth $400, another holds vintage clothing worth $250, but a third is rigged with a tripwire trap that releases a cascade of heavy crates when disturbed. The dock offers a strategic vantage point, allowing you to see approaching threats from the street while providing multiple escape routes back into the warehouse or out into the surrounding industrial district.",
+    "exits": {
+      "north": "abandoned_warehouse",
+      "west": "industrial_yard"
+    }
+  },
+  "warehouse_office": {
+    "title": "Warehouse Office",
+    "description": "You enter the abandoned administrative office of the warehouse, a time capsule of corporate America frozen in the moment of abandonment. Metal desks stand in neat rows, their surfaces covered in a thick layer of dust and scattered with yellowed paperwork that tells the story of the company's final days. Filing cabinets with half-open drawers reveal folders filled with financial documents, personnel records, and inventory lists that could contain valuable information about hidden assets or forgotten shipments. The air is stale and dry, carrying the faint scent of old paper and toner from the abandoned photocopier in the corner. A massive safe sits in the manager's office, its door slightly ajar as if someone left in a hurry, while wall calendars from decades past flap weakly in the breeze from broken windows. This office represents a treasure trove of information and potential valuables - the safe contains $2,500 in emergency cash and bearer bonds worth $1,800, but opening it triggers a silent alarm that could alert nearby security or opportunistic criminals. The filing cabinets hold documents that could be worth $300 to the right collector, but rifling through them risks paper cuts and potential legal complications if discovered.",
+    "exits": {
+      "west": "abandoned_warehouse",
+      "up": "catwalk"
+    }
+  },
+  "industrial_yard": {
+    "title": "Industrial Scrap Yard",
+    "description": "You wander into a sprawling industrial scrap yard that stretches out like a mechanical graveyard, filled with the twisted remains of the city's industrial past and the raw materials for future fortunes. Massive piles of scrap metal gleam in the sunlight - copper wiring coiled like metallic serpents, aluminum siding stacked in towering formations, and steel beams that could be worth their weight in gold to the right buyer. The air is thick with the scent of rust, oil, and opportunity, while the ground is a treacherous landscape of jagged metal edges and oily puddles that could conceal valuable components. Forklifts and cranes stand frozen in their final positions, their engines long silent but their potential value still intact. This yard is a goldmine for the resourceful - you can find copper wiring worth $600, discarded circuit boards worth $400, and rare earth magnets worth $250 scattered among the debris. However, the yard is also home to territorial scrap dealers who view intruders as competition, and searching too aggressively risks a confrontation with these hardened workers who know every inch of their domain.",
+    "exits": {
+      "east": "loading_dock",
+      "north": "junkyard_office"
+    }
+  },
+  "catwalk": {
+    "title": "Warehouse Catwalk",
+    "description": "You climb to the warehouse catwalk that runs high above the main floor like a skeletal highway suspended in mid-air, offering a god's-eye view of the abandoned facility below while providing access to previously unreachable areas. The metal grating vibrates underfoot with each step, and the handrails are cold and slick with condensation that drips from the roof far above. From this vantage point, you can see the entire layout of the warehouse - the organized chaos of stored goods, the hidden corners where valuables might be concealed, and the strategic positions that could offer defensive advantages in a confrontation. The air up here is clearer, carrying the faint sounds of the city outside and the occasional creak of settling metal. Several maintenance access panels dot the catwalk, one of which conceals a hidden compartment containing $800 in cash and rare tools worth $300. However, the height makes every step potentially dangerous, and the catwalk's age means that sections could give way without warning, sending you plummeting to the concrete floor below.",
+    "exits": {
+      "down": "warehouse_office",
+      "north": "roof_access"
+    }
+  },
+  "junkyard_office": {
+    "title": "Junkyard Office",
+    "description": "You find the scrap yard's administrative office, a battered trailer that serves as the nerve center for this mechanical graveyard, filled with the paperwork and records that track the endless flow of scrap metal and recyclable materials. The office is a chaotic archive of manifests, receipts, and inventory logs that could reveal the location of particularly valuable loads or hidden caches of precious metals. A ancient computer terminal sits on a metal desk, its screen dark but potentially containing digital records worth thousands to data recovery specialists. The air is thick with the scent of old coffee, cigarette smoke, and the faint metallic tang that seems to permeate everything in this industrial environment. Wall shelves groan under the weight of reference manuals, parts catalogs, and ledgers that span decades of the yard's operation. This office represents a different kind of treasure - not the raw materials outside, but the information that could lead to even greater finds. The filing cabinets contain records worth $400 to industrial historians, but searching them risks alerting the yard's current operators to your presence.",
+    "exits": {
+      "south": "industrial_yard",
+      "west": "scale_house"
+    }
+  },
+  "roof_access": {
+    "title": "Roof Access",
+    "description": "You discover access to the warehouse roof, a vast expanse of weathered tar paper and gravel that offers panoramic views of the surrounding industrial district while concealing its own secrets and dangers. HVAC units hum with latent power, their internal components potentially worth hundreds to scrap dealers, while satellite dishes and communication equipment suggest this roof was once an important part of the warehouse's operations. The air up here is fresher, carrying the sounds of distant traffic and the cries of urban wildlife that have adapted to this harsh environment. Pigeons nest in the corners, their droppings creating hazardous slick spots on the roof surface. From this height, you can see the patterns of the city - the flow of traffic, the locations of other potential targets, and the blind spots where criminal activities could flourish undetected. Several roof access panels conceal maintenance equipment worth $200, and a hidden compartment beneath one of the HVAC units contains $600 in cash and emergency supplies worth $150. However, the roof's age means that weak spots could give way without warning, and the height makes any fall potentially fatal.",
+    "exits": {
+      "south": "catwalk",
+      "east": "water_tower"
+    }
+  },
+  "scale_house": {
+    "title": "Scale House",
+    "description": "You enter the scale house where truck weights were once recorded for billing purposes, a small control room filled with the equipment that tracked the lifeblood of the scrap business - the constant flow of materials in and out of the yard. The room contains a massive scale readout display, computer terminals for recording transactions, and windows that offer a perfect view of the weighing platform outside. Security cameras and monitors suggest this was once a high-tech operation, though most of the equipment now sits dormant and gathering dust. The air carries the faint scent of printer ink and paper, mixed with the ever-present metallic undertone of the scrap yard. This control room represents the administrative heart of the operation, where deals were made, prices negotiated, and the flow of money tracked. The computer terminals might contain valuable financial data worth $500 to the right party, but accessing them risks triggering security systems or alerting current operators. A hidden floor safe beneath the main console contains $1,000 in petty cash and receipts that could be worth $300 to investigators.",
+    "exits": {
+      "east": "junkyard_office",
+      "north": "weigh_station"
+    }
+  },
+  "water_tower": {
+    "title": "Water Tower",
+    "description": "You climb to the massive water tower that looms over the warehouse complex like a sentinel, its cylindrical tank supported by a latticework of steel beams that create a maze of structural supports and hiding places. The tower offers an unparalleled view of the surrounding area - the industrial district spreading out like a mechanical landscape, the distant skyscrapers of the city center, and the network of streets and alleys that connect this forgotten corner to the wider metropolis. The air up here is crisp and clear, carrying the sounds of the city from a distance that makes them seem almost peaceful. However, the tower is not without its dangers - the wind whips around the structure with surprising force, the metal surfaces are slick with condensation, and the height makes every movement potentially deadly. Among the support beams, you discover a maintenance platform that conceals a hidden stash - $900 in cash, emergency supplies worth $200, and a waterproof container holding drugs worth $400. The tower's isolation makes it a perfect place for clandestine meetings or as a temporary safe house, but it also means that any trouble up here would be far from help.",
+    "exits": {
+      "west": "roof_access",
+      "down": "maintenance_ladder"
+    }
+  },
+  "weigh_station": {
+    "title": "Weigh Station",
+    "description": "You stand at the massive truck scale where vehicles were once weighed for business transactions, a concrete platform equipped with digital readouts and hydraulic systems that could handle the heaviest loads. The scale is now silent, its mechanisms frozen with disuse, but the platform itself could still be used for legitimate business or as a trap for the unwary. The control booth offers protection from the elements while providing a strategic view of anyone approaching the yard. Scattered paperwork and discarded receipts suggest this was where the money changed hands, where deals were finalized, and where the scrap yard's economic engine hummed with activity. The weigh station represents the commercial interface between the scrap yard's chaos and the outside world's order. A hidden compartment beneath the scale platform contains $700 in dropped coins and valuables, but accessing it requires crawling under the massive structure and risks getting crushed if the hydraulics unexpectedly activate. The control booth contains old manifests worth $200 to collectors, but searching it risks discovery by current yard operators.",
+    "exits": {
+      "south": "scale_house"
+    }
+  },
+  "maintenance_ladder": {
+    "title": "Maintenance Ladder",
+    "description": "You descend a precarious maintenance ladder that runs down the side of the water tower, each rung vibrating under your weight as you make your way back to ground level. The ladder offers a direct escape route from the heights above while providing access to maintenance areas that most people never see. The metal rungs are cold and slick, worn smooth by years of use, and the wind creates a swaying motion that makes the descent both challenging and dangerous. This vertical pathway connects the heights of the water tower to the grounded reality of the warehouse complex, serving as both an escape route and a potential trap for those who aren't careful with their footing. The ladder passes several access panels that could conceal tools or supplies worth $150, and one landing contains a hidden cache of $300 in cash and small valuables that have been overlooked by previous climbers.",
+    "exits": {
+      "up": "water_tower",
+      "down": "ground_level"
+    }
+  },
+  "ground_level": {
+    "title": "Ground Level Access",
+    "description": "You reach ground level through the maintenance access, emerging into a concealed area behind the warehouse complex that most people never see or know exists. This hidden space serves as a buffer between the industrial facility and the surrounding neighborhood, containing utility equipment, storage sheds, and maintenance supplies that could be valuable to the right buyer. The area is overgrown with weeds and littered with discarded equipment, creating a perfect camouflage for secret activities or hidden treasures. Several storage sheds dot the area, one containing tools worth $400, another holding electrical components worth $250, but a third is rigged with a basic alarm system that could alert nearby security. The isolation of this area makes it perfect for clandestine meetings or as a staging area for larger operations, but it also means that trouble here would be far from potential help or witnesses.",
+    "exits": {
+      "up": "maintenance_ladder",
+      "east": "perimeter_fence"
+    }
+  },
+  "perimeter_fence": {
+    "title": "Perimeter Fence",
+    "description": "You approach the perimeter fence that marks the boundary of the warehouse complex, a chain-link barrier topped with barbed wire that separates the industrial zone from the surrounding neighborhood. The fence has seen better days, with sections bent and gaps where determined intruders have forced their way through over the years. Vines and weeds have begun to claim parts of the fence, creating natural camouflage for those who know how to use it. The fence represents both a barrier and an opportunity - a way to enter or exit the complex discreetly, while also providing a defensive position that could be useful in a confrontation. Several loose sections of fence could be exploited for quick access, and you notice what appears to be a hidden breach that leads to a nearby alley. However, the barbed wire poses a constant threat, and security patrols might still monitor this perimeter despite the complex's abandoned state.",
+    "exits": {
+      "west": "ground_level",
+      "north": "side_street"
+    }
   }
 }

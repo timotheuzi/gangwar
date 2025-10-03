@@ -25,11 +25,16 @@
 
     {% if combat_active %}
     <div class="combat-actions">
-        <h3>Your Turn</h3>
+        <h3>Your Turn - Choose Your Action</h3>
         <form method="POST" action="{{ url_for('process_fight_action') }}">
             <input type="hidden" name="combat_id" value="{{ combat_id }}">
             <input type="hidden" name="enemy_type" value="{{ enemy_type }}">
             <input type="hidden" name="enemy_count" value="{{ enemy_count }}">
+            <input type="hidden" name="enemy_health" value="{{ enemy_health }}">
+            {% for entry in fight_log %}
+            <input type="hidden" name="fight_log" value="{{ entry }}">
+            {% endfor %}
+
             <div class="action-buttons">
                 <button type="submit" name="action" value="attack" class="btn btn-danger">Attack</button>
                 <button type="submit" name="action" value="defend" class="btn btn-warning">Defend</button>

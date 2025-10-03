@@ -1765,6 +1765,67 @@ def process_fight_action():
     if action == 'attack':
         use_exploding = ammo == 'exploding' and weapon in ['pistol', 'ghost_gun', 'ar15'] and game_state.weapons.exploding_bullets > 0
 
+        # Get weapon-specific attack descriptions
+        attack_descriptions = {
+            'pistol': [
+                "You squeeze off a precise shot from your pistol, the barrel flashing as the bullet screams toward your target!",
+                "Your pistol bucks in your hand as you fire, sending a slug hurtling through the air with deadly intent!",
+                "You line up the sights and pull the trigger, your pistol roaring as it launches death toward your enemy!",
+                "With practiced precision, you fire your pistol, the shot echoing like thunder in the confined space!",
+                "Your finger tightens on the trigger, unleashing a devastating round that finds its mark unerringly!"
+            ],
+            'ghost_gun': [
+                "Your ghost gun whispers death in silence, the untraceable shot eliminating your target with surgical precision!",
+                "The ghost gun does its deadly work, firing a shot that leaves no evidence but a corpse cooling on the ground!",
+                "You employ the untraceable firearm, its muffled report barely audible as it extinguishes another life!",
+                "The ghost gun lives up to its name, firing a shot that disappears like smoke, leaving only death behind!",
+                "Your untraceable weapon speaks volumes in silence, the shot finding its target with lethal accuracy!"
+            ],
+            'ar15': [
+                "You unleash a burst from your AR-15, the rifle chattering like an angry mechanical demon!",
+                "The AR-15 roars in your hands, spitting a stream of lead that tears through your enemies!",
+                "You squeeze the trigger and your AR-15 responds with fury, unleashing a hailstorm of bullets!",
+                "Your assault rifle bucks against your shoulder as it unleashes controlled devastation on your foes!",
+                "The AR-15 sings its song of destruction, each burst finding targets with mechanical precision!"
+            ],
+            'exploding_bullets': [
+                "You fire an exploding bullet that detonates on impact, shredding flesh and bone in a horrific explosion!",
+                "The exploding round screams toward your target and erupts in a devastating blast of shrapnel and fire!",
+                "Your special ammunition detonates with terrifying force, turning your enemy into a cloud of blood and gore!",
+                "The exploding bullet finds its mark and unleashes hell, the detonation ripping through everything in its path!",
+                "You watch as your explosive projectile impacts and erupts, painting the surroundings in crimson destruction!"
+            ],
+            'grenade': [
+                "You hurl a grenade that bounces toward your enemies, the fuse hissing as it counts down to oblivion!",
+                "The grenade leaves your hand in a perfect arc, exploding in a shower of deadly shrapnel moments later!",
+                "You cook off a grenade and throw it, the explosion ripping through your enemies like divine judgment!",
+                "Your grenade finds its target and detonates with earth-shaking force, scattering foes like broken dolls!",
+                "The grenade explodes in a cataclysm of fire and metal, leaving nothing but silence and death in its wake!"
+            ],
+            'missile_launcher': [
+                "You fire the missile launcher, the rocket screaming toward your target like the wrath of an angry god!",
+                "The missile streaks from the launcher, its contrail marking a path of inevitable destruction!",
+                "You unleash hell with the missile launcher, the projectile reducing everything in its path to rubble!",
+                "The rocket-propelled death leaves your launcher, homing in on your enemies with mechanical precision!",
+                "Your missile finds its mark and detonates in a massive explosion that shakes the very foundations!"
+            ],
+            'barbed_wire_bat': [
+                "You swing your barbed wire bat with savage force, the cruel spikes tearing through flesh and bone!",
+                "The barbed wire-wrapped bat connects with devastating impact, ripping and tearing everything it touches!",
+                "You bring the brutal weapon down in a crushing arc, the barbed wire leaving trails of blood and agony!",
+                "Your spiked bat finds its target, the barbs digging deep and tearing flesh in a symphony of pain!",
+                "The barbed wire bat swings in a deadly arc, connecting with bone-crunching force and horrific tearing!"
+            ],
+            'knife': [
+                "You lunge forward with your knife, the blade flashing as it seeks out vital arteries and organs!",
+                "Your knife strikes with surgical precision, slipping between ribs to find the enemy's beating heart!",
+                "You drive the blade home with lethal force, twisting and tearing through flesh and muscle!",
+                "The knife finds its mark in a spray of crimson, your strike both swift and merciless!",
+                "You stab with calculated brutality, the blade drinking deep of your enemy's lifeblood!"
+            ]
+        }
+
+        # Handle weapon attacks with enhanced descriptions
         if weapon == 'pistol' and game_state.weapons.pistols > 0 and game_state.weapons.bullets > 0:
             game_state.weapons.bullets -= 1
             base_damage = random.randint(15, 25)
@@ -1774,10 +1835,12 @@ def process_fight_action():
             if game_state.weapons.pistol_automatic:
                 # Automatic pistol fires 3 shots
                 damage = base_damage * 3
-                fight_log.append(f"You fire your automatic pistol in burst mode and deal {damage} damage{' (exploding bullets have devastating effect!)' if use_exploding else ''}!")
+                attack_desc = random.choice(attack_descriptions.get('pistol', ["You fire your automatic pistol!"]))
+                fight_log.append(f"{attack_desc} You deal {damage} damage{' (exploding bullets have devastating effect!)' if use_exploding else ''}!")
             else:
                 damage = base_damage
-                fight_log.append(f"You fire your pistol and deal {damage} damage{' (exploding bullet!)' if use_exploding else ''}!")
+                attack_desc = random.choice(attack_descriptions.get('pistol', ["You fire your pistol!"]))
+                fight_log.append(f"{attack_desc} You deal {damage} damage{' (exploding bullet!)' if use_exploding else ''}!")
             enemy_health -= damage
         elif weapon == 'ar15' and game_state.weapons.ar15 > 0 and game_state.weapons.bullets > 0:
             game_state.weapons.bullets -= 1
@@ -1835,15 +1898,51 @@ def process_fight_action():
         else:
             fight_log.append("You don't have that weapon or ammo!")
 
-        # Enemy attacks back
+        # Enemy attacks back with enhanced descriptions
         if enemy_health > 0:
+            # Get enemy-specific attack descriptions
+            enemy_attack_descriptions = {
+                'police': [
+                    "A police officer fires their service pistol, the shot narrowly missing your vital organs!",
+                    "The cop squeezes off a round that grazes your shoulder, leaving a burning trail of pain!",
+                    "Police gunfire echoes as a bullet finds your leg, the impact sending shockwaves through your body!",
+                    "An officer's pistol shot catches you in the side, the bullet burning a path through your flesh!",
+                    "The police officer fires with trained precision, their bullet finding a home in your torso!"
+                ],
+                'gang': [
+                    "A gang member fires wildly, their pistol shots spraying the area with hot lead!",
+                    "The gangster's pistol bucks as they fire, bullets whizzing past your head dangerously close!",
+                    "Gang gunfire erupts as a pistol shot catches you in the arm, the impact spinning you around!",
+                    "A rival thug unloads their pistol, one shot finding its mark in your chest with burning force!",
+                    "The gang member's pistol shot tears through your defenses, leaving you gasping in pain!"
+                ],
+                'squidie': [
+                    "A Squidie fires their customized pistol, the shot enhanced with their signature brutality!",
+                    "The Squidie gangster's pistol shot burns a path across your body, their aim unnaturally accurate!",
+                    "Squidie gunfire echoes as their bullet finds your flesh, the wound burning with unnatural heat!",
+                    "A Squidie thug's pistol shot catches you off guard, the impact sending waves of agony through you!",
+                    "The Squidie's enhanced pistol fires with deadly precision, their bullet ripping through your defenses!"
+                ]
+            }
+
+            # Determine enemy type for appropriate descriptions
+            if 'police' in enemy_type.lower():
+                enemy_type_key = 'police'
+            elif 'squidie' in enemy_type.lower():
+                enemy_type_key = 'squidie'
+            else:
+                enemy_type_key = 'gang'
+
             enemy_damage = random.randint(5, 15) * enemy_count
+
             if game_state.weapons.vest > 0 and random.random() < 0.5:
                 game_state.weapons.vest -= 1
                 enemy_damage = max(0, enemy_damage - 20)
-                fight_log.append(f"Enemy attacks! Your vest absorbs some damage, you take {enemy_damage} damage!")
+                attack_desc = random.choice(enemy_attack_descriptions.get(enemy_type_key, ["Enemy attacks!"]))
+                fight_log.append(f"{attack_desc} Your vest absorbs some damage, you take {enemy_damage} damage!")
             else:
-                fight_log.append(f"Enemy attacks! You take {enemy_damage} damage!")
+                attack_desc = random.choice(enemy_attack_descriptions.get(enemy_type_key, ["Enemy attacks!"]))
+                fight_log.append(f"{attack_desc} You take {enemy_damage} damage!")
             game_state.damage += enemy_damage
 
     elif action == 'defend':
