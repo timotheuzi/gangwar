@@ -9,7 +9,15 @@
     "is_alive": true,
     "location": "bar",
     "last_interaction": "",
-    "description": "A malfunctioning android who offers cryptic advice in the neon-drenched slums."
+    "description": "A malfunctioning android who offers cryptic advice in the neon-drenched slums.",
+    "drugs": {
+      "weed": 5,
+      "crack": 3,
+      "coke": 2,
+      "ice": 1,
+      "percs": 4,
+      "pixie_dust": 1
+    }
   },
   "raze": {
     "id": "raze",
@@ -33,7 +41,15 @@
     "is_alive": true,
     "location": "alleyway",
     "last_interaction": "",
-    "description": "A shadowy figure who deals in forbidden tech and secrets from the decaying megastructures."
+    "description": "A shadowy figure who deals in forbidden tech and secrets from the decaying megastructures.",
+    "drugs": {
+      "weed": 8,
+      "crack": 5,
+      "coke": 3,
+      "ice": 2,
+      "percs": 6,
+      "pixie_dust": 2
+    }
   },
   "whisper": {
     "id": "whisper",
@@ -57,7 +73,15 @@
     "is_alive": true,
     "location": "alleyway",
     "last_interaction": "",
-    "description": "A resourceful scavenger who prowls the toxic waste zones, trading scavenged tech for survival."
+    "description": "A resourceful scavenger who prowls the toxic waste zones, trading scavenged tech for survival.",
+    "drugs": {
+      "weed": 6,
+      "crack": 2,
+      "coke": 1,
+      "ice": 3,
+      "percs": 5,
+      "pixie_dust": 1
+    }
   },
   "enforcer": {
     "id": "enforcer",
@@ -178,5 +202,67 @@
     "location": "wander",
     "last_interaction": "",
     "description": "A desperate woman looking for help with her child."
+  },
+  "blade_master": {
+    "id": "blade_master",
+    "name": "Blade Master",
+    "personality": "disciplined",
+    "hp": 350,
+    "max_hp": 350,
+    "damage": 35,
+    "is_alive": true,
+    "location": "wander",
+    "last_interaction": "",
+    "description": "A master swordsman who wanders the streets, seeking worthy opponents to test his blade.",
+    "unique_drops": ["sword"]
+  },
+  "lumberjack": {
+    "id": "lumberjack",
+    "name": "Lumberjack",
+    "personality": "gruff",
+    "hp": 280,
+    "max_hp": 280,
+    "damage": 28,
+    "is_alive": true,
+    "location": "alleyway",
+    "last_interaction": "",
+    "description": "A massive, axe-wielding brute who chops through anything in his path, including people.",
+    "unique_drops": ["axe"]
+  },
+  "street_samurai": {
+    "id": "street_samurai",
+    "name": "Street Samurai",
+    "personality": "honorable",
+    "hp": 220,
+    "max_hp": 220,
+    "damage": 22,
+    "is_alive": true,
+    "location": "bar",
+    "last_interaction": "",
+    "description": "A cybernetically enhanced warrior following the bushido code in the urban jungle."
+  },
+  "junkyard_dog": {
+    "id": "junkyard_dog",
+    "name": "Junkyard Dog",
+    "personality": "feral",
+    "hp": 180,
+    "max_hp": 180,
+    "damage": 18,
+    "is_alive": true,
+    "location": "wander",
+    "last_interaction": "",
+    "description": "A wild, mutated scavenger who prowls the scrap yards, fighting with feral intensity."
+  },
+  "corporate_defector": {
+    "id": "corporate_defector",
+    "name": "Corporate Defector",
+    "personality": "paranoid",
+    "hp": 150,
+    "max_hp": 150,
+    "damage": 15,
+    "is_alive": true,
+    "location": "alleyway",
+    "last_interaction": "",
+    "description": "A former corporate executive on the run, selling secrets and looking over his shoulder constantly."
   }
 }

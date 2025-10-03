@@ -11,7 +11,7 @@
     {% elif action == 'fight' %}
         <div class="combat-result">
             <p>{{ message }}</p>
-            {% if not npc.is_alive %}
+            {% if npc.get('is_alive', True) == False %}
                 <p class="loot-info">You can now search the body for loot.</p>
                 <a href="{{ url_for('pickup_loot', npc_id=npc.id) }}" class="btn btn-warning">Search Body</a>
             {% endif %}
@@ -29,13 +29,13 @@
     <div class="npc-info">
         <h3>{{ npc.name }}</h3>
         <p><strong>Personality:</strong> {{ npc.personality.title() }}</p>
-        <p><strong>Status:</strong> {% if npc.is_alive %}Alive (HP: {{ npc.hp }}/{{ npc.max_hp }}){% else %}Dead{% endif %}</p>
-        {% if npc.last_interaction %}
+        <p><strong>Status:</strong> {% if npc.get('is_alive', True) %}Alive (HP: {{ npc.get('hp', 0) }}/{{ npc.get('max_hp', 0) }}){% else %}Dead{% endif %}</p>
+        {% if npc.get('last_interaction') %}
             <p><strong>Last Interaction:</strong> {{ npc.last_interaction }}</p>
         {% endif %}
     </div>
 
-    {% if npc.is_alive %}
+    {% if npc.get('is_alive', True) %}
         <div class="interaction-options">
             <h3>What would you like to do?</h3>
             <div class="action-buttons">
@@ -60,6 +60,15 @@
                     {% endif %}
                     {% if game_state.weapons.vampire_bat > 0 %}
                         <label><input type="radio" name="weapon" value="vampire_bat"> Vampire Bat</label><br>
+                    {% endif %}
+                    {% if game_state.weapons.knife > 0 %}
+                        <label><input type="radio" name="weapon" value="knife"> Knife</label><br>
+                    {% endif %}
+                    {% if game_state.weapons.ar15 > 0 and game_state.weapons.bullets > 0 %}
+                        <label><input type="radio" name="weapon" value="ar15"> AR-15 ({{ game_state.weapons.bullets }} bullets)</label><br>
+                    {% endif %}
+                    {% if game_state.weapons.ghost_guns > 0 and game_state.weapons.bullets > 0 %}
+                        <label><input type="radio" name="weapon" value="ghost_gun"> Ghost Gun ({{ game_state.weapons.bullets }} bullets)</label><br>
                     {% endif %}
                     <br>
                     <button type="submit" class="btn btn-danger">Start Fight</button>

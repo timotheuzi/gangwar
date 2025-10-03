@@ -23,7 +23,7 @@
     <script src="https://cdn.socket.io/4.0.0/socket.io.min.js"></script>
     <script>
         // Set global variables from Flask template
-        window.playerName = "{{ game_state.player_name or 'Anonymous Player' }}";
+        window.playerName = "{{ game_state.player_name or 'Player' }}";
         window.currentRoom = "global";
         window.locationRoom = "{{ game_state.current_location or 'city' }}";
     </script>

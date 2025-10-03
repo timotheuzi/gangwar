@@ -132,6 +132,8 @@ class Weapons:
     ghost_guns: int = 0
     ar15: int = 0
     exploding_bullets: int = 0
+    sword: int = 0
+    axe: int = 0
     pistol_automatic: bool = False
     ghost_gun_automatic: bool = False
 
@@ -1394,7 +1396,10 @@ def new_game():
         game_state.weapons.pistols = 1
         game_state.weapons.bullets = 10
 
-        save_game_state(game_state)
+        # Ensure the game state is properly saved to session
+        session['game_state'] = asdict(game_state)
+        session.modified = True
+
         return redirect(url_for('city'))
 
     return render_template('new_game.html', game_state=get_game_state())
@@ -1431,8 +1436,88 @@ def trade_with_npc(npc_id):
         return redirect(url_for('city'))
     npc = npcs_data[npc_id]
     game_state = get_game_state()
-    message = f"{npc['name']} offers to trade with you."
-    return render_template('npc_interaction.html', npc=npc, action='trade', message=message, game_state=game_state)
+    return render_template('npc_trade.html', npc=npc, game_state=game_state)
+
+@app.route('/npc_trade_action/<npc_id>', methods=['POST'])
+def npc_trade_action(npc_id):
+    if npc_id not in npcs_data:
+        return redirect(url_for('city'))
+
+    npc = npcs_data[npc_id]
+    game_state = get_game_state()
+    action = request.form.get('action')
+    item_type = request.form.get('item_type')
+    quantity = int(request.form.get('quantity', 1))
+
+    if action == 'buy':
+        # NPC selling to player
+        if item_type not in game_state.drug_prices:
+            flash("Invalid item type!", "danger")
+            return redirect(url_for('trade_with_npc', npc_id=npc_id))
+
+        # Check if NPC has the item (simulate NPC inventory)
+        npc_drugs = npc.get('drugs', {})
+        npc_amount = npc_drugs.get(item_type, 0)
+
+        if npc_amount < quantity:
+            flash(f"{npc['name']} doesn't have enough {item_type}!", "danger")
+            return redirect(url_for('trade_with_npc', npc_id=npc_id))
+
+        price = game_state.drug_prices[item_type]
+        # NPCs sell at 150% of base price
+        sell_price = int(price * 1.5)
+        total_cost = sell_price * quantity
+
+        if game_state.money < total_cost:
+            flash(f"You don't have enough money! Need ${total_cost:,}.", "danger")
+            return redirect(url_for('trade_with_npc', npc_id=npc_id))
+
+        # Complete the transaction
+        game_state.money -= total_cost
+        setattr(game_state.drugs, item_type, getattr(game_state.drugs, item_type) + quantity)
+
+        # Update NPC inventory (simulate)
+        npc_drugs[item_type] = npc_amount - quantity
+        npc['drugs'] = npc_drugs
+
+        flash(f"You bought {quantity} kilo(s) of {item_type} from {npc['name']} for ${total_cost:,}!", "success")
+
+    elif action == 'sell':
+        # Player selling to NPC
+        if item_type not in game_state.drug_prices:
+            flash("Invalid item type!", "danger")
+            return redirect(url_for('trade_with_npc', npc_id=npc_id))
+
+        current_qty = getattr(game_state.drugs, item_type)
+        if current_qty < quantity:
+            flash(f"You don't have enough {item_type} to sell!", "danger")
+            return redirect(url_for('trade_with_npc', npc_id=npc_id))
+
+        price = game_state.drug_prices[item_type]
+        # NPCs buy at 50% of base price
+        buy_price = int(price * 0.5)
+        total_revenue = buy_price * quantity
+
+        # Complete the transaction
+        game_state.money += total_revenue
+        setattr(game_state.drugs, item_type, current_qty - quantity)
+
+        # Update NPC inventory (simulate)
+        npc_drugs = npc.get('drugs', {})
+        npc_drugs[item_type] = npc_drugs.get(item_type, 0) + quantity
+        npc['drugs'] = npc_drugs
+
+        flash(f"You sold {quantity} kilo(s) of {item_type} to {npc['name']} for ${total_revenue:,}!", "success")
+
+    # Save game state and NPC data
+    save_game_state(game_state)
+
+    # Save updated NPC data
+    npc_file = os.path.join(os.path.dirname(__file__), '..', 'models', 'npcs.json')
+    with open(npc_file, 'w') as f:
+        json.dump(npcs_data, f, indent=2)
+
+    return redirect(url_for('trade_with_npc', npc_id=npc_id))
 
 @app.route('/fight_npc/<npc_id>', methods=['POST'])
 def fight_npc(npc_id):
@@ -1739,6 +1824,14 @@ def process_fight_action():
             damage = random.randint(10, 20)
             enemy_health -= damage
             fight_log.append(f"You stab with your knife and deal {damage} damage!")
+        elif weapon == 'sword' and game_state.weapons.sword > 0:
+            damage = random.randint(50, 80)
+            enemy_health -= damage
+            fight_log.append(f"You slash with your sword and deal {damage} damage!")
+        elif weapon == 'axe' and game_state.weapons.axe > 0:
+            damage = random.randint(60, 90)
+            enemy_health -= damage
+            fight_log.append(f"You swing your mighty axe and deal {damage} damage!")
         else:
             fight_log.append("You don't have that weapon or ammo!")
 
@@ -1799,12 +1892,32 @@ def process_fight_action():
         # Handle NPC-specific victory logic
         npc_id = request.form.get('npc_id')
         if npc_id and npc_id in npcs_data:
+            npc = npcs_data[npc_id]
             npcs_data[npc_id]['is_alive'] = False
             npc_file = os.path.join(os.path.dirname(__file__), '..', 'models', 'npcs.json')
             with open(npc_file, 'w') as f:
                 json.dump(npcs_data, f, indent=2)
+
             game_state.money += 100  # Loot from defeated NPC
-            fight_log.append(f"You defeated {npcs_data[npc_id]['name']} and looted $100!")
+            fight_log.append(f"You defeated {npc['name']} and looted $100!")
+
+            # Check for unique weapon drops
+            unique_drops = npc.get('unique_drops', [])
+            for weapon in unique_drops:
+                if weapon == 'sword':
+                    game_state.weapons.sword += 1
+                    fight_log.append(f"You found a unique SWORD dropped by {npc['name']}!")
+                elif weapon == 'axe':
+                    game_state.weapons.axe += 1
+                    fight_log.append(f"You found a unique AXE dropped by {npc['name']}!")
+
+            # NPCs have a chance to drop drugs
+            drug_types = ['weed', 'crack', 'coke', 'ice', 'percs', 'pixie_dust']
+            for drug in drug_types:
+                if random.random() < 0.3:  # 30% chance per drug type
+                    amount = random.randint(1, 3)
+                    setattr(game_state.drugs, drug, getattr(game_state.drugs, drug) + amount)
+                    fight_log.append(f"You found {amount} kilos of {drug} on {npc['name']}!")
 
         # All enemies are defeated, but some defect or flee instead of dying
         killed = enemy_count

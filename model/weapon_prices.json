@@ -49,6 +49,14 @@
       "price": 75000,
       "description": "Heavy bulletproof vest (+15 defense)",
       "defense_bonus": 15
+    },
+    "sword": {
+      "price": 800,
+      "description": "A sharp melee weapon"
+    },
+    "axe": {
+      "price": 1200,
+      "description": "A heavy two-handed axe"
     }
   },
   "weapon_effects": {
@@ -61,6 +69,8 @@
     "missile_damage": [50, 100],
     "barbed_bat_damage": [25, 45],
     "knife_damage": [10, 20],
+    "sword_damage": [50, 80],
+    "axe_damage": [60, 90],
     "vest_damage_reduction": 20
   },
   "combat_chances": {
