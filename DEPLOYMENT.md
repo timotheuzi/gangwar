@@ -39,7 +39,8 @@ This guide explains how to deploy the Gangwar Game to PythonAnywhere. This updat
    - Usually located at `/home/yourusername/yourappname`
 
 2. **Upload the following files and directories**:
-   - `pythonanywhere.py` (main deployment entry point)
+   - `pythonanywhere_entry.py` (main WSGI deployment entry point)
+   - `scripts/pythonanywhere.py` (alternative entry point for local development)
    - `src/` directory (contains `app.py`)
    - `templates/` directory
    - `static/` directory
@@ -55,8 +56,8 @@ This guide explains how to deploy the Gangwar Game to PythonAnywhere. This updat
 
 1. **Go back to the Web tab** and click on your app
 2. **Update the WSGI configuration**:
-   - The WSGI file should already be set to `/home/yourusername/yourappname/pythonanywhere.py`
-   - If not, update it manually
+   - Set the WSGI configuration file to `/home/yourusername/yourappname/pythonanywhere_entry.py`
+   - If it's currently pointing to a different file, update it in the Web tab under "WSGI configuration file"
 
 3. **Configure static files**:
    - Add a static files mapping:
@@ -128,7 +129,7 @@ If WebSockets don't work on the free tier, consider upgrading to a paid plan for
 
 1. **Set proper permissions**:
    ```bash
-   chmod 755 pythonanywhere.py
+   chmod 755 pythonanywhere_entry.py
    chmod -R 755 static/
    chmod -R 755 templates/
    ```

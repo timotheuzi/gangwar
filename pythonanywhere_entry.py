@@ -1,0 +1,35 @@
+#!/usr/bin/env python3
+"""
+Gangwar Game - PythonAnywhere WSGI Entry Point
+This is the main WSGI entry point for PythonAnywhere deployment
+"""
+
+import os
+import sys
+import subprocess
+
+# Add src directory to Python path so we can import app
+src_dir = os.path.join(os.path.dirname(__file__), 'src')
+sys.path.insert(0, src_dir)
+
+# Import the Flask application and socketio
+try:
+    from app import app, socketio
+    print("Successfully imported Flask app and SocketIO")
+except ImportError as e:
+    print(f"Import error: {e}")
+    sys.exit(1)
+
+# For WSGI deployment
+if socketio:
+    # Apply SocketIO middleware for gevent compatibility
+    application = socketio.WSGIApp(app)
+else:
+    application = app
+
+# For local development (if someone runs this directly)
+if __name__ == '__main__':
+    if socketio:
+        socketio.run(app, host='0.0.0.0', port=int(os.environ.get('PORT', 5009)), debug=False)
+    else:
+        app.run(host='0.0.0.0', port=int(os.environ.get('PORT', 5009)), debug=False)
