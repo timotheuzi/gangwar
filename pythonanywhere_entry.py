@@ -23,7 +23,8 @@ except ImportError as e:
 # For WSGI deployment
 if socketio:
     # Apply SocketIO middleware for gevent compatibility
-    application = socketio.WSGIApp(app)
+    from flask_socketio import wsgi
+    application = wsgi.WSGIApp(socketio, app)
 else:
     application = app
 
