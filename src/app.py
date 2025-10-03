@@ -84,18 +84,14 @@ def calculate_score(money_earned: int, days_survived: int, gang_wars_won: int, f
     return money_score + survival_score + gang_war_score + fight_score
 
 # ============
-# SocketIO Setup - Always try to enable for development, handle failures gracefully
+# SocketIO Setup - Use threading mode to avoid gevent dependency issues
 # ============
 
 try:
     from flask_socketio import SocketIO, emit, join_room, leave_room
-    # For executables, avoid async mode that causes crashes - use simple mode
-    if is_frozen:
-        # Simple initialization for executables
-        socketio = SocketIO(app)
-    else:
-        # Full async mode for development
-        socketio = SocketIO(app, async_mode='threading', cors_allowed_origins="*")
+    # Use threading mode to avoid gevent compilation issues
+    socketio = SocketIO(app, async_mode='threading', cors_allowed_origins="*")
+    print("SocketIO initialized with threading mode")
 except (ImportError, Exception) as e:
     print(f"Warning: SocketIO disabled - {e}")
     socketio = None
@@ -111,6 +107,8 @@ connected_players = {}
 class Flags:
     has_id: bool = False
     has_info: bool = False
+    eric_met: bool = False
+    steve_met: bool = False
 
 @dataclass
 class Drugs:
@@ -406,10 +404,20 @@ def upgrade_weapon():
     flash(f"You upgraded your {weapon_name} to automatic for ${price:,}!", "success")
     return redirect(url_for('gunshack'))
 
-@app.route('/bar')
+@app.route('/bar', methods=['GET', 'POST'])
 def bar():
     """Vagabond's Pub"""
     game_state = get_game_state()
+    if request.method == 'POST':
+        contact = request.form.get('contact')
+        if contact == 'nox':
+            game_state.flags.eric_met = True
+            flash("You successfully meet Nox the Informant!", "success")
+        elif contact == 'raze':
+            game_state.flags.steve_met = True
+            flash("You successfully meet Raze the Supplier!", "success")
+        save_game_state(game_state)
+        return redirect(url_for('bar'))
     return render_template('bar.html', game_state=game_state)
 
 @app.route('/bank')
@@ -755,6 +763,58 @@ def picknsave():
     """Pick n Save grocery store"""
     game_state = get_game_state()
     return render_template('picknsave.html', game_state=game_state)
+
+@app.route('/search_picknsave')
+def search_picknsave():
+    """Investigate Secrets at Pick n Save"""
+    game_state = get_game_state()
+
+    # Generate random secret information
+    secrets = [
+        "You overhear the store manager talking about a special bulk discount program for gang leaders.",
+        "You find a hidden safe behind the counter containing $1000!",
+        "You discover that the store owner is actually an ex-gang member who might have useful connections.",
+        "You notice a suspicious van parked in the back - looks like someone is unloading special 'merchandise'.",
+        "You find some discarded documents mentioning a rival gang's hideout location.",
+        "You overhear customers talking about underground weapon shipments arriving next week.",
+        "You find a secret compartment with free medical supplies!",
+        "You discover the store has a hidden basement where 'special meetings' take place.",
+        "You notice security cameras that don't match the store's official security system.",
+        "You find evidence that the pizza delivery boy is actually a drug courier.",
+        "You overhear plans for a major gang war starting in two days.",
+        "You discover a trap door leading to an underground tunnel system.",
+        "You find $200 in loose change scattered around the back room.",
+        "You notice the store owner's ring bears a familiar gang symbol from your past.",
+        "You discover plans for a police raid on a nearby crackhouse."
+    ]
+
+    # Select 2-3 random secrets
+    revealed_secrets = random.sample(secrets, random.randint(2, 3))
+
+    # Sometimes provide actual benefits
+    benefits_found = []
+    if random.random() < 0.3:  # 30% chance for a real benefit
+        benefit_type = random.choice(['money', 'drugs', 'health', 'info'])
+        if benefit_type == 'money':
+            money_found = random.randint(500, 2000)
+            game_state.money += money_found
+            benefits_found.append(f"You found ${money_found} hidden in a secret compartment!")
+        elif benefit_type == 'drugs':
+            drug_types = ['weed', 'crack']
+            drug = random.choice(drug_types)
+            amount = random.randint(1, 3)
+            setattr(game_state.drugs, drug, getattr(game_state.drugs, drug) + amount)
+            benefits_found.append(f"You discovered {amount} kilos of {drug} stashed away!")
+        elif benefit_type == 'health':
+            game_state.health = min(30, game_state.health + 10)
+            benefits_found.append("You found some free medical supplies and healed yourself!")
+        elif benefit_type == 'info':
+            game_state.flags.has_info = True
+            benefits_found.append("You overheard crucial information about police movements!")
+
+    save_game_state(game_state)
+
+    return render_template('search_picknsave.html', game_state=game_state, secrets=revealed_secrets, benefits=benefits_found)
 
 @app.route('/picknsave_action', methods=['POST'])
 def picknsave_action():
@@ -1894,17 +1954,8 @@ if socketio:
 
     def update_player_lists():
         """Update player lists for all connected clients in global chat room"""
-        # Get all unique players (deduplicate by name)
-        unique_players = {}
-        for player in connected_players.values():
-            name = player['name']
-            # Keep the most recently joined player with this name
-            if name not in unique_players or player['joined_at'] > unique_players[name]['joined_at']:
-                unique_players[name] = player
-
-        players_list = list(unique_players.values())
-
-        # Send updated global player list to all connected clients in global room
+        # Send current player list to all connected clients in global room
+        players_list = list(connected_players.values())
         socketio.emit('player_list', {'players': players_list}, room='global')
 
 
