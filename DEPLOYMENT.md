@@ -39,7 +39,8 @@ This guide explains how to deploy the Gangwar Game to PythonAnywhere. This updat
    - Usually located at `/home/yourusername/yourappname`
 
 2. **Upload the following files and directories**:
-   - `pythonanywhere_entry.py` (main WSGI deployment entry point)
+   - `pythonanywhere_entry.py` (WSGI entry point that handles imports)
+   - `flask_app.py` (main WSGI file that PythonAnywhere will use)
    - `scripts/pythonanywhere.py` (alternative entry point for local development)
    - `src/` directory (contains `app.py`)
    - `templates/` directory
@@ -56,8 +57,10 @@ This guide explains how to deploy the Gangwar Game to PythonAnywhere. This updat
 
 1. **Go back to the Web tab** and click on your app
 2. **Update the WSGI configuration**:
-   - Set the WSGI configuration file to `/home/yourusername/yourappname/pythonanywhere_entry.py`
-   - If it's currently pointing to a different file, update it in the Web tab under "WSGI configuration file"
+   - In the Web tab, look for the "WSGI configuration file" section
+   - Change the path to: `/home/yourusername/yourappname/pythonanywhere_entry.py`
+   - Replace `yourusername` and `yourappname` with your actual PythonAnywhere username and app name
+   - Click the save button if there is one, or the configuration will auto-save
 
 3. **Configure static files**:
    - Add a static files mapping:
@@ -130,9 +133,24 @@ If WebSockets don't work on the free tier, consider upgrading to a paid plan for
 1. **Set proper permissions**:
    ```bash
    chmod 755 pythonanywhere_entry.py
+   chmod 755 flask_app.py
    chmod -R 755 static/
    chmod -R 755 templates/
    ```
+
+## Alternative WSGI Configuration (If Web Interface Won't Allow Changes)
+
+**If you cannot change the WSGI configuration file through the Web tab**, PythonAnywhere may be using a default file path. Here's the alternative approach:
+
+1. **Upload or create `flask_app.py` in your webapp directory**
+2. **Edit the file content to match**:
+   ```python
+   from pythonanywhere_entry import application
+   ```
+
+3. **PythonAnywhere will automatically use this file** if it's present in your webapp directory and named `flask_app.py`
+
+4. **Test the import** by reloading your webapp and checking the logs
 
 2. **Database files**: If your app creates files (like high scores), ensure write permissions:
    ```bash
