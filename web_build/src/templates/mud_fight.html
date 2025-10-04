@@ -26,7 +26,7 @@
     {% if combat_active %}
     <div class="combat-actions">
         <h3>Your Turn - Choose Your Action</h3>
-        <form method="POST" action="{{ url_for('process_fight_action') }}">
+        <form method="POST" action="{{ url_for('process_fight_action') }}" id="combat-form">
             <input type="hidden" name="combat_id" value="{{ combat_id }}">
             <input type="hidden" name="enemy_type" value="{{ enemy_type }}">
             <input type="hidden" name="enemy_count" value="{{ enemy_count }}">
@@ -108,14 +108,18 @@
     </div>
     {% endif %}
 
-    <!-- Combat Log Section -->
+    <!-- Combat Log Section - Always Visible -->
     <div class="combat-chat-container">
         <div class="combat-chat-section">
             <h4>⚔️ Combat Log</h4>
             <div id="combat-messages" class="combat-messages">
-                {% for line in fight_log %}
-                <div class="combat-line">{{ line }}</div>
-                {% endfor %}
+                {% if fight_log %}
+                    {% for line in fight_log %}
+                    <div class="combat-line">{{ line }}</div>
+                    {% endfor %}
+                {% else %}
+                    <div class="combat-line">Combat begins!</div>
+                {% endif %}
             </div>
         </div>
     </div>

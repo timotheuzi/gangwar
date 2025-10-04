@@ -1907,9 +1907,16 @@ def process_fight_action():
             enemy_health -= damage
             fight_log.append(f"You fire a missile and deal {damage} damage!")
         elif weapon == 'vampire_bat' and game_state.weapons.vampire_bat > 0:
-            damage = random.randint(25, 45)
+            # Vampire bat gets 2 swings - show each swing separately
+            total_damage = 0
+            for swing in range(2):
+                swing_damage = random.randint(25, 45)
+                total_damage += swing_damage
+                attack_desc = random.choice(attack_descriptions.get('barbed_wire_bat', ["You swing your vampire bat!"]))
+                fight_log.append(f"{attack_desc} [Swing {swing + 1}] You deal {swing_damage} damage!")
+            fight_log.append(f"Total damage from vampire bat: {total_damage} damage!")
+            damage = total_damage
             enemy_health -= damage
-            fight_log.append(f"You swing your vampire bat and deal {damage} damage!")
         elif weapon == 'knife':
             damage = random.randint(10, 20)
             enemy_health -= damage
