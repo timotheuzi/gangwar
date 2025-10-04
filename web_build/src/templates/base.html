@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Gang War MUD{% endblock %}</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <style>
+        /* Combat message colors */
+        .combat-hit { color: #ff6b6b !important; font-weight: bold; }
+        .combat-critical { color: #ff4757 !important; font-weight: bold; font-size: 1.1em; text-shadow: 0 0 5px #ff4757; }
+        .combat-miss { color: #ffa726 !important; font-style: italic; }
+        .combat-dodge { color: #42a5f5 !important; font-weight: bold; }
+        .combat-defend { color: #66bb6a !important; font-weight: bold; }
+        .combat-drug { color: #ab47bc !important; font-weight: bold; }
+        .combat-victory { color: #ffd700 !important; font-weight: bold; font-size: 1.1em; text-shadow: 0 0 8px #ffd700; }
+        .combat-defeat { color: #d32f2f !important; font-weight: bold; font-size: 1.1em; text-shadow: 0 0 8px #d32f2f; }
+        .combat-system { color: #90a4ae !important; }
+    </style>
+    <script src="https://cdn.socket.io/4.0.0/socket.io.min.js"></script>
+    <script>
+        // Set global variables from Flask template
+        window.playerName = "{{ game_state.player_name or 'Player' }}";
+        window.currentRoom = "global";
+        window.locationRoom = "{{ game_state.current_location or 'city' }}";
+    </script>
+ 
+    <script src="{{ url_for('static', filename='chat.js') }}"></script>
+</head>
+<body>
+    <div class="container">
+        <!-- Player Info Header -->
+        {% if game_state and game_state.player_name and request.endpoint not in ['index', 'new_game'] %}
+        <header class="player-info-header">
+            <div class="player-info">
+                <div class="player-basic">
+                    <span class="player-name">{{ game_state.player_name }}</span>
+                    <span class="player-score">Score: {{ game_state.current_score }}</span>
+                    <span class="player-steps">Day {{ game_state.day }} - {{ game_state.steps }}/{{ game_state.max_steps }}</span>
+                </div>
+                <div class="player-stats">
+                    <span class="player-money">💰 ${{ "{:,}".format(game_state.money) }}</span>
+                    <span class="player-health">❤️ {{ game_state.health - game_state.damage }}/30</span>
+                    <span class="player-members">👥 {{ game_state.members }}</span>
+                    <span class="player-lives">💊 {{ game_state.lives }}</span>
+                </div>
+                <div class="player-connection">
+                    <span id="connection-indicator" class="connection-status">●</span>
+                    <span id="connection-text" class="connection-status-text">Connecting...</span>
+                </div>
+            </div>
+        </header>
+        {% endif %}
+
+        <!-- Flash messages -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <div class="flash-messages">
+                    {% for category, message in messages %}
+                        <div class="flash-message flash-{{ category }}">
+                            {{ message }}
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
+
+        <main>
+            {% block content %}{% endblock %}
+
+            {% block chat %}
+            <div class="chat-pvp-container">
+                <div class="chat-section">
+                    <h4>City Chat</h4>
+                    <div id="chat-messages" class="chat-messages"></div>
+                    <div class="chat-input">
+                        <input type="text" id="chat-input" placeholder="Type your message..." maxlength="200">
+                        <button id="send-chat" class="btn btn-primary btn-small">Send</button>
+                    </div>
+                </div>
+
+                <!-- Chat Users Section -->
+                <div class="pvp-section">
+                    <h3>👥 Chat Users</h3>
+                    <div id="pvp-player-list" class="pvp-player-list">
+                        <p>Loading users...</p>
+                    </div>
+                    <div class="pvp-actions">
+                        <button id="refresh-players" onclick="refreshPlayerList()" class="btn btn-secondary btn-small">Refresh Users</button>
+                    </div>
+                </div>
+            </div>
+            {% endblock %}
+
+
+        </main>
+    </div>
+
+    <footer>
+        {% block footer %}{% endblock %}
+    </footer>
+
+    <!-- JavaScript functionality is handled by chat.js -->
+</body>
+</html>

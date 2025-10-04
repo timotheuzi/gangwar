@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="defeat-screen">
+    <h1>💀 DEFEAT 💀</h1>
+
+    <div class="defeat-content">
+        <h2>Your Gang Has Been Destroyed!</h2>
+
+        <div class="defeat-stats">
+            <h3>Final Statistics</h3>
+            <p><strong>Player:</strong> {{ game_state.player_name }}</p>
+            <p><strong>Gang:</strong> {{ game_state.gang_name }}</p>
+            <p><strong>Days Survived:</strong> {{ game_state.day }}</p>
+            <p><strong>Money:</strong> ${{ "{:,}".format(game_state.money) }}</p>
+            <p><strong>Bank Account:</strong> ${{ "{:,}".format(game_state.account) }}</p>
+            <p><strong>Gang Members:</strong> {{ game_state.members }}</p>
+            <p><strong>Weapons:</strong> {{ game_state.weapons.pistols }} pistols</p>
+        </div>
+
+        <div class="defeat-message">
+            <p>The final battle was a disaster. The Squidies gang fought with desperate fury and overwhelmed your forces.</p>
+            <p>Your gang members lie dead in the streets, their blood mixing with the rain. The city remains under the Squidies' control.</p>
+            <p>You have failed to become the king of the streets. Your legacy ends here, in defeat and shame.</p>
+            <p><strong>THE END - DEFEATED</strong></p>
+        </div>
+
+        <div class="defeat-actions">
+            <a href="{{ url_for('new_game') }}" class="btn btn-primary">Try Again</a>
+            <a href="{{ url_for('index') }}" class="btn btn-secondary">Return to Main Menu</a>
+        </div>
+
+        <div id="player-list"></div>
+    </div>
+</div>
+{% endblock %}
