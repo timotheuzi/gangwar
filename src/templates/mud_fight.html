@@ -95,7 +95,7 @@
                 </select>
             </div>
 
-            <div class="ammo-selection">
+            <div class="ammo-selection" id="ammo-selection">
                 <label for="ammo">Special Ammo:</label>
                 <select name="ammo" id="ammo">
                     <option value="normal">Normal Ammo</option>
@@ -257,6 +257,7 @@
 // Combat log management
 document.addEventListener('DOMContentLoaded', function() {
     initializeCombatLog();
+    initializeAmmoSelection();
 });
 
 function initializeCombatLog() {
@@ -314,6 +315,32 @@ function clearCombatLog() {
     if (combatMessages) {
         combatMessages.innerHTML = '';
     }
+}
+
+// Initialize ammo selection visibility based on weapon type
+function initializeAmmoSelection() {
+    const weaponSelect = document.getElementById('weapon');
+    const ammoSelection = document.getElementById('ammo-selection');
+
+    if (!weaponSelect || !ammoSelection) return;
+
+    // Weapons that use ammo (guns and missile launchers)
+    const ammoWeapons = ['pistol', 'ar15', 'ghost_gun', 'grenade', 'missile_launcher'];
+
+    function toggleAmmoSelection() {
+        const selectedWeapon = weaponSelect.value;
+        if (ammoWeapons.includes(selectedWeapon)) {
+            ammoSelection.style.display = 'block';
+        } else {
+            ammoSelection.style.display = 'none';
+        }
+    }
+
+    // Set initial state
+    toggleAmmoSelection();
+
+    // Add event listener for weapon selection changes
+    weaponSelect.addEventListener('change', toggleAmmoSelection);
 }
 
 // Make functions globally available

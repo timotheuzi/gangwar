@@ -339,17 +339,26 @@ rm -rf __pycache__/ */__pycache__/ 2>/dev/null || true
 find . -name "*.pyc" -delete 2>/dev/null || true
 find . -name "*.pyo" -delete 2>/dev/null || true
 
-# Build the application
+# Build the application with disk-space-optimized settings
+echo "Building application with PyInstaller (disk-optimized mode)..."
+
+# Clean up before starting build
+echo "Performing pre-build cleanup..."
+rm -rf build/ dist/ __pycache__/ */__pycache__/ 2>/dev/null || true
+find . -name "*.pyc" -delete 2>/dev/null || true
+find . -name "*.pyo" -delete 2>/dev/null || true
+
+# Check disk space again before build
+AVAILABLE_SPACE=$(df . | tail -1 | awk '{print $4}')
+echo "Available disk space before build: $(($AVAILABLE_SPACE / 1024)) MB"
+
+# Build the application in one step to avoid conflicts
 echo "Building application with PyInstaller..."
+pyinstaller --clean --noconfirm gangwar.spec
 
-# Generate or regenerate spec file with updated paths
-echo "Regenerating gangwar.spec file with models, templates, and static data..."
-rm -f gangwar.spec
-pyinstaller --name gangwar --onefile --add-data "model:model" --add-data "src/templates:templates" --add-data "src/static:static" src/app.py --specpath .
-# Remove the generated executable and build files, keep only spec
-rm -rf build/ dist/
-
-pyinstaller --clean gangwar.spec
+# Final cleanup
+echo "Performing final cleanup..."
+rm -rf build/ 2>/dev/null || true
 
 # Set permissions to ensure directories can be deleted
 chmod -R u+rwx build 2>/dev/null || true
@@ -360,31 +369,31 @@ echo "Generating environment variables file..."
 python3 scripts/generate_env.py
 
 # Check if build was successful
-if [ -f "dist/gangwar" ] || [ -f "dist/gangwar.exe" ]; then
+if [ -f "dist/gangwar/gangwar" ] || [ -f "dist/gangwar/gangwar.exe" ]; then
     echo "Build successful! Files created in dist/ directory:"
-    ls -la dist/
+    ls -la dist/gangwar/
 
     # Make the executable runnable
-    if [ -f "dist/gangwar" ]; then
-        chmod +x dist/gangwar
-        echo "Made executable runnable: ./dist/gangwar"
+    if [ -f "dist/gangwar/gangwar" ]; then
+        chmod +x dist/gangwar/gangwar
+        echo "Made executable runnable: ./dist/gangwar/gangwar"
     fi
 
-    if [ -f "dist/gangwar.exe" ]; then
-        chmod +x dist/gangwar.exe
-        echo "Made executable runnable: ./dist/gangwar.exe"
+    if [ -f "dist/gangwar/gangwar.exe" ]; then
+        chmod +x dist/gangwar/gangwar.exe
+        echo "Made executable runnable: ./dist/gangwar/gangwar.exe"
     fi
 
     echo ""
     echo "To run the application:"
-    echo "./dist/gangwar"
+    echo "./dist/gangwar/gangwar"
     echo "or"
-    echo "./dist/gangwar.exe  (on Windows)"
+    echo "./dist/gangwar/gangwar.exe  (on Windows)"
     echo ""
     echo "The executable is standalone and requires no external Python installation or libraries."
     echo ""
     echo "For PythonAnywhere deployment:"
-    echo "Upload the contents of the dist/ directory to PythonAnywhere"
+    echo "Upload the contents of the dist/gangwar/ directory to PythonAnywhere"
     echo "Use pythonanywhere.py as your WSGI application file"
 else
     echo "Build failed! Check the output above for errors."

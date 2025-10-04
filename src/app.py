@@ -315,7 +315,7 @@ def buy_weapon():
     weapon_prices = {
         'pistol': 1200,
         'bullets': 100,
-        'exploding_bullets': 500,
+        'exploding_bullets': 2000,
         'grenade': 1000,
         'vampire_bat': 2500,
         'missile_launcher': 1000000,
@@ -1849,15 +1849,19 @@ def process_fight_action():
                 game_state.weapons.exploding_bullets -= 1
                 base_damage *= 2  # Exploding bullet doubles damage
             if game_state.weapons.pistol_automatic:
-                # Automatic pistol fires 3 shots
-                damage = base_damage * 3
-                attack_desc = random.choice(attack_descriptions.get('pistol', ["You fire your automatic pistol!"]))
-                fight_log.append(f"{attack_desc} You deal {damage} damage{' (exploding bullets have devastating effect!)' if use_exploding else ''}!")
+                # Automatic pistol fires 3 shots - show each shot separately
+                total_damage = 0
+                for shot in range(3):
+                    shot_damage = base_damage
+                    total_damage += shot_damage
+                    attack_desc = random.choice(attack_descriptions.get('pistol', ["You fire your automatic pistol!"]))
+                    fight_log.append(f"{attack_desc} [Shot {shot + 1}] You deal {shot_damage} damage{' (exploding bullet!)' if use_exploding else ''}!")
+                fight_log.append(f"Total damage from automatic pistol: {total_damage} damage{' (exploding bullets have devastating effect!)' if use_exploding else ''}!")
             else:
                 damage = base_damage
                 attack_desc = random.choice(attack_descriptions.get('pistol', ["You fire your pistol!"]))
                 fight_log.append(f"{attack_desc} You deal {damage} damage{' (exploding bullet!)' if use_exploding else ''}!")
-            enemy_health -= damage
+            enemy_health -= damage if not game_state.weapons.pistol_automatic else total_damage
         elif weapon == 'ar15' and game_state.weapons.ar15 > 0 and game_state.weapons.bullets > 0:
             game_state.weapons.bullets -= 1
             damage = random.randint(25, 45)
@@ -1878,12 +1882,19 @@ def process_fight_action():
                     game_state.weapons.exploding_bullets -= 1
                     base_damage *= 2  # Exploding bullet doubles damage
                 if game_state.weapons.ghost_gun_automatic:
-                    # Automatic ghost gun fires 2 shots
-                    damage = base_damage * 2
-                    fight_log.append(f"You fire your automatic ghost gun in burst mode and deal {damage} damage{' (exploding havoc!)' if use_exploding else ''}!")
+                    # Automatic ghost gun fires 2 shots - show each shot separately
+                    total_damage = 0
+                    for shot in range(2):
+                        shot_damage = base_damage
+                        total_damage += shot_damage
+                        attack_desc = random.choice(attack_descriptions.get('ghost_gun', ["You fire your automatic ghost gun!"]))
+                        fight_log.append(f"{attack_desc} [Burst {shot + 1}] You deal {shot_damage} damage{' (exploding bullet!)' if use_exploding else ''}!")
+                    fight_log.append(f"Total damage from automatic ghost gun: {total_damage} damage{' (exploding bullets have devastating effect!)' if use_exploding else ''}!")
+                    damage = total_damage
                 else:
                     damage = base_damage
-                    fight_log.append(f"You fire your ghost gun and deal {damage} damage{' (exploding impact!)' if use_exploding else ''}!")
+                    attack_desc = random.choice(attack_descriptions.get('ghost_gun', ["You fire your ghost gun!"]))
+                    fight_log.append(f"{attack_desc} You deal {damage} damage{' (exploding bullet!)' if use_exploding else ''}!")
             enemy_health -= damage
         elif weapon == 'grenade' and game_state.weapons.grenades > 0:
             game_state.weapons.grenades -= 1
