@@ -1,10 +1,38 @@
 # Gangwar Game Makefile
 # Cross-platform build system for the Gangwar game
 
-.PHONY: all build clean distclean clean-disk install-deps run test help
+.PHONY: all build clean distclean clean-disk install-deps run test help web-build web-run web-test web-clean web-deploy
 
 # Default target
 all: build
+
+# Web deployment targets
+web-build:
+	@echo "Building Gangwar Game for web deployment..."
+	@chmod +x scripts/build_web.sh
+	@./scripts/build_web.sh
+
+web-run:
+	@echo "Running Gangwar Game in web development mode..."
+	@if [ -d "web_build" ]; then \
+		cd web_build && python3 main.py; \
+	else \
+		echo "Web build not found. Run 'make web-build' first."; \
+		exit 1; \
+	fi
+
+web-test:
+	@echo "Testing web deployment setup..."
+	@if [ -d "web_build" ]; then \
+		cd web_build && python3 test_web.py; \
+	else \
+		echo "Web build not found. Run 'make web-build' first."; \
+		exit 1; \
+	fi
+
+web-clean:
+	@echo "Cleaning web build artifacts..."
+	@rm -rf web_build/
 
 # Build the application
 build:
@@ -91,22 +119,36 @@ help:
 	@echo "Gangwar Game Build System"
 	@echo "========================="
 	@echo ""
-	@echo "Available targets:"
-	@echo "  all          - Build the application (default)"
+	@echo "Build Targets:"
+	@echo "  all          - Build standalone executable (default)"
 	@echo "  build        - Build standalone executable"
-	@echo "  clean        - Clean build artifacts"
-	@echo "  distclean    - Clean everything including logs and config"
-	@echo "  clean-disk   - Aggressive disk cleanup to free space"
-	@echo "  install-deps - Install Python dependencies"
+	@echo "  web-build    - Build web deployment version"
+	@echo ""
+	@echo "Run Targets:"
 	@echo "  run          - Run in development mode"
 	@echo "  run-dist     - Run the built executable"
-	@echo "  test         - Run basic tests"
+	@echo "  web-run      - Run web version locally"
+	@echo ""
+	@echo "Test Targets:"
+	@echo "  test         - Test standalone build"
+	@echo "  web-test     - Test web deployment setup"
+	@echo ""
+	@echo "Clean Targets:"
+	@echo "  clean        - Clean build artifacts"
+	@echo "  web-clean    - Clean web build artifacts"
+	@echo "  distclean    - Clean everything including logs and config"
+	@echo "  clean-disk   - Aggressive disk cleanup to free space"
+	@echo ""
+	@echo "Utility Targets:"
+	@echo "  install-deps - Install Python dependencies"
+	@echo "  setup        - Setup development environment"
 	@echo "  help         - Show this help"
 	@echo ""
 	@echo "Usage examples:"
-	@echo "  make build          # Build the executable"
+	@echo "  make build          # Build standalone executable"
+	@echo "  make web-build      # Build web version"
 	@echo "  make run            # Run in development"
-	@echo "  make run-dist       # Run built executable"
+	@echo "  make web-run        # Run web version locally"
 	@echo "  make clean && make  # Clean and rebuild"
 
 # Development setup
@@ -131,3 +173,20 @@ deploy-prep: build
 	@echo "For standalone deployment:"
 	@echo "1. Copy dist/ directory to target system"
 	@echo "2. Run ./run.sh or ./run.bat"
+
+# Web deployment preparation
+web-deploy: web-build
+	@echo "Web deployment files prepared in web_build/ directory:"
+	@ls -la web_build/
+	@echo ""
+	@echo "For PythonAnywhere web deployment:"
+	@echo "1. Upload contents of web_build/ to PythonAnywhere"
+	@echo "2. Set WSGI file to: wsgi.py"
+	@echo "3. Install requirements: pip install -r requirements.txt"
+	@echo ""
+	@echo "For Heroku deployment:"
+	@echo "1. Create Procfile with: web: python main.py"
+	@echo "2. Deploy via git"
+	@echo ""
+	@echo "For local web testing:"
+	@echo "  cd web_build && python3 main.py"
