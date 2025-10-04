@@ -40,17 +40,17 @@
       "description": "Missile for RPG-7"
     },
     "vest_light": {
-      "price": 30000,
+      "price": 5000,
       "description": "Light bulletproof vest (+5 defense)",
       "defense_bonus": 5
     },
     "vest_medium": {
-      "price": 55000,
+      "price": 15000,
       "description": "Medium bulletproof vest (+10 defense)",
       "defense_bonus": 10
     },
     "vest_heavy": {
-      "price": 75000,
+      "price": 25000,
       "description": "Heavy bulletproof vest (+15 defense)",
       "defense_bonus": 15
     },

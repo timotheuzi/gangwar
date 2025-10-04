@@ -34,7 +34,7 @@ except FileNotFoundError:
 # High Scores
 # ============
 
-HIGH_SCORES_FILE = 'models/high_scores.json'
+HIGH_SCORES_FILE = os.path.join(os.path.dirname(__file__), '..', 'models', 'high_scores.json')
 
 @dataclass
 class HighScore:
@@ -54,16 +54,32 @@ def load_high_scores() -> List[HighScore]:
             with open(HIGH_SCORES_FILE, 'r') as f:
                 data = json.load(f)
                 return [HighScore(**score) for score in data]
+        else:
+            # Create empty high scores file if it doesn't exist
+            os.makedirs(os.path.dirname(HIGH_SCORES_FILE), exist_ok=True)
+            with open(HIGH_SCORES_FILE, 'w') as f:
+                json.dump([], f, indent=2)
+            return []
     except Exception as e:
         print(f"Error loading high scores: {e}")
-    return []
+        # Create empty file on error too
+        try:
+            os.makedirs(os.path.dirname(HIGH_SCORES_FILE), exist_ok=True)
+            with open(HIGH_SCORES_FILE, 'w') as f:
+                json.dump([], f, indent=2)
+        except:
+            pass
+        return []
 
 def save_high_scores(scores: List[HighScore]):
     """Save high scores to file"""
     try:
+        # Ensure directory exists
+        os.makedirs(os.path.dirname(HIGH_SCORES_FILE), exist_ok=True)
         data = [asdict(score) for score in scores]
         with open(HIGH_SCORES_FILE, 'w') as f:
             json.dump(data, f, indent=2)
+        print(f"High scores saved successfully with {len(scores)} entries")
     except Exception as e:
         print(f"Error saving high scores: {e}")
 
@@ -304,10 +320,10 @@ def buy_weapon():
         'vampire_bat': 2500,
         'missile_launcher': 1000000,
         'missile': 100000,
-        'vest_light': 15000,
-        'vest_medium': 25000,
-        'vest_heavy': 35000,
-        'ar15': 50000,
+        'vest_light': 5000,
+        'vest_medium': 15000,
+        'vest_heavy': 25000,
+        'ar15': 10000,
         'ghost_gun': 900
     }
 
@@ -2174,7 +2190,7 @@ if socketio:
 if __name__ == '__main__':
     # Parse command line arguments
     parser = argparse.ArgumentParser(description='Gangwar Game Server')
-    parser.add_argument('--port', type=int, default=5000, help='Port to run the server on (default: 5000)')
+    parser.add_argument('--port', type=int, default=6009, help='Port to run the server on (default: 6009)')
     args = parser.parse_args()
 
     port = args.port

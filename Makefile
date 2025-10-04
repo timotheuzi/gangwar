@@ -21,7 +21,7 @@ clean:
 	@echo "Cleaning build artifacts..."
 	@echo "Killing existing gangwar processes..."
 	@pkill -f gangwar 2>/dev/null || true
-	@lsof -ti :5000 | xargs kill -9 2>/dev/null || true
+	@lsof -ti :6009 | xargs kill -9 2>/dev/null || true
 	@chmod -R u+rwx build/ 2>/dev/null || true
 	@chmod -R u+rwx dist/ 2>/dev/null || true
 	@rm -rf build/
