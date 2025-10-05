@@ -173,7 +173,7 @@ class GameState:
     day: int = 1
     health: int = 30
     steps: int = 0
-    max_steps: int = 24
+    max_steps: int = 12
     current_score: int = 0
     current_location: str = "city"
     drug_prices: Dict[str, int] = field(default_factory=lambda: {
@@ -634,6 +634,7 @@ def final_battle():
 def wander():
     """Wander the Streets"""
     game_state = get_game_state()
+    result = "You wander the streets uneventfully."  # Default result
 
     # Check for police chase (10% chance)
     if random.random() < 0.1:
@@ -711,14 +712,14 @@ def wander():
     else:
     # List of possible wander results - now ultra bloody and violent
         wander_messages = [
-            "You stumble upon a @gutted corpse in an alleyway, blood pooling around the severed limbs. You search the remains and find $50 in bloody cash!",
+            "You stumble upon a gutted corpse in an alleyway, blood pooling around the severed limbs. You search the remains and find $50 in bloody cash!",
             "A street performer lies slaughtered on the sidewalk, throat slit ear to ear. You overhear whispers of upcoming turf wars from nearby shadows.",
             "You witness a drive-by shooting where rival gang members get their brains blown out onto the pavement, painting the walls red.",
             "You find a quiet spot littered with mangled body parts to rest, regaining health amidst the stench of death.",
             "You notice suspicious activity - a beheaded body hanging from a streetlight - but decide to keep moving before you're next.",
             "You bump into an old contact who's missing an eye and bleeding profusely, sharing gossip about the bloody underworld.",
             "You wander into a rough neighborhood where limbs are strewn across the streets and narrowly avoid getting gutted yourself.",
-            "You find some discarded drugs worth $200 on the street, next to a tortured corpse with @carved flesh.",
+            "You find some discarded drugs worth $200 on the street, next to a tortured corpse with carved flesh.",
             "You help a local shopkeeper who's covered in blood from a recent massacre, getting rewarded with information about safe havens.",
             "You wander around the city, stepping over dismembered bodies without incident, the air thick with the coppery smell of blood.",
             "You see a police patrol investigating a pile of corpses and quickly hide in an alley reeking of rotting flesh.",
@@ -928,6 +929,43 @@ def visit_prostitutes():
     """Visit Prostitutes"""
     game_state = get_game_state()
     return render_template('prostitutes.html', game_state=game_state)
+
+@app.route('/prostitute_action', methods=['POST'])
+def prostitute_action():
+    """Handle prostitute service actions"""
+    game_state = get_game_state()
+    action = request.form.get('action')
+
+    if action == 'quick_service':
+        if game_state.money >= 200:
+            game_state.money -= 200
+            game_state.damage = max(0, game_state.damage - 5)  # Reduce stress/damage
+            flash("You enjoyed a quick service and feel more relaxed.", "success")
+        else:
+            flash("You don't have enough money for a quick service!", "danger")
+
+    elif action == 'vip_experience':
+        if game_state.money >= 500:
+            game_state.money -= 500
+            game_state.damage = max(0, game_state.damage - 15)  # Reduce more damage/stress
+            game_state.health = min(30, game_state.health + 5)  # Small health boost
+            flash("You had a VIP experience and feel rejuvenated!", "success")
+        else:
+            flash("You don't have enough money for a VIP experience!", "danger")
+
+    elif action == 'recruit_hooker':
+        if game_state.money >= 1000:
+            game_state.money -= 1000
+            if random.random() < 0.6:  # 60% chance to recruit
+                game_state.members += 1
+                flash("You successfully recruited a prostitute to join your gang!", "success")
+            else:
+                flash("The prostitute took your money but decided to stay in her current line of work.", "warning")
+        else:
+            flash("You don't have enough money to recruit a hooker!", "danger")
+
+    save_game_state(game_state)
+    return redirect(url_for('visit_prostitutes'))
 
 @app.route('/search_room')
 def search_room():
@@ -1411,6 +1449,7 @@ def new_game():
         # Initialize starting weapons
         game_state.weapons.pistols = 1
         game_state.weapons.bullets = 10
+        game_state.weapons.knife = 1
 
         # Ensure the game state is properly saved to session
         session['game_state'] = asdict(game_state)
@@ -1771,9 +1810,10 @@ def process_fight_action():
     ammo = request.form.get('ammo', 'normal')
     drug = request.args.get('drug')
 
-    # Check if this is an AJAX request
-    is_ajax = True  # Force AJAX mode for debugging
+    # Check if this is an AJAX request - proper detection
+    is_ajax = request.headers.get('X-Requested-With') == 'XMLHttpRequest' or request.headers.get('Content-Type') == 'application/x-www-form-urlencoded'
     print(f"process_fight_action called: action={action}, weapon={weapon}, is_ajax={is_ajax}")
+    print(f"Player weapons: knife={game_state.weapons.knife}, pistol={game_state.weapons.pistols}, bullets={game_state.weapons.bullets}")
 
     # Get combat state from session (simplified - in real implementation you'd store full combat state)
     enemy_health = int(request.form.get('enemy_health', 30))
@@ -1781,8 +1821,12 @@ def process_fight_action():
     enemy_count = int(request.form.get('enemy_count', 1))
     fight_log = list(dict.fromkeys(request.form.getlist('fight_log'))) or ["Combat begins!"]
 
+    print(f"Enemy health before: {enemy_health}, fight_log length: {len(fight_log)}")
+
     # Process action
+    print(f"Processing action: {action}, weapon: {weapon}, fight_log before: {len(fight_log)}")
     if action == 'attack':
+        print("Entered attack action")
         use_exploding = ammo == 'exploding' and weapon in ['pistol', 'ghost_gun', 'ar15'] and game_state.weapons.exploding_bullets > 0
 
         # Get weapon-specific attack descriptions
@@ -1921,7 +1965,7 @@ def process_fight_action():
             fight_log.append(f"Total damage from vampire bat: {total_damage} damage!")
             damage = total_damage
             enemy_health -= damage
-        elif weapon == 'knife':
+        elif weapon == 'knife' and game_state.weapons.knife > 0:
             # Knife gets 3 attacks per turn - show each stab separately
             total_damage = 0
             for stab in range(3):
@@ -1942,6 +1986,90 @@ def process_fight_action():
             fight_log.append(f"You swing your mighty axe and deal {damage} damage!")
         else:
             fight_log.append("You don't have that weapon or ammo!")
+            print(f"DEBUG: Weapon {weapon} not available or no ammo")
+
+        print(f"DEBUG: After attack - enemy_health={enemy_health}, fight_log length={len(fight_log)}")
+
+        # Gang members attack if available
+        if game_state.members > 1:
+            for member_num in range(1, game_state.members):  # Start from 1 since player is member 0
+                # Each gang member attacks with a random weapon they have equivalent to
+                member_weapon_options = []
+                if game_state.weapons.pistols > member_num and game_state.weapons.bullets > 0:
+                    member_weapon_options.append('pistol')
+                if game_state.weapons.ar15 > member_num and game_state.weapons.bullets > 0:
+                    member_weapon_options.append('ar15')
+                if game_state.weapons.ghost_guns > member_num and game_state.weapons.bullets > 0:
+                    member_weapon_options.append('ghost_gun')
+                if game_state.weapons.knife > member_num:
+                    member_weapon_options.append('knife')
+                if game_state.weapons.vampire_bat > member_num:
+                    member_weapon_options.append('vampire_bat')
+
+                if member_weapon_options:
+                    member_weapon = random.choice(member_weapon_options)
+
+                    # Member attack descriptions
+                    member_names = [
+                        f"Squad Member {member_num}",
+                        f"Your Lieutenant {member_num}",
+                        f"Gang Member #{member_num}",
+                        f"Your Enforcer {member_num}",
+                        f"Squad Soldier {member_num}"
+                    ]
+                    member_name = random.choice(member_names)
+
+                    # Calculate member damage and ammo usage
+                    if member_weapon == 'pistol':
+                        game_state.weapons.bullets -= 1
+                        member_damage = random.randint(8, 15)
+                        attack_desc = random.choice([
+                            f"{member_name} fires a precise shot from their pistol!",
+                            f"{member_name} squeezes off a round, the bullet finding its target!",
+                            f"{member_name}'s pistol roars as they take careful aim and fire!",
+                            f"{member_name} draws their pistol and fires a lethal shot!"
+                        ])
+                    elif member_weapon == 'ar15':
+                        game_state.weapons.bullets -= 1
+                        member_damage = random.randint(12, 20)
+                        attack_desc = random.choice([
+                            f"{member_name} unleashes a burst from their AR-15!",
+                            f"{member_name}'s assault rifle chatters as they fire!",
+                            f"{member_name} opens up with their AR-15, spraying bullets!",
+                            f"{member_name} fires controlled bursts from their rifle!"
+                        ])
+                    elif member_weapon == 'ghost_gun':
+                        game_state.weapons.bullets -= 1
+                        if random.random() < 0.2:  # 20% jam chance
+                            attack_desc = f"{member_name}'s ghost gun jammed!"
+                            member_damage = 0
+                        else:
+                            member_damage = random.randint(10, 18)
+                            attack_desc = random.choice([
+                                f"{member_name} fires their ghost gun with deadly precision!",
+                                f"{member_name}'s untraceable weapon whispers death!",
+                                f"{member_name} employs a ghost gun, the shot barely audible!"
+                            ])
+                    elif member_weapon == 'knife':
+                        member_damage = random.randint(5, 10)
+                        attack_desc = random.choice([
+                            f"{member_name} slashes with their knife!",
+                            f"{member_name} stabs viciously with their blade!",
+                            f"{member_name} lunges forward with their knife!",
+                            f"{member_name} drives their knife home!"
+                        ])
+                    elif member_weapon == 'vampire_bat':
+                        member_damage = random.randint(15, 25)
+                        attack_desc = random.choice([
+                            f"{member_name} swings their vampire bat with brutal force!",
+                            f"{member_name} brings the spiked bat down crushing!",
+                            f"{member_name}'s vampire bat connects with bone-shattering impact!",
+                            f"{member_name} wields the bat like a weapon of destruction!"
+                        ])
+
+                    if member_damage > 0:
+                        fight_log.append(f"{attack_desc} {member_name} deals {member_damage} damage!")
+                        enemy_health -= member_damage
 
         # Enemy attacks back with enhanced descriptions
         if enemy_health > 0:
@@ -2186,8 +2314,10 @@ def process_fight_action():
     save_game_state(game_state)
     combat_active = enemy_health > 0
 
+    print(f"DEBUG: Sending AJAX response - enemy_health={enemy_health}, combat_active={combat_active}, fight_log length={len(fight_log)}")
+
     if is_ajax:
-        return jsonify({
+        response_data = {
             'success': True,
             'combat_active': combat_active,
             'enemy_health': enemy_health,
@@ -2198,7 +2328,9 @@ def process_fight_action():
                 'members': game_state.members,
                 'damage': game_state.damage
             }
-        })
+        }
+        print(f"DEBUG: AJAX response data: {response_data}")
+        return jsonify(response_data)
     else:
         return render_template('mud_fight.html', game_state=game_state, enemy_health=enemy_health, enemy_type=enemy_type, enemy_count=enemy_count, combat_active=combat_active, fight_log=fight_log, combat_id=combat_id)
 
@@ -2226,6 +2358,14 @@ if socketio:
         join_room('global')
         join_room(room)
         join_room(location_room)
+
+        # Override with session data if available
+        try:
+            game_state = get_game_state()
+            if game_state.player_name:
+                player_name = game_state.player_name
+        except:
+            pass
 
         # Remove old player entry if exists (prevent duplicates)
         connected_players.pop(request.sid, None)
@@ -2255,7 +2395,22 @@ if socketio:
     def handle_chat_message(data):
         """Handle chat messages"""
         room = data.get('room', 'global')
-        player_name = data.get('player_name', 'Unknown Player')
+
+        # Try to get player name from connected players first, then from session
+        player_name = connected_players.get(request.sid, {}).get('name', '')
+
+        # If not available, try to get from session
+        if not player_name:
+            try:
+                game_state = get_game_state()
+                player_name = game_state.player_name or 'Anonymous User'
+            except:
+                player_name = 'Anonymous User'
+
+        # Fallback to what was sent
+        if not player_name:
+            player_name = data.get('player_name', 'Anonymous User')
+
         message = data.get('message', '')
 
         if message.strip():

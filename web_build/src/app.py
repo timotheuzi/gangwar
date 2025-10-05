@@ -711,7 +711,7 @@ def wander():
     else:
     # List of possible wander results - now ultra bloody and violent
         wander_messages = [
-            "You stumble upon a @gutted corpse in an alleyway, blood pooling around the severed limbs. You search the remains and find $50 in bloody cash!",
+            "You stumble upon a gutted corpse in an alleyway, blood pooling around the severed limbs. You search the remains and find $50 in bloody cash!",
             "A street performer lies slaughtered on the sidewalk, throat slit ear to ear. You overhear whispers of upcoming turf wars from nearby shadows.",
             "You witness a drive-by shooting where rival gang members get their brains blown out onto the pavement, painting the walls red.",
             "You find a quiet spot littered with mangled body parts to rest, regaining health amidst the stench of death.",

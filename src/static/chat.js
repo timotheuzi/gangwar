@@ -4,7 +4,7 @@
 var socket = null;
 var currentRoom = 'global'; // Global chat room
 var locationRoom = 'city'; // Location-specific room for player list and PVP
-var playerName = 'Anonymous Player'; // Default name
+var playerName = 'Player'; // Default name
 var isConnected = false;
 var currentPlayerId = null; // Current player's socket ID for self-reference
 
@@ -247,6 +247,11 @@ document.addEventListener('DOMContentLoaded', function() {
     var refreshButton = document.getElementById('refresh-players');
     if (refreshButton) {
         refreshButton.addEventListener('click', refreshPlayerList);
+    }
+
+    // If already connected, re-join to update player name
+    if (isConnected) {
+        socket.emit('join', {room: currentRoom, location_room: locationRoom, player_name: playerName});
     }
 });
 
