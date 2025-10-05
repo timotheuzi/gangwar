@@ -136,6 +136,14 @@ class Drugs:
     pixie_dust: int = 0
 
 @dataclass
+class GangMember:
+    id: int = 0
+    name: str = ""
+    health: int = 30
+    max_health: int = 30
+    is_alive: bool = True
+
+@dataclass
 class Weapons:
     pistols: int = 0
     bullets: int = 0
@@ -189,6 +197,7 @@ class GameState:
     flags: Flags = field(default_factory=Flags)
     weapons: Weapons = field(default_factory=Weapons)
     drugs: Drugs = field(default_factory=Drugs)
+    gang_members: List[GangMember] = field(default_factory=list)
 
 # ============
 # Game Logic
@@ -1451,6 +1460,8 @@ def new_game():
         game_state.weapons.bullets = 10
         game_state.weapons.knife = 1
 
+        # Initialize gang_members list will be empty at start (just the player)
+
         # Ensure the game state is properly saved to session
         session['game_state'] = asdict(game_state)
         session.modified = True
@@ -1995,15 +2006,15 @@ def process_fight_action():
             for member_num in range(1, game_state.members):  # Start from 1 since player is member 0
                 # Each gang member attacks with a random weapon they have equivalent to
                 member_weapon_options = []
-                if game_state.weapons.pistols > member_num and game_state.weapons.bullets > 0:
+                if game_state.weapons.pistols > 0 and game_state.weapons.bullets > 0:
                     member_weapon_options.append('pistol')
-                if game_state.weapons.ar15 > member_num and game_state.weapons.bullets > 0:
+                if game_state.weapons.ar15 > 0 and game_state.weapons.bullets > 0:
                     member_weapon_options.append('ar15')
-                if game_state.weapons.ghost_guns > member_num and game_state.weapons.bullets > 0:
+                if game_state.weapons.ghost_guns > 0 and game_state.weapons.bullets > 0:
                     member_weapon_options.append('ghost_gun')
-                if game_state.weapons.knife > member_num:
+                if game_state.weapons.knife > 0:
                     member_weapon_options.append('knife')
-                if game_state.weapons.vampire_bat > member_num:
+                if game_state.weapons.vampire_bat > 0:
                     member_weapon_options.append('vampire_bat')
 
                 if member_weapon_options:
@@ -2108,15 +2119,30 @@ def process_fight_action():
 
             enemy_damage = random.randint(5, 15) * enemy_count
 
-            if game_state.weapons.vest > 0 and random.random() < 0.5:
-                game_state.weapons.vest -= 1
-                enemy_damage = max(0, enemy_damage - 20)
-                attack_desc = random.choice(enemy_attack_descriptions.get(enemy_type_key, ["Enemy attacks!"]))
-                fight_log.append(f"{attack_desc} Your vest absorbs some damage, you take {enemy_damage} damage!")
+            # Chance for enemy to kill a gang member instead of damaging the player
+            killed_member = False
+            if game_state.members > 1 and random.random() < 0.4:  # 40% chance to target a gang member
+                killed_member = True
+                game_state.members -= 1
+                member_death_descriptions = [
+                    f"A brutal attack cuts down Squad Member {len(game_state.gang_members)} and leaves them bleeding on the ground!",
+                    f"Your Lieutenant {len(game_state.gang_members)} falls under a hail of gunfire, their body slamming to the ground!",
+                    f"A fellow gang member is riddled with bullets and collapses in a pool of blood!",
+                    f"One of your soldiers takes fatal wounds and falls, their screams echoing as life fades!",
+                    f"The enemy gunfire finds its mark, killing Squad Member {len(game_state.gang_members)} instantly!"
+                ]
+                fight_log.append(random.choice(member_death_descriptions))
             else:
-                attack_desc = random.choice(enemy_attack_descriptions.get(enemy_type_key, ["Enemy attacks!"]))
-                fight_log.append(f"{attack_desc} You take {enemy_damage} damage!")
-            game_state.damage += enemy_damage
+                # Regular damage to player
+                if game_state.weapons.vest > 0 and random.random() < 0.5:
+                    game_state.weapons.vest -= 1
+                    enemy_damage = max(0, enemy_damage - 20)
+                    attack_desc = random.choice(enemy_attack_descriptions.get(enemy_type_key, ["Enemy attacks!"]))
+                    fight_log.append(f"{attack_desc} Your vest absorbs some damage, you take {enemy_damage} damage!")
+                else:
+                    attack_desc = random.choice(enemy_attack_descriptions.get(enemy_type_key, ["Enemy attacks!"]))
+                    fight_log.append(f"{attack_desc} You take {enemy_damage} damage!")
+                game_state.damage += enemy_damage
 
     elif action == 'defend':
         fight_log.append("You take a defensive stance, reducing incoming damage!")
