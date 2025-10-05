@@ -1771,11 +1771,15 @@ def process_fight_action():
     ammo = request.form.get('ammo', 'normal')
     drug = request.args.get('drug')
 
+    # Check if this is an AJAX request
+    is_ajax = True  # Force AJAX mode for debugging
+    print(f"process_fight_action called: action={action}, weapon={weapon}, is_ajax={is_ajax}")
+
     # Get combat state from session (simplified - in real implementation you'd store full combat state)
     enemy_health = int(request.form.get('enemy_health', 30))
     enemy_type = request.form.get('enemy_type', 'Enemy')
     enemy_count = int(request.form.get('enemy_count', 1))
-    fight_log = request.form.getlist('fight_log') or ["Combat begins!"]
+    fight_log = list(dict.fromkeys(request.form.getlist('fight_log'))) or ["Combat begins!"]
 
     # Process action
     if action == 'attack':
@@ -1918,9 +1922,16 @@ def process_fight_action():
             damage = total_damage
             enemy_health -= damage
         elif weapon == 'knife':
-            damage = random.randint(10, 20)
+            # Knife gets 3 attacks per turn - show each stab separately
+            total_damage = 0
+            for stab in range(3):
+                stab_damage = random.randint(10, 20)
+                total_damage += stab_damage
+                attack_desc = random.choice(attack_descriptions.get('knife', ["You stab with your knife!"]))
+                fight_log.append(f"{attack_desc} [Stab {stab + 1}] You deal {stab_damage} damage!")
+            fight_log.append(f"Total damage from knife: {total_damage} damage!")
+            damage = total_damage
             enemy_health -= damage
-            fight_log.append(f"You stab with your knife and deal {damage} damage!")
         elif weapon == 'sword' and game_state.weapons.sword > 0:
             damage = random.randint(50, 80)
             enemy_health -= damage
@@ -2086,25 +2097,110 @@ def process_fight_action():
         fight_log.append(f"VICTORY! You have defeated the {enemy_type}!")
         fight_log.append(f"Battle outcome: {killed} killed, {fled_count} fled, {recruits} defected.")
         save_game_state(game_state)
-        return render_template('battle_log.html', game_state=game_state, fight_log=fight_log, victory=True)
+
+        if is_ajax:
+            # Return JSON response for AJAX requests
+            return jsonify({
+                'success': True,
+                'combat_active': False,
+                'enemy_health': enemy_health,
+                'fight_log': fight_log,
+                'game_state': {
+                    'health': game_state.health - game_state.damage,
+                    'money': game_state.money,
+                    'members': game_state.members,
+                    'damage': game_state.damage
+                }
+            })
+        else:
+            # Stay on battle screen with combat inactive, showing victory in combat log
+            combat_active = False
+            return render_template('mud_fight.html', game_state=game_state, enemy_health=enemy_health, enemy_type=enemy_type, enemy_count=enemy_count, combat_active=combat_active, fight_log=fight_log, combat_id=combat_id)
     elif game_state.damage >= 30:
         game_state.lives -= 1
         final_damage = game_state.damage  # Store the final damage before resetting
         game_state.damage = 0
         game_state.health = 30
+
+        fight_log.append(f"You have been defeated by the {enemy_type}!")
+        fight_log.append(f"You took {final_damage} damage and lost a life.")
+
         if game_state.lives <= 0:
             # Update high scores when player dies
             check_and_update_high_scores(game_state)
             save_game_state(game_state)
-            return render_template('fight_defeat.html', game_state=game_state, enemy_type=enemy_type, enemy_count=enemy_count, fight_log=fight_log, final_damage=final_damage)
+
+            fight_log.append("GAME OVER! You have run out of lives.")
+            fight_log.append("Your gang war has ended in defeat.")
+
+            if is_ajax:
+                return jsonify({
+                    'success': True,
+                    'defeat': True,
+                    'game_over': True,
+                    'combat_active': False,
+                    'enemy_health': enemy_health,
+                    'fight_log': fight_log,
+                    'game_state': {
+                        'health': game_state.health - game_state.damage,
+                        'money': game_state.money,
+                        'members': game_state.members,
+                        'damage': game_state.damage,
+                        'lives': game_state.lives
+                    },
+                    'final_damage': final_damage
+                })
+            else:
+                # Stay on battle screen with combat inactive, showing defeat in combat log
+                combat_active = False
+                return render_template('mud_fight.html', game_state=game_state, enemy_health=enemy_health, enemy_type=enemy_type, enemy_count=enemy_count, combat_active=combat_active, fight_log=fight_log, combat_id=combat_id)
         else:
             save_game_state(game_state)
-            return render_template('fight_defeat.html', game_state=game_state, enemy_type=enemy_type, enemy_count=enemy_count, fight_log=fight_log, final_damage=final_damage)
+
+            fight_log.append("You survived this defeat, but you have lost a life.")
+            fight_log.append(f"You have {game_state.lives} lives remaining.")
+
+            if is_ajax:
+                return jsonify({
+                    'success': True,
+                    'defeat': True,
+                    'continue_combat': True,
+                    'combat_active': False,
+                    'enemy_health': enemy_health,
+                    'fight_log': fight_log,
+                    'game_state': {
+                        'health': game_state.health - game_state.damage,
+                        'money': game_state.money,
+                        'members': game_state.members,
+                        'damage': game_state.damage,
+                        'lives': game_state.lives
+                    },
+                    'final_damage': final_damage
+                })
+            else:
+                # Stay on battle screen with combat inactive, showing defeat in combat log
+                combat_active = False
+                return render_template('mud_fight.html', game_state=game_state, enemy_health=enemy_health, enemy_type=enemy_type, enemy_count=enemy_count, combat_active=combat_active, fight_log=fight_log, combat_id=combat_id)
 
     # Continue combat
     save_game_state(game_state)
     combat_active = enemy_health > 0
-    return render_template('mud_fight.html', game_state=game_state, enemy_health=enemy_health, enemy_type=enemy_type, enemy_count=enemy_count, combat_active=combat_active, fight_log=fight_log, combat_id=combat_id)
+
+    if is_ajax:
+        return jsonify({
+            'success': True,
+            'combat_active': combat_active,
+            'enemy_health': enemy_health,
+            'fight_log': fight_log,
+            'game_state': {
+                'health': game_state.health - game_state.damage,
+                'money': game_state.money,
+                'members': game_state.members,
+                'damage': game_state.damage
+            }
+        })
+    else:
+        return render_template('mud_fight.html', game_state=game_state, enemy_health=enemy_health, enemy_type=enemy_type, enemy_count=enemy_count, combat_active=combat_active, fight_log=fight_log, combat_id=combat_id)
 
 @app.route('/game_over')
 def game_over():

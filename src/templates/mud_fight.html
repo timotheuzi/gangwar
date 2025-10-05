@@ -1,6 +1,7 @@
 {% extends "base.html" %}
 
 {% block content %}
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <div class="mud-fight-screen">
     <h2>⚔️ Combat ⚔️</h2>
 
@@ -26,7 +27,7 @@
     {% if combat_active %}
     <div class="combat-actions">
         <h3>Your Turn - Choose Your Action</h3>
-        <form method="POST" action="{{ url_for('process_fight_action') }}" id="combat-form">
+        <form method="POST" action="/process_fight_action" id="combat-form">
             <input type="hidden" name="combat_id" value="{{ combat_id }}">
             <input type="hidden" name="enemy_type" value="{{ enemy_type }}">
             <input type="hidden" name="enemy_count" value="{{ enemy_count }}">
@@ -45,22 +46,22 @@
                 <h4>⚡ Quick Drug Boost (Risky!)</h4>
                 <p style="font-size: 12px; color: #666;">Drugs can boost your power but might backfire!</p>
                 {% if game_state.drugs.weed > 0 %}
-                <button type="submit" name="action" value="use_drug" formaction="{{ url_for('process_fight_action') }}?drug=weed" class="btn btn-success btn-small">Use Weed (+Speed, -Accuracy)</button>
+                <button type="submit" name="action" value="use_drug" formaction="/process_fight_action?drug=weed" class="btn btn-success btn-small">Use Weed (+Speed, -Accuracy)</button>
                 {% endif %}
                 {% if game_state.drugs.crack > 0 %}
-                <button type="submit" name="action" value="use_drug" formaction="{{ url_for('process_fight_action') }}?drug=crack" class="btn btn-success btn-small">Use Crack (+Power, -Health)</button>
+                <button type="submit" name="action" value="use_drug" formaction="/process_fight_action?drug=crack" class="btn btn-success btn-small">Use Crack (+Power, -Health)</button>
                 {% endif %}
                 {% if game_state.drugs.coke > 0 %}
-                <button type="submit" name="action" value="use_drug" formaction="{{ url_for('process_fight_action') }}?drug=coke" class="btn btn-success btn-small">Use Coke (+Accuracy, Risky)</button>
+                <button type="submit" name="action" value="use_drug" formaction="/process_fight_action?drug=coke" class="btn btn-success btn-small">Use Coke (+Accuracy, Risky)</button>
                 {% endif %}
                 {% if game_state.drugs.ice > 0 %}
-                <button type="submit" name="action" value="use_drug" formaction="{{ url_for('process_fight_action') }}?drug=ice" class="btn btn-success btn-small">Use Ice (+Strength, -Control)</button>
+                <button type="submit" name="action" value="use_drug" formaction="/process_fight_action?drug=ice" class="btn btn-success btn-small">Use Ice (+Strength, -Control)</button>
                 {% endif %}
                 {% if game_state.drugs.percs > 0 %}
-                <button type="submit" name="action" value="use_drug" formaction="{{ url_for('process_fight_action') }}?drug=percs" class="btn btn-success btn-small">Use Percs (+Pain Resistance, Drowsy)</button>
+                <button type="submit" name="action" value="use_drug" formaction="/process_fight_action?drug=percs" class="btn btn-success btn-small">Use Percs (+Pain Resistance, Drowsy)</button>
                 {% endif %}
                 {% if game_state.drugs.pixie_dust > 0 %}
-                <button type="submit" name="action" value="use_drug" formaction="{{ url_for('process_fight_action') }}?drug=pixie_dust" class="btn btn-success btn-small">Use Pixie Dust (???)</button>
+                <button type="submit" name="action" value="use_drug" formaction="/process_fight_action?drug=pixie_dust" class="btn btn-success btn-small">Use Pixie Dust (???)</button>
                 {% endif %}
             </div>
 
@@ -68,7 +69,7 @@
                 <label for="weapon">Choose Weapon:</label>
                 <select name="weapon" id="weapon">
                     {% if game_state.weapons.pistols > 0 and game_state.weapons.bullets > 0 %}
-                    <option value="pistol">Pistol ({{ game_state.weapons.bullets }} bullets){% if game_state.weapons.pistol_automatic %} (Auto){% endif %} - 2 attacks/turn</option>
+                    <option value="pistol">Pistol ({{ game_state.weapons.bullets }} bullets){% if game_state.weapons.pistol_automatic %} (Auto - 3 attacks/turn){% else %} (1 attack/turn){% endif %}</option>
                     {% endif %}
 
                     {% if game_state.weapons.ar15 > 0 and game_state.weapons.bullets > 0 %}
@@ -76,7 +77,7 @@
                     {% endif %}
 
                     {% if game_state.weapons.ghost_guns > 0 and game_state.weapons.bullets > 0 %}
-                    <option value="ghost_gun">Ghost Gun ({{ game_state.weapons.bullets }} bullets){% if game_state.weapons.ghost_gun_automatic %} (Auto){% endif %} - 1 attack/turn</option>
+                    <option value="ghost_gun">Ghost Gun ({{ game_state.weapons.bullets }} bullets){% if game_state.weapons.ghost_gun_automatic %} (Auto - 2 attacks/turn){% else %} (1 attack/turn){% endif %}</option>
                     {% endif %}
 
                     {% if game_state.weapons.grenades > 0 %}
@@ -262,6 +263,7 @@
 document.addEventListener('DOMContentLoaded', function() {
     initializeCombatLog();
     initializeAmmoSelection();
+    initializeCombatForm();
 });
 
 function initializeCombatLog() {
@@ -277,22 +279,30 @@ function initializeCombatLog() {
     }, 100);
 }
 
-function addCombatMessage(message, messageClass) {
-    const combatMessages = document.getElementById('combat-messages');
-    if (!combatMessages) return;
+function addCombatMessage(message, messageClass, delay = 0) {
+    return new Promise(resolve => {
+        setTimeout(() => {
+            const combatMessages = document.getElementById('combat-messages');
+            if (!combatMessages) {
+                resolve();
+                return;
+            }
 
-    const messageDiv = document.createElement('div');
-    messageDiv.className = 'combat-line';
-    if (messageClass) {
-        messageDiv.classList.add(messageClass);
-    }
-    messageDiv.innerHTML = message;
+            const messageDiv = document.createElement('div');
+            messageDiv.className = 'combat-line';
+            if (messageClass) {
+                messageDiv.classList.add(messageClass);
+            }
+            messageDiv.innerHTML = message;
 
-    combatMessages.appendChild(messageDiv);
+            combatMessages.appendChild(messageDiv);
 
-    // Limit messages and scroll
-    limitCombatMessages();
-    scrollCombatToBottom();
+            // Limit messages and scroll
+            limitCombatMessages();
+            scrollCombatToBottom();
+            resolve();
+        }, delay);
+    });
 }
 
 function limitCombatMessages() {
@@ -347,9 +357,207 @@ function initializeAmmoSelection() {
     weaponSelect.addEventListener('change', toggleAmmoSelection);
 }
 
+// Initialize combat form to handle weapon switching and AJAX
+function initializeCombatForm() {
+    const combatForm = document.getElementById('combat-form');
+    if (!combatForm) return;
+
+    combatForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+
+        const formData = new FormData(combatForm);
+        const submitter = e.submitter;
+
+        // Disable form during combat processing
+        disableCombatForm();
+
+        // Use AJAX for all actions
+        handleCombatAction(formData, submitter);
+    });
+}
+
+// Handle combat actions via AJAX
+function handleCombatAction(formData, submitter) {
+    // Determine the URL to use (drug buttons have formaction)
+    let url = '/process_fight_action';
+    if (submitter && submitter.formAction) {
+        // Extract drug parameter from formaction
+        const urlObj = new URL(submitter.formAction, window.location.origin);
+        const drug = urlObj.searchParams.get('drug');
+        if (drug) {
+            url += '?drug=' + drug;
+        }
+    }
+
+    // Convert FormData to URL-encoded string
+    const params = new URLSearchParams();
+    for (let [key, value] of formData.entries()) {
+        params.append(key, value);
+    }
+
+    // Use jQuery AJAX for better reliability
+    $.ajax({
+        url: url,
+        type: 'POST',
+        data: params.toString(),
+        contentType: 'application/x-www-form-urlencoded',
+        headers: {
+            'X-Requested-With': 'XMLHttpRequest'
+        },
+        success: function(result) {
+            if (result.success) {
+                // Update the page with new combat state
+                updateCombatState(result);
+
+                // Update the hidden form inputs with the new fight_log
+                updateFightLogInputs(result.fight_log);
+
+                // Clear and update the combat log display with all messages
+                clearCombatLog();
+                if (result.fight_log && result.fight_log.length > 0) {
+                    animateCombatMessages(result.fight_log, 1000); // 1 second delay between messages
+                }
+
+                // Re-enable form after animation completes
+                setTimeout(() => {
+                    enableCombatForm();
+                }, 500);
+
+            } else {
+                console.error('Combat action failed');
+                enableCombatForm();
+            }
+        },
+        error: function(xhr, status, error) {
+            console.error('AJAX Error:', status, error);
+            console.error('Response:', xhr.responseText);
+            alert('Combat action failed: ' + error + '\nStatus: ' + xhr.status + '\nCheck browser console for details.');
+            enableCombatForm();
+        }
+    });
+}
+
+// Update the combat state on the page
+function updateCombatState(result) {
+    // Update enemy health
+    const enemyHealthElement = document.querySelector('.enemy-status p:first-child');
+    if (enemyHealthElement && result.enemy_health !== undefined) {
+        enemyHealthElement.textContent = `Health: ${result.enemy_health}/${document.querySelector('.enemy-status p:first-child').textContent.split('/')[1]}`;
+    }
+
+    // Update player stats
+    if (result.game_state) {
+        const playerHealthElement = document.querySelector('.player-status p:first-child');
+        if (playerHealthElement && result.game_state.health !== undefined) {
+            const maxHealth = playerHealthElement.textContent.split('/')[1];
+            playerHealthElement.textContent = `Health: ${result.game_state.health}/${maxHealth}`;
+        }
+
+        const moneyElement = document.querySelector('.player-status p:nth-child(2)');
+        if (moneyElement && result.game_state.money !== undefined) {
+            moneyElement.textContent = `Money: $${result.game_state.money.toLocaleString()}`;
+        }
+
+        const membersElement = document.querySelector('.player-status p:nth-child(3)');
+        if (membersElement && result.game_state.members !== undefined) {
+            membersElement.textContent = `Gang Members: ${result.game_state.members}`;
+        }
+    }
+
+    // If combat is over, hide the combat form
+    if (result.combat_active === false) {
+        const combatActions = document.querySelector('.combat-actions');
+        if (combatActions) {
+            combatActions.style.display = 'none';
+        }
+
+        // If it's game over, show game over message
+        if (result.game_over) {
+            const combatOptions = document.querySelector('.combat-options');
+            if (combatOptions) {
+                combatOptions.innerHTML = '<div style="text-align: center; color: red; font-size: 24px; margin: 20px;">GAME OVER</div><a href="/" class="btn btn-primary">Start New Game</a>';
+            }
+        }
+    }
+}
+
+function disableCombatForm() {
+    const combatForm = document.getElementById('combat-form');
+    if (!combatForm) return;
+
+    const buttons = combatForm.querySelectorAll('button');
+    buttons.forEach(button => {
+        button.disabled = true;
+        button.textContent = 'Processing...';
+    });
+
+    const selects = combatForm.querySelectorAll('select');
+    selects.forEach(select => {
+        select.disabled = true;
+    });
+}
+
+function enableCombatForm() {
+    const combatForm = document.getElementById('combat-form');
+    if (!combatForm) return;
+
+    const buttons = combatForm.querySelectorAll('button');
+    buttons.forEach(button => {
+        button.disabled = false;
+        // Reset button text based on original value
+        if (button.name === 'action') {
+            if (button.value === 'attack') button.textContent = 'Attack';
+            else if (button.value === 'defend') button.textContent = 'Defend';
+            else if (button.value === 'flee') button.textContent = 'Flee (Risky)';
+        } else {
+            // Drug buttons
+            const originalText = button.textContent.replace(' (Processing...)', '');
+            button.textContent = originalText;
+        }
+    });
+
+    const selects = combatForm.querySelectorAll('select');
+    selects.forEach(select => {
+        select.disabled = false;
+    });
+}
+
+// Function to animate combat messages with delays
+async function animateCombatMessages(messages, delayBetween = 800) {
+    for (let i = 0; i < messages.length; i++) {
+        await addCombatMessage(messages[i], null, i === 0 ? 0 : delayBetween);
+    }
+}
+
+// Update the hidden fight_log inputs in the form
+function updateFightLogInputs(fightLog) {
+    const combatForm = document.getElementById('combat-form');
+    if (!combatForm) return;
+
+    // Remove existing fight_log inputs
+    const existingInputs = combatForm.querySelectorAll('input[name="fight_log"]');
+    existingInputs.forEach(input => input.remove());
+
+    // Deduplicate fightLog to prevent duplicate inputs
+    const uniqueFightLog = [...new Set(fightLog)];
+
+    // Add new fight_log inputs
+    uniqueFightLog.forEach(entry => {
+        const input = document.createElement('input');
+        input.type = 'hidden';
+        input.name = 'fight_log';
+        input.value = entry;
+        combatForm.appendChild(input);
+    });
+}
+
 // Make functions globally available
 window.addCombatMessage = addCombatMessage;
 window.clearCombatLog = clearCombatLog;
 window.scrollCombatToBottom = scrollCombatToBottom;
+window.animateCombatMessages = animateCombatMessages;
+window.disableCombatForm = disableCombatForm;
+window.enableCombatForm = enableCombatForm;
+window.updateFightLogInputs = updateFightLogInputs;
 </script>
 {% endblock %}
