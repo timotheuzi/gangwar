@@ -103,6 +103,9 @@
                     {% if game_state.weapons.exploding_bullets > 0 and (game_state.weapons.pistols > 0 or game_state.weapons.ghost_guns > 0 or game_state.weapons.ar15 > 0) and game_state.weapons.bullets > 0 %}
                     <option value="exploding">Exploding Bullets ({{ game_state.weapons.exploding_bullets }} available) - Double Damage!</option>
                     {% endif %}
+                    {% if game_state.weapons.hollow_point_bullets > 0 and (game_state.weapons.pistols > 0 or game_state.weapons.ghost_guns > 0 or game_state.weapons.ar15 > 0) and game_state.weapons.bullets > 0 %}
+                    <option value="hollow_point">Hollow Point Bullets ({{ game_state.weapons.hollow_point_bullets }} available) - 20% Extra Damage!</option>
+                    {% endif %}
                 </select>
             </div>
         </form>

@@ -148,6 +148,7 @@ class Weapons:
     ghost_guns: int = 0
     ar15: int = 0
     exploding_bullets: int = 0
+    hollow_point_bullets: int = 0
     sword: int = 0
     axe: int = 0
     pistol_automatic: bool = False
@@ -316,6 +317,7 @@ def buy_weapon():
         'pistol': 1200,
         'bullets': 100,
         'exploding_bullets': 2000,
+        'hollow_point_bullets': 500,
         'grenade': 1000,
         'vampire_bat': 2500,
         'missile_launcher': 1000000,
@@ -348,6 +350,8 @@ def buy_weapon():
         game_state.weapons.bullets += quantity * 50  # Bullets come in packs of 50
     elif weapon_type == 'exploding_bullets':
         game_state.weapons.exploding_bullets += quantity * 50  # Exploding bullets come in packs of 50
+    elif weapon_type == 'hollow_point_bullets':
+        game_state.weapons.hollow_point_bullets += quantity * 50  # Hollow point bullets come in packs of 50
     elif weapon_type == 'grenade':
         game_state.weapons.grenades += quantity
     elif weapon_type == 'vampire_bat':
@@ -380,8 +384,8 @@ def upgrade_weapon():
 
     # Define upgrade prices
     upgrade_prices = {
-        'pistol': 15000,
-        'ghost_gun': 10000
+        'pistol': 2000,
+        'ghost_gun': 2000
     }
 
     if weapon_type not in upgrade_prices:
@@ -718,7 +722,7 @@ def wander():
             "You notice suspicious activity - a beheaded body hanging from a streetlight - but decide to keep moving before you're next.",
             "You bump into an old contact who's missing an eye and bleeding profusely, sharing gossip about the bloody underworld.",
             "You wander into a rough neighborhood where limbs are strewn across the streets and narrowly avoid getting gutted yourself.",
-            "You find some discarded drugs worth $200 on the street, next to a tortured corpse with @carved flesh.",
+            "You find some discarded drugs worth $200 on the street, next to a tortured corpse with carved flesh.",
             "You help a local shopkeeper who's covered in blood from a recent massacre, getting rewarded with information about safe havens.",
             "You wander around the city, stepping over dismembered bodies without incident, the air thick with the coppery smell of blood.",
             "You see a police patrol investigating a pile of corpses and quickly hide in an alley reeking of rotting flesh.",
@@ -1780,6 +1784,7 @@ def process_fight_action():
     # Process action
     if action == 'attack':
         use_exploding = ammo == 'exploding' and weapon in ['pistol', 'ghost_gun', 'ar15'] and game_state.weapons.exploding_bullets > 0
+        use_hollow_point = ammo == 'hollow_point' and weapon in ['pistol', 'ghost_gun', 'ar15'] and game_state.weapons.hollow_point_bullets > 0
 
         # Get weapon-specific attack descriptions
         attack_descriptions = {
@@ -1868,8 +1873,16 @@ def process_fight_action():
             if use_exploding:
                 game_state.weapons.exploding_bullets -= 1
                 damage *= 2  # Exploding bullet doubles damage
+            elif use_hollow_point:
+                game_state.weapons.hollow_point_bullets -= 1
+                damage = int(damage * 1.2)  # Hollow point bullets are 20% stronger
             enemy_health -= damage
-            fight_log.append(f"You fire your AR-15 and deal {damage} damage{' (exploding ammunition shreds through!)' if use_exploding else ''}!")
+            ammo_desc = ""
+            if use_exploding:
+                ammo_desc = " (exploding ammunition shreds through!)"
+            elif use_hollow_point:
+                ammo_desc = " (hollow point bullets maximize damage!)"
+            fight_log.append(f"You fire your AR-15 and deal {damage} damage{ammo_desc}!")
         elif weapon == 'ghost_gun' and game_state.weapons.ghost_guns > 0 and game_state.weapons.bullets > 0:
             game_state.weapons.bullets -= 1
             base_damage = random.randint(15, 25)

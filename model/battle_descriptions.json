@@ -5,6 +5,7 @@
             "ghost_gun": "You fire your ghost gun!",
             "ar15": "You fire your AR-15!",
             "exploding_bullets": "You fire an exploding bullet! 💥 BOOM!",
+            "hollow_point_bullets": "You fire a hollow point bullet! 💥 THUNK!",
             "grenade": "You throw a grenade!",
             "missile_launcher": "You fire a missile!",
             "barbed_wire_bat": "You swing your barbed wire bat!",
@@ -38,6 +39,13 @@
                 "Your special ammunition detonates with terrifying force, turning your enemy into a cloud of blood and gore!",
                 "The exploding bullet finds its mark and unleashes hell, the detonation ripping through everything in its path!",
                 "You watch as your explosive projectile impacts and erupts, painting the surroundings in crimson destruction!"
+            ],
+            "hollow_point_bullets": [
+                "You fire a hollow point bullet that expands on impact, creating devastating wound channels!",
+                "The hollow point round mushrooms dramatically as it strikes, maximizing tissue damage and stopping power!",
+                "Your specialized ammunition fragments inside the target, causing massive internal trauma and blood loss!",
+                "The hollow point bullet transfers all its energy into the target, creating a devastating hydrostatic shock!",
+                "You watch as the hollow point round creates a devastating exit wound, the bullet having expanded to three times its size!"
             ],
             "grenade": [
                 "You hurl a grenade that bounces toward your enemies, the fuse hissing as it counts down to oblivion!",

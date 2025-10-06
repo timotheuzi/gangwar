@@ -156,6 +156,7 @@ class Weapons:
     ghost_guns: int = 0
     ar15: int = 0
     exploding_bullets: int = 0
+    hollow_point_bullets: int = 0
     sword: int = 0
     axe: int = 0
     pistol_automatic: bool = False
@@ -198,6 +199,11 @@ class GameState:
     weapons: Weapons = field(default_factory=Weapons)
     drugs: Drugs = field(default_factory=Drugs)
     gang_members: List[GangMember] = field(default_factory=list)
+
+    @property
+    def max_health(self) -> int:
+        """Calculate max health based on gang members: 30 base + 10 HP per member beyond the first"""
+        return 30 + 10 * (self.members - 1)
 
 # ============
 # Game Logic
@@ -325,6 +331,7 @@ def buy_weapon():
         'pistol': 1200,
         'bullets': 100,
         'exploding_bullets': 2000,
+        'hollow_point_bullets': 500,
         'grenade': 1000,
         'vampire_bat': 2500,
         'missile_launcher': 1000000,
@@ -357,6 +364,8 @@ def buy_weapon():
         game_state.weapons.bullets += quantity * 50  # Bullets come in packs of 50
     elif weapon_type == 'exploding_bullets':
         game_state.weapons.exploding_bullets += quantity * 50  # Exploding bullets come in packs of 50
+    elif weapon_type == 'hollow_point_bullets':
+        game_state.weapons.hollow_point_bullets += quantity * 50  # Hollow point bullets come in packs of 50
     elif weapon_type == 'grenade':
         game_state.weapons.grenades += quantity
     elif weapon_type == 'vampire_bat':
@@ -389,8 +398,8 @@ def upgrade_weapon():
 
     # Define upgrade prices
     upgrade_prices = {
-        'pistol': 15000,
-        'ghost_gun': 10000
+        'pistol': 2000,
+        'ghost_gun': 2000
     }
 
     if weapon_type not in upgrade_prices:
@@ -757,7 +766,7 @@ def wander():
             else:
                 game_state.money += 200
         elif "quiet spot" in result:
-            game_state.health = min(30, game_state.health + 10)
+            game_state.health = min(game_state.max_health, game_state.health + 10)
         elif "hidden stash of weapons" in result:
             game_state.weapons.bullets += 5
         elif "without incident" not in result and "trouble" not in result and "police" not in result:
@@ -834,7 +843,7 @@ def search_picknsave():
             setattr(game_state.drugs, drug, getattr(game_state.drugs, drug) + amount)
             benefits_found.append(f"You discovered {amount} kilos of {drug} stashed away!")
         elif benefit_type == 'health':
-            game_state.health = min(30, game_state.health + 10)
+            game_state.health = min(game_state.max_health, game_state.health + 10)
             benefits_found.append("You found some free medical supplies and healed yourself!")
         elif benefit_type == 'info':
             game_state.flags.has_info = True
@@ -860,7 +869,7 @@ def picknsave_action():
     elif action == 'buy_medical':
         if game_state.money >= 1000:
             game_state.money -= 1000
-            game_state.health = min(30, game_state.health + 50)  # Heal up to 30
+            game_state.health = min(game_state.max_health, game_state.health + 50)  # Heal up to max health
             flash("You bought medical supplies! Health restored.", "success")
         else:
             flash("You don't have enough money for medical supplies!", "danger")
@@ -885,6 +894,7 @@ def picknsave_action():
         if game_state.money >= 10000:
             game_state.money -= 10000
             game_state.members += 1
+            game_state.health = min(game_state.max_health, game_state.health + 10)
             flash("You recruited a new gang member! Your gang grows stronger.", "success")
         else:
             flash("You don't have enough money to recruit a new member!", "danger")
@@ -926,6 +936,7 @@ def trade_drugs():
             if revenue >= 5000:  # Big sale threshold
                 if random.random() < 0.25:  # 25% chance for big sales
                     game_state.members += 1
+                    game_state.health = min(game_state.max_health, game_state.health + 10)
                     flash("Word of your successful drug operation spread! A new recruit joined your gang!", "success")
         else:
             flash(f"You don't have enough {drug_type} to sell!", "danger")
@@ -957,7 +968,7 @@ def prostitute_action():
         if game_state.money >= 500:
             game_state.money -= 500
             game_state.damage = max(0, game_state.damage - 15)  # Reduce more damage/stress
-            game_state.health = min(30, game_state.health + 5)  # Small health boost
+            game_state.health = min(game_state.max_health, game_state.health + 5)  # Small health boost
             flash("You had a VIP experience and feel rejuvenated!", "success")
         else:
             flash("You don't have enough money for a VIP experience!", "danger")
@@ -967,6 +978,7 @@ def prostitute_action():
             game_state.money -= 1000
             if random.random() < 0.6:  # 60% chance to recruit
                 game_state.members += 1
+                game_state.health = min(game_state.max_health, game_state.health + 10)
                 flash("You successfully recruited a prostitute to join your gang!", "success")
             else:
                 flash("The prostitute took your money but decided to stay in her current line of work.", "warning")
@@ -1652,6 +1664,7 @@ def fight_cops():
             # Chance to recruit a impressed bystander
             if random.random() < 0.2:  # 20% chance
                 game_state.members += 1
+                game_state.health = min(game_state.max_health, game_state.health + 10)
                 flash("A bystander was impressed by your escape and joined your gang!", "success")
             save_game_state(game_state)
             return redirect(url_for('city'))
@@ -1839,6 +1852,7 @@ def process_fight_action():
     if action == 'attack':
         print("Entered attack action")
         use_exploding = ammo == 'exploding' and weapon in ['pistol', 'ghost_gun', 'ar15'] and game_state.weapons.exploding_bullets > 0
+        use_hollow_point = ammo == 'hollow_point' and weapon in ['pistol', 'ghost_gun', 'ar15'] and game_state.weapons.hollow_point_bullets > 0
 
         # Get weapon-specific attack descriptions
         attack_descriptions = {
@@ -1869,6 +1883,13 @@ def process_fight_action():
                 "Your special ammunition detonates with terrifying force, turning your enemy into a cloud of blood and gore!",
                 "The exploding bullet finds its mark and unleashes hell, the detonation ripping through everything in its path!",
                 "You watch as your explosive projectile impacts and erupts, painting the surroundings in crimson destruction!"
+            ],
+            'hollow_point_bullets': [
+                "You fire a hollow point bullet that expands on impact, creating devastating wound channels!",
+                "The hollow point round mushrooms dramatically as it strikes, maximizing tissue damage and stopping power!",
+                "Your specialized ammunition fragments inside the target, causing massive internal trauma and blood loss!",
+                "The hollow point bullet transfers all its energy into the target, creating a devastating hydrostatic shock!",
+                "You watch as the hollow point round creates a devastating exit wound, the bullet having expanded to three times its size!"
             ],
             'grenade': [
                 "You hurl a grenade that bounces toward your enemies, the fuse hissing as it counts down to oblivion!",
@@ -1907,6 +1928,9 @@ def process_fight_action():
             if use_exploding:
                 game_state.weapons.exploding_bullets -= 1
                 base_damage *= 2  # Exploding bullet doubles damage
+            elif use_hollow_point:
+                game_state.weapons.hollow_point_bullets -= 1
+                base_damage = int(base_damage * 1.2)  # Hollow point bullets are 20% stronger
             if game_state.weapons.pistol_automatic:
                 # Automatic pistol fires 3 shots - show each shot separately
                 total_damage = 0
@@ -1914,12 +1938,27 @@ def process_fight_action():
                     shot_damage = base_damage
                     total_damage += shot_damage
                     attack_desc = random.choice(attack_descriptions.get('pistol', ["You fire your automatic pistol!"]))
-                    fight_log.append(f"{attack_desc} [Shot {shot + 1}] You deal {shot_damage} damage{' (exploding bullet!)' if use_exploding else ''}!")
-                fight_log.append(f"Total damage from automatic pistol: {total_damage} damage{' (exploding bullets have devastating effect!)' if use_exploding else ''}!")
+                    ammo_type = ""
+                    if use_exploding:
+                        ammo_type = " (exploding bullet!)"
+                    elif use_hollow_point:
+                        ammo_type = " (hollow point bullet!)"
+                    fight_log.append(f"{attack_desc} [Shot {shot + 1}] You deal {shot_damage} damage{ammo_type}!")
+                ammo_desc = ""
+                if use_exploding:
+                    ammo_desc = " (exploding bullets have devastating effect!)"
+                elif use_hollow_point:
+                    ammo_desc = " (hollow point bullets maximize damage!)"
+                fight_log.append(f"Total damage from automatic pistol: {total_damage} damage{ammo_desc}!")
             else:
                 damage = base_damage
                 attack_desc = random.choice(attack_descriptions.get('pistol', ["You fire your pistol!"]))
-                fight_log.append(f"{attack_desc} You deal {damage} damage{' (exploding bullet!)' if use_exploding else ''}!")
+                ammo_type = ""
+                if use_exploding:
+                    ammo_type = " (exploding bullet!)"
+                elif use_hollow_point:
+                    ammo_type = " (hollow point bullet!)"
+                fight_log.append(f"{attack_desc} You deal {damage} damage{ammo_type}!")
             enemy_health -= damage if not game_state.weapons.pistol_automatic else total_damage
         elif weapon == 'ar15' and game_state.weapons.ar15 > 0 and game_state.weapons.bullets > 0:
             game_state.weapons.bullets -= 1
@@ -1927,8 +1966,16 @@ def process_fight_action():
             if use_exploding:
                 game_state.weapons.exploding_bullets -= 1
                 damage *= 2  # Exploding bullet doubles damage
+            elif use_hollow_point:
+                game_state.weapons.hollow_point_bullets -= 1
+                damage = int(damage * 1.2)  # Hollow point bullets are 20% stronger
             enemy_health -= damage
-            fight_log.append(f"You fire your AR-15 and deal {damage} damage{' (exploding ammunition shreds through!)' if use_exploding else ''}!")
+            ammo_desc = ""
+            if use_exploding:
+                ammo_desc = " (exploding ammunition shreds through!)"
+            elif use_hollow_point:
+                ammo_desc = " (hollow point bullets maximize damage!)"
+            fight_log.append(f"You fire your AR-15 and deal {damage} damage{ammo_desc}!")
         elif weapon == 'ghost_gun' and game_state.weapons.ghost_guns > 0 and game_state.weapons.bullets > 0:
             game_state.weapons.bullets -= 1
             base_damage = random.randint(15, 25)
@@ -2119,19 +2166,26 @@ def process_fight_action():
 
             enemy_damage = random.randint(5, 15) * enemy_count
 
-            # Chance for enemy to kill a gang member instead of damaging the player
+            # First, determine if attack targets a gang member (40% chance if members > 1)
             killed_member = False
             if game_state.members > 1 and random.random() < 0.4:  # 40% chance to target a gang member
                 killed_member = True
                 game_state.members -= 1
-                member_death_descriptions = [
-                    f"A brutal attack cuts down Squad Member {len(game_state.gang_members)} and leaves them bleeding on the ground!",
-                    f"Your Lieutenant {len(game_state.gang_members)} falls under a hail of gunfire, their body slamming to the ground!",
-                    f"A fellow gang member is riddled with bullets and collapses in a pool of blood!",
-                    f"One of your soldiers takes fatal wounds and falls, their screams echoing as life fades!",
-                    f"The enemy gunfire finds its mark, killing Squad Member {len(game_state.gang_members)} instantly!"
+                # Recalculate health cap immediately after losing a member
+                old_max_health = game_state.max_health + 10  # What it was before
+                game_state.health = min(game_state.health, game_state.max_health)  # Cap to new max
+                grim_death_descriptions = [
+                    f"A hail of bullets rips through Squad Member #{game_state.members + 1}, their body jerking violently as blood sprays across the ground in gruesome arcs!",
+                    f"Your loyal Lieutenant #{game_state.members + 1} screams as gunfire shreds their chest, collapsing in a pool of their own viscera!",
+                    f"Gang Member #{game_state.members + 1} takes a fatal shot to the throat, gurgling wetly as blood pours from the ragged wound!",
+                    f"Enemy fire catches Soldier #{game_state.members + 1} in the gut, their intestines spilling onto the filthy street in a steaming pile!",
+                    f"A bullet punches through Trooper #{game_state.members + 1}'s skull, brain matter splattering with a sickening crack!",
+                    f"Loyal Squad Member #{game_state.members + 1} collapses with multiple gunshot wounds, their blood mixing with the dirt in dark, sticky pools!",
+                    f"Your Enforcer #{game_state.members + 1} takes a final, fatal shot, their eyes glazing over as life drains from their perforated body!",
+                    f"Companion #{game_state.members + 1} falls with a guttural cry, their comrades forced to step over their still-twitching corpse!"
                 ]
-                fight_log.append(random.choice(member_death_descriptions))
+                fight_log.append(random.choice(grim_death_descriptions))
+                fight_log.append(f"Your gang shrinks to {game_state.members} members. Max health reduced to {game_state.max_health}!")
             else:
                 # Regular damage to player
                 if game_state.weapons.vest > 0 and random.random() < 0.5:
@@ -2143,6 +2197,25 @@ def process_fight_action():
                     attack_desc = random.choice(enemy_attack_descriptions.get(enemy_type_key, ["Enemy attacks!"]))
                     fight_log.append(f"{attack_desc} You take {enemy_damage} damage!")
                 game_state.damage += enemy_damage
+
+                # Additional grim mechanic: if damage isn't fatal but you're taking damage, 15% chance a gang member also dies
+                current_total_health = game_state.health - game_state.damage
+                if current_total_health > enemy_damage and game_state.members > 1 and random.random() < 0.15:  # 15% chance
+                    game_state.members -= 1
+                    old_max_health = game_state.max_health + 10  # What it was before
+                    game_state.health = min(game_state.health, game_state.max_health)  # Cap to new max
+                    collateral_member_deaths = [
+                        f"In the chaos of battle, a stray bullet catches Squad Member #{game_state.members + 1} in the temple - their skull explodes in a fountain of gore!",
+                        f"The crossfire is merciless - Trooper #{game_state.members + 1} takes shrapnel to the neck, arterial blood spraying like a macabre sprinkler!",
+                        f"A ricochet claims Gang Member #{game_state.members + 1}, their screams cut short as they claw futilely at the hole in their chest!",
+                        f"Enforcer #{game_state.members + 1} drops silently, a bullet having passed through their spine and severed their central nervous system!",
+                        f"The close-quarters combat turns deadly - Lieutenant #{game_state.members + 1}'s arm is blown off at the shoulder, bleeding out in agonizing seconds!",
+                        f"Bullets fly everywhere - Soldier #{game_state.members + 1} catches one in the eye socket, their orbital cavity erupting in bloody ruin!",
+                        f"The battle's salvage claims Companion #{game_state.members + 1}, whose abdomen is torn open by automatic weapon fire!",
+                        f"In this meat grinder of violence, Squad Member #{game_state.members + 1}'s femoral artery is severed, pumping blood in rhythmic spurts!"
+                    ]
+                    fight_log.append(random.choice(collateral_member_deaths))
+                    fight_log.append(f"Collateral damage! Your gang shrinks to {game_state.members} members. Max health reduced to {game_state.max_health}!")
 
     elif action == 'defend':
         fight_log.append("You take a defensive stance, reducing incoming damage!")
@@ -2237,6 +2310,7 @@ def process_fight_action():
         # Recruit the defectors
         if recruits > 0:
             game_state.members += recruits
+            game_state.health = min(game_state.max_health, game_state.health + 10 * recruits)
             fight_log.append(f"{recruits} of the defeated enemies joined your gang!")
 
         # Chance to find drugs on defeated enemies
@@ -2251,6 +2325,20 @@ def process_fight_action():
         fight_log.append(f"VICTORY! You have defeated the {enemy_type}!")
         fight_log.append(f"Battle outcome: {killed} killed, {fled_count} fled, {recruits} defected.")
         save_game_state(game_state)
+
+        # Check for game win condition (defeating all squidies)
+        if "squidie" in enemy_type.lower():
+            # Game victory! Update high scores and redirect to win screen
+            check_and_update_high_scores(game_state, 1, 0)  # Game win counts as a gang war won
+            if is_ajax:
+                return jsonify({
+                    'success': True,
+                    'game_win': True,
+                    'combat_active': False,
+                    'redirect_url': url_for('game_win')
+                })
+            else:
+                return redirect(url_for('game_win'))
 
         if is_ajax:
             # Return JSON response for AJAX requests
@@ -2367,6 +2455,14 @@ def game_over():
     # Update high scores when game ends
     check_and_update_high_scores(game_state)
     return render_template('game_over.html', game_state=game_state)
+
+@app.route('/game_win')
+def game_win():
+    """Game Win screen"""
+    game_state = get_game_state()
+    # Update high scores when game is won
+    check_and_update_high_scores(game_state)
+    return render_template('game_win.html', game_state=game_state)
 
 # ============
 # SocketIO Events - Always enabled for chat functionality

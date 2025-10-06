@@ -6,7 +6,7 @@
       "description": "A basic pistol"
     },
     "ghost_gun": {
-      "price": 3000,
+      "price": 2000,
       "description": "An untraceable firearm"
     },
     "bullets": {
@@ -14,13 +14,18 @@
       "description": "50 bullets per pack",
       "quantity_per_purchase": 50
     },
+    "hollow_point_bullets": {
+      "price": 500,
+      "description": "50 hollow point bullets per pack",
+      "quantity_per_purchase": 50
+    },
     "exploding_bullets": {
       "price": 2000,
-      "description": "20 exploding bullets per pack",
-      "quantity_per_purchase": 20
+      "description": "50 exploding bullets per pack",
+      "quantity_per_purchase": 50
     },
     "ar15": {
-      "price": 100000,
+      "price": 50000,
       "description": "An automatic AR-15 assault rifle"
     },
     "grenade": {
@@ -69,6 +74,7 @@
     "ar15_damage": [20, 40],
     "ar15_bullets_used": 3,
     "exploding_bullet_damage": [45, 75],
+    "hollow_point_bullet_damage": [18, 30],
     "grenade_damage": [30, 60],
     "missile_damage": [50, 100],
     "barbed_bat_damage": [25, 45],
