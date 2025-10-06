@@ -245,6 +245,8 @@ class Weapons:
     hollow_point_bullets: int = 0
     sword: int = 0
     axe: int = 0
+    golden_gun: int = 0
+    poison_blowgun: int = 0
     pistol_automatic: bool = False
     ghost_gun_automatic: bool = False
 
@@ -2134,6 +2136,25 @@ def process_fight_action():
             damage = random.randint(60, 90)
             enemy_health -= damage
             fight_log.append(f"You swing your mighty axe and deal {damage} damage!")
+        elif weapon == 'golden_gun' and game_state.weapons.golden_gun > 0:
+            # Golden gun deals massive damage but has a chance to jam
+            if random.random() < 0.1:  # 10% chance to jam
+                fight_log.append("Your golden gun JAMMED! No damage dealt, but it's still beautiful.")
+            else:
+                damage = random.randint(80, 120)  # Massive damage
+                enemy_health -= damage
+                fight_log.append(f"You fire the GOLDEN GUN and deal {damage} damage! It's truly magnificent!")
+        elif weapon == 'poison_blowgun' and game_state.weapons.poison_blowgun > 0:
+            # Poison blowgun with dart delay effect
+            damage = random.randint(10, 20)  # Initial low damage
+            enemy_health -= damage
+            fight_log.append(f"You blow a poisoned dart and deal {damage} damage! The poison begins to take effect...")
+            # Poison damage over time - this would need to be handled in multiple turns in a full implementation
+            # For now, just add additional damage
+            poison_damage = random.randint(15, 30)
+            # Since this is single-turn combat, we'll apply poison damage immediately
+            enemy_health -= poison_damage
+            fight_log.append(f"The poison coursing through their veins deals an additional {poison_damage} damage!")
         else:
             fight_log.append("You don't have that weapon or ammo!")
             print(f"DEBUG: Weapon {weapon} not available or no ammo")
@@ -2249,12 +2270,31 @@ def process_fight_action():
             }
 
             # Determine enemy type for appropriate descriptions
-            if 'police' in enemy_type.lower():
-                enemy_type_key = 'police'
-            elif 'squidie' in enemy_type.lower():
-                enemy_type_key = 'squidie'
+            # First check for NPC-specific attack descriptions
+            enemy_type_lower = enemy_type.lower().replace(' ', '_')
+            enemy_type_key = None
+
+            # Load battle descriptions to check for NPC-specific keys
+            try:
+                battle_desc_file = os.path.join(os.path.dirname(__file__), '..', 'model', 'battle_descriptions.json')
+                with open(battle_desc_file, 'r') as f:
+                    battle_descriptions = json.load(f)
+                enemy_attack_descriptions = battle_descriptions.get('enemy_attack_descriptions', {})
+            except:
+                enemy_attack_descriptions = {}
+
+            # Check if there's an NPC-specific description for pistol attacks
+            npc_specific_key = f"{enemy_type_lower}_pistol"
+            if npc_specific_key in enemy_attack_descriptions:
+                enemy_type_key = npc_specific_key
             else:
-                enemy_type_key = 'gang'
+                # Fall back to generic enemy type logic
+                if 'police' in enemy_type.lower():
+                    enemy_type_key = 'police'
+                elif 'squidie' in enemy_type.lower():
+                    enemy_type_key = 'squidie'
+                else:
+                    enemy_type_key = 'gang'
 
             enemy_damage = random.randint(5, 15) * enemy_count
 
@@ -2373,6 +2413,12 @@ def process_fight_action():
                 elif weapon == 'axe':
                     game_state.weapons.axe += 1
                     fight_log.append(f"You found a unique AXE dropped by {npc['name']}!")
+                elif weapon == 'golden_gun':
+                    game_state.weapons.golden_gun += 1
+                    fight_log.append(f"You found a unique GOLDEN GUN dropped by {npc['name']}!")
+                elif weapon == 'poison_blowgun':
+                    game_state.weapons.poison_blowgun += 1
+                    fight_log.append(f"You found a unique POISON BLOWGUN dropped by {npc['name']}!")
 
             # NPCs have a chance to drop drugs
             drug_types = ['weed', 'crack', 'coke', 'ice', 'percs', 'pixie_dust']

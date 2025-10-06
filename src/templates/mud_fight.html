@@ -92,7 +92,11 @@
                     <option value="vampire_bat">Vampire Bat - 2 attacks/turn</option>
                     {% endif %}
 
-                    <option value="knife"{% if game_state.weapons.knife <= 0 %} disabled style="color: #666;"{% endif %}>Knife - 3 attacks/turn{% if game_state.weapons.knife <= 0 %} (Not owned){% endif %}</option>
+                    {% if game_state.weapons.knife > 0 %}
+                    <option value="knife">Knife - 3 attacks/turn</option>
+                    {% else %}
+                    <option value="knife" disabled style="color: #666;">Knife - 3 attacks/turn (Not owned)</option>
+                    {% endif %}
                 </select>
             </div>
 
@@ -491,7 +495,15 @@ function handleCombatAction(formData, submitter) {
 
 // Update the combat state on the page
 function updateCombatState(result) {
-    // Update enemy health
+    // Update enemy health hidden input
+    if (result.enemy_health !== undefined) {
+        const enemyHealthInput = document.querySelector('input[name="enemy_health"]');
+        if (enemyHealthInput) {
+            enemyHealthInput.value = result.enemy_health;
+        }
+    }
+
+    // Update enemy health display
     const enemyHealthElement = document.querySelector('.enemy-status p:first-child');
     if (enemyHealthElement && result.enemy_health !== undefined) {
         enemyHealthElement.textContent = `Health: ${result.enemy_health}/${document.querySelector('.enemy-status p:first-child').textContent.split('/')[1]}`;
@@ -499,10 +511,10 @@ function updateCombatState(result) {
 
     // Update player stats
     if (result.game_state) {
+        // Update player damage hidden input (if needed, but probably not)
         const playerHealthElement = document.querySelector('.player-status p:first-child');
-        if (playerHealthElement && result.game_state.health !== undefined) {
-            const maxHealth = playerHealthElement.textContent.split('/')[1];
-            playerHealthElement.textContent = `Health: ${result.game_state.health}/${maxHealth}`;
+        if (playerHealthElement && result.game_state.health !== undefined && result.game_state.damage !== undefined) {
+            playerHealthElement.textContent = `Health: ${Math.max(0, result.game_state.health - result.game_state.damage)}/${result.game_state.health}`;
         }
 
         const moneyElement = document.querySelector('.player-status p:nth-child(2)');

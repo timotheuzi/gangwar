@@ -26,6 +26,6 @@ application = app
 # For local development (if someone runs this directly)
 if __name__ == '__main__':
     if socketio:
-        socketio.run(app, host='0.0.0.0', port=int(os.environ.get('PORT', 6009)), debug=False)
+        socketio.run(app, host='0.0.0.0', port=int(os.environ.get('PORT', 6009)), debug=False, allow_unsafe_werkzeug=True)
     else:
         app.run(host='0.0.0.0', port=int(os.environ.get('PORT', 6009)), debug=False)

@@ -24,21 +24,33 @@
         </p>
         {% endif %}
         <p>Weapons:
-            {% if game_state.weapons.pistols > 0 %}Pistols: {{ game_state.weapons.pistols }}{% if game_state.weapons.pistol_automatic %} (auto){% endif %}{% if game_state.weapons.ghost_guns > 0 or game_state.weapons.ar15 > 0 or game_state.weapons.vampire_bat > 0 or game_state.weapons.knife > 0 or game_state.weapons.sword > 0 or game_state.weapons.axe > 0 %} | {% endif %}{% endif %}
-            {% if game_state.weapons.ghost_guns > 0 %}Ghost Guns: {{ game_state.weapons.ghost_guns }}{% if game_state.weapons.ghost_gun_automatic %} (auto){% endif %}{% if game_state.weapons.ar15 > 0 or game_state.weapons.vampire_bat > 0 or game_state.weapons.knife > 0 or game_state.weapons.sword > 0 or game_state.weapons.axe > 0 %} | {% endif %}{% endif %}
-            {% if game_state.weapons.ar15 > 0 %}AR-15: {{ game_state.weapons.ar15 }}{% if game_state.weapons.vampire_bat > 0 or game_state.weapons.knife > 0 or game_state.weapons.sword > 0 or game_state.weapons.axe > 0 %} | {% endif %}{% endif %}
-            {% if game_state.weapons.vampire_bat > 0 %}Vampire Bats: {{ game_state.weapons.vampire_bat }}{% if game_state.weapons.knife > 0 or game_state.weapons.sword > 0 or game_state.weapons.axe > 0 %} | {% endif %}{% endif %}
-            {% if game_state.weapons.knife > 0 %}Knives: {{ game_state.weapons.knife }}{% if game_state.weapons.sword > 0 or game_state.weapons.axe > 0 %} | {% endif %}{% endif %}
-            {% if game_state.weapons.sword > 0 %}Swords: {{ game_state.weapons.sword }}{% if game_state.weapons.axe > 0 %} | {% endif %}{% endif %}
-            {% if game_state.weapons.axe > 0 %}Axes: {{ game_state.weapons.axe %}{% endif %}
+            {% if game_state.weapons.pistols > 0 %}Pistols: {{ game_state.weapons.pistols }}{% if game_state.weapons.pistol_automatic %} (auto){% endif %}{% endif %}
+            {% if game_state.weapons.pistols > 0 and (game_state.weapons.ghost_guns > 0 or game_state.weapons.ar15 > 0 or game_state.weapons.vampire_bat > 0 or game_state.weapons.knife > 0 or game_state.weapons.sword > 0 or game_state.weapons.axe > 0) %} | {% endif %}
+            {% if game_state.weapons.ghost_guns > 0 %}Ghost Guns: {{ game_state.weapons.ghost_guns }}{% if game_state.weapons.ghost_gun_automatic %} (auto){% endif %}{% endif %}
+            {% if game_state.weapons.ghost_guns > 0 and (game_state.weapons.ar15 > 0 or game_state.weapons.vampire_bat > 0 or game_state.weapons.knife > 0 or game_state.weapons.sword > 0 or game_state.weapons.axe > 0) %} | {% endif %}
+            {% if game_state.weapons.ar15 > 0 %}AR-15: {{ game_state.weapons.ar15 }}{% endif %}
+            {% if game_state.weapons.ar15 > 0 and (game_state.weapons.vampire_bat > 0 or game_state.weapons.knife > 0 or game_state.weapons.sword > 0 or game_state.weapons.axe > 0) %} | {% endif %}
+            {% if game_state.weapons.vampire_bat > 0 %}Vampire Bats: {{ game_state.weapons.vampire_bat }}{% endif %}
+            {% if game_state.weapons.vampire_bat > 0 and (game_state.weapons.knife > 0 or game_state.weapons.sword > 0 or game_state.weapons.axe > 0) %} | {% endif %}
+            {% if game_state.weapons.knife > 0 %}Knives: {{ game_state.weapons.knife }}{% endif %}
+            {% if game_state.weapons.knife > 0 and (game_state.weapons.sword > 0 or game_state.weapons.axe > 0) %} | {% endif %}
+            {% if game_state.weapons.sword > 0 %}Swords: {{ game_state.weapons.sword }}{% endif %}
+            {% if game_state.weapons.sword > 0 and game_state.weapons.axe > 0 %} | {% endif %}
+            {% if game_state.weapons.axe > 0 %}Axes: {{ game_state.weapons.axe }}{% endif %}
         </p>
         <p>Ammunition:
-            {% if game_state.weapons.bullets > 0 %}Bullets: {{ game_state.weapons.bullets }}{% if game_state.weapons.exploding_bullets > 0 or game_state.weapons.hollow_point_bullets > 0 or game_state.weapons.grenades > 0 or game_state.weapons.missile_launcher > 0 or game_state.weapons.missiles > 0 or game_state.weapons.vest > 0 %} | {% endif %}{% endif %}
-            {% if game_state.weapons.exploding_bullets > 0 %}Exploding Bullets: {{ game_state.weapons.exploding_bullets }}{% if game_state.weapons.hollow_point_bullets > 0 or game_state.weapons.grenades > 0 or game_state.weapons.missile_launcher > 0 or game_state.weapons.missiles > 0 or game_state.weapons.vest > 0 %} | {% endif %}{% endif %}
-            {% if game_state.weapons.hollow_point_bullets > 0 %}Hollow Point Bullets: {{ game_state.weapons.hollow_point_bullets }}{% if game_state.weapons.grenades > 0 or game_state.weapons.missile_launcher > 0 or game_state.weapons.missiles > 0 or game_state.weapons.vest > 0 %} | {% endif %}{% endif %}
-            {% if game_state.weapons.grenades > 0 %}Grenades: {{ game_state.weapons.grenades }}{% if game_state.weapons.missile_launcher > 0 or game_state.weapons.missiles > 0 or game_state.weapons.vest > 0 %} | {% endif %}{% endif %}
-            {% if game_state.weapons.missile_launcher > 0 %}Missile Launchers: {{ game_state.weapons.missile_launcher }}{% if game_state.weapons.missiles > 0 or game_state.weapons.vest > 0 %} | {% endif %}{% endif %}
-            {% if game_state.weapons.missiles > 0 %}Missiles: {{ game_state.weapons.missiles }}{% if game_state.weapons.vest > 0 %} | {% endif %}{% endif %}
+            {% if game_state.weapons.bullets > 0 %}Bullets: {{ game_state.weapons.bullets }}{% endif %}
+            {% if game_state.weapons.bullets > 0 and (game_state.weapons.exploding_bullets > 0 or game_state.weapons.hollow_point_bullets > 0 or game_state.weapons.grenades > 0 or game_state.weapons.missile_launcher > 0 or game_state.weapons.missiles > 0 or game_state.weapons.vest > 0) %} | {% endif %}
+            {% if game_state.weapons.exploding_bullets > 0 %}Exploding Bullets: {{ game_state.weapons.exploding_bullets }}{% endif %}
+            {% if game_state.weapons.exploding_bullets > 0 and (game_state.weapons.hollow_point_bullets > 0 or game_state.weapons.grenades > 0 or game_state.weapons.missile_launcher > 0 or game_state.weapons.missiles > 0 or game_state.weapons.vest > 0) %} | {% endif %}
+            {% if game_state.weapons.hollow_point_bullets > 0 %}Hollow Point Bullets: {{ game_state.weapons.hollow_point_bullets }}{% endif %}
+            {% if game_state.weapons.hollow_point_bullets > 0 and (game_state.weapons.grenades > 0 or game_state.weapons.missile_launcher > 0 or game_state.weapons.missiles > 0 or game_state.weapons.vest > 0) %} | {% endif %}
+            {% if game_state.weapons.grenades > 0 %}Grenades: {{ game_state.weapons.grenades }}{% endif %}
+            {% if game_state.weapons.grenades > 0 and (game_state.weapons.missile_launcher > 0 or game_state.weapons.missiles > 0 or game_state.weapons.vest > 0) %} | {% endif %}
+            {% if game_state.weapons.missile_launcher > 0 %}Missile Launchers: {{ game_state.weapons.missile_launcher }}{% endif %}
+            {% if game_state.weapons.missile_launcher > 0 and (game_state.weapons.missiles > 0 or game_state.weapons.vest > 0) %} | {% endif %}
+            {% if game_state.weapons.missiles > 0 %}Missiles: {{ game_state.weapons.missiles }}{% endif %}
+            {% if game_state.weapons.missiles > 0 and game_state.weapons.vest > 0 %} | {% endif %}
             {% if game_state.weapons.vest > 0 %}Vest Hits: {{ game_state.weapons.vest }}{% endif %}
         </p>
     </div>

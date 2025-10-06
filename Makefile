@@ -8,31 +8,32 @@ all: build
 
 # Web deployment targets
 web-build:
-	@echo "Building Gangwar Game for web deployment..."
-	@chmod +x scripts/build_web.sh
-	@./scripts/build_web.sh
-
-web-run:
-	@echo "Running Gangwar Game in web development mode..."
-	@if [ -d "web_build" ]; then \
-		cd web_build && python3 main.py; \
+	@echo "Verifying Gangwar Game web deployment files..."
+	@if [ -f "pythonanywhere_entry.py" ] && [ -f "wsgi.py" ]; then \
+		echo "✓ Web deployment files found."; \
+		python3 -c "from pythonanywhere_entry import application; print('✓ WSGI application loads successfully')"; \
 	else \
-		echo "Web build not found. Run 'make web-build' first."; \
+		echo "✗ Required web deployment files missing."; \
 		exit 1; \
 	fi
 
+web-run:
+	@echo "Running Gangwar Game in web development mode..."
+	@python3 pythonanywhere_entry.py
+
 web-test:
 	@echo "Testing web deployment setup..."
-	@if [ -d "web_build" ]; then \
-		cd web_build && python3 test_web.py; \
+	@if [ -f "pythonanywhere_entry.py" ]; then \
+		python3 -c "from pythonanywhere_entry import application; print('✓ WSGI application loads successfully')"; \
+		python3 -c "from src.app import app; print('✓ Flask app loads successfully')"; \
 	else \
-		echo "Web build not found. Run 'make web-build' first."; \
+		echo "✗ Web deployment file missing."; \
 		exit 1; \
 	fi
 
 web-clean:
-	@echo "Cleaning web build artifacts..."
-	@rm -rf web_build/
+	@echo "Web deployment uses src files directly - no cleanup needed..."
+	@echo "✓ No duplicate files to clean"
 
 # Build the application
 build:
@@ -122,7 +123,7 @@ help:
 	@echo "Build Targets:"
 	@echo "  all          - Build standalone executable (default)"
 	@echo "  build        - Build standalone executable"
-	@echo "  web-build    - Build web deployment version"
+	@echo "  web-build    - Verify web deployment files"
 	@echo ""
 	@echo "Run Targets:"
 	@echo "  run          - Run in development mode"
@@ -176,17 +177,18 @@ deploy-prep: build
 
 # Web deployment preparation
 web-deploy: web-build
-	@echo "Web deployment files prepared in web_build/ directory:"
-	@ls -la web_build/
+	@echo "Web deployment uses src files directly - no build directory created:"
+	@ls -la *.py | grep -E '(pythonanywhere_entry|wsgi)'
 	@echo ""
 	@echo "For PythonAnywhere web deployment:"
-	@echo "1. Upload contents of web_build/ to PythonAnywhere"
+	@echo "1. Upload entire project directory to PythonAnywhere"
 	@echo "2. Set WSGI file to: wsgi.py"
 	@echo "3. Install requirements: pip install -r requirements.txt"
 	@echo ""
 	@echo "For Heroku deployment:"
-	@echo "1. Create Procfile with: web: python main.py"
-	@echo "2. Deploy via git"
+	@echo "1. Deploy the entire repository to git"
+	@echo "2. Create Procfile with: web: python pythonanywhere_entry.py"
+	@echo "3. Heroku will use auto-detection or the Procfile"
 	@echo ""
 	@echo "For local web testing:"
-	@echo "  cd web_build && python3 main.py"
+	@echo "  python3 pythonanywhere_entry.py"
