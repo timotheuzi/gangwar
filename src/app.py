@@ -22,19 +22,105 @@ app.secret_key = 'gangwar_secret_key_2024'
 # Check if running in PyInstaller bundle
 is_frozen = getattr(sys, 'frozen', False)
 
-# Load NPCs - look in models directory for data files
+# Load NPCs - look in model directory for data files
 try:
-    npc_file = os.path.join(os.path.dirname(__file__), '..', 'models', 'npcs.json')
+    npc_file = os.path.join(os.path.dirname(__file__), '..', 'model', 'npcs.json')
     with open(npc_file, 'r') as f:
         npcs_data = json.load(f)
 except FileNotFoundError:
     npcs_data = {}
 
+# Load drug config
+try:
+    drug_config_file = os.path.join(os.path.dirname(__file__), '..', 'model', 'drug_config.json')
+    with open(drug_config_file, 'r') as f:
+        drug_config = json.load(f)
+except FileNotFoundError:
+    drug_config = {}
+    print("DEBUG: drug_config file not found")
+
+# Current drug prices file
+CURRENT_DRUG_PRICES_FILE = os.path.join(os.path.dirname(__file__), '..', 'model', 'current_drug_prices.json')
+
+def load_current_drug_prices():
+    """Load current drug prices from file"""
+    try:
+        with open(CURRENT_DRUG_PRICES_FILE, 'r') as f:
+            return json.load(f)
+    except Exception as e:
+        # Create default if file doesn't exist
+        base_prices = {name: info['base_price'] for name, info in drug_config.get('drugs', {}).items()}
+        return {
+            "description": "Current day's fluctuating drug prices",
+            "day": 1,
+            "last_update": "",
+            "prices": base_prices,
+            "fluctuation_alert": "",
+            "massive_change_drugs": []
+        }
+
+def save_current_drug_prices(current_prices):
+    """Save current drug prices to file"""
+    try:
+        os.makedirs(os.path.dirname(CURRENT_DRUG_PRICES_FILE), exist_ok=True)
+        with open(CURRENT_DRUG_PRICES_FILE, 'w') as f:
+            json.dump(current_prices, f, indent=2)
+    except Exception as e:
+        print(f"Error saving current drug prices: {e}")
+
+def update_daily_drug_prices():
+    """Update drug prices for new day with fluctuations"""
+    import time
+    current_prices = load_current_drug_prices()
+
+    # Load base prices for reference
+    base_prices = {name: info['base_price'] for name, info in drug_config.get('drugs', {}).items()}
+
+    # Fluctuation logic: sometimes skyrocket (busts/low inventory), sometimes plummet (flooded market)
+    alerts = []
+    massive_changes = []
+
+    new_prices = {}
+    for drug in base_prices.keys():
+        # Base price as starting point
+        price = base_prices[drug]
+
+        # Random fluctuations: 70% normal variance, 20% big change, 10% massive change
+        fluctuation_type = random.random()
+
+        if fluctuation_type < 0.1:  # 10% chance of massive change
+            # Massive change: 2-5x multiplier up or down
+            if random.random() < 0.5:  # Busts → skyrocket
+                multiplier = random.uniform(2.0, 5.0)
+                alerts.append(f"MASSIVE BUSTS on {drug.upper()}! Prices through the roof!")
+            else:  # Flooded market → plummet
+                multiplier = random.uniform(0.2, 0.5)
+                alerts.append(f"Market FLOODED with {drug.upper()}! Prices rock bottom!")
+            massive_changes.append(drug)
+        elif fluctuation_type < 0.3:  # 20% chance of big change
+            if random.random() < 0.5:
+                multiplier = random.uniform(1.5, 2.0)
+            else:
+                multiplier = random.uniform(0.5, 0.7)
+        else:  # 70% normal variance
+            multiplier = random.uniform(0.8, 1.3)
+
+        new_prices[drug] = int(price * multiplier)
+
+    # Update the file
+    current_prices['prices'] = new_prices
+    current_prices['fluctuation_alert'] = " | ".join(alerts[:2]) if alerts else ""  # Show up to 2 alerts
+    current_prices['massive_change_drugs'] = massive_changes
+    current_prices['last_update'] = time.strftime("%Y-%m-%d %H:%M:%S")
+
+    save_current_drug_prices(current_prices)
+    return current_prices
+
 # ============
 # High Scores
 # ============
 
-HIGH_SCORES_FILE = os.path.join(os.path.dirname(__file__), '..', 'models', 'high_scores.json')
+HIGH_SCORES_FILE = os.path.join(os.path.dirname(__file__), '..', 'model', 'high_scores.json')
 
 @dataclass
 class HighScore:
@@ -218,6 +304,8 @@ def get_game_state():
     game_dict['flags'] = Flags(**game_dict.get('flags', {}))
     game_dict['weapons'] = Weapons(**game_dict.get('weapons', {}))
     game_dict['drugs'] = Drugs(**game_dict.get('drugs', {}))
+    # Load current drug prices from global file
+    game_dict['drug_prices'] = load_current_drug_prices()['prices']
     return GameState(**game_dict)
 
 def update_current_score(game_state):
@@ -303,7 +391,10 @@ def city():
     game_state = get_game_state()
     game_state.current_location = "city"
     save_game_state(game_state)
-    return render_template('city.html', game_state=game_state)
+    # Get current drug prices for alerts
+    current_prices_data = load_current_drug_prices()
+    city_alert = current_prices_data.get('fluctuation_alert', '')
+    return render_template('city.html', game_state=game_state, city_alert=city_alert)
 
 @app.route('/crackhouse')
 def crackhouse():
@@ -781,7 +872,8 @@ def wander():
     if game_state.steps >= game_state.max_steps:
         game_state.day += 1
         game_state.steps = 0
-        # Reset some daily things if needed
+        # Update drug prices for new day
+        update_daily_drug_prices()
 
     # Check for NPC encounter (15% chance, down from 30% since we have more events now)
     if random.random() < 0.15 and npcs_data:

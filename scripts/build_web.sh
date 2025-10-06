@@ -56,23 +56,19 @@ echo "Creating web deployment directory..."
 rm -rf web_build
 mkdir -p web_build
 
-# Copy application files
-echo "Copying application files..."
-cp -r src web_build/
-cp -r model web_build/
-
 # Copy configuration files
 cp requirements.txt web_build/ 2>/dev/null || true
 cp pythonanywhere_entry.py web_build/ 2>/dev/null || true
 cp wsgi.py web_build/ 2>/dev/null || true
 
-# Create main.py that imports from the src structure
+# Create main.py that imports from the parent src structure
 cat > web_build/main.py << 'EOF'
 import os
 import sys
 
-# Add the current directory to Python path
-sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+# Add the parent directory to Python path to access src/model
+parent_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+sys.path.insert(0, parent_dir)
 
 # Import the Flask app from the src directory
 from src.app import app
@@ -104,9 +100,9 @@ cat > web_build/wsgi.py << 'EOF'
 import os
 import sys
 
-# Add current directory to path
-current_dir = os.path.dirname(os.path.abspath(__file__))
-sys.path.insert(0, current_dir)
+# Add parent directory to path to access src/model
+parent_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+sys.path.insert(0, parent_dir)
 
 # Import the Flask application
 from main import application
@@ -164,15 +160,16 @@ This directory contains a web-deployable version of the Gangwar game.
 ## Deployment Instructions:
 
 ### PythonAnywhere:
-1. Upload all files in this directory to your PythonAnywhere account
-2. Set WSGI file to: `wsgi.py`
+1. Upload the entire project (including src/, model/, and this web_build/ directory) to your PythonAnywhere account
+2. Set WSGI file to: `web_build/wsgi.py`
 3. Install requirements: `pip install -r requirements.txt`
 4. Set virtual environment path if needed
 
 ### Heroku:
-1. Create a `Procfile` with: `web: python main.py`
-2. Set buildpack to: `heroku/python`
-3. Deploy via git
+1. Upload the entire project to your repository
+2. Create a `Procfile` with: `web: python web_build/main.py`
+3. Set buildpack to: `heroku/python`
+4. Deploy via git
 
 ### Local Development:
 ```bash
@@ -205,6 +202,10 @@ Simple test script to verify web deployment setup
 import os
 import sys
 
+# Add parent directory to path to access src/model
+parent_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+sys.path.insert(0, parent_dir)
+
 def test_imports():
     """Test that all required modules can be imported"""
     try:
@@ -232,15 +233,15 @@ def test_imports():
 
 def test_files():
     """Test that required files exist"""
-    # Check files in current directory (web_build)
-    current_files = [
-        'src/app.py',
-        'model/npcs.json',
-        'src/templates/base.html',
-        'src/static/style.css'
+    # Check files in parent directory (project root)
+    parent_files = [
+        '../src/app.py',
+        '../model/npcs.json',
+        '../src/templates/base.html',
+        '../src/static/style.css'
     ]
 
-    for file_path in current_files:
+    for file_path in parent_files:
         if os.path.exists(file_path):
             print(f"✓ {file_path} exists")
         else:
