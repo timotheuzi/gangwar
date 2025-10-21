@@ -1,3 +1,4 @@
+
 import os
 import random
 import secrets
@@ -118,6 +119,12 @@ class Drugs:
     ice: int = 0
     percs: int = 0
     pixie_dust: int = 0
+
+    def __contains__(self, drug):
+        return hasattr(self, drug)
+
+    def keys(self):
+        return ['weed', 'crack', 'coke', 'ice', 'percs', 'pixie_dust']
 
 @dataclass
 class Weapons:
@@ -245,6 +252,68 @@ def check_and_update_high_scores(game_state: GameState, gang_wars_won: int = 0, 
 # Global player tracking
 connected_players = {}
 
+# Dynamic Drug Price Fluctuation with Bar Gossip
+def fluctuate_drug_prices(game_state):
+    """Dynamically fluctuate drug prices with wild variations based on underworld gossip"""
+
+    # Base prices that fluctuate wildly
+    base_prices = {
+        'weed': 500,
+        'crack': 1000,
+        'coke': 2000,
+        'ice': 1500,
+        'percs': 800,
+        'pixie_dust': 3000
+    }
+
+    # Wild fluctuation factors inspired by bar room sayings
+    bar_room_sayings = [
+        "Prices are through the roof! Word on the street is the heat's on!",
+        "Everything's cheap as dirt today - somebody's dumping inventory!",
+        "Market's crazy! Some rich idiot flooded the streets with cash!",
+        "Dang prices keep swingin' like a pendulum in a hurricane!",
+        "Everything doubled overnight! Cartel war makin' waves!",
+        "Bottom dropped out! Undercover bust took out the middlemen!",
+        "Prices tripling by the hour! Somebody hit a big score!",
+        "Cheaper than water! Surplus from a busted lab dump!",
+        "Market's gone nuts! International shipment just landed!",
+        "Everything's sky-high! Police raid cleaned out the warehouses!"
+    ]
+
+    # Pick a random "mood" for the day that affects all prices
+    price_mood = random.random()
+
+    for drug in game_state.drug_prices.keys():
+        base_price = base_prices[drug]
+
+        # Base fluctuation: ±50%
+        fluctuation = random.uniform(0.5, 1.5)
+
+        # Add extreme variations (±200% in severe cases)
+        if random.random() < 0.15:  # 15% chance for extreme fluctuation
+            fluctuation *= random.uniform(0.1, 3.0)
+
+        # Apply the mood factor that affects entire market
+        if price_mood < 0.2:  # Boom market - everything cheap
+            fluctuation *= 0.3
+            saying = random.choice([s for s in bar_room_sayings if "cheap" in s or "surplus" in s or "dumping" in s])
+        elif price_mood < 0.4:  # Bust market - everything expensive
+            fluctuation *= 2.5
+            saying = random.choice([s for s in bar_room_sayings if "roof" in s or "tripling" in s or "doubling" in s])
+        elif price_mood < 0.6:  # Normal market with wild swings
+            fluctuation *= random.uniform(0.2, 4.0)
+            saying = random.choice([s for s in bar_room_sayings if "swingin" in s or "nuts" in s or "crazy" in s])
+        else:  # Chaotic market - completely random
+            fluctuation *= random.uniform(0.05, 10.0)  # Extreme chaos
+            saying = random.choice([s for s in bar_room_sayings if "hurricane" in s or "crazy" in s])
+
+        # Apply the fluctuation
+        new_price = max(1, int(base_price * fluctuation))  # Don't go below $1
+        game_state.drug_prices[drug] = new_price
+
+        # Store saying for display (could be shown in bar or city)
+        game_state._drug_price_mood = saying
+
 # ============
 # Routes
 # ============
@@ -271,6 +340,15 @@ def city():
     """City hub"""
     game_state = get_game_state()
     game_state.current_location = "city"
+
+    # Fluctuate drug prices daily for more excitement
+    if hasattr(game_state, '_last_price_update') and game_state._last_price_update != game_state.day:
+        fluctuate_drug_prices(game_state)
+        game_state._last_price_update = game_state.day
+    elif not hasattr(game_state, '_last_price_update'):
+        fluctuate_drug_prices(game_state)
+        game_state._last_price_update = game_state.day
+
     save_game_state(game_state)
     return render_template('city.html', game_state=game_state)
 
@@ -420,7 +498,11 @@ def bar():
             flash("You successfully meet Raze the Supplier!", "success")
         save_game_state(game_state)
         return redirect(url_for('bar'))
-    return render_template('bar.html', game_state=game_state)
+
+    # Get current day's drug price mood for bar gossip
+    price_mood = getattr(game_state, '_drug_price_mood', 'Prices are crazy today - keep your eyes open!')
+
+    return render_template('bar.html', game_state=game_state, price_mood=price_mood)
 
 @app.route('/bank')
 def bank():
@@ -2092,13 +2174,20 @@ if socketio:
         location_room = data.get('location_room', 'city')
         player_name = data.get('player_name', 'Unknown Player')
 
-        # Always join global room for general chat
+        # Clean up any existing entries for this player name to prevent duplicates
+        to_remove = []
+        for sid, player_info in connected_players.items():
+            if player_info['name'] == player_name:
+                # Remove disconnected clients or duplicate names
+                to_remove.append(sid)
+
+        for sid in to_remove:
+            connected_players.pop(sid, None)
+
+        # Always join global room for universal chat
         join_room('global')
         join_room(room)
         join_room(location_room)
-
-        # Remove old player entry if exists (prevent duplicates)
-        connected_players.pop(request.sid, None)
 
         # Store player info
         connected_players[request.sid] = {
@@ -2109,7 +2198,7 @@ if socketio:
             'joined_at': time.time()
         }
 
-        emit('status', {'msg': f'{player_name} joined the chat'}, room='global')
+        emit('status', {'msg': f'{player_name} joined the chat'}, broadcast=True)  # Send to everyone
         update_player_lists()
 
     @socketio.on('disconnect')
@@ -2123,27 +2212,33 @@ if socketio:
 
     @socketio.on('chat_message')
     def handle_chat_message(data):
-        """Handle chat messages"""
+        """Handle chat messages - universal chat to all connected players"""
         room = data.get('room', 'global')
         player_name = data.get('player_name', 'Unknown Player')
         message = data.get('message', '')
 
         if message.strip():
+            # Send to ALL connected clients for universal chat
             emit('chat_message', {
                 'player': player_name,
                 'message': message,
-                'room': room
-            }, room=room)
+                'room': 'global'  # Always global for universal chat
+            }, broadcast=True)
 
     @socketio.on('get_player_list')
     def handle_get_player_list(data):
-        """Send current player list to requesting client"""
+        """Send complete player list to requesting client - shows ALL online players"""
         room = data.get('room', 'city')
-        players_in_room = [
-            player for player in connected_players.values()
-            if player['room'] == room
+        # Return ALL connected players, not just those in a specific room
+        all_players_online = [
+            {
+                'id': player['id'],
+                'name': player['name'],
+                'location': player['room']  # Show their current location
+            }
+            for player in connected_players.values()
         ]
-        emit('player_list', {'players': players_in_room})
+        emit('player_list', {'players': all_players_online})
 
     @socketio.on('pvp_challenge')
     def handle_pvp_challenge(data):

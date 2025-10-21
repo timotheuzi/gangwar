@@ -23,7 +23,7 @@ cleanup_disk_space() {
 
     # Remove old build files (but preserve gangwar.spec)
     echo "Removing old build files..."
-    rm -rf build/ dist/ 2>/dev/null || true
+    rm -rf build/ bin/ 2>/dev/null || true
     # Remove other spec files but keep gangwar.spec
     find . -maxdepth 1 -name "*.spec" ! -name "gangwar.spec" -delete 2>/dev/null || true
 
@@ -51,13 +51,13 @@ if ! command -v pyinstaller &> /dev/null; then
 fi
 
 # Delete and recreate dist directory
-echo "Deleting and recreating dist/ directory..."
-rm -rf dist
-mkdir -p dist
-chmod -R u+rwx dist 2>/dev/null || true
+echo "Deleting and recreating bin/ directory..."
+rm -rf bin
+mkdir -p bin
+chmod -R u+rwx bin 2>/dev/null || true
 
-# Create run.sh script in dist
-cat > dist/run.sh << 'EOF'
+# Create run.sh script in bin
+cat > bin/run.sh << 'EOF'
 #!/bin/bash
 
 # Cross-platform run script for the Gangwar executable
@@ -201,7 +201,7 @@ echo "Starting Gangwar with Python..."
 EOF
 
 # Create Windows batch file equivalent
-cat > dist/run.bat << 'EOF'
+cat > bin/run.bat << 'EOF'
 @echo off
 REM Windows batch script for running Gangwar executable
 
@@ -285,10 +285,10 @@ echo Starting Gangwar with Python...
 EOF
 
 # Make run.sh executable
-chmod +x dist/run.sh
+chmod +x bin/run.sh
 
-# Copy deployment scripts to dist
-cp scripts/pythonanywhere.py dist/ 2>/dev/null || echo "scripts/pythonanywhere.py not found"
+# Copy deployment scripts to bin
+cp scripts/pythonanywhere.py bin/ 2>/dev/null || echo "scripts/pythonanywhere.py not found"
 
 # Clean previous build directory (outside dist)
 echo "Cleaning previous build..."
@@ -349,42 +349,42 @@ pyinstaller --name gangwar --onefile --add-data "model:model" --add-data "src/te
 # Remove the generated executable and build files, keep only spec
 rm -rf build/ dist/
 
-pyinstaller --clean gangwar.spec
+pyinstaller --clean --distpath bin gangwar.spec
 
 # Set permissions to ensure directories can be deleted
 chmod -R u+rwx build 2>/dev/null || true
-chmod -R u+rwx dist 2>/dev/null || true
+chmod -R u+rwx bin 2>/dev/null || true
 
 # Generate environment variables file
 echo "Generating environment variables file..."
 python3 scripts/generate_env.py
 
 # Check if build was successful
-if [ -f "dist/gangwar" ] || [ -f "dist/gangwar.exe" ]; then
-    echo "Build successful! Files created in dist/ directory:"
-    ls -la dist/
+if [ -f "bin/gangwar" ] || [ -f "bin/gangwar.exe" ]; then
+    echo "Build successful! Files created in bin/ directory:"
+    ls -la bin/
 
     # Make the executable runnable
-    if [ -f "dist/gangwar" ]; then
-        chmod +x dist/gangwar
-        echo "Made executable runnable: ./dist/gangwar"
+    if [ -f "bin/gangwar" ]; then
+        chmod +x bin/gangwar
+        echo "Made executable runnable: ./bin/gangwar"
     fi
 
-    if [ -f "dist/gangwar.exe" ]; then
-        chmod +x dist/gangwar.exe
-        echo "Made executable runnable: ./dist/gangwar.exe"
+    if [ -f "bin/gangwar.exe" ]; then
+        chmod +x bin/gangwar.exe
+        echo "Made executable runnable: ./bin/gangwar.exe"
     fi
 
     echo ""
     echo "To run the application:"
-    echo "./dist/gangwar"
+    echo "./bin/gangwar"
     echo "or"
-    echo "./dist/gangwar.exe  (on Windows)"
+    echo "./bin/gangwar.exe  (on Windows)"
     echo ""
     echo "The executable is standalone and requires no external Python installation or libraries."
     echo ""
     echo "For PythonAnywhere deployment:"
-    echo "Upload the contents of the dist/ directory to PythonAnywhere"
+    echo "Upload the contents of the bin/ directory to PythonAnywhere"
     echo "Use pythonanywhere.py as your WSGI application file"
 else
     echo "Build failed! Check the output above for errors."

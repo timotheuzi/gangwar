@@ -10,7 +10,7 @@ all: build
 build:
 	@echo "Cleaning previous build artifacts..."
 	@rm -rf build/
-	@rm -rf dist/
+	@rm -rf bin/
 	@find . -maxdepth 1 -name "*.spec" ! -name "gangwar.spec" -delete 2>/dev/null || true
 	@echo "Building Gangwar Game..."
 	@chmod +x scripts/build.sh
@@ -23,9 +23,9 @@ clean:
 	@pkill -f gangwar 2>/dev/null || true
 	@lsof -ti :5000 | xargs kill -9 2>/dev/null || true
 	@chmod -R u+rwx build/ 2>/dev/null || true
-	@chmod -R u+rwx dist/ 2>/dev/null || true
+	@chmod -R u+rwx bin/ 2>/dev/null || true
 	@rm -rf build/
-	@rm -rf dist/
+	@rm -rf bin/
 	@find . -maxdepth 1 -name "*.spec" ! -name "gangwar.spec" -delete 2>/dev/null || true
 	@find . -name "*.pyc" -delete
 	@find . -name "__pycache__" -type d -exec rm -rf {} + 2>/dev/null || true
@@ -34,9 +34,9 @@ clean:
 distclean:
 	@echo "Cleaning all generated files..."
 	@chmod -R u+rwx build/ 2>/dev/null || true
-	@chmod -R u+rwx dist/ 2>/dev/null || true
+	@chmod -R u+rwx bin/ 2>/dev/null || true
 	@rm -rf build/
-	@rm -rf dist/
+	@rm -rf bin/
 	@rm -rf logs/
 	@rm -f high_scores.json
 	@rm -f .env
@@ -45,8 +45,8 @@ distclean:
 clean-disk:
 	@echo "Performing aggressive disk cleanup..."
 	@chmod -R u+rwx build/ 2>/dev/null || true
-	@chmod -R u+rwx dist/ 2>/dev/null || true
-	@rm -rf build/ dist/
+	@chmod -R u+rwx bin/ 2>/dev/null || true
+	@rm -rf build/ bin/
 	@find . -maxdepth 1 -name "*.spec" ! -name "gangwar.spec" -delete 2>/dev/null || true
 	@find . -name "__pycache__" -type d -exec rm -rf {} + 2>/dev/null || true
 	@find . -name "*.pyc" -delete
@@ -69,10 +69,10 @@ run:
 # Run the built executable
 run-dist:
 	@echo "Running built executable..."
-	@if [ -f "dist/gangwar" ]; then \
-		cd dist && ../scripts/run.sh; \
-	elif [ -f "dist/gangwar.exe" ]; then \
-		cd dist && ../scripts/run.bat; \
+	@if [ -f "bin/gangwar" ]; then \
+		cd bin && ../scripts/run.sh; \
+	elif [ -f "bin/gangwar.exe" ]; then \
+		cd bin && ../scripts/run.bat; \
 	else \
 		echo "No executable found. Run 'make build' first."; \
 		exit 1; \
@@ -116,18 +116,18 @@ setup: install-deps
 
 # Cross-platform executable creation
 exe: build
-	@echo "Executable created in dist/ directory"
-	@echo "Run with: cd dist && ./run.sh (Linux/macOS) or ./run.bat (Windows)"
+	@echo "Executable created in bin/ directory"
+	@echo "Run with: cd bin && ./run.sh (Linux/macOS) or ./run.bat (Windows)"
 
 # Deployment preparation
 deploy-prep: build
-	@echo "Deployment files prepared in dist/ directory:"
-	@ls -la dist/
+	@echo "Deployment files prepared in bin/ directory:"
+	@ls -la bin/
 	@echo ""
 	@echo "For PythonAnywhere deployment:"
-	@echo "1. Upload contents of dist/ to PythonAnywhere"
+	@echo "1. Upload contents of bin/ to PythonAnywhere"
 	@echo "2. Use pythonanywhere.py as WSGI application"
 	@echo ""
 	@echo "For standalone deployment:"
-	@echo "1. Copy dist/ directory to target system"
+	@echo "1. Copy bin/ directory to target system"
 	@echo "2. Run ./run.sh or ./run.bat"

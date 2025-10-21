@@ -15,7 +15,7 @@
                 <div class="cost-item">
                     <span class="drug">{{ drug|title }}:</span>
                     <span class="amount">{{ amount }}</span>
-                    <span class="current">(You have: {{ game_state.drugs[drug] }})</span>
+                    <span class="current">(You have: {{ getattr(game_state.drugs, drug, 0) }})</span>
                 </div>
                 {% endfor %}
                 <div class="cost-item">
