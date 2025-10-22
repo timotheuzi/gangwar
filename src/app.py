@@ -259,30 +259,6 @@ def calculate_score(money_earned: int, days_survived: int, gang_wars_won: int, f
 
     return money_score + survival_score + gang_war_score + fight_score
 
-def get_current_ranking(game_state: GameState) -> int:
-    """Get the current ranking of the player among all-time high scores"""
-    if not game_state.player_name or not game_state.gang_name:
-        return 0
-
-    # Calculate current score
-    money_earned = game_state.money + game_state.account
-    days_survived = game_state.day
-    current_score = calculate_score(money_earned, days_survived, 0, 0)  # Don't count gang wars/fights for current ranking
-
-    # Load existing high scores
-    high_scores = load_high_scores()
-
-    # Count how many scores are higher than current score
-    ranking = 1  # Start at 1 (best possible ranking)
-    for score_entry in high_scores:
-        if score_entry.score > current_score:
-            ranking += 1
-        elif score_entry.score == current_score:
-            # If tied, check who has it first (lower ranking number is better)
-            break
-
-    return ranking
-
 # ============
 # SocketIO Setup - Use threading mode to avoid gevent dependency issues
 # ============
@@ -396,6 +372,30 @@ class GameState:
     def max_health(self) -> int:
         """Calculate max health based on gang members: 30 base + 10 HP per member beyond the first"""
         return 30 + 10 * (self.members - 1)
+
+def get_current_ranking(game_state: GameState) -> int:
+    """Get the current ranking of the player among all-time high scores"""
+    if not game_state.player_name or not game_state.gang_name:
+        return 0
+
+    # Calculate current score
+    money_earned = game_state.money + game_state.account
+    days_survived = game_state.day
+    current_score = calculate_score(money_earned, days_survived, 0, 0)  # Don't count gang wars/fights for current ranking
+
+    # Load existing high scores
+    high_scores = load_high_scores()
+
+    # Count how many scores are higher than current score
+    ranking = 1  # Start at 1 (best possible ranking)
+    for score_entry in high_scores:
+        if score_entry.score > current_score:
+            ranking += 1
+        elif score_entry.score == current_score:
+            # If tied, check who has it first (lower ranking number is better)
+            break
+
+    return ranking
 
 # ============
 # Game Logic
