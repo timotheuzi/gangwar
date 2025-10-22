@@ -1,1 +1,102 @@
-[]
+[
+  {
+    "player_name": "Vito Scaletta",
+    "gang_name": "The Sicilian Mafia",
+    "score": 100,
+    "money_earned": 2000,
+    "days_survived": 1,
+    "gang_wars_won": 0,
+    "fights_won": 2,
+    "date_achieved": "2025-10-22 01:30:05"
+  },
+  {
+    "player_name": "Tony Soprano",
+    "gang_name": "Tony's Crew",
+    "score": 50,
+    "money_earned": 1000,
+    "days_survived": 1,
+    "gang_wars_won": 0,
+    "fights_won": 1,
+    "date_achieved": "2025-10-22 01:30:05"
+  },
+  {
+    "player_name": "Michael Corleone",
+    "gang_name": "The Corleone Family",
+    "score": 25,
+    "money_earned": 500,
+    "days_survived": 1,
+    "gang_wars_won": 0,
+    "fights_won": 0,
+    "date_achieved": "2025-10-22 01:30:05"
+  },
+  {
+    "player_name": "Scarface",
+    "gang_name": "Miami Cartel",
+    "score": 12,
+    "money_earned": 240,
+    "days_survived": 1,
+    "gang_wars_won": 0,
+    "fights_won": 0,
+    "date_achieved": "2025-10-22 01:30:05"
+  },
+  {
+    "player_name": "Pablo Escobar",
+    "gang_name": "Medellin Cartel",
+    "score": 6,
+    "money_earned": 120,
+    "days_survived": 1,
+    "gang_wars_won": 0,
+    "fights_won": 0,
+    "date_achieved": "2025-10-22 01:30:05"
+  },
+  {
+    "player_name": "El Chapo",
+    "gang_name": "Sinaloa Cartel",
+    "score": 3,
+    "money_earned": 60,
+    "days_survived": 1,
+    "gang_wars_won": 0,
+    "fights_won": 0,
+    "date_achieved": "2025-10-22 01:30:05"
+  },
+  {
+    "player_name": "Walter White",
+    "gang_name": "Breaking Bad Crew",
+    "score": 1,
+    "money_earned": 20,
+    "days_survived": 1,
+    "gang_wars_won": 0,
+    "fights_won": 0,
+    "date_achieved": "2025-10-22 01:30:05"
+  },
+  {
+    "player_name": "Jesse Pinkman",
+    "gang_name": "Los Pollos Hermanos",
+    "score": 1,
+    "money_earned": 20,
+    "days_survived": 1,
+    "gang_wars_won": 0,
+    "fights_won": 0,
+    "date_achieved": "2025-10-22 01:30:05"
+  },
+  {
+    "player_name": "Tony Montana",
+    "gang_name": "Scarface's Empire",
+    "score": 1,
+    "money_earned": 20,
+    "days_survived": 1,
+    "gang_wars_won": 0,
+    "fights_won": 0,
+    "date_achieved": "2025-10-22 01:30:05"
+  },
+  {
+    "player_name": "Lucky Luciano",
+    "gang_name": "Some Gang",
+    "score": 1,
+    "money_earned": 20,
+    "days_survived": 1,
+    "gang_wars_won": 0,
+    "fights_won": 0,
+    "date_achieved": "2025-10-22 01:30:05"
+  }
+]

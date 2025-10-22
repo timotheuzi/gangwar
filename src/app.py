@@ -122,6 +122,7 @@ def update_daily_drug_prices():
 # ============
 
 HIGH_SCORES_FILE = os.path.join(os.path.dirname(__file__), '..', 'model', 'high_scores.json')
+HIGHSCORE_CONFIG_FILE = os.path.join(os.path.dirname(__file__), '..', 'model', 'highscore_config.json')
 
 @dataclass
 class HighScore:
@@ -134,29 +135,101 @@ class HighScore:
     fights_won: int
     date_achieved: str
 
+def generate_default_high_scores() -> List[HighScore]:
+    """Generate default high scores for a new server instance"""
+    import time
+
+    # Load config
+    try:
+        with open(HIGHSCORE_CONFIG_FILE, 'r') as f:
+            config = json.load(f)
+    except:
+        config = {
+            "max_scores": 10,
+            "dummy_score_base": 100,
+            "dummy_score_half_of_last": True,
+            "default_score_entry": {
+                "player_name": "Anonymous",
+                "gang_name": "Unknown Gang"
+            }
+        }
+
+    max_scores = config.get('max_scores', 10)
+    base_score = config.get('dummy_score_base', 100)
+    default_entry = config.get('default_score_entry', {
+        "player_name": "Anonymous",
+        "gang_name": "Unknown Gang"
+    })
+
+    default_scores = []
+    current_score = base_score
+
+    # Generate names and gang names for variety
+    player_names = [
+        "Vito Scaletta", "Tony Soprano", "Michael Corleone", "Scarface", "Pablo Escobar",
+        "El Chapo", "Walter White", "Jesse Pinkman", "Tony Montana", "Lucky Luciano"
+    ]
+
+    gang_names = [
+        "The Sicilian Mafia", "Tony's Crew", "The Corleone Family", "Miami Cartel", "Medellin Cartel",
+        "Sinaloa Cartel", "Breaking Bad Crew", "Los Pollos Hermanos", "Scarface's Empire", "Some Gang"
+    ]
+
+    current_date = time.strftime("%Y-%m-%d %H:%M:%S")
+
+    for i in range(min(max_scores, len(player_names))):
+        score_entry = HighScore(
+            player_name=player_names[i],
+            gang_name=gang_names[i],
+            score=int(current_score),
+            money_earned=int(current_score * 20),  # Rough estimate
+            days_survived=max(1, int(current_score / 100)),  # Rough estimate
+            gang_wars_won=max(0, int(current_score / 1000)),  # Rough estimate
+            fights_won=max(0, int(current_score / 50)),  # Rough estimate
+            date_achieved=current_date
+        )
+        default_scores.append(score_entry)
+
+        # Halve the score for next entry if configured
+        if config.get('dummy_score_half_of_last', True):
+            current_score = max(1, current_score // 2)
+        else:
+            current_score = max(1, int(current_score * 0.7))
+
+    return default_scores
+
 def load_high_scores() -> List[HighScore]:
     """Load high scores from file"""
     try:
         if os.path.exists(HIGH_SCORES_FILE):
             with open(HIGH_SCORES_FILE, 'r') as f:
                 data = json.load(f)
-                return [HighScore(**score) for score in data]
+                if data and len(data) > 0:
+                    return [HighScore(**score) for score in data]
+                else:
+                    # File exists but is empty, generate default scores
+                    print("High scores file is empty, generating default scores...")
+                    default_scores = generate_default_high_scores()
+                    save_high_scores(default_scores)
+                    return default_scores
         else:
-            # Create empty high scores file if it doesn't exist
+            # Create high scores file with default entries if it doesn't exist
+            print("High scores file doesn't exist, creating with default scores...")
             os.makedirs(os.path.dirname(HIGH_SCORES_FILE), exist_ok=True)
-            with open(HIGH_SCORES_FILE, 'w') as f:
-                json.dump([], f, indent=2)
-            return []
+            default_scores = generate_default_high_scores()
+            save_high_scores(default_scores)
+            return default_scores
     except Exception as e:
         print(f"Error loading high scores: {e}")
-        # Create empty file on error too
+        # Create default scores on error too
         try:
             os.makedirs(os.path.dirname(HIGH_SCORES_FILE), exist_ok=True)
-            with open(HIGH_SCORES_FILE, 'w') as f:
-                json.dump([], f, indent=2)
-        except:
-            pass
-        return []
+            default_scores = generate_default_high_scores()
+            save_high_scores(default_scores)
+            return default_scores
+        except Exception as e2:
+            print(f"Error creating default high scores: {e2}")
+            return []
 
 def save_high_scores(scores: List[HighScore]):
     """Save high scores to file"""
@@ -171,18 +244,18 @@ def save_high_scores(scores: List[HighScore]):
         print(f"Error saving high scores: {e}")
 
 def calculate_score(money_earned: int, days_survived: int, gang_wars_won: int, fights_won: int) -> int:
-    """Calculate total score based on achievements"""
-    # Money earned contributes 1 point per $1000
-    money_score = money_earned // 1000
+    """Calculate total score based on achievements - balanced for slow progression"""
+    # Money earned contributes 1 point per $5000 (reduced to slow down early game)
+    money_score = money_earned // 5000
 
-    # Days survived contributes 100 points per day
-    survival_score = days_survived * 100
+    # Days survived contributes 25 points per day (reduced significantly)
+    survival_score = days_survived * 25
 
-    # Gang war victories contribute 1000 points each
-    gang_war_score = gang_wars_won * 1000
+    # Gang war victories contribute 200 points each (reduced from 1000)
+    gang_war_score = gang_wars_won * 200
 
-    # Individual fights won contribute 50 points each
-    fight_score = fights_won * 50
+    # Individual fights won contribute 10 points each (reduced from 50)
+    fight_score = fights_won * 10
 
     return money_score + survival_score + gang_war_score + fight_score
 
@@ -615,16 +688,110 @@ def upgrade_weapon():
 def bar():
     """Vagabond's Pub"""
     game_state = get_game_state()
+    game_state.current_location = "bar"
+    save_game_state(game_state)
+
+    # Handle NPC interactions first
     if request.method == 'POST':
         contact = request.form.get('contact')
         if contact == 'nox':
             game_state.flags.eric_met = True
-            flash("You successfully meet Nox the Informant!", "success")
+            flash("You successfully meet Nox the Informant! He gives you hot intel that's sure to cause some ripples in the drug market!", "success")
+            # Nox triggers a major drug price fluctuation based on his insider information
+            fluctuate_drug_prices(game_state)
+            flash("Word on the street is changing... You sense the market shifting!", "info")
+            # Also update the persistent drug prices file so everyone sees the change
+            update_daily_drug_prices()
         elif contact == 'raze':
             game_state.flags.steve_met = True
-            flash("You successfully meet Raze the Supplier!", "success")
+            flash("You successfully meet Raze the Supplier! His connections run deep in the underworld!", "success")
+            # Raze triggers a moderate drug price fluctuation based on his supply chain knowledge
+            fluctuate_drug_prices(game_state)
+            flash("The suppliers are making moves... Prices are about to change!", "warning")
+            # Also update the persistent drug prices file so everyone sees the change
+            update_daily_drug_prices()
         save_game_state(game_state)
         return redirect(url_for('bar'))
+
+    # Random events that can happen in the bar - moved from wander
+    if random.random() < 0.1:  # Still 10% chance for police chase
+        if game_state.flags.has_id:
+            flash("You see a police patrol but your fake ID saves you from getting stopped!", "success")
+        else:
+            # Police chase sequence - redirect to MUD fight
+            num_cops = random.randint(2, 6)
+            message = f"Oh no! A plainclothes officer spots you and calls for backup! {num_cops} police officers give chase!"
+            save_game_state(game_state)
+            enemy_health = num_cops * 10  # Each cop has 10 health
+            enemy_type = f"{num_cops} Police Officers"
+            combat_active = True
+            fight_log = [message]
+            combat_id = f"police_{random.randint(1000, 9999)}"
+            return render_template('mud_fight.html', game_state=game_state, enemy_health=enemy_health, enemy_type=enemy_type, enemy_count=num_cops, combat_active=combat_active, fight_log=fight_log, combat_id=combat_id)
+
+    elif random.random() < 0.08:  # 8% chance for baby momma incident in bar
+        baby_momma_messages = [
+            "Your baby momma storms into the bar and starts yelling about child support!",
+            "You spot your ex at the bar counter demanding money for the kids!",
+            "A woman approaches you at the bar claiming you're the father of her child and demands $500!",
+            "Trouble! Your baby momma confronts you at the bar about missed payments!"
+        ]
+        result = random.choice(baby_momma_messages)
+        # Lose money if you have it - bar patrons might get involved
+        if game_state.money >= 200:
+            game_state.money -= 200
+            result += f" The bartender forces you to pay her $200 to 'keep the peace'."
+            flash(result, "warning")
+        elif game_state.money >= 100:
+            game_state.money -= 100
+            result += f" Other patrons force you to give her $100 'or worse'."
+            flash(result, "warning")
+        else:
+            result += " You don't have money, but the situation gets heated! You take some damage from angry patrons."
+            flash(result, "danger")
+            game_state.health = max(0, game_state.health - 10)  # Bar brawl damage
+
+    elif random.random() < 0.12:  # 12% chance for small gang fight in or around bar
+        enemy_members = random.randint(3, 8)
+        message = f"Rival gang members push their way into the bar looking for trouble! They spot you and {enemy_members} thugs start a fight!"
+        save_game_state(game_state)
+        # Start MUD fight in bar
+        enemy_health = enemy_members * 15  # Each gang member has 15 health
+        max_enemy_hp = enemy_health
+        enemy_type = f"{enemy_members} Rival Gang Members"
+        combat_active = True
+        fight_log = [message]
+        combat_id = f"gang_{random.randint(1000, 9999)}"
+        return render_template('mud_fight.html', game_state=game_state, enemy_health=enemy_health, max_enemy_hp=max_enemy_hp, enemy_type=enemy_type, enemy_count=enemy_members, combat_active=combat_active, fight_log=fight_log, combat_id=combat_id)
+
+    # Squidie hit squad encounters - scales with gang power (increased chance around bar)
+    elif game_state.members >= 3:  # Only when you have some gang presence
+        # Higher base chance in bar - more dangerous place
+        base_chance = 0.04  # 4% base chance (higher than regular wander)
+        gang_multiplier = min(game_state.members / 10, 2.0)  # Up to 2x multiplier at 10+ members
+        money_multiplier = min(game_state.money / 10000, 1.5)  # Up to 1.5x for $10k+
+        total_chance = base_chance * gang_multiplier * money_multiplier
+
+        if random.random() < total_chance:
+            squidie_members = random.randint(2, min(6, max(2, game_state.members // 2 + 1)))
+            message = f"Oh no! Squidie spies overheard you bragging about your gang in the bar! A hit squad of {squidie_members} members bursts through the door!"
+            save_game_state(game_state)
+            # Start MUD fight in bar
+            enemy_health = squidie_members * 25  # Squidies are tougher (25 HP each)
+            max_enemy_hp = enemy_health
+            enemy_type = f"{squidie_members} Squidie Hit Squad"
+            combat_active = True
+            fight_log = [message]
+            combat_id = f"squidie_{random.randint(1000, 9999)}"
+            return render_template('mud_fight.html', game_state=game_state, enemy_health=enemy_health, max_enemy_hp=max_enemy_hp, enemy_type=enemy_type, enemy_count=squidie_members, combat_active=combat_active, fight_log=fight_log, combat_id=combat_id)
+
+    # Check for NPC encounters in bar
+    if random.random() < 0.15 and npcs_data:  # 15% chance
+        bar_npcs = [npc for npc in npcs_data.values() if npc.get('location') == 'bar']
+        if bar_npcs:
+            npc = random.choice(bar_npcs)
+            save_game_state(game_state)
+            return render_template('npc_interaction.html', npc=npc, action='encounter', message=f"You encounter {npc['name']} at the bar! {npc['description']}", game_state=game_state)
 
     # Get current day's drug price mood for bar gossip
     price_mood = getattr(game_state, '_drug_price_mood', 'Prices are crazy today - keep your eyes open!')
@@ -1767,7 +1934,7 @@ def npc_trade_action(npc_id):
     save_game_state(game_state)
 
     # Save updated NPC data
-    npc_file = os.path.join(os.path.dirname(__file__), '..', 'models', 'npcs.json')
+    npc_file = os.path.join(os.path.dirname(__file__), '..', 'model', 'npcs.json')
     with open(npc_file, 'w') as f:
         json.dump(npcs_data, f, indent=2)
 
@@ -2479,7 +2646,7 @@ def process_fight_action():
         if npc_id and npc_id in npcs_data:
             npc = npcs_data[npc_id]
             npcs_data[npc_id]['is_alive'] = False
-            npc_file = os.path.join(os.path.dirname(__file__), '..', 'models', 'npcs.json')
+            npc_file = os.path.join(os.path.dirname(__file__), '..', 'model', 'npcs.json')
             with open(npc_file, 'w') as f:
                 json.dump(npcs_data, f, indent=2)
 
