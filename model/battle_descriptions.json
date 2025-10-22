@@ -5,6 +5,7 @@
             "ghost_gun": "You fire your ghost gun!",
             "ar15": "You fire your AR-15!",
             "exploding_bullets": "You fire an exploding bullet! 💥 BOOM!",
+            "hollow_point_bullets": "You fire a hollow point bullet! 💥 THUNK!",
             "grenade": "You throw a grenade!",
             "missile_launcher": "You fire a missile!",
             "barbed_wire_bat": "You swing your barbed wire bat!",
@@ -38,6 +39,13 @@
                 "Your special ammunition detonates with terrifying force, turning your enemy into a cloud of blood and gore!",
                 "The exploding bullet finds its mark and unleashes hell, the detonation ripping through everything in its path!",
                 "You watch as your explosive projectile impacts and erupts, painting the surroundings in crimson destruction!"
+            ],
+            "hollow_point_bullets": [
+                "You fire a hollow point bullet that expands on impact, creating devastating wound channels!",
+                "The hollow point round mushrooms dramatically as it strikes, maximizing tissue damage and stopping power!",
+                "Your specialized ammunition fragments inside the target, causing massive internal trauma and blood loss!",
+                "The hollow point bullet transfers all its energy into the target, creating a devastating hydrostatic shock!",
+                "You watch as the hollow point round creates a devastating exit wound, the bullet having expanded to three times its size!"
             ],
             "grenade": [
                 "You hurl a grenade that bounces toward your enemies, the fuse hissing as it counts down to oblivion!",
@@ -117,6 +125,153 @@
                 "The knife strikes with deadly precision, slipping past your guard to draw blood!",
                 "An enemy's blade connects with burning sharpness, the wound deep and immediately painful!",
                 "The knife-wielding foe strikes true, their blade opening a line of fire across your body!"
+            ],
+            "junkyard_dog_pistol": [
+                "Junkyard Dog lunges at you with feral intensity, sinking his jagged teeth into your flesh like a rabid beast!",
+                "The Junkyard Dog charges like a rabid scavenger, his claws raking through your defenses in a spray of blood!",
+                "Junkyard Dog's eyes glow with insane hunger as he leaps upon you, tearing into you with savage, animal ferocity!",
+                "The feral scavenger lunges forward, his mangled jaws clamping down with bone-shattering force!",
+                "Junkyard Dog fights like the cornered predator he is, his ravenous bites fueled by junkyard madness!"
+            ],
+            "nox_pistol": [
+                "Glitch aims his jury-rigged pistol at you, the weapon whirring with malfunctioning servos as it discharges electromagnetic interference!",
+                "The android hacker unloads his weapon, bullets interlaced with digital viruses that corrupt your nervous system!",
+                "Glitch fires his experimental weapon, the pistol's targeting algorithm glitching wildly as it hits you with ionized plasma rounds!",
+                "The synthetic being discharges his weapon, bullets leaving trails of corrupted code and static electricity in the air!",
+                "Glitch's cybernetic implants overload his weapon, firing bullets that carry a payload of malware into your bloodstream!"
+            ],
+            "raze_pistol": [
+                "Ravager unloads his weapon with brutal efficiency, each bullet a instrument of relentless destruction!",
+                "The enforcer's pistol thunders with authoritarian force, bullets seeking to crush all opposition!",
+                "Raze fires methodical bursts, his shots calculated to maximize suffering and minimize survival!",
+                "The brutal enforcer's weapon speaks with the voice of oppression, each round a declaration of dominance!",
+                "Raze's pistol bucks with cruel precision, bullets finding weaknesses with sadistic accuracy!"
+            ],
+            "void_pistol": [
+                "Phantom emerges from shadows to fire, his bullets whispering death from the darkness!",
+                "The shadowy figure's pistol reveals itself in muzzle flash, projectiles born from forbidden knowledge!",
+                "Void's weapon discharges with spectral energy, bullets that carry the chill of forgotten secrets!",
+                "The phantom executes perfect ambush fire, his shots emerging from angles that shouldn't exist!",
+                "Void's pistol speaks in tongues of the underworld, each bullet a fragment of stolen power!"
+            ],
+            "whisper_pistol": [
+                "Shade trembles as he fires, his shaky aim somehow finding vital targets through sheer desperation!",
+                "The nervous informant unloads his weapon in panicked bursts, bullets flying wildly but finding their mark!",
+                "Whisper's jittery fingers discharge round after round, his fear translating to frantic but effective fire!",
+                "The informant fires with survival instinct overriding skill, bullets that carry the weight of dark knowledge!",
+                "Shade's panic results in desperate marksmanship, each shot a plea for continued existence!"
+            ],
+            "scav_pistol": [
+                "Scav fires his jury-rigged weapon with resourceful versatility, bullets from scavenged ammunition!",
+                "The scavenger discharges rounds from mismatched magazines, his shots as unpredictable as the wastes!",
+                "Scav's pistol barks with scavenged authority, each bullet carrying the weight of survival!",
+                "The resourceful survivor unloads with wasteland cunning, shots finding weaknesses others miss!",
+                "Scav fires salvaged rounds with desperate ingenuity, bullets born from the toxic fringes!"
+            ],
+            "enforcer_pistol": [
+                "The enforcer drone fires with programmed precision, bullets delivered according to directive parameters!",
+                "Authorization confirmed - the AI discharges lethal force with bureaucratic efficiency!",
+                "Enforcer executes termination protocol, pistol rounds carrying the weight of lawful authority!",
+                "The synthetic lawgiver unloads with calculated cruelty, each bullet a line of code executed!",
+                "Drone logic dictates lethal response, pistol fire communicating clear directives to organic tissue!"
+            ],
+            "cipher_pistol": [
+                "Cipher fires with encrypted precision, bullets carrying viruses that rewrite biological code!",
+                "The hacker's weapon interfaces with reality, shots defying physics through sheer computational power!",
+                "Cipher unloads digital destruction, pistol rounds that crash systems and spill vital processes!",
+                "The clever hacker discharges algorithmic death, each bullet a line of malicious code!",
+                "Cipher's weapon speaks in ones and zeros, translating digital commands to explosive finality!"
+            ],
+            "mutant_pistol": [
+                "The mutant fires erratically, his unpredictable physiology causing bullets to ricochet unpredictably!",
+                "Mutant's enhanced form unloads with primal fury, pistol rounds carrying mutated energies!",
+                "The unstable being discharges weapons fire with feral intensity, bullets warped by genetic chaos!",
+                "Mutant physiology causes pistol to fire with impossible cadence, rounds defying ballistic logic!",
+                "The unpredictable mutant unleashes biological mayhem, each bullet infused with gamma-irradiated rage!"
+            ],
+            "nomad_pistol": [
+                "Nomad fires with lonely determination, each bullet carrying the weight of years spent wandering alone!",
+                "The wanderer discharges his weapon with isolation-hardened precision, shots carrying desert wisdom!",
+                "Nomad's pistol speaks with the voice of endless horizons, bullets seeking targets with worn certainty!",
+                "The lonely wanderer unloads rounds honed by solitude, each shot a companion in the empty wastes!",
+                "Nomad fires with the resolve of those who walk alone, bullets carrying stories untold!"
+            ],
+            "overseer_pistol": [
+                "Overseer authorizes lethal force execution, spire-mounted weapons releasing judgment from above!",
+                "The controlling AI discharges divine retribution, bullets raining down with bureaucratic wrath!",
+                "Overseer protocols dictate termination sequence, pistol fire enforcing corporate supremacy!",
+                "The towering construct unleashes orbital justice, rounds falling with the weight of countless eyes!",
+                "Overseer control network executes, weapon discharge coordinating with surveillance omnipresence!"
+            ],
+            "insurgent_pistol": [
+                "The rebel fires with defiant fury, bullets carrying the spark of revolution and righteous anger!",
+                "Insurgent unloads with underground passion, shots fueled by years of oppression and hidden rage!",
+                "The defiant fighter discharges weapons fire that echoes liberty's call, each bullet a cry for freedom!",
+                "Rebel forces manifest in pistol fire, rounds carrying the will to overthrow tyranny!",
+                "The insurgent's weapon barks defiance, bullets that carry the hope of a liberated underground!"
+            ],
+            "synth_pistol": [
+                "Synth fires with inventive improvisation, jury-rigged weapon discharging scavenged ordinance!",
+                "The synthetic being unloads with creative violence, bullets born from junkyard ingenuity!",
+                "Synth's pistol expresses artificial creativity, rounds defying conventional ballistic parameters!",
+                "The inventive construct discharges weapons fire with mechanical imagination, each shot a work of art!",
+                "Synth executes calculated mayhem, pistol rounds carrying the spark of artificial inspiration!"
+            ],
+            "wraith_pistol": [
+                "Wraith materializes briefly to fire, spectral bullets carrying whispers from beyond the veil!",
+                "The apparition's weapon discharges ethereal rounds, projectiles that phase through reality itself!",
+                "Wraith's pistol speaks with voices from the mist, bullets carrying fog-shrouded mysteries!",
+                "The mysterious specter unloads otherworldly fire, shots that echo with forgotten lore!",
+                "Wraith executes existence's uncertain mercy, pistol rounds carrying the chill of endless fog!"
+            ],
+            "vigil_pistol": [
+                "Vigil fires with protective fury, bullets serving as guardians of the vulnerable in darkness!",
+                "The guardian's weapon discharges righteous protection, rounds defending the weak with guardian's wrath!",
+                "Vigil's pistol speaks for those who cannot speak, each bullet a defender's solemn vow!",
+                "The watchful protector unloads justified force, shots carrying the weight of righteous vigilance!",
+                "Vigil executes protective protocol, weapon fire defending the innocent with determined resolve!"
+            ],
+            "street_samurai_pistol": [
+                "Street Samurai fires with cybernetic precision, bullets enhanced by neural interfaces and chrome!",
+                "The enhanced warrior discharges digital death, pistol rounds carrying the weight of bushido programming!",
+                "Samurai executes lethal kata through pistol fire, bullets dancing with martial artistry!",
+                "The cybernetically augmented fighter unloads chrome fury, shots carrying silicon soul!",
+                "Street Samurai's weapon speaks the ancient code, projectiles enhanced by technological enlightenment!"
+            ],
+            "corporate_defector_pistol": [
+                "The paranoid defector fires with executive precision, bullets carrying classified secrets and betrayal!",
+                "Corporate Defector unloads with boardroom brutality, pistol rounds echoing former power!",
+                "The fugitive executive discharges weapons fire with bureaucratic efficiency and personal desperation!",
+                "Defector's pistol speaks of corporate secrets, bullets carrying poison pills and backroom deals!",
+                "The paranoid ex-executive fires with survival instinct, shots born from boardroom cannibalism!"
+            ],
+            "baby_momma_pistol": [
+                "Baby Momma fires with desperate fury, bullets carrying the righteous anger of a mother protecting her child!",
+                "The desperate woman unloads her weapon with maternal rage, each shot fueled by love and desperation!",
+                "Baby Momma's pistol barks with protective instinct, rounds carrying the weight of family bonds!",
+                "The woman's weapon discharges with fierce determination, bullets born from a mother's unbreakable will!",
+                "Baby Momma fires with survival instinct overriding fear, each shot a declaration of family loyalty!"
+            ],
+            "lumberjack_pistol": [
+                "Lumberjack unloads his oversized pistol with brutal force, rounds carrying the weight of felled timber!",
+                "The massive logger fires methodical shots, his pistol discharging with tree-felling authority!",
+                "Lumberjack's weapon discharges with lumberjack fury, bullets splitting through defenses like axe through bark!",
+                "The axe-man executes calculated pistol fire, each round carrying the precision of a woodsman's aim!",
+                "Lumberjack's pistol barks with frontier justice, bullets born from the heart of the wilderness!"
+            ],
+            "lumberjack_melee": [
+                "The Lumberjack swings his massive axe in a brutal arc, the blade biting deep into your flesh!",
+                "Lumberjack brings his axe down with tree-felling force, splitting your defenses like rotten wood!",
+                "The axe-wielding brute attacks with savage strength, each swing carrying the power to fell a redwood!",
+                "Lumberjack's axe sings through the air, connecting with devastating impact that leaves you gasping!",
+                "The massive logger strikes with trunk-smashing power, his axe cleaving through armor and bone alike!"
+            ],
+            "blade_master_sword": [
+                "Blade Master strikes with honorable precision, his sword a blur of deadly steel that seeks your vitals!",
+                "The disciplined swordsman attacks with martial artistry, each strike a masterpiece of lethal technique!",
+                "Blade Master wields his katana with samurai grace, the blade whispering death in elegant motion!",
+                "The sword master's controlled fury erupts, his blade finding gaps in your defense with masterful skill!",
+                "Blade Master channels his warrior spirit into each attack, sword strikes flowing like liquid death!"
             ]
         },
         "exploding_damage_messages": {

@@ -1,0 +1,15 @@
+{
+  "description": "Current day's fluctuating drug prices",
+  "day": 1,
+  "last_update": "",
+  "prices": {
+    "weed": 500,
+    "crack": 1000,
+    "coke": 2000,
+    "ice": 1500,
+    "percs": 800,
+    "pixie_dust": 3000
+  },
+  "fluctuation_alert": "",
+  "massive_change_drugs": []
+}

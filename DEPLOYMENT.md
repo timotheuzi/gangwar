@@ -22,7 +22,7 @@ This guide explains how to deploy the Gangwar Game to PythonAnywhere. This updat
    python test_deployment.py  # Run deployment configuration tests
    python pythonanywhere.py  # Start the server
    ```
-   Visit `http://localhost:5009` to ensure everything works.
+   Visit `http://localhost:6009` to ensure everything works.
 
 ## Step 2: Create PythonAnywhere Web App
 

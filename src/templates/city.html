@@ -2,7 +2,13 @@
 
 {% block content %}
 <div class="city-screen">
-    <h2>In the Center of the City</h2> 
+    <h2>In the Center of the City</h2>
+
+    {% if city_alert %}
+    <div class="alert alert-warning">
+        <strong>Street Alert:</strong> {{ city_alert }}
+    </div>
+    {% endif %}
     <div class="city-map">
         <div class="location-grid">
             <div class="location">
@@ -70,12 +76,12 @@
     <div class="current-prices">
         <h3>Current Street Prices:</h3>
         <ul>
-            <li>Weed: ${{ game_state.drug_prices['weed'] }} per kilo</li>
-            <li>Crack: ${{ "{:,}".format(game_state.drug_prices['crack']) }} per kilo</li>
-            <li>Cocaine: ${{ "{:,}".format(game_state.drug_prices['coke']) }} per kilo</li>
-            <li>ice: ${{ "{:,}".format(game_state.drug_prices['ice']) }} per kilo</li>
-            <li>percs: ${{ "{:,}".format(game_state.drug_prices['percs']) }} per kilo</li>
-            <li>Pixie Dust: ${{ "{:,}".format(game_state.drug_prices['pixie_dust']) }} per kilo</li>
+            <li>Weed: ${{ game_state.drug_prices.get('weed', 'N/A') }} per kilo</li>
+            <li>Crack: ${{ game_state.drug_prices.get('crack', 'N/A') }} per kilo</li>
+            <li>Cocaine: ${{ game_state.drug_prices.get('coke', 'N/A') }} per kilo</li>
+            <li>ice: ${{ game_state.drug_prices.get('ice', 'N/A') }} per kilo</li>
+            <li>percs: ${{ game_state.drug_prices.get('percs', 'N/A') }} per kilo</li>
+            <li>Pixie Dust: ${{ game_state.drug_prices.get('pixie_dust', 'N/A') }} per kilo</li>
         </ul>
     </div>
 

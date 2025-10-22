@@ -56,7 +56,7 @@
                 <select name="item_type" id="sell_item" required>
                     <option value="">Select item...</option>
                     {% for drug in ['weed', 'crack', 'coke', 'ice', 'percs', 'pixie_dust'] %}
-                        {% set player_amount = getattr(game_state.drugs, drug, 0) %}
+                        {% set player_amount = game_state.drugs[drug] if game_state.drugs and drug in game_state.drugs else 0 %}
                         {% if player_amount > 0 %}
                             {% set base_price = game_state.drug_prices[drug] %}
                             {% set buy_price = (base_price * 0.5)|int %}

@@ -106,11 +106,11 @@ echo ""
 # Parse command line arguments
 parse_args "$@"
 
-# Kill any existing processes that might be using our ports (5000 or specified)
+# Kill any existing processes that might be using our ports (6009 or specified)
 echo "Checking for and killing existing server processes..."
-pids=$(lsof -ti :5000 2>/dev/null || true)
+pids=$(lsof -ti :6009 2>/dev/null || true)
 if [ -n "$pids" ]; then
-    echo "Killing processes on port 5000: $pids"
+    echo "Killing processes on port 6009: $pids"
     kill -9 $pids 2>/dev/null || true
     sleep 1
 fi
@@ -161,7 +161,7 @@ if [ -n "$EXECUTABLE_NAME" ]; then
             echo ""
             break
         elif [ $i -eq 2 ]; then
-            echo "✅ Executable appears to be running. You can now access http://localhost:5000"
+            echo "✅ Executable appears to be running. You can now access http://localhost:6009"
             echo "Press Ctrl+C to stop the launcher (game will continue running in background)"
             echo ""
             break
@@ -202,7 +202,7 @@ fi
 
 echo ""
 echo "Starting Gangwar with Python..."
-echo "The application should be available at: http://localhost:5000"
+echo "The application should be available at: http://localhost:6009"
 echo "Press Ctrl+C to stop."
 echo ""
 

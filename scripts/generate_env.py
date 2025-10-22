@@ -106,8 +106,8 @@ def generate_env_file(env_vars, output_path):
                 comment = "# Enable/disable Flask debug mode"
             elif var_name == 'PORT':
                 # PORT variable for PythonAnywhere deployment
-                value = default_value or '5009'
-                comment = "# Port for web server (PythonAnywhere default: 5009)"
+                value = default_value or '6009'
+                comment = "# Port for web server (PythonAnywhere default: 6009)"
             else:
                 value = default_value or ''
                 comment = f"# Default: {default_value}" if default_value else "# No default value"
