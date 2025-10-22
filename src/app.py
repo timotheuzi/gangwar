@@ -164,15 +164,15 @@ def generate_default_high_scores() -> List[HighScore]:
     default_scores = []
     current_score = base_score
 
-    # Generate names and gang names for variety
+    # Generate names and gang names for variety - authentic 1800s American outlaws and criminals
     player_names = [
-        "Vito Scaletta", "Tony Soprano", "Michael Corleone", "Scarface", "Pablo Escobar",
-        "El Chapo", "Walter White", "Jesse Pinkman", "Tony Montana", "Lucky Luciano"
+        "Adam Worth", "Billy the Kid", "Jesse James", "Belle Starr", "Black Bart",
+        "Soapy Smith", "Sam Bass", "Cherokee Bill", "Johnny Ringo", "Curly Bill Brocius"
     ]
 
     gang_names = [
-        "The Sicilian Mafia", "Tony's Crew", "The Corleone Family", "Miami Cartel", "Medellin Cartel",
-        "Sinaloa Cartel", "Breaking Bad Crew", "Los Pollos Hermanos", "Scarface's Empire", "Some Gang"
+        "The Worth Gang", "Billy's Boys", "The James Gang", "Starr's Outlaws", "Black Bart's Raiders",
+        "The Soap Gang", "Bass's Raiders", "Cherokee's Crew", "Ringo's Raiders", "Curly Bill's Bunch"
     ]
 
     current_date = time.strftime("%Y-%m-%d %H:%M:%S")
@@ -258,6 +258,30 @@ def calculate_score(money_earned: int, days_survived: int, gang_wars_won: int, f
     fight_score = fights_won * 10
 
     return money_score + survival_score + gang_war_score + fight_score
+
+def get_current_ranking(game_state: GameState) -> int:
+    """Get the current ranking of the player among all-time high scores"""
+    if not game_state.player_name or not game_state.gang_name:
+        return 0
+
+    # Calculate current score
+    money_earned = game_state.money + game_state.account
+    days_survived = game_state.day
+    current_score = calculate_score(money_earned, days_survived, 0, 0)  # Don't count gang wars/fights for current ranking
+
+    # Load existing high scores
+    high_scores = load_high_scores()
+
+    # Count how many scores are higher than current score
+    ranking = 1  # Start at 1 (best possible ranking)
+    for score_entry in high_scores:
+        if score_entry.score > current_score:
+            ranking += 1
+        elif score_entry.score == current_score:
+            # If tied, check who has it first (lower ranking number is better)
+            break
+
+    return ranking
 
 # ============
 # SocketIO Setup - Use threading mode to avoid gevent dependency issues
@@ -515,19 +539,64 @@ def fluctuate_drug_prices(game_state):
 @app.route('/')
 def index():
     """Main index page"""
-    return render_template('index.html', game_state=get_game_state())
+    game_state = get_game_state()
+    current_ranking = get_current_ranking(game_state)
+    return render_template('index.html', game_state=game_state, current_ranking=current_ranking)
 
 @app.route('/high_scores')
 def high_scores():
     """Display all-time high scores"""
+    game_state = get_game_state()
     scores = load_high_scores()
-    return render_template('high_scores.html', high_scores=scores, game_state=get_game_state())
+
+    # Include current player's score in rankings display
+    if game_state.player_name and game_state.gang_name:
+        # Calculate current player's score
+        money_earned = game_state.money + game_state.account
+        days_survived = game_state.day
+        current_score_value = calculate_score(money_earned, days_survived, 0, 0)
+
+        # Create temporary high score entry for current player
+        current_player_score = HighScore(
+            player_name=game_state.player_name,
+            gang_name=game_state.gang_name,
+            score=current_score_value,
+            money_earned=money_earned,
+            days_survived=days_survived,
+            gang_wars_won=0,  # Current score doesn't include these
+            fights_won=0,     # Current score doesn't include these
+            date_achieved="Current Game"
+        )
+
+        # Check if player already has a saved high score entry
+        existing_entry = None
+        for score in scores:
+            if score.player_name == game_state.player_name and score.gang_name == game_state.gang_name:
+                existing_entry = score
+                break
+
+        # If they have a saved entry, replace it with current score for display
+        if existing_entry:
+            scores = [s for s in scores if s != existing_entry]
+            scores.append(current_player_score)
+        else:
+            # Add current player to the list
+            scores.append(current_player_score)
+
+        # Sort by score (highest first) and keep top 10
+        scores.sort(key=lambda x: x.score, reverse=True)
+        scores = scores[:10]
+
+    current_ranking = get_current_ranking(game_state)
+    return render_template('high_scores.html', high_scores=scores, game_state=game_state, current_ranking=current_ranking)
 
 @app.route('/credits')
 def credits():
     """Display credits and high scores"""
+    game_state = get_game_state()
     scores = load_high_scores()
-    return render_template('credits.html', high_scores=scores, game_state=get_game_state())
+    current_ranking = get_current_ranking(game_state)
+    return render_template('credits.html', high_scores=scores, game_state=game_state, current_ranking=current_ranking)
 
 @app.route('/city')
 def city():
@@ -547,7 +616,8 @@ def city():
     # Get current drug prices for alerts
     current_prices_data = load_current_drug_prices()
     city_alert = current_prices_data.get('fluctuation_alert', '')
-    return render_template('city.html', game_state=game_state, city_alert=city_alert)
+    current_ranking = get_current_ranking(game_state)
+    return render_template('city.html', game_state=game_state, city_alert=city_alert, current_ranking=current_ranking)
 
 @app.route('/crackhouse')
 def crackhouse():
@@ -555,7 +625,8 @@ def crackhouse():
     game_state = get_game_state()
     game_state.current_location = "crackhouse"
     save_game_state(game_state)
-    return render_template('crackhouse.html', game_state=game_state)
+    current_ranking = get_current_ranking(game_state)
+    return render_template('crackhouse.html', game_state=game_state, current_ranking=current_ranking)
 
 @app.route('/gunshack')
 def gunshack():
