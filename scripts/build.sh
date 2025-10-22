@@ -23,7 +23,7 @@ cleanup_disk_space() {
 
     # Remove old build files (but preserve gangwar.spec)
     echo "Removing old build files..."
-    rm -rf build/ dist/ 2>/dev/null || true
+    rm -rf build/ bin/ 2>/dev/null || true
     # Remove other spec files but keep gangwar.spec
     find . -maxdepth 1 -name "*.spec" ! -name "gangwar.spec" -delete 2>/dev/null || true
 
@@ -51,13 +51,13 @@ if ! command -v pyinstaller &> /dev/null; then
 fi
 
 # Delete and recreate dist directory
-echo "Deleting and recreating dist/ directory..."
-rm -rf dist
-mkdir -p dist
-chmod -R u+rwx dist 2>/dev/null || true
+echo "Deleting and recreating bin/ directory..."
+rm -rf bin
+mkdir -p bin
+chmod -R u+rwx bin 2>/dev/null || true
 
-# Create run.sh script in dist
-cat > dist/run.sh << 'EOF'
+# Create run.sh script in bin
+cat > bin/run.sh << 'EOF'
 #!/bin/bash
 
 # Cross-platform run script for the Gangwar executable
@@ -201,7 +201,7 @@ echo "Starting Gangwar with Python..."
 EOF
 
 # Create Windows batch file equivalent
-cat > dist/run.bat << 'EOF'
+cat > bin/run.bat << 'EOF'
 @echo off
 REM Windows batch script for running Gangwar executable
 
@@ -285,10 +285,10 @@ echo Starting Gangwar with Python...
 EOF
 
 # Make run.sh executable
-chmod +x dist/run.sh
+chmod +x bin/run.sh
 
-# Copy deployment scripts to dist
-cp scripts/pythonanywhere.py dist/ 2>/dev/null || echo "scripts/pythonanywhere.py not found"
+# Copy deployment scripts to bin
+cp scripts/pythonanywhere.py bin/ 2>/dev/null || echo "scripts/pythonanywhere.py not found"
 
 # Clean previous build directory (outside dist)
 echo "Cleaning previous build..."
@@ -362,7 +362,7 @@ rm -rf build/ 2>/dev/null || true
 
 # Set permissions to ensure directories can be deleted
 chmod -R u+rwx build 2>/dev/null || true
-chmod -R u+rwx dist 2>/dev/null || true
+chmod -R u+rwx bin 2>/dev/null || true
 
 # Generate environment variables file
 echo "Generating environment variables file..."

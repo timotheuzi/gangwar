@@ -4,7 +4,7 @@ README.md
 LICENSE
 Makefile
 deploy.txt
-dist/
+bin/
 build/
 __pycache__
 *.pyc
