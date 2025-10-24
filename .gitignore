@@ -7,16 +7,16 @@ __pycache__/
 *.so
 
 # Distribution/packaging
-#/dist/gangwar
+#/bin/gangwar
 *web_build*
 web_build/
 gangwar
 .Python
 build/
 develop-eggs/
-dist
-dist/
-/dist/
+bin
+bin/
+
 downloads/
 eggs/
 .eggs/

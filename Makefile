@@ -98,10 +98,10 @@ run:
 # Run the built executable
 run-dist:
 	@echo "Running built executable..."
-	@if [ -f "bin/gangwar" ]; then \
-		cd bin && ../scripts/run.sh; \
-	elif [ -f "bin/gangwar.exe" ]; then \
-		cd bin && ../scripts/run.bat; \
+	@if [ -f "bin/gangwar/gangwar" ]; then \
+		cd bin/gangwar && ../../scripts/run.sh; \
+	elif [ -f "bin/gangwar/gangwar.exe" ]; then \
+		cd bin/gangwar && ../../scripts/run.bat; \
 	else \
 		echo "No executable found. Run 'make build' first."; \
 		exit 1; \

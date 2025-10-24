@@ -50,7 +50,7 @@ if ! command -v pyinstaller &> /dev/null; then
     python3 -m pip install --break-system-packages pyinstaller
 fi
 
-# Delete and recreate dist directory
+# Delete and recreate bin directory
 echo "Deleting and recreating bin/ directory..."
 rm -rf bin
 mkdir -p bin
@@ -172,7 +172,7 @@ echo "Falling back to Python..."
 PYTHON_CMD=$(find_python)
 echo "Using Python: $PYTHON_CMD"
 
-# Check if we're in the dist directory and need to go up
+# Check if we're in the bin directory and need to go up
 if [ -f "../src/app.py" ]; then
     echo "Changing to parent directory..."
     cd ..
@@ -237,7 +237,7 @@ REM Fallback to Python
 echo No executable found in current directory.
 echo Falling back to Python...
 
-REM Check if we're in the dist directory and need to go up
+REM Check if we're in the bin directory and need to go up
 if exist "..\src\app.py" (
     echo Changing to parent directory...
     cd ..
@@ -344,7 +344,7 @@ echo "Building application with PyInstaller (disk-optimized mode)..."
 
 # Clean up before starting build
 echo "Performing pre-build cleanup..."
-rm -rf build/ dist/ __pycache__/ */__pycache__/ 2>/dev/null || true
+rm -rf build/ bin/ __pycache__/ */__pycache__/ 2>/dev/null || true
 find . -name "*.pyc" -delete 2>/dev/null || true
 find . -name "*.pyo" -delete 2>/dev/null || true
 
@@ -354,7 +354,7 @@ echo "Available disk space before build: $(($AVAILABLE_SPACE / 1024)) MB"
 
 # Build the application in one step to avoid conflicts
 echo "Building application with PyInstaller..."
-pyinstaller --clean --noconfirm gangwar.spec
+pyinstaller --clean --noconfirm --distpath bin gangwar.spec
 
 # Final cleanup
 echo "Performing final cleanup..."
@@ -369,31 +369,31 @@ echo "Generating environment variables file..."
 python3 scripts/generate_env.py
 
 # Check if build was successful
-if [ -f "dist/gangwar/gangwar" ] || [ -f "dist/gangwar/gangwar.exe" ]; then
-    echo "Build successful! Files created in dist/ directory:"
-    ls -la dist/gangwar/
+if [ -f "bin/gangwar/gangwar" ] || [ -f "bin/gangwar/gangwar.exe" ]; then
+    echo "Build successful! Files created in bin/ directory:"
+    ls -la bin/gangwar/
 
     # Make the executable runnable
-    if [ -f "dist/gangwar/gangwar" ]; then
-        chmod +x dist/gangwar/gangwar
-        echo "Made executable runnable: ./dist/gangwar/gangwar"
+    if [ -f "bin/gangwar/gangwar" ]; then
+        chmod +x bin/gangwar/gangwar
+        echo "Made executable runnable: ./bin/gangwar/gangwar"
     fi
 
-    if [ -f "dist/gangwar/gangwar.exe" ]; then
-        chmod +x dist/gangwar/gangwar.exe
-        echo "Made executable runnable: ./dist/gangwar/gangwar.exe"
+    if [ -f "bin/gangwar/gangwar.exe" ]; then
+        chmod +x bin/gangwar/gangwar.exe
+        echo "Made executable runnable: ./bin/gangwar/gangwar.exe"
     fi
 
     echo ""
     echo "To run the application:"
-    echo "./dist/gangwar/gangwar"
+    echo "./bin/gangwar/gangwar"
     echo "or"
-    echo "./dist/gangwar/gangwar.exe  (on Windows)"
+    echo "./bin/gangwar/gangwar.exe  (on Windows)"
     echo ""
     echo "The executable is standalone and requires no external Python installation or libraries."
     echo ""
     echo "For PythonAnywhere deployment:"
-    echo "Upload the contents of the dist/gangwar/ directory to PythonAnywhere"
+    echo "Upload the contents of the bin/gangwar/ directory to PythonAnywhere"
     echo "Use pythonanywhere.py as your WSGI application file"
 else
     echo "Build failed! Check the output above for errors."

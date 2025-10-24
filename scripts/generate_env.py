@@ -3,7 +3,7 @@
 Environment Variable Generator for Pimpin Game
 
 This script analyzes Python source files to find environment variables
-used with os.environ.get() and generates a .env file in the dist directory
+used with os.environ.get() and generates a .env file in the bin directory
 for any variables that the standalone executable might need but doesn't have embedded.
 """
 
@@ -81,10 +81,10 @@ def find_env_vars_in_project(root_path):
 
 def generate_env_file(env_vars, output_path):
     """Generate .env file with environment variables"""
-    dist_dir = Path(output_path)
-    dist_dir.mkdir(exist_ok=True)
+    bin_dir = Path(output_path)
+    bin_dir.mkdir(exist_ok=True)
 
-    env_file_path = dist_dir / '.env'
+    env_file_path = bin_dir / '.env'
 
     with open(env_file_path, 'w', encoding='utf-8') as f:
         f.write("# Environment variables for Gangwar Game standalone executable\n")
@@ -136,9 +136,9 @@ def main():
     for var, default in env_vars.items():
         print(f"  {var}: {default}")
 
-    # Generate .env file in dist directory
-    dist_path = project_root / 'dist'
-    env_file = generate_env_file(env_vars, dist_path)
+    # Generate .env file in bin directory
+    bin_path = project_root / 'bin'
+    env_file = generate_env_file(env_vars, bin_path)
 
     print("Environment variable generation complete!")
 
