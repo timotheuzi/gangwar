@@ -1296,8 +1296,6 @@ footer {
 /* Bar Screen */
 .bar-screen {
     padding: 15px;
-    max-height: calc(100vh - 200px);
-    overflow-y: auto;
 }
 
 .bar-screen h2 {
@@ -1308,9 +1306,9 @@ footer {
 
 .bar-content {
     display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 15px;
-    margin: 15px 0;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 10px;
+    margin: 10px 0;
 }
 
 .contact-section,

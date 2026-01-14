@@ -93,7 +93,7 @@ install-deps:
 # Run the application in development mode
 run:
 	@echo "Running Gangwar Game in development mode..."
-	@./run.sh
+	@./scripts/run.sh
 
 # Run the built executable
 run-dist:
