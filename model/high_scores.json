@@ -1,1 +1,12 @@
-[]
+[
+  {
+    "player_name": "lucky",
+    "gang_name": "shithead",
+    "score": 101,
+    "money_earned": 1800,
+    "days_survived": 1,
+    "gang_wars_won": 0,
+    "fights_won": 0,
+    "date_achieved": "2026-01-14 17:23:44"
+  }
+]
