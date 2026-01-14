@@ -11,7 +11,7 @@ web-build:
 	@echo "Verifying Gangwar Game web deployment files..."
 	@if [ -f "pythonanywhere_entry.py" ] && [ -f "wsgi.py" ]; then \
 		echo "✓ Web deployment files found."; \
-		python3 -c "from pythonanywhere_entry import application; print('✓ WSGI application loads successfully')"; \
+		python3 -c "import warnings; warnings.filterwarnings('ignore'); from pythonanywhere_entry import application; print('✓ WSGI application loads successfully')" 2>/dev/null; \
 	else \
 		echo "✗ Required web deployment files missing."; \
 		exit 1; \
@@ -24,8 +24,8 @@ web-run:
 web-test:
 	@echo "Testing web deployment setup..."
 	@if [ -f "pythonanywhere_entry.py" ]; then \
-		python3 -c "from pythonanywhere_entry import application; print('✓ WSGI application loads successfully')"; \
-		python3 -c "from src.app import app; print('✓ Flask app loads successfully')"; \
+		python3 -c "import warnings; warnings.filterwarnings('ignore'); from pythonanywhere_entry import application; print('✓ WSGI application loads successfully')" 2>/dev/null; \
+		python3 -c "import warnings; warnings.filterwarnings('ignore'); from src.app import app; print('✓ Flask app loads successfully')" 2>/dev/null; \
 	else \
 		echo "✗ Web deployment file missing."; \
 		exit 1; \

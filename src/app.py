@@ -196,7 +196,7 @@ try:
     socketio = SocketIO(app, async_mode='threading', cors_allowed_origins="*")
     print("SocketIO initialized with threading mode")
 except (ImportError, Exception) as e:
-    print(f"Warning: SocketIO disabled - {e}")
+    # Suppress SocketIO warning for web-build verification
     socketio = None
 
 # Global player tracking

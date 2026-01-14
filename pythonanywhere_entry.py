@@ -14,6 +14,8 @@ sys.path.insert(0, src_dir)
 
 # Import the Flask application and socketio
 try:
+    import warnings
+    warnings.filterwarnings('ignore', category=ImportWarning)
     from app import app, socketio
     print("Successfully imported Flask app and SocketIO")
 except ImportError as e:
