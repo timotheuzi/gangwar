@@ -347,6 +347,13 @@ def check_and_update_high_scores(game_state: GameState, gang_wars_won: int = 0, 
     # Load existing high scores
     high_scores = load_high_scores()
 
+    # Check if this player already has a high score entry
+    existing_entry = None
+    for i, hs in enumerate(high_scores):
+        if hs.player_name == game_state.player_name and hs.gang_name == game_state.gang_name:
+            existing_entry = (i, hs)
+            break
+
     # Create new high score entry
     new_score = HighScore(
         player_name=game_state.player_name,
@@ -359,8 +366,16 @@ def check_and_update_high_scores(game_state: GameState, gang_wars_won: int = 0, 
         date_achieved=time.strftime("%Y-%m-%d %H:%M:%S")
     )
 
-    # Add to list and sort by score (highest first)
-    high_scores.append(new_score)
+    if existing_entry:
+        # Update existing entry if score improved
+        index, old_score = existing_entry
+        if score > old_score.score:
+            high_scores[index] = new_score
+    else:
+        # Add new entry
+        high_scores.append(new_score)
+
+    # Sort by score (highest first)
     high_scores.sort(key=lambda x: x.score, reverse=True)
 
     # Keep only top 10 scores
@@ -368,6 +383,26 @@ def check_and_update_high_scores(game_state: GameState, gang_wars_won: int = 0, 
 
     # Save updated high scores
     save_high_scores(high_scores)
+
+def update_daily_high_scores(game_state: GameState):
+    """Update high scores daily for active players - called when they visit main pages"""
+    if not game_state.player_name or not game_state.gang_name:
+        return
+
+    # Check if we need to update (once per day per player)
+    today = time.strftime("%Y-%m-%d")
+    last_update_key = f"last_high_score_update_{game_state.player_name}_{game_state.gang_name}"
+
+    # Use session to track daily updates
+    if session.get(last_update_key) == today:
+        return  # Already updated today
+
+    # Update high scores with current progress (no additional gang wars/fights for daily updates)
+    check_and_update_high_scores(game_state, 0, 0)
+
+    # Mark as updated today
+    session[last_update_key] = today
+    session.modified = True
 
 
 # Global player tracking
@@ -422,6 +457,9 @@ def city():
 
     # Update global drug prices once per day (affects all players)
     update_global_drug_prices()
+
+    # Update high scores daily for active players
+    update_daily_high_scores(game_state)
 
     save_game_state(game_state)
     # Get current drug prices for alerts
