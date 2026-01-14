@@ -373,67 +373,25 @@ def check_and_update_high_scores(game_state: GameState, gang_wars_won: int = 0, 
 # Global player tracking
 connected_players = {}
 
-# Dynamic Drug Price Fluctuation with Bar Gossip
-def fluctuate_drug_prices(game_state):
-    """Dynamically fluctuate drug prices with wild variations based on underworld gossip"""
+# Global drug price update function - called once per day
+def update_global_drug_prices():
+    """Update drug prices globally once per day - affects all players"""
+    current_prices = load_current_drug_prices()
 
-    # Base prices that fluctuate wildly
-    base_prices = {
-        'weed': 500,
-        'crack': 1000,
-        'coke': 2000,
-        'ice': 1500,
-        'percs': 800,
-        'pixie_dust': 3000
-    }
+    # Check if we need to update (once per day)
+    import time
+    today = time.strftime("%Y-%m-%d")
+    if current_prices.get('last_update_day') == today:
+        return current_prices  # Already updated today
 
-    # Wild fluctuation factors inspired by bar room sayings
-    bar_room_sayings = [
-        "Prices are through the roof! Word on the street is the heat's on!",
-        "Everything's cheap as dirt today - somebody's dumping inventory!",
-        "Market's crazy! Some rich idiot flooded the streets with cash!",
-        "Dang prices keep swingin' like a pendulum in a hurricane!",
-        "Everything doubled overnight! Cartel war makin' waves!",
-        "Bottom dropped out! Undercover bust took out the middlemen!",
-        "Prices tripling by the hour! Somebody hit a big score!",
-        "Cheaper than water! Surplus from a busted lab dump!",
-        "Market's gone nuts! International shipment just landed!",
-        "Everything's sky-high! Police raid cleaned out the warehouses!"
-    ]
+    # Update prices for new day
+    new_prices = update_daily_drug_prices()
 
-    # Pick a random "mood" for the day that affects all prices
-    price_mood = random.random()
+    # Mark as updated today
+    new_prices['last_update_day'] = today
+    save_current_drug_prices(new_prices)
 
-    for drug in game_state.drug_prices.keys():
-        base_price = base_prices[drug]
-
-        # Base fluctuation: ±50%
-        fluctuation = random.uniform(0.5, 1.5)
-
-        # Add extreme variations (±200% in severe cases)
-        if random.random() < 0.15:  # 15% chance for extreme fluctuation
-            fluctuation *= random.uniform(0.1, 3.0)
-
-        # Apply the mood factor that affects entire market
-        if price_mood < 0.2:  # Boom market - everything cheap
-            fluctuation *= 0.3
-            saying = random.choice([s for s in bar_room_sayings if "cheap" in s or "surplus" in s or "dumping" in s])
-        elif price_mood < 0.4:  # Bust market - everything expensive
-            fluctuation *= 2.5
-            saying = random.choice([s for s in bar_room_sayings if "roof" in s or "tripling" in s or "doubling" in s])
-        elif price_mood < 0.6:  # Normal market with wild swings
-            fluctuation *= random.uniform(0.2, 4.0)
-            saying = random.choice([s for s in bar_room_sayings if "swingin" in s or "nuts" in s or "crazy" in s])
-        else:  # Chaotic market - completely random
-            fluctuation *= random.uniform(0.05, 10.0)  # Extreme chaos
-            saying = random.choice([s for s in bar_room_sayings if "hurricane" in s or "crazy" in s])
-
-        # Apply the fluctuation
-        new_price = max(1, int(base_price * fluctuation))  # Don't go below $1
-        game_state.drug_prices[drug] = new_price
-
-        # Store saying for display (could be shown in bar or city)
-        game_state._drug_price_mood = saying
+    return new_prices
 
 # ============
 # Routes
@@ -462,13 +420,8 @@ def city():
     game_state = get_game_state()
     game_state.current_location = "city"
 
-    # Fluctuate drug prices daily for more excitement
-    if hasattr(game_state, '_last_price_update') and game_state._last_price_update != game_state.day:
-        fluctuate_drug_prices(game_state)
-        game_state._last_price_update = game_state.day
-    elif not hasattr(game_state, '_last_price_update'):
-        fluctuate_drug_prices(game_state)
-        game_state._last_price_update = game_state.day
+    # Update global drug prices once per day (affects all players)
+    update_global_drug_prices()
 
     save_game_state(game_state)
     # Get current drug prices for alerts
