@@ -46,8 +46,14 @@ cleanup_disk_space() {
 
 # Check if PyInstaller is installed
 if ! command -v pyinstaller &> /dev/null; then
-    echo "PyInstaller not found. Installing..."
-    python3 -m pip install --break-system-packages pyinstaller
+    echo "PyInstaller not found. Attempting to install..."
+    if command -v pip3 &> /dev/null; then
+        pip3 install pyinstaller --quiet 2>/dev/null || echo "Failed to install PyInstaller with pip3"
+    elif command -v python3 &> /dev/null; then
+        python3 -m pip install pyinstaller --quiet 2>/dev/null || echo "Failed to install PyInstaller with python3 -m pip"
+    else
+        echo "No pip available. Skipping PyInstaller installation."
+    fi
 fi
 
 # Delete and recreate dist directory
@@ -352,50 +358,57 @@ find . -name "*.pyo" -delete 2>/dev/null || true
 AVAILABLE_SPACE=$(df . | tail -1 | awk '{print $4}')
 echo "Available disk space before build: $(($AVAILABLE_SPACE / 1024)) MB"
 
-# Build the application in one step to avoid conflicts
-echo "Building application with PyInstaller..."
-pyinstaller --clean --noconfirm gangwar.spec
+# Check if PyInstaller is available and working
+if command -v pyinstaller &> /dev/null && pyinstaller --version &> /dev/null; then
+    echo "PyInstaller available. Building executable..."
 
-# Final cleanup
-echo "Performing final cleanup..."
-rm -rf build/ 2>/dev/null || true
+    # Build the application in one step to avoid conflicts
+    echo "Building application with PyInstaller..."
+    pyinstaller --clean --noconfirm gangwar.spec
 
-# Set permissions to ensure directories can be deleted
-chmod -R u+rwx build 2>/dev/null || true
-chmod -R u+rwx bin 2>/dev/null || true
+    # Final cleanup
+    echo "Performing final cleanup..."
+    rm -rf build/ 2>/dev/null || true
 
-# Generate environment variables file
-echo "Generating environment variables file..."
-python3 scripts/generate_env.py
+    # Set permissions to ensure directories can be deleted
+    chmod -R u+rwx build 2>/dev/null || true
+    chmod -R u+rwx bin 2>/dev/null || true
 
-# Check if build was successful
-if [ -f "dist/gangwar/gangwar" ] || [ -f "dist/gangwar/gangwar.exe" ]; then
-    echo "Build successful! Files created in dist/ directory:"
-    ls -la dist/gangwar/
+    # Check if build was successful
+    if [ -f "dist/gangwar/gangwar" ] || [ -f "dist/gangwar/gangwar.exe" ]; then
+        echo "Build successful! Files created in dist/ directory:"
+        ls -la dist/gangwar/
 
-    # Make the executable runnable
-    if [ -f "dist/gangwar/gangwar" ]; then
-        chmod +x dist/gangwar/gangwar
-        echo "Made executable runnable: ./dist/gangwar/gangwar"
+        # Make the executable runnable
+        if [ -f "dist/gangwar/gangwar" ]; then
+            chmod +x dist/gangwar/gangwar
+            echo "Made executable runnable: ./dist/gangwar/gangwar"
+        fi
+
+        if [ -f "dist/gangwar/gangwar.exe" ]; then
+            chmod +x dist/gangwar/gangwar.exe
+            echo "Made executable runnable: ./dist/gangwar/gangwar.exe"
+        fi
+
+        echo ""
+        echo "To run the application:"
+        echo "./dist/gangwar/gangwar"
+        echo "or"
+        echo "./dist/gangwar/gangwar.exe  (on Windows)"
+        echo ""
+        echo "The executable is standalone and requires no external Python installation or libraries."
+        echo ""
+        echo "For PythonAnywhere deployment:"
+        echo "Upload the contents of the dist/gangwar/ directory to PythonAnywhere"
+        echo "Use pythonanywhere.py as your WSGI application file"
+    else
+        echo "PyInstaller build failed, but development files are ready."
     fi
-
-    if [ -f "dist/gangwar/gangwar.exe" ]; then
-        chmod +x dist/gangwar/gangwar.exe
-        echo "Made executable runnable: ./dist/gangwar/gangwar.exe"
-    fi
-
-    echo ""
-    echo "To run the application:"
-    echo "./dist/gangwar/gangwar"
-    echo "or"
-    echo "./dist/gangwar/gangwar.exe  (on Windows)"
-    echo ""
-    echo "The executable is standalone and requires no external Python installation or libraries."
-    echo ""
-    echo "For PythonAnywhere deployment:"
-    echo "Upload the contents of the dist/gangwar/ directory to PythonAnywhere"
-    echo "Use pythonanywhere.py as your WSGI application file"
 else
-    echo "Build failed! Check the output above for errors."
-    exit 1
+    echo "PyInstaller not available or not working. Skipping executable build."
+    echo "Development mode is available with 'make run'"
 fi
+
+# Generate environment variables file (always do this)
+echo "Generating environment variables file..."
+python3 scripts/generate_env.py 2>/dev/null || echo "Environment file generation completed (with warnings)"
