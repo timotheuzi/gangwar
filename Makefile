@@ -1,7 +1,7 @@
 # Gangwar Game Makefile
 # Cross-platform build system for the Gangwar game
 
-.PHONY: all build clean distclean clean-disk install-deps run test help web-build web-run web-test web-clean web-deploy
+.PHONY: all build clean distclean clean-disk install-deps run test help web-build web-run web-test web-clean kill-web web-deploy
 
 # Default target
 all: build
@@ -34,6 +34,16 @@ web-test:
 web-clean:
 	@echo "Web deployment uses src files directly - no cleanup needed..."
 	@echo "✓ No duplicate files to clean"
+
+# Kill all running web application instances
+kill-web:
+	@echo "Killing all running Gangwar web application processes..."
+	@pkill -f "python.*pythonanywhere_entry" 2>/dev/null || true
+	@pkill -f "python.*app\.py" 2>/dev/null || true
+	@pkill -f "flask.*run" 2>/dev/null || true
+	@lsof -ti :6009 | xargs kill -9 2>/dev/null || true
+	@lsof -ti :5000 | xargs kill -9 2>/dev/null || true
+	@echo "✓ All web application processes killed"
 
 # Build the application
 build:
@@ -137,6 +147,7 @@ help:
 	@echo "Clean Targets:"
 	@echo "  clean        - Clean build artifacts"
 	@echo "  web-clean    - Clean web build artifacts"
+	@echo "  kill-web     - Kill all running web application processes"
 	@echo "  distclean    - Clean everything including logs and config"
 	@echo "  clean-disk   - Aggressive disk cleanup to free space"
 	@echo ""
@@ -150,6 +161,7 @@ help:
 	@echo "  make web-build      # Build web version"
 	@echo "  make run            # Run in development"
 	@echo "  make web-run        # Run web version locally"
+	@echo "  make kill-web       # Kill all running web processes"
 	@echo "  make clean && make  # Clean and rebuild"
 
 # Development setup
