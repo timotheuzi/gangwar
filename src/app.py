@@ -267,6 +267,7 @@ class GameState:
     money: int = 1000
     account: int = 0
     loan: int = 0
+    loan_days: int = 0
     members: int = 1
     squidies: int = 25
     squidies_pistols: int = 10
@@ -324,6 +325,47 @@ def update_current_score(game_state):
     # For current score, we don't track gang wars/fights won in real-time,
     # so we'll base it on money and days survived for now
     game_state.current_score = calculate_score(money_earned, days_survived, 0, 0)
+
+def process_daily_interest_and_loans(game_state):
+    """Process daily interest on savings and loans, and check for loan shark attacks"""
+    # Calculate interest on savings account
+    if game_state.account > 0:
+        interest_rate = 0.08  # Base 8% daily (increased from 5%)
+        # Scale interest based on deposit amount (larger deposits get slightly better rates)
+        if game_state.account >= 10000:
+            interest_rate = 0.10  # 10% for large deposits (increased from 6%)
+        elif game_state.account >= 5000:
+            interest_rate = 0.09  # 9% for medium deposits (increased from 5.5%)
+
+        interest_earned = int(game_state.account * interest_rate)
+        game_state.account += interest_earned
+
+    # Calculate loan interest and check for loan sharks
+    if game_state.loan > 0:
+        # High interest loans: 15% per day
+        interest_due = int(game_state.loan * 0.15)
+        game_state.loan += interest_due
+
+        # Track days since loan was taken (we'll add a loan_days field to GameState)
+        if not hasattr(game_state, 'loan_days'):
+            game_state.loan_days = 0
+        game_state.loan_days += 1
+
+        # Loan shark attack after 2-3 days depending on loan amount
+        attack_threshold = 2 if game_state.loan <= 50000 else 3  # Smaller loans get attacked sooner
+
+        if game_state.loan_days >= attack_threshold:
+            # Loan shark attack! This will redirect to combat
+            num_sharks = random.randint(3, 6)
+            message = f"LOAN SHARKS! {num_sharks} brutal loan collectors have come to collect on your ${game_state.loan:,} debt!"
+            # We'll handle this in the calling function by setting a flag
+            return {
+                'loan_shark_attack': True,
+                'num_sharks': num_sharks,
+                'message': message
+            }
+
+    return {'loan_shark_attack': False}
 
 def save_game_state(game_state):
     """Save game state to session"""
@@ -477,7 +519,7 @@ def crackhouse():
 
 @app.route('/gunshack')
 def gunshack():
-    """The Boom Shack"""
+    """Gun Pawn USA"""
     game_state = get_game_state()
     return render_template('gunshack.html', game_state=game_state)
 
@@ -604,16 +646,99 @@ def upgrade_weapon():
 
 @app.route('/bar', methods=['GET', 'POST'])
 def bar():
-    """Vagabond's Pub"""
+    """The Local Pub"""
     game_state = get_game_state()
     if request.method == 'POST':
         contact = request.form.get('contact')
+
+        # Make NPC interactions more difficult - require certain conditions
         if contact == 'nox':
-            game_state.flags.eric_met = True
-            flash("You successfully meet Nox the Informant!", "success")
+            # Nox requires having some money and not being too aggressive - now harder
+            success_chance = 0.25  # Base 25% chance (reduced from 40%)
+            if game_state.money >= 2000:  # Having more money helps
+                success_chance += 0.15
+            if game_state.members <= 2:  # Very small gang is less intimidating
+                success_chance += 0.15
+            if game_state.flags.has_info:  # Having info helps
+                success_chance += 0.1
+            if game_state.account >= 10000:  # Savings show you're established
+                success_chance += 0.1
+
+            if random.random() < success_chance:
+                game_state.flags.eric_met = True
+                flash("You successfully meet Nox the Informant! He shares valuable information.", "success")
+            else:
+                # Failed interaction - various consequences
+                failure_types = [
+                    ("Nox doesn't trust you and walks away.", "warning"),
+                    ("Nox thinks you're a cop and threatens you!", "danger"),
+                    ("Nox demands money for information but you refuse.", "warning"),
+                    ("The meeting goes badly - you offend Nox and he spreads rumors about you.", "danger"),
+                    ("Nox sets you up for an ambush!", "danger")
+                ]
+                failure_msg, failure_type = random.choice(failure_types)
+                flash(f"Failed to meet Nox: {failure_msg}", failure_type)
+
+                # Some failures have consequences
+                if "threatens you" in failure_msg:
+                    game_state.health = max(0, game_state.health - random.randint(10, 20))
+                elif "spreads rumors" in failure_msg:
+                    # Lose a gang member due to bad reputation
+                    if game_state.members > 1:
+                        game_state.members -= 1
+                        game_state.health = min(game_state.max_health, game_state.health)
+                elif "sets you up" in failure_msg:
+                    # Trigger a police encounter
+                    game_state.flags.has_id = False  # Lose fake ID
+                    flash("Police are now hunting you!", "danger")
+
         elif contact == 'raze':
-            game_state.flags.steve_met = True
-            flash("You successfully meet Raze the Supplier!", "success")
+            # Raze requires having drugs and being established - now much harder
+            success_chance = 0.15  # Base 15% chance (reduced from 30%)
+            total_drugs = sum([getattr(game_state.drugs, drug) for drug in ['weed', 'crack', 'coke', 'ice', 'percs', 'pixie_dust']])
+            if total_drugs >= 20:  # Having lots of drugs helps
+                success_chance += 0.25
+            if game_state.members >= 8:  # Large gang commands respect
+                success_chance += 0.15
+            if game_state.account >= 25000:  # Substantial savings show stability
+                success_chance += 0.1
+            if game_state.money >= 5000:  # Cash on hand shows you're flush
+                success_chance += 0.1
+
+            if random.random() < success_chance:
+                game_state.flags.steve_met = True
+                flash("You successfully meet Raze the Supplier! He offers you special deals.", "success")
+            else:
+                # Failed interaction - various consequences
+                failure_types = [
+                    ("Raze doesn't deal with small-timers like you.", "warning"),
+                    ("Raze suspects you're undercover and refuses to talk.", "danger"),
+                    ("The deal goes sour - Raze's goons rough you up!", "danger"),
+                    ("Raze demands a show of force but you back down.", "warning"),
+                    ("Raze's men steal some of your drugs!", "danger")
+                ]
+                failure_msg, failure_type = random.choice(failure_types)
+                flash(f"Failed to meet Raze: {failure_msg}", failure_type)
+
+                # Some failures have consequences
+                if "rough you up" in failure_msg:
+                    damage = random.randint(15, 35)
+                    game_state.health = max(0, game_state.health - damage)
+                    flash(f"You take {damage} damage from Raze's goons!", "danger")
+                elif "suspects you're undercover" in failure_msg:
+                    # Police attention increases
+                    game_state.flags.has_id = False  # Lose fake ID if you had one
+                    flash("Your cover might be blown!", "warning")
+                elif "steal some of your drugs" in failure_msg:
+                    # Lose some drugs
+                    drug_types = ['weed', 'crack', 'coke', 'ice', 'percs', 'pixie_dust']
+                    available_drugs = [d for d in drug_types if getattr(game_state.drugs, d) > 0]
+                    if available_drugs:
+                        stolen_drug = random.choice(available_drugs)
+                        stolen_amount = min(getattr(game_state.drugs, stolen_drug), random.randint(1, 3))
+                        setattr(game_state.drugs, stolen_drug, getattr(game_state.drugs, stolen_drug) - stolen_amount)
+                        flash(f"Raze's men stole {stolen_amount} kilos of {stolen_drug}!", "danger")
+
         save_game_state(game_state)
         return redirect(url_for('bar'))
 
@@ -627,6 +752,81 @@ def bank():
     """Savings and Loan"""
     game_state = get_game_state()
     return render_template('bank.html', game_state=game_state)
+
+@app.route('/bank_transaction', methods=['POST'])
+def bank_transaction():
+    """Handle bank transactions (deposit, withdraw, loan, pay_loan)"""
+    game_state = get_game_state()
+    action = request.form.get('action')
+    amount = int(request.form.get('amount', 0))
+
+    if action == 'deposit':
+        if amount <= 0:
+            flash("Deposit amount must be positive!", "danger")
+        elif amount > game_state.money:
+            flash("You don't have enough cash to deposit!", "danger")
+        else:
+            game_state.money -= amount
+            game_state.account += amount
+            # Interest calculation: 8-10% per day, compounded
+            interest_rate = 0.08
+            # Scale interest based on deposit amount (larger deposits get slightly better rates)
+            if amount >= 10000:
+                interest_rate = 0.10  # 10% for large deposits
+            elif amount >= 5000:
+                interest_rate = 0.09  # 9% for medium deposits
+            flash(f"You deposited ${amount:,}! Your savings earn {interest_rate*100:.1f}% interest daily.", "success")
+
+    elif action == 'withdraw':
+        if amount <= 0:
+            flash("Withdrawal amount must be positive!", "danger")
+        elif amount > game_state.account:
+            flash("You don't have enough in savings to withdraw!", "danger")
+        else:
+            game_state.account -= amount
+            game_state.money += amount
+            flash(f"You withdrew ${amount:,} from your savings!", "success")
+
+    elif action == 'loan':
+        loan_options = {
+            '5000': 5000,
+            '10000': 10000,
+            '25000': 25000,
+            '50000': 50000,
+            '100000': 100000,
+            '200000': 200000,
+            '300000': 300000
+        }
+        if str(amount) not in loan_options:
+            flash("Invalid loan amount!", "danger")
+        elif game_state.loan > 0:
+            flash("You already have an outstanding loan! Pay it off first.", "danger")
+        else:
+            loan_amount = loan_options[str(amount)]
+            # High interest loans: 15% per day
+            game_state.loan = loan_amount
+            game_state.loan_days = 0  # Reset loan days when taking new loan
+            game_state.money += loan_amount
+            flash(f"You took out a ${loan_amount:,} loan at 15% daily interest! Pay it back quickly to avoid loan sharks!", "warning")
+
+    elif action == 'pay_loan':
+        if amount <= 0:
+            flash("Payment amount must be positive!", "danger")
+        elif amount > game_state.money:
+            flash("You don't have enough cash to pay!", "danger")
+        elif amount > game_state.loan:
+            flash("You're trying to pay more than you owe!", "danger")
+        else:
+            game_state.money -= amount
+            game_state.loan -= amount
+            if game_state.loan <= 0:
+                game_state.loan = 0
+                flash(f"You paid off your entire loan! You're debt-free!", "success")
+            else:
+                flash(f"You paid ${amount:,} towards your loan. You still owe ${game_state.loan:,}.", "info")
+
+    save_game_state(game_state)
+    return redirect(url_for('bank'))
 
 @app.route('/infobooth')
 def infobooth():
@@ -871,6 +1071,26 @@ def wander():
         combat_id = f"gang_{random.randint(1000, 9999)}"
         return render_template('mud_fight.html', game_state=game_state, enemy_health=enemy_health, max_enemy_hp=max_enemy_hp, enemy_type=enemy_type, enemy_count=enemy_members, combat_active=combat_active, fight_log=fight_log, combat_id=combat_id)
 
+    # Check for random mugging/jumping (scales with money carried)
+    elif game_state.money >= 1000:  # Only if carrying significant cash
+        # Chance increases with more money carried
+        base_chance = 0.05  # 5% base chance
+        money_multiplier = min(game_state.money / 5000, 3.0)  # Up to 3x multiplier at $15k+
+        total_chance = base_chance * money_multiplier
+
+        if random.random() < total_chance:
+            mugger_count = random.randint(2, 5)
+            message = f"OH NO! You got jumped by {mugger_count} muggers who want your cash!"
+            save_game_state(game_state)
+            # Start MUD fight with muggers
+            enemy_health = mugger_count * 20  # Muggers are moderately tough (20 HP each)
+            max_enemy_hp = enemy_health
+            enemy_type = f"{mugger_count} Street Muggers"
+            combat_active = True
+            fight_log = [message]
+            combat_id = f"muggers_{random.randint(1000, 9999)}"
+            return render_template('mud_fight.html', game_state=game_state, enemy_health=enemy_health, max_enemy_hp=max_enemy_hp, enemy_type=enemy_type, enemy_count=mugger_count, combat_active=combat_active, fight_log=fight_log, combat_id=combat_id)
+
     # Check for Squidie hit squad (scales with gang power)
     elif game_state.members >= 3:  # Only when you have some gang presence
         # Base chance starts low, increases with gang size and success
@@ -947,6 +1167,17 @@ def wander():
     if game_state.steps >= game_state.max_steps:
         game_state.day += 1
         game_state.steps = 0
+        # Process daily interest and loan sharks
+        loan_shark_result = process_daily_interest_and_loans(game_state)
+        if loan_shark_result['loan_shark_attack']:
+            save_game_state(game_state)
+            # Redirect to loan shark combat
+            enemy_health = loan_shark_result['num_sharks'] * 30  # Loan sharks are tougher
+            enemy_type = f"{loan_shark_result['num_sharks']} Loan Sharks"
+            combat_active = True
+            fight_log = [loan_shark_result['message']]
+            combat_id = f"loan_sharks_{random.randint(1000, 9999)}"
+            return render_template('mud_fight.html', game_state=game_state, enemy_health=enemy_health, enemy_type=enemy_type, enemy_count=loan_shark_result['num_sharks'], combat_active=combat_active, fight_log=fight_log, combat_id=combat_id)
         # Update drug prices for new day
         update_daily_drug_prices()
 
@@ -2148,8 +2379,15 @@ def process_fight_action():
             base_damage = random.randint(15, 25)
             # Ghost gun jam chance - 20% chance to jam and do no damage
             if random.random() < 0.2:
-                fight_log.append("Your ghost gun jammed! No damage dealt.")
-                damage = 0
+                # When ghost gun jams, 30% chance it blows up in your face
+                if random.random() < 0.3:
+                    blow_up_damage = random.randint(5, 15)
+                    game_state.damage += blow_up_damage
+                    fight_log.append(f"Your ghost gun jammed and BLEW UP in your face! You take {blow_up_damage} damage!")
+                    damage = 0
+                else:
+                    fight_log.append("Your ghost gun jammed! No damage dealt.")
+                    damage = 0
             else:
                 if use_exploding:
                     game_state.weapons.exploding_bullets -= 1
@@ -2234,86 +2472,142 @@ def process_fight_action():
 
         print(f"DEBUG: After attack - enemy_health={enemy_health}, fight_log length={len(fight_log)}")
 
-        # Gang members attack if available
+        # Gang members attack if available - each uses ONE weapon per turn
         if game_state.members > 1:
+            # Track which weapons are available for gang members
+            available_weapons = []
+            if game_state.weapons.pistols > 0 and game_state.weapons.bullets > 0:
+                available_weapons.append('pistol')
+            if game_state.weapons.ar15 > 0 and game_state.weapons.bullets > 0:
+                available_weapons.append('ar15')
+            if game_state.weapons.ghost_guns > 0 and game_state.weapons.bullets > 0:
+                available_weapons.append('ghost_gun')
+            if game_state.weapons.knife > 0:
+                available_weapons.append('knife')
+            if game_state.weapons.vampire_bat > 0:
+                available_weapons.append('vampire_bat')
+
+            # Each gang member gets one weapon to use this turn
             for member_num in range(1, game_state.members):  # Start from 1 since player is member 0
-                # Each gang member attacks with a random weapon they have equivalent to
-                member_weapon_options = []
-                if game_state.weapons.pistols > 0 and game_state.weapons.bullets > 0:
-                    member_weapon_options.append('pistol')
-                if game_state.weapons.ar15 > 0 and game_state.weapons.bullets > 0:
-                    member_weapon_options.append('ar15')
-                if game_state.weapons.ghost_guns > 0 and game_state.weapons.bullets > 0:
-                    member_weapon_options.append('ghost_gun')
-                if game_state.weapons.knife > 0:
-                    member_weapon_options.append('knife')
-                if game_state.weapons.vampire_bat > 0:
-                    member_weapon_options.append('vampire_bat')
+                member_weapon = None
+                member_damage = 0
 
-                if member_weapon_options:
-                    member_weapon = random.choice(member_weapon_options)
+                # Member names
+                member_names = [
+                    f"Squad Member {member_num}",
+                    f"Your Lieutenant {member_num}",
+                    f"Gang Member #{member_num}",
+                    f"Your Enforcer {member_num}",
+                    f"Squad Soldier {member_num}"
+                ]
+                member_name = random.choice(member_names)
 
-                    # Member attack descriptions
-                    member_names = [
-                        f"Squad Member {member_num}",
-                        f"Your Lieutenant {member_num}",
-                        f"Gang Member #{member_num}",
-                        f"Your Enforcer {member_num}",
-                        f"Squad Soldier {member_num}"
-                    ]
-                    member_name = random.choice(member_names)
+                # Assign weapon to this member if available
+                if available_weapons:
+                    member_weapon = available_weapons.pop(0)  # Each member takes the next available weapon
+                else:
+                    # No weapons left - member uses fists
+                    member_weapon = 'fists'
 
-                    # Calculate member damage and ammo usage
-                    if member_weapon == 'pistol':
-                        game_state.weapons.bullets -= 1
-                        member_damage = random.randint(8, 15)
+                # Calculate member damage and ammo usage based on weapon
+                if member_weapon == 'pistol':
+                    game_state.weapons.bullets -= 1
+                    # Add damage fluctuation and miss chance
+                    if random.random() < 0.05:  # 5% miss chance
+                        attack_desc = f"{member_name} fires their pistol but misses completely!"
+                        member_damage = 0
+                    else:
+                        base_damage = random.randint(8, 15)
+                        # Damage fluctuation: ±20%
+                        damage_multiplier = random.uniform(0.8, 1.2)
+                        member_damage = int(base_damage * damage_multiplier)
                         attack_desc = random.choice([
                             f"{member_name} fires a precise shot from their pistol!",
                             f"{member_name} squeezes off a round, the bullet finding its target!",
                             f"{member_name}'s pistol roars as they take careful aim and fire!",
                             f"{member_name} draws their pistol and fires a lethal shot!"
                         ])
-                    elif member_weapon == 'ar15':
-                        game_state.weapons.bullets -= 1
-                        member_damage = random.randint(12, 20)
+                elif member_weapon == 'ar15':
+                    game_state.weapons.bullets -= 1
+                    if random.random() < 0.03:  # 3% jam chance for AR-15
+                        attack_desc = f"{member_name}'s AR-15 jams! No damage dealt."
+                        member_damage = 0
+                    else:
+                        base_damage = random.randint(12, 20)
+                        damage_multiplier = random.uniform(0.85, 1.15)
+                        member_damage = int(base_damage * damage_multiplier)
                         attack_desc = random.choice([
                             f"{member_name} unleashes a burst from their AR-15!",
                             f"{member_name}'s assault rifle chatters as they fire!",
                             f"{member_name} opens up with their AR-15, spraying bullets!",
                             f"{member_name} fires controlled bursts from their rifle!"
                         ])
-                    elif member_weapon == 'ghost_gun':
-                        game_state.weapons.bullets -= 1
-                        if random.random() < 0.2:  # 20% jam chance
-                            attack_desc = f"{member_name}'s ghost gun jammed!"
-                            member_damage = 0
-                        else:
-                            member_damage = random.randint(10, 18)
-                            attack_desc = random.choice([
-                                f"{member_name} fires their ghost gun with deadly precision!",
-                                f"{member_name}'s untraceable weapon whispers death!",
-                                f"{member_name} employs a ghost gun, the shot barely audible!"
-                            ])
-                    elif member_weapon == 'knife':
-                        member_damage = random.randint(5, 10)
+                elif member_weapon == 'ghost_gun':
+                    game_state.weapons.bullets -= 1
+                    if random.random() < 0.2:  # 20% jam chance for ghost gun
+                        attack_desc = f"{member_name}'s ghost gun jammed! No damage dealt."
+                        member_damage = 0
+                    elif random.random() < 0.05:  # Additional 5% miss chance
+                        attack_desc = f"{member_name} fires their ghost gun but the shot goes wide!"
+                        member_damage = 0
+                    else:
+                        base_damage = random.randint(10, 18)
+                        damage_multiplier = random.uniform(0.75, 1.25)
+                        member_damage = int(base_damage * damage_multiplier)
+                        attack_desc = random.choice([
+                            f"{member_name} fires their ghost gun with deadly precision!",
+                            f"{member_name}'s untraceable weapon whispers death!",
+                            f"{member_name} employs a ghost gun, the shot barely audible!"
+                        ])
+                elif member_weapon == 'knife':
+                    if random.random() < 0.08:  # 8% miss chance for knife
+                        attack_desc = f"{member_name} swings their knife but misses the target!"
+                        member_damage = 0
+                    else:
+                        base_damage = random.randint(5, 10)
+                        damage_multiplier = random.uniform(0.9, 1.1)
+                        member_damage = int(base_damage * damage_multiplier)
                         attack_desc = random.choice([
                             f"{member_name} slashes with their knife!",
                             f"{member_name} stabs viciously with their blade!",
                             f"{member_name} lunges forward with their knife!",
                             f"{member_name} drives their knife home!"
                         ])
-                    elif member_weapon == 'vampire_bat':
-                        member_damage = random.randint(15, 25)
+                elif member_weapon == 'vampire_bat':
+                    if random.random() < 0.06:  # 6% miss chance for bat
+                        attack_desc = f"{member_name} swings their vampire bat but misses wildly!"
+                        member_damage = 0
+                    else:
+                        base_damage = random.randint(15, 25)
+                        damage_multiplier = random.uniform(0.8, 1.2)
+                        member_damage = int(base_damage * damage_multiplier)
                         attack_desc = random.choice([
                             f"{member_name} swings their vampire bat with brutal force!",
                             f"{member_name} brings the spiked bat down crushing!",
                             f"{member_name}'s vampire bat connects with bone-shattering impact!",
                             f"{member_name} wields the bat like a weapon of destruction!"
                         ])
+                elif member_weapon == 'fists':
+                    # No ammo usage for fists
+                    if random.random() < 0.1:  # 10% miss chance for fists
+                        attack_desc = f"{member_name} swings their fists but misses completely!"
+                        member_damage = 0
+                    else:
+                        base_damage = random.randint(2, 6)  # Much weaker with fists
+                        damage_multiplier = random.uniform(0.8, 1.2)
+                        member_damage = int(base_damage * damage_multiplier)
+                        attack_desc = random.choice([
+                            f"{member_name} lands a solid punch with their fists!",
+                            f"{member_name} connects with a brutal haymaker!",
+                            f"{member_name} fights bare-handed, landing a crushing blow!",
+                            f"{member_name} uses their fists effectively despite being unarmed!"
+                        ])
 
-                    if member_damage > 0:
-                        fight_log.append(f"{attack_desc} {member_name} deals {member_damage} damage!")
-                        enemy_health -= member_damage
+                if member_damage > 0:
+                    fight_log.append(f"{attack_desc} {member_name} deals {member_damage} damage!")
+                    enemy_health -= member_damage
+                else:
+                    fight_log.append(f"{attack_desc}")
 
         # Enemy attacks back with enhanced descriptions
         if enemy_health > 0:
@@ -2570,27 +2864,26 @@ def process_fight_action():
             combat_active = False
             return render_template('mud_fight.html', game_state=game_state, enemy_health=enemy_health, enemy_type=enemy_type, enemy_count=enemy_count, combat_active=combat_active, fight_log=fight_log, combat_id=combat_id)
     elif game_state.damage >= 30:
-        game_state.lives -= 1
-        final_damage = game_state.damage  # Store the final damage before resetting
-        game_state.damage = 0
-        game_state.health = 30
+        # Special handling for muggers - they rob you but you survive with 1 HP
+        if "mugger" in enemy_type.lower():
+            # Muggers rob you but you live with 1 HP
+            robbed_amount = game_state.money  # Lose all cash that's not in savings
+            game_state.money = 0
+            game_state.damage = 29  # Set to 29 so you have 1 HP remaining (30 - 29 = 1)
+            game_state.health = 1  # Explicitly set to 1 HP
 
-        fight_log.append(f"You have been defeated by the {enemy_type}!")
-        fight_log.append(f"You took {final_damage} damage and lost a life.")
+            fight_log.append(f"You have been defeated by the {enemy_type}!")
+            fight_log.append(f"The muggers rob you of ${robbed_amount:,} but spare your life!")
+            fight_log.append("You crawl away with 1 HP remaining, your pockets empty.")
 
-        if game_state.lives <= 0:
-            # Update high scores when player dies
-            check_and_update_high_scores(game_state)
             save_game_state(game_state)
-
-            fight_log.append("GAME OVER! You have run out of lives.")
-            fight_log.append("Your gang war has ended in defeat.")
 
             if is_ajax:
                 return jsonify({
                     'success': True,
                     'defeat': True,
-                    'game_over': True,
+                    'mugged': True,
+                    'robbed_amount': robbed_amount,
                     'combat_active': False,
                     'enemy_health': enemy_health,
                     'fight_log': fight_log,
@@ -2600,40 +2893,78 @@ def process_fight_action():
                         'members': game_state.members,
                         'damage': game_state.damage,
                         'lives': game_state.lives
-                    },
-                    'final_damage': final_damage
+                    }
                 })
             else:
-                # Stay on battle screen with combat inactive, showing defeat in combat log
+                # Stay on battle screen with combat inactive, showing mugging in combat log
                 combat_active = False
                 return render_template('mud_fight.html', game_state=game_state, enemy_health=enemy_health, enemy_type=enemy_type, enemy_count=enemy_count, combat_active=combat_active, fight_log=fight_log, combat_id=combat_id)
         else:
-            save_game_state(game_state)
+            # Normal defeat - lose a life
+            game_state.lives -= 1
+            final_damage = game_state.damage  # Store the final damage before resetting
+            game_state.damage = 0
+            game_state.health = 30
 
-            fight_log.append("You survived this defeat, but you have lost a life.")
-            fight_log.append(f"You have {game_state.lives} lives remaining.")
+            fight_log.append(f"You have been defeated by the {enemy_type}!")
+            fight_log.append(f"You took {final_damage} damage and lost a life.")
 
-            if is_ajax:
-                return jsonify({
-                    'success': True,
-                    'defeat': True,
-                    'continue_combat': True,
-                    'combat_active': False,
-                    'enemy_health': enemy_health,
-                    'fight_log': fight_log,
-                    'game_state': {
-                        'health': game_state.health - game_state.damage,
-                        'money': game_state.money,
-                        'members': game_state.members,
-                        'damage': game_state.damage,
-                        'lives': game_state.lives
-                    },
-                    'final_damage': final_damage
-                })
+            if game_state.lives <= 0:
+                # Update high scores when player dies
+                check_and_update_high_scores(game_state)
+                save_game_state(game_state)
+
+                fight_log.append("GAME OVER! You have run out of lives.")
+                fight_log.append("Your gang war has ended in defeat.")
+
+                if is_ajax:
+                    return jsonify({
+                        'success': True,
+                        'defeat': True,
+                        'game_over': True,
+                        'combat_active': False,
+                        'enemy_health': enemy_health,
+                        'fight_log': fight_log,
+                        'game_state': {
+                            'health': game_state.health - game_state.damage,
+                            'money': game_state.money,
+                            'members': game_state.members,
+                            'damage': game_state.damage,
+                            'lives': game_state.lives
+                        },
+                        'final_damage': final_damage
+                    })
+                else:
+                    # Stay on battle screen with combat inactive, showing defeat in combat log
+                    combat_active = False
+                    return render_template('mud_fight.html', game_state=game_state, enemy_health=enemy_health, enemy_type=enemy_type, enemy_count=enemy_count, combat_active=combat_active, fight_log=fight_log, combat_id=combat_id)
             else:
-                # Stay on battle screen with combat inactive, showing defeat in combat log
-                combat_active = False
-                return render_template('mud_fight.html', game_state=game_state, enemy_health=enemy_health, enemy_type=enemy_type, enemy_count=enemy_count, combat_active=combat_active, fight_log=fight_log, combat_id=combat_id)
+                save_game_state(game_state)
+
+                fight_log.append("You survived this defeat, but you have lost a life.")
+                fight_log.append(f"You have {game_state.lives} lives remaining.")
+
+                if is_ajax:
+                    return jsonify({
+                        'success': True,
+                        'defeat': True,
+                        'continue_combat': True,
+                        'combat_active': False,
+                        'enemy_health': enemy_health,
+                        'fight_log': fight_log,
+                        'game_state': {
+                            'health': game_state.health - game_state.damage,
+                            'money': game_state.money,
+                            'members': game_state.members,
+                            'damage': game_state.damage,
+                            'lives': game_state.lives
+                        },
+                        'final_damage': final_damage
+                    })
+                else:
+                    # Stay on battle screen with combat inactive, showing defeat in combat log
+                    combat_active = False
+                    return render_template('mud_fight.html', game_state=game_state, enemy_health=enemy_health, enemy_type=enemy_type, enemy_count=enemy_count, combat_active=combat_active, fight_log=fight_log, combat_id=combat_id)
 
     # Continue combat
     save_game_state(game_state)
