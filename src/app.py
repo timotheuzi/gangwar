@@ -3018,16 +3018,6 @@ if socketio:
         location_room = data.get('location_room', 'city')
         player_name = data.get('player_name', 'Unknown Player')
 
-        # Clean up any existing entries for this player name to prevent duplicates
-        to_remove = []
-        for sid, player_info in connected_players.items():
-            if player_info['name'] == player_name:
-                # Remove disconnected clients or duplicate names
-                to_remove.append(sid)
-
-        for sid in to_remove:
-            connected_players.pop(sid, None)
-
         # Always join global room for universal chat
         join_room('global')
         join_room(room)
@@ -3043,6 +3033,11 @@ if socketio:
 
         # Remove old player entry if exists (prevent duplicates)
         connected_players.pop(request.sid, None)
+
+        # Check if this player name already exists and remove old entry
+        for sid, player_info in list(connected_players.items()):
+            if player_info['name'] == player_name:
+                del connected_players[sid]
 
         # Store player info
         connected_players[request.sid] = {
@@ -3100,14 +3095,18 @@ if socketio:
         """Send complete player list to requesting client - shows ALL online players"""
         room = data.get('room', 'city')
         # Return ALL connected players, not just those in a specific room
-        all_players_online = [
-            {
-                'id': player['id'],
-                'name': player['name'],
-                'location': player['room']  # Show their current location
-            }
-            for player in connected_players.values()
-        ]
+        all_players_online = []
+        seen_names = set()
+        
+        for player in connected_players.values():
+            if player['name'] not in seen_names:
+                seen_names.add(player['name'])
+                all_players_online.append({
+                    'id': player['id'],
+                    'name': player['name'],
+                    'location': player['room']  # Show their current location
+                })
+                
         emit('player_list', {'players': all_players_online})
 
     @socketio.on('pvp_challenge')
