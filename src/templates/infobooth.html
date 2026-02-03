@@ -5,56 +5,56 @@
     <h2 style="margin: 5px 0; font-size: 1.5em;">Info Booth</h2>
     <p style="margin: 5px 0; font-size: 0.9em;">Get the latest information about your criminal empire and the city.</p>
     
-    <div class="info-content" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 10px; margin: 10px 0;">
-        <div class="info-section" style="padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
-            <h3 style="margin: 0 0 8px 0; font-size: 1.1em;">Personal Statistics</h3>
-            <div class="stats-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; font-size: 0.85em;">
-                <div class="stat-item" style="background: var(--primary-bg); padding: 6px; border-radius: 3px;">
-                    <h4 style="margin: 0 0 4px 0; font-size: 0.9em;">Health & Safety</h4>
-                    <p style="margin: 2px 0;">Lives: {{ game_state.lives }}/5</p>
-                    <p style="margin: 2px 0;">Health: {{ 10 - game_state.damage }}/10</p>
-                    <p style="margin: 2px 0;">Vest: {{ game_state.weapons.vest }} hits</p>
+    <div class="info-content" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 8px; margin: 10px 0;">
+        <div class="info-section" style="padding: 6px; border: 1px solid #ddd; border-radius: 4px; background: var(--primary-bg);">
+            <h3 style="margin: 0 0 6px 0; font-size: 1.1em; color: var(--text-accent);">Personal Statistics</h3>
+            <div class="stats-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px; font-size: 0.85em;">
+                <div class="stat-item" style="background: rgba(6, 182, 212, 0.1); padding: 5px; border-radius: 3px; border: 1px solid rgba(6, 182, 212, 0.2);">
+                    <h4 style="margin: 0 0 3px 0; font-size: 0.9em; color: var(--text-accent);">Health & Safety</h4>
+                    <p style="margin: 1px 0; color: var(--text-primary);">Lives: {{ game_state.lives }}/5</p>
+                    <p style="margin: 1px 0; color: var(--text-primary);">Health: {{ 10 - game_state.damage }}/10</p>
+                    <p style="margin: 1px 0; color: var(--text-primary);">Vest: {{ game_state.weapons.vest }} hits</p>
                 </div>
 
-                <div class="stat-item" style="background: var(--primary-bg); padding: 6px; border-radius: 3px;">
-                    <h4 style="margin: 0 0 4px 0; font-size: 0.9em;">Financial Status</h4>
-                    <p style="margin: 2px 0;">Cash: ${{ "{:,}".format(game_state.money) }}</p>
-                    <p style="margin: 2px 0;">Savings: ${{ "{:,}".format(game_state.account|int) }}</p>
-                    <p style="margin: 2px 0;">Loan: ${{ "{:,}".format(game_state.loan|int) }}</p>
+                <div class="stat-item" style="background: rgba(6, 182, 212, 0.1); padding: 5px; border-radius: 3px; border: 1px solid rgba(6, 182, 212, 0.2);">
+                    <h4 style="margin: 0 0 3px 0; font-size: 0.9em; color: var(--text-accent);">Financial Status</h4>
+                    <p style="margin: 1px 0; color: var(--text-primary);">Cash: ${{ "{:,}".format(game_state.money) }}</p>
+                    <p style="margin: 1px 0; color: var(--text-primary);">Savings: ${{ "{:,}".format(game_state.account|int) }}</p>
+                    <p style="margin: 1px 0; color: var(--text-primary);">Loan: ${{ "{:,}".format(game_state.loan|int) }}</p>
                 </div>
 
-                <div class="stat-item" style="background: var(--primary-bg); padding: 6px; border-radius: 3px; grid-column: span 2;">
-                    <h4 style="margin: 0 0 4px 0; font-size: 0.9em;">Drug Inventory</h4>
-                    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 2px; font-size: 0.8em;">
-                        <p style="margin: 1px 0;">Weed: {{ game_state.drugs.weed }}</p>
-                        <p style="margin: 1px 0;">Crack: {{ game_state.drugs.crack }}</p>
-                        <p style="margin: 1px 0;">Coke: {{ game_state.drugs.coke }}</p>
-                        <p style="margin: 1px 0;">Ice: {{ game_state.drugs.ice }}</p>
-                        <p style="margin: 1px 0;">Percs: {{ game_state.drugs.percs }}</p>
-                        <p style="margin: 1px 0;">Dust: {{ game_state.drugs.pixie_dust }}</p>
+                <div class="stat-item" style="background: rgba(6, 182, 212, 0.1); padding: 5px; border-radius: 3px; border: 1px solid rgba(6, 182, 212, 0.2); grid-column: span 2;">
+                    <h4 style="margin: 0 0 3px 0; font-size: 0.9em; color: var(--text-accent);">Drug Inventory</h4>
+                    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px; font-size: 0.8em;">
+                        <p style="margin: 0.5px 0; color: var(--text-primary);">Weed: {{ game_state.drugs.weed }}</p>
+                        <p style="margin: 0.5px 0; color: var(--text-primary);">Crack: {{ game_state.drugs.crack }}</p>
+                        <p style="margin: 0.5px 0; color: var(--text-primary);">Coke: {{ game_state.drugs.coke }}</p>
+                        <p style="margin: 0.5px 0; color: var(--text-primary);">Ice: {{ game_state.drugs.ice }}</p>
+                        <p style="margin: 0.5px 0; color: var(--text-primary);">Percs: {{ game_state.drugs.percs }}</p>
+                        <p style="margin: 0.5px 0; color: var(--text-primary);">Dust: {{ game_state.drugs.pixie_dust }}</p>
                     </div>
                 </div>
 
-                <div class="stat-item" style="background: var(--primary-bg); padding: 6px; border-radius: 3px; grid-column: span 2;">
-                    <h4 style="margin: 0 0 4px 0; font-size: 0.9em;">Weapons & Equipment</h4>
-                    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 2px; font-size: 0.8em;">
-                        <p style="margin: 1px 0;">Pistols: {{ game_state.weapons.pistols }}</p>
-                        <p style="margin: 1px 0;">Bullets: {{ game_state.weapons.bullets }}</p>
-                        <p style="margin: 1px 0;">Grenades: {{ game_state.weapons.grenades }}</p>
-                        <p style="margin: 1px 0;">RPG: {{ game_state.weapons.missile_launcher }}</p>
-                        <p style="margin: 1px 0;">Rounds: {{ game_state.weapons.missiles }}</p>
-                        <p style="margin: 1px 0;">AR-15: {{ game_state.weapons.ar15 }}</p>
+                <div class="stat-item" style="background: rgba(6, 182, 212, 0.1); padding: 5px; border-radius: 3px; border: 1px solid rgba(6, 182, 212, 0.2); grid-column: span 2;">
+                    <h4 style="margin: 0 0 3px 0; font-size: 0.9em; color: var(--text-accent);">Weapons & Equipment</h4>
+                    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px; font-size: 0.8em;">
+                        <p style="margin: 0.5px 0; color: var(--text-primary);">Pistols: {{ game_state.weapons.pistols }}</p>
+                        <p style="margin: 0.5px 0; color: var(--text-primary);">Bullets: {{ game_state.weapons.bullets }}</p>
+                        <p style="margin: 0.5px 0; color: var(--text-primary);">Grenades: {{ game_state.weapons.grenades }}</p>
+                        <p style="margin: 0.5px 0; color: var(--text-primary);">RPG: {{ game_state.weapons.missile_launcher }}</p>
+                        <p style="margin: 0.5px 0; color: var(--text-primary);">Rounds: {{ game_state.weapons.missiles }}</p>
+                        <p style="margin: 0.5px 0; color: var(--text-primary);">AR-15: {{ game_state.weapons.ar15 }}</p>
                     </div>
                 </div>
             </div>
         </div>
 
-        <div class="info-section" style="padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
-            <h3 style="margin: 0 0 8px 0; font-size: 1.1em;">Gang Information</h3>
+        <div class="info-section" style="padding: 6px; border: 1px solid #ddd; border-radius: 4px; background: var(--primary-bg);">
+            <h3 style="margin: 0 0 6px 0; font-size: 1.1em; color: var(--text-accent);">Gang Information</h3>
             <div class="gang-info" style="font-size: 0.9em;">
-                <p style="margin: 4px 0;"><strong>Gang:</strong> {{ game_state.player_name }}</p>
-                <p style="margin: 4px 0;"><strong>Members:</strong> {{ game_state.members }}</p>
-                <p style="margin: 4px 0;"><strong>Strength:</strong>
+                <p style="margin: 2px 0; color: var(--text-primary);"><strong>Gang:</strong> {{ game_state.player_name }}</p>
+                <p style="margin: 2px 0; color: var(--text-primary);"><strong>Members:</strong> {{ game_state.members }}</p>
+                <p style="margin: 2px 0; color: var(--text-primary);"><strong>Strength:</strong>
                     {% if game_state.members >= 20 %}Elite (Ready for war)
                     {% elif game_state.members >= 15 %}Strong (Getting there)
                     {% elif game_state.members >= 10 %}Formidable (Good progress)
@@ -65,40 +65,40 @@
             </div>
         </div>
 
-        <div class="info-section" style="padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
-            <h3 style="margin: 0 0 8px 0; font-size: 1.1em;">Squidies Intel</h3>
+        <div class="info-section" style="padding: 6px; border: 1px solid #ddd; border-radius: 4px; background: var(--primary-bg);">
+            <h3 style="margin: 0 0 6px 0; font-size: 1.1em; color: var(--text-accent);">Squidies Intel</h3>
             <div class="squidies-info" style="font-size: 0.85em;">
-                <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 2px;">
-                    <p style="margin: 2px 0;"><strong>Members:</strong> {{ game_state.squidies|int }}</p>
-                    <p style="margin: 2px 0;"><strong>Pistols:</strong> {{ game_state.squidies_pistols|int }}</p>
-                    <p style="margin: 2px 0;"><strong>Bullets:</strong> {{ game_state.squidies_bullets|int }}</p>
-                    <p style="margin: 2px 0;"><strong>Grenades:</strong> {{ game_state.squidies_grenades|int }}</p>
-                    <p style="margin: 2px 0;"><strong>RPG:</strong> {{ game_state.squidies_missile_launcher|int }}</p>
-                    <p style="margin: 2px 0;"><strong>Rounds:</strong> {{ game_state.squidies_missiles|int }}</p>
+                <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 1px;">
+                    <p style="margin: 1px 0; color: var(--text-primary);"><strong>Members:</strong> {{ game_state.squidies|int }}</p>
+                    <p style="margin: 1px 0; color: var(--text-primary);"><strong>Pistols:</strong> {{ game_state.squidies_pistols|int }}</p>
+                    <p style="margin: 1px 0; color: var(--text-primary);"><strong>Bullets:</strong> {{ game_state.squidies_bullets|int }}</p>
+                    <p style="margin: 1px 0; color: var(--text-primary);"><strong>Grenades:</strong> {{ game_state.squidies_grenades|int }}</p>
+                    <p style="margin: 1px 0; color: var(--text-primary);"><strong>RPG:</strong> {{ game_state.squidies_missile_launcher|int }}</p>
+                    <p style="margin: 1px 0; color: var(--text-primary);"><strong>Rounds:</strong> {{ game_state.squidies_missiles|int }}</p>
                 </div>
             </div>
         </div>
 
-        <div class="info-section" style="padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
-            <h3 style="margin: 0 0 8px 0; font-size: 1.1em;">Market Prices</h3>
+        <div class="info-section" style="padding: 6px; border: 1px solid #ddd; border-radius: 4px; background: var(--primary-bg);">
+            <h3 style="margin: 0 0 6px 0; font-size: 1.1em; color: var(--text-accent);">Market Prices</h3>
             <div class="price-info" style="font-size: 0.85em;">
-                <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 2px;">
-                    <p style="margin: 2px 0;"><strong>Weed:</strong> ${{ game_state.drug_prices['weed'] }}</p>
-                    <p style="margin: 2px 0;"><strong>Crack:</strong> ${{ "{:,}".format(game_state.drug_prices['crack']) }}</p>
-                    <p style="margin: 2px 0;"><strong>Coke:</strong> ${{ "{:,}".format(game_state.drug_prices['coke']) }}</p>
-                    <p style="margin: 2px 0;"><strong>Ice:</strong> ${{ "{:,}".format(game_state.drug_prices['ice']) }}</p>
-                    <p style="margin: 2px 0;"><strong>Percs:</strong> ${{ "{:,}".format(game_state.drug_prices['percs']) }}</p>
-                    <p style="margin: 2px 0;"><strong>Dust:</strong> ${{ "{:,}".format(game_state.drug_prices['pixie_dust']) }}</p>
+                <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 1px;">
+                    <p style="margin: 1px 0; color: var(--text-primary);"><strong>Weed:</strong> ${{ game_state.drug_prices['weed'] }}</p>
+                    <p style="margin: 1px 0; color: var(--text-primary);"><strong>Crack:</strong> ${{ "{:,}".format(game_state.drug_prices['crack']) }}</p>
+                    <p style="margin: 1px 0; color: var(--text-primary);"><strong>Coke:</strong> ${{ "{:,}".format(game_state.drug_prices['coke']) }}</p>
+                    <p style="margin: 1px 0; color: var(--text-primary);"><strong>Ice:</strong> ${{ "{:,}".format(game_state.drug_prices['ice']) }}</p>
+                    <p style="margin: 1px 0; color: var(--text-primary);"><strong>Percs:</strong> ${{ "{:,}".format(game_state.drug_prices['percs']) }}</p>
+                    <p style="margin: 1px 0; color: var(--text-primary);"><strong>Dust:</strong> ${{ "{:,}".format(game_state.drug_prices['pixie_dust']) }}</p>
                 </div>
             </div>
         </div>
 
-        <div class="info-section" style="padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
-            <h3 style="margin: 0 0 8px 0; font-size: 1.1em;">Game Progress</h3>
+        <div class="info-section" style="padding: 6px; border: 1px solid #ddd; border-radius: 4px; background: var(--primary-bg);">
+            <h3 style="margin: 0 0 6px 0; font-size: 1.1em; color: var(--text-accent);">Game Progress</h3>
             <div class="progress-info" style="font-size: 0.9em;">
-                <p style="margin: 4px 0;"><strong>Day:</strong> {{ game_state.day }}</p>
-                <p style="margin: 4px 0;"><strong>Steps:</strong> {{ game_state.steps }}/{{ game_state.max_steps }}</p>
-                <p style="margin: 4px 0;"><strong>Location:</strong> {{ game_state.current_location|title }}</p>
+                <p style="margin: 2px 0; color: var(--text-primary);"><strong>Day:</strong> {{ game_state.day }}</p>
+                <p style="margin: 2px 0; color: var(--text-primary);"><strong>Steps:</strong> {{ game_state.steps }}/{{ game_state.max_steps }}</p>
+                <p style="margin: 2px 0; color: var(--text-primary);"><strong>Location:</strong> {{ game_state.current_location|title }}</p>
             </div>
         </div>
     </div>

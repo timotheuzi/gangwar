@@ -26,7 +26,13 @@ function initSocketIO() {
         locationRoom = window.locationRoom;
     }
 
-    socket = io();
+    // Enable reconnection options
+    socket = io({
+        reconnection: true,
+        reconnectionDelay: 1000,
+        reconnectionDelayMax: 5000,
+        reconnectionAttempts: Infinity
+    });
 
     socket.on('connect', function() {
         console.log('Connected to server');
@@ -46,6 +52,38 @@ function initSocketIO() {
 
     socket.on('connect_error', function(error) {
         console.log('Connection error:', error);
+        isConnected = false;
+        updateConnectionStatus(false);
+    });
+
+    socket.on('connect_timeout', function() {
+        console.log('Connection timeout');
+        isConnected = false;
+        updateConnectionStatus(false);
+    });
+
+    socket.on('reconnect', function(attemptNumber) {
+        console.log('Reconnected to server after', attemptNumber, 'attempts');
+        isConnected = true;
+        currentPlayerId = socket.id;
+        updateConnectionStatus(true);
+
+        socket.emit('join', {room: currentRoom, location_room: locationRoom, player_name: playerName});
+        refreshPlayerList();
+    });
+
+    socket.on('reconnect_attempt', function(attemptNumber) {
+        console.log('Attempting to reconnect...', attemptNumber);
+    });
+
+    socket.on('reconnect_error', function(error) {
+        console.log('Reconnection error:', error);
+        isConnected = false;
+        updateConnectionStatus(false);
+    });
+
+    socket.on('reconnect_failed', function() {
+        console.log('Reconnection failed');
         isConnected = false;
         updateConnectionStatus(false);
     });

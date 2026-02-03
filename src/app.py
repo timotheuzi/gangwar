@@ -278,7 +278,7 @@ class GameState:
     day: int = 1
     health: int = 30
     steps: int = 0
-    max_steps: int = 12
+    max_steps: int = 7
     current_score: int = 0
     current_location: str = "city"
     drug_prices: Dict[str, int] = field(default_factory=lambda: {

@@ -23,100 +23,8 @@
         </div>
     </div>
 
-    <div class="combat-actions">
-        <h3 id="turn-heading" style="display: {% if combat_active %}block{% else %}none{% endif %};">Your Turn - Choose Your Action</h3>
-        <form method="POST" action="/process_fight_action" id="combat-form">
-            <input type="hidden" name="combat_id" value="{{ combat_id }}">
-            <input type="hidden" name="enemy_type" value="{{ enemy_type }}">
-            <input type="hidden" name="enemy_count" value="{{ enemy_count }}">
-            <input type="hidden" name="enemy_health" value="{{ enemy_health }}">
-            {% for entry in fight_log %}
-            <input type="hidden" name="fight_log" value="{{ entry }}">
-            {% endfor %}
-
-            {% if combat_active %}
-            <div class="action-buttons">
-                <button type="submit" name="action" value="attack" class="btn btn-danger">Attack</button>
-                <button type="submit" name="action" value="defend" class="btn btn-warning">Defend</button>
-                <button type="submit" name="action" value="flee" class="btn btn-secondary">Flee (Risky)</button>
-            </div>
-            {% endif %}
-
-            <div class="drug-options">
-                <h4>⚡ Quick Drug Boost (Risky!)</h4>
-                <p style="font-size: 12px; color: #666;">Drugs can boost your power but might backfire!</p>
-                {% if game_state.drugs.weed > 0 %}
-                <button type="submit" name="action" value="use_drug" formaction="/process_fight_action?drug=weed" class="btn btn-success btn-small">Use Weed (+Speed, -Accuracy)</button>
-                {% endif %}
-                {% if game_state.drugs.crack > 0 %}
-                <button type="submit" name="action" value="use_drug" formaction="/process_fight_action?drug=crack" class="btn btn-success btn-small">Use Crack (+Power, -Health)</button>
-                {% endif %}
-                {% if game_state.drugs.coke > 0 %}
-                <button type="submit" name="action" value="use_drug" formaction="/process_fight_action?drug=coke" class="btn btn-success btn-small">Use Coke (+Accuracy, Risky)</button>
-                {% endif %}
-                {% if game_state.drugs.ice > 0 %}
-                <button type="submit" name="action" value="use_drug" formaction="/process_fight_action?drug=ice" class="btn btn-success btn-small">Use Ice (+Strength, -Control)</button>
-                {% endif %}
-                {% if game_state.drugs.percs > 0 %}
-                <button type="submit" name="action" value="use_drug" formaction="/process_fight_action?drug=percs" class="btn btn-success btn-small">Use Percs (+Pain Resistance, Drowsy)</button>
-                {% endif %}
-                {% if game_state.drugs.pixie_dust > 0 %}
-                <button type="submit" name="action" value="use_drug" formaction="/process_fight_action?drug=pixie_dust" class="btn btn-success btn-small">Use Pixie Dust (???)</button>
-                {% endif %}
-            </div>
-
-            <div class="weapon-selection">
-                <label for="weapon">Choose Weapon:</label>
-                <select name="weapon" id="weapon">
-                    {% if game_state.weapons.pistols > 0 and game_state.weapons.bullets > 0 %}
-                    <option value="pistol">Pistol ({{ game_state.weapons.bullets }} bullets){% if game_state.weapons.pistol_automatic %} (Auto - 3 attacks/turn){% else %} (1 attack/turn){% endif %}</option>
-                    {% endif %}
-
-                    {% if game_state.weapons.ar15 > 0 and game_state.weapons.bullets > 0 %}
-                    <option value="ar15">AR-15 ({{ game_state.weapons.bullets }} bullets) - 1 attack/turn</option>
-                    {% endif %}
-
-                    {% if game_state.weapons.ghost_guns > 0 and game_state.weapons.bullets > 0 %}
-                    <option value="ghost_gun">Ghost Gun ({{ game_state.weapons.bullets }} bullets){% if game_state.weapons.ghost_gun_automatic %} (Auto - 2 attacks/turn){% else %} (1 attack/turn){% endif %}</option>
-                    {% endif %}
-
-                    {% if game_state.weapons.grenades > 0 %}
-                    <option value="grenade">Grenade ({{ game_state.weapons.grenades }} available) - 1 attack/turn</option>
-                    {% endif %}
-
-                    {% if game_state.weapons.missile_launcher > 0 and game_state.weapons.missiles > 0 %}
-                    <option value="missile_launcher">Missile Launcher ({{ game_state.weapons.missiles }} missiles) - 1 attack/turn</option>
-                    {% endif %}
-
-                    {% if game_state.weapons.vampire_bat > 0 %}
-                    <option value="vampire_bat">Vampire Bat - 2 attacks/turn</option>
-                    {% endif %}
-
-                    {% if game_state.weapons.knife > 0 %}
-                    <option value="knife">Knife - 3 attacks/turn</option>
-                    {% else %}
-                    <option value="knife" disabled style="color: #666;">Knife - 3 attacks/turn (Not owned)</option>
-                    {% endif %}
-                </select>
-            </div>
-
-            <div class="ammo-selection" id="ammo-selection">
-                <label for="ammo">Special Ammo:</label>
-                <select name="ammo" id="ammo">
-                    <option value="normal">Normal Ammo</option>
-                    {% if game_state.weapons.exploding_bullets > 0 and (game_state.weapons.pistols > 0 or game_state.weapons.ghost_guns > 0 or game_state.weapons.ar15 > 0) and game_state.weapons.bullets > 0 %}
-                    <option value="exploding">Exploding Bullets ({{ game_state.weapons.exploding_bullets }} available) - Double Damage!</option>
-                    {% endif %}
-                    {% if game_state.weapons.hollow_point_bullets > 0 and (game_state.weapons.pistols > 0 or game_state.weapons.ghost_guns > 0 or game_state.weapons.ar15 > 0) and game_state.weapons.bullets > 0 %}
-                    <option value="hollow_point">Hollow Point Bullets ({{ game_state.weapons.hollow_point_bullets }} available) - 20% Extra Damage!</option>
-                    {% endif %}
-                </select>
-            </div>
-        </form>
-    </div>
-
-    <!-- Combat Log Section - Always Visible -->
-    <div class="combat-chat-container">
+    <!-- Combat Log and Actions Container -->
+    <div class="combat-container">
         <div class="combat-chat-section">
             <h4>⚔️ Combat Log</h4>
             <div id="combat-messages" class="combat-messages">
@@ -129,11 +37,103 @@
                 {% endif %}
             </div>
         </div>
-    </div>
 
-    <div class="combat-options" style="display: {% if not combat_active %}block{% else %}none{% endif %};">
-        <a href="{{ url_for('wander') }}" class="btn btn-success">Keep Wandering</a>
-        <a href="{{ url_for('city') }}" class="btn btn-primary">Return to City</a>
+        <div class="combat-actions">
+            <h3 id="turn-heading" style="display: {% if combat_active %}block{% else %}none{% endif %};">Your Turn - Choose Your Action</h3>
+            <form method="POST" action="/process_fight_action" id="combat-form">
+                <input type="hidden" name="combat_id" value="{{ combat_id }}">
+                <input type="hidden" name="enemy_type" value="{{ enemy_type }}">
+                <input type="hidden" name="enemy_count" value="{{ enemy_count }}">
+                <input type="hidden" name="enemy_health" value="{{ enemy_health }}">
+                {% for entry in fight_log %}
+                <input type="hidden" name="fight_log" value="{{ entry }}">
+                {% endfor %}
+
+                {% if combat_active %}
+                <div class="action-buttons">
+                    <button type="submit" name="action" value="attack" class="btn btn-danger">Attack</button>
+                    <button type="submit" name="action" value="defend" class="btn btn-warning">Defend</button>
+                    <button type="submit" name="action" value="flee" class="btn btn-secondary">Flee (Risky)</button>
+                </div>
+                {% endif %}
+
+                <div class="drug-options">
+                    <h4>⚡ Quick Drug Boost (Risky!)</h4>
+                    <p style="font-size: 12px; color: #666;">Drugs can boost your power but might backfire!</p>
+                    {% if game_state.drugs.weed > 0 %}
+                    <button type="submit" name="action" value="use_drug" formaction="/process_fight_action?drug=weed" class="btn btn-success btn-small">Use Weed (+Speed, -Accuracy)</button>
+                    {% endif %}
+                    {% if game_state.drugs.crack > 0 %}
+                    <button type="submit" name="action" value="use_drug" formaction="/process_fight_action?drug=crack" class="btn btn-success btn-small">Use Crack (+Power, -Health)</button>
+                    {% endif %}
+                    {% if game_state.drugs.coke > 0 %}
+                    <button type="submit" name="action" value="use_drug" formaction="/process_fight_action?drug=coke" class="btn btn-success btn-small">Use Coke (+Accuracy, Risky)</button>
+                    {% endif %}
+                    {% if game_state.drugs.ice > 0 %}
+                    <button type="submit" name="action" value="use_drug" formaction="/process_fight_action?drug=ice" class="btn btn-success btn-small">Use Ice (+Strength, -Control)</button>
+                    {% endif %}
+                    {% if game_state.drugs.percs > 0 %}
+                    <button type="submit" name="action" value="use_drug" formaction="/process_fight_action?drug=percs" class="btn btn-success btn-small">Use Percs (+Pain Resistance, Drowsy)</button>
+                    {% endif %}
+                    {% if game_state.drugs.pixie_dust > 0 %}
+                    <button type="submit" name="action" value="use_drug" formaction="/process_fight_action?drug=pixie_dust" class="btn btn-success btn-small">Use Pixie Dust (???)</button>
+                    {% endif %}
+                </div>
+
+                <div class="weapon-selection">
+                    <label for="weapon">Choose Weapon:</label>
+                    <select name="weapon" id="weapon">
+                        {% if game_state.weapons.pistols > 0 and game_state.weapons.bullets > 0 %}
+                        <option value="pistol">Pistol ({{ game_state.weapons.bullets }} bullets){% if game_state.weapons.pistol_automatic %} (Auto - 3 attacks/turn){% else %} (1 attack/turn){% endif %}</option>
+                        {% endif %}
+
+                        {% if game_state.weapons.ar15 > 0 and game_state.weapons.bullets > 0 %}
+                        <option value="ar15">AR-15 ({{ game_state.weapons.bullets }} bullets) - 1 attack/turn</option>
+                        {% endif %}
+
+                        {% if game_state.weapons.ghost_guns > 0 and game_state.weapons.bullets > 0 %}
+                        <option value="ghost_gun">Ghost Gun ({{ game_state.weapons.bullets }} bullets){% if game_state.weapons.ghost_gun_automatic %} (Auto - 2 attacks/turn){% else %} (1 attack/turn){% endif %}</option>
+                        {% endif %}
+
+                        {% if game_state.weapons.grenades > 0 %}
+                        <option value="grenade">Grenade ({{ game_state.weapons.grenades }} available) - 1 attack/turn</option>
+                        {% endif %}
+
+                        {% if game_state.weapons.missile_launcher > 0 and game_state.weapons.missiles > 0 %}
+                        <option value="missile_launcher">Missile Launcher ({{ game_state.weapons.missiles }} missiles) - 1 attack/turn</option>
+                        {% endif %}
+
+                        {% if game_state.weapons.vampire_bat > 0 %}
+                        <option value="vampire_bat">Vampire Bat - 2 attacks/turn</option>
+                        {% endif %}
+
+                        {% if game_state.weapons.knife > 0 %}
+                        <option value="knife">Knife - 3 attacks/turn</option>
+                        {% else %}
+                        <option value="knife" disabled style="color: #666;">Knife - 3 attacks/turn (Not owned)</option>
+                        {% endif %}
+                    </select>
+                </div>
+
+                <div class="ammo-selection" id="ammo-selection">
+                    <label for="ammo">Special Ammo:</label>
+                    <select name="ammo" id="ammo">
+                        <option value="normal">Normal Ammo</option>
+                        {% if game_state.weapons.exploding_bullets > 0 and (game_state.weapons.pistols > 0 or game_state.weapons.ghost_guns > 0 or game_state.weapons.ar15 > 0) and game_state.weapons.bullets > 0 %}
+                        <option value="exploding">Exploding Bullets ({{ game_state.weapons.exploding_bullets }} available) - Double Damage!</option>
+                        {% endif %}
+                        {% if game_state.weapons.hollow_point_bullets > 0 and (game_state.weapons.pistols > 0 or game_state.weapons.ghost_guns > 0 or game_state.weapons.ar15 > 0) and game_state.weapons.bullets > 0 %}
+                        <option value="hollow_point">Hollow Point Bullets ({{ game_state.weapons.hollow_point_bullets }} available) - 20% Extra Damage!</option>
+                        {% endif %}
+                    </select>
+                </div>
+            </form>
+        </div>
+
+        <div class="combat-options" style="display: {% if not combat_active %}block{% else %}none{% endif %};">
+            <a href="{{ url_for('wander') }}" class="btn btn-success">Keep Wandering</a>
+            <a href="{{ url_for('city') }}" class="btn btn-primary">Return to City</a>
+        </div>
     </div>
 </div>
 
@@ -221,9 +221,12 @@
     min-width: 120px;
 }
 
-/* Combat Chat Styles */
-.combat-chat-container {
-    margin: 15px 0;
+/* Combat Container Styles */
+.combat-container {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    margin: 20px 0;
 }
 
 .combat-chat-section {
@@ -253,6 +256,13 @@
     font-family: 'Courier New', monospace;
     font-size: 14px;
     color: #0f0;
+}
+
+/* Responsive Combat Container */
+@media (max-width: 768px) {
+    .combat-container {
+        grid-template-columns: 1fr;
+    }
 }
 </style>
 
@@ -439,8 +449,8 @@ function handleCombatAction(formData, submitter) {
             // Clear and update the combat log display with all messages
             clearCombatLog();
             if (result.fight_log && result.fight_log.length > 0) {
-                // Use shorter delay for better responsiveness
-                animateCombatMessages(result.fight_log, 600);
+                // Use slightly longer delay for better readability
+                animateCombatMessages(result.fight_log, 800);
             }
 
             // Handle game over scenario
