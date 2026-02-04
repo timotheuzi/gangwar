@@ -7,6 +7,17 @@
       "south": "city",
       "east": "side_street",
       "west": "dumpster"
+    },
+    "fight_chance": 0.6,
+    "loot": {
+      "cash_min": 100,
+      "cash_max": 400,
+      "items": [
+        {"name": "switchblade", "value": 50, "chance": 0.4},
+        {"name": "lockpick", "value": 30, "chance": 0.5},
+        {"name": "cigarettes", "value": 15, "chance": 0.6},
+        {"name": "rare coin", "value": 100, "chance": 0.2}
+      ]
     }
   },
   "dead_end": {
