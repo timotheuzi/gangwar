@@ -172,11 +172,11 @@ def save_high_scores(scores: List[HighScore]):
 
 def calculate_score(money_earned: int, days_survived: int, gang_wars_won: int, fights_won: int) -> int:
     """Calculate total score based on achievements"""
-    # Money earned contributes 1 point per $1000
-    money_score = money_earned // 1000
+    # Money earned contributes 1 point per $1000 (subtract starting money of $1000)
+    money_score = max(0, (money_earned - 1000) // 1000)
 
-    # Days survived contributes 100 points per day
-    survival_score = days_survived * 100
+    # Days survived contributes 100 points per day (subtract starting day 1)
+    survival_score = max(0, (days_survived - 1) * 100)
 
     # Gang war victories contribute 1000 points each
     gang_war_score = gang_wars_won * 1000
@@ -564,6 +564,7 @@ def buy_weapon():
     game_state.money -= total_cost
 
     # Add weapon to inventory
+    game_state.current_score += 1  # Minor achievement: 1 point for buying weapons
     if weapon_type == 'pistol':
         game_state.weapons.pistols += quantity
     elif weapon_type == 'bullets':
@@ -1865,6 +1866,7 @@ def new_game():
         game_state = GameState()
         game_state.player_name = player_name
         game_state.gang_name = gang_name
+        game_state.current_score = 0  # Start with score 0
         # Note: gender is collected but not currently used in game logic
 
         # Initialize starting weapons
@@ -2850,6 +2852,8 @@ def process_fight_action():
         # Check for game win condition (defeating all squidies)
         if "squidie" in enemy_type.lower():
             # Game victory! Update high scores and redirect to win screen
+            game_state.current_score += 5  # Major achievement: 5 points for defeating Squidies
+            check_and_update_high_scores(game_state, 1, 0)  # Game win counts as a gang war won
             check_and_update_high_scores(game_state, 1, 0)  # Game win counts as a gang war won
             if is_ajax:
                 return jsonify({
