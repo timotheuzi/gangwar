@@ -254,6 +254,8 @@ class Weapons:
     axe: int = 0
     golden_gun: int = 0
     poison_blowgun: int = 0
+    chain_whip: int = 0
+    plasma_cutter: int = 0
     pistol_automatic: bool = False
     ghost_gun_automatic: bool = False
 
@@ -477,7 +479,7 @@ def update_global_drug_prices():
 @app.route('/')
 def index():
     """Main index page"""
-    return render_template('index.html', game_state=get_game_state())
+    return render_template('index.html', game_state=None)
 
 @app.route('/high_scores')
 def high_scores():
@@ -2057,7 +2059,7 @@ def fight_cops():
     if action == 'run':
         # Try to escape
         escape_chance = random.random()
-        if escape_chance < 0.6:  # 60% chance to escape
+        if escape_chance < 0.5:  # 50% chance to escape
             flash("You manage to escape the police chase!", "success")
             # Chance to recruit a impressed bystander
             if random.random() < 0.2:  # 20% chance
@@ -2466,6 +2468,14 @@ def process_fight_action():
             # Since this is single-turn combat, we'll apply poison damage immediately
             enemy_health -= poison_damage
             fight_log.append(f"The poison coursing through their veins deals an additional {poison_damage} damage!")
+        elif weapon == 'chain_whip' and game_state.weapons.chain_whip > 0:
+            damage = random.randint(40, 70)
+            enemy_health -= damage
+            fight_log.append(f"You whip your chain with deadly force and deal {damage} damage!")
+        elif weapon == 'plasma_cutter' and game_state.weapons.plasma_cutter > 0:
+            damage = random.randint(70, 100)
+            enemy_health -= damage
+            fight_log.append(f"You slice through your enemy with the plasma cutter and deal {damage} damage!")
         else:
             fight_log.append("You don't have that weapon or ammo!")
             print(f"DEBUG: Weapon {weapon} not available or no ammo")
@@ -2725,8 +2735,8 @@ def process_fight_action():
             game_state.damage += enemy_damage
 
     elif action == 'flee':
-        if random.random() < 0.4:  # 40% chance to flee
-            flash("You successfully flee from combat!", "success")
+        if random.random() < 0.5:  # 50% chance to flee
+            fight_log.append("You successfully flee from combat!")
             save_game_state(game_state)
             return redirect(url_for('city'))
         else:
@@ -2786,6 +2796,12 @@ def process_fight_action():
                 elif weapon == 'poison_blowgun':
                     game_state.weapons.poison_blowgun += 1
                     fight_log.append(f"You found a unique POISON BLOWGUN dropped by {npc['name']}!")
+                elif weapon == 'chain_whip':
+                    game_state.weapons.chain_whip += 1
+                    fight_log.append(f"You found a unique CHAIN WHIP dropped by {npc['name']}!")
+                elif weapon == 'plasma_cutter':
+                    game_state.weapons.plasma_cutter += 1
+                    fight_log.append(f"You found a unique PLASMA CUTTER dropped by {npc['name']}!")
 
             # NPCs have a chance to drop drugs
             drug_types = ['weed', 'crack', 'coke', 'ice', 'percs', 'pixie_dust']

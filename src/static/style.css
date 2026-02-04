@@ -610,13 +610,15 @@ footer {
 .location-btn h3 {
     color: #ffff00;
     margin-bottom: 2px;
-    font-size: 0.9em;
+    font-size: 1.2em;
+    font-weight: 600;
 }
 
 .location-btn p {
     margin: 0;
-    font-size: 0.8em;
+    font-size: 0.9em;
     line-height: 1.1;
+    color: #cccccc;
 }
 
 .city-actions {
@@ -1311,47 +1313,128 @@ footer {
     margin: 10px 0;
 }
 
+.bar-info-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 10px;
+}
+
 .contact-section,
-.info-section,
-.tips-section {
+.market-info,
+.street-tips {
     background-color: #333;
     padding: 12px;
     border: 1px solid #00ff00;
+    border-radius: var(--radius-md);
 }
 
 .contact-section h3,
-.info-section h3,
-.tips-section h3 {
+.market-info h3,
+.street-tips h3 {
     color: #ffff00;
     margin-bottom: 10px;
     border-bottom: 1px solid #ffff00;
     padding-bottom: 4px;
+    font-size: 1.1em;
 }
 
 .contact {
-    margin-bottom: 15px;
-    padding-bottom: 10px;
-    border-bottom: 1px solid #444;
-}
-
-.contact:last-child {
-    border-bottom: none;
+    margin-bottom: 12px;
+    padding: 8px;
+    background-color: #444;
+    border-radius: var(--radius-sm);
+    border: 1px solid #555;
 }
 
 .contact h4 {
     color: #ff8800;
+    margin-bottom: 4px;
+    font-size: 1em;
+}
+
+.contact p {
+    color: #ccc;
+    margin-bottom: 6px;
+    font-size: 0.9em;
+}
+
+.status {
+    display: inline-block;
+    padding: 2px 6px;
+    font-size: 0.8em;
+    font-weight: bold;
+    border-radius: 4px;
     margin-bottom: 8px;
+    background-color: #555;
+    color: #fff;
 }
 
 .contact-actions {
     display: flex;
     gap: 6px;
     flex-wrap: wrap;
-    margin-top: 8px;
 }
 
-.contact-form {
-    margin-top: 10px;
+.market-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 6px;
+}
+
+.market-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 6px 8px;
+    background-color: #444;
+    border-radius: var(--radius-sm);
+    border: 1px solid #555;
+}
+
+.market-label {
+    color: #ffff00;
+    font-size: 0.9em;
+    font-weight: 600;
+}
+
+.market-value {
+    padding: 2px 6px;
+    font-size: 0.85em;
+    font-weight: bold;
+    border-radius: 4px;
+    background-color: #555;
+    color: #fff;
+}
+
+.market-high {
+    background-color: #ff4444 !important;
+    color: #fff !important;
+}
+
+.market-low {
+    background-color: #44ff44 !important;
+    color: #000 !important;
+}
+
+.street-tips ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.street-tips li {
+    color: #00ff00;
+    margin-bottom: 6px;
+    font-size: 0.9em;
+    padding-left: 12px;
+    position: relative;
+}
+
+.street-tips li:before {
+    content: "•";
+    position: absolute;
+    left: 0;
+    color: #ffff00;
 }
 
 .actions {

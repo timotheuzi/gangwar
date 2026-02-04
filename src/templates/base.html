@@ -33,7 +33,7 @@
 <body>
     <div class="container">
         <!-- Player Info Header -->
-        {% if game_state %}
+        {% if game_state and request.endpoint != 'index' and request.endpoint != "new_game" %}
         <header class="player-info-header">
             <div class="player-info">
                 <div class="player-basic">

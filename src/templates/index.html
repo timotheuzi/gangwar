@@ -1,6 +1,11 @@
-{% extends "base.html" %}
+    {% extends "base.html" %}
+
+{% block title %}Gang War MUD{% endblock %}
 
 {% block content %}
+<!-- Override to remove player info header from index page -->
+{% set game_state = None %}
+
 <div class="welcome-screen">
     <h3>Welcome to Downtown Minneapolis</h3>
     <div class="intro-text">

@@ -112,6 +112,42 @@
                         {% else %}
                         <option value="knife" disabled style="color: #666;">Knife - 3 attacks/turn (Not owned)</option>
                         {% endif %}
+
+                        {% if game_state.weapons.sword > 0 %}
+                        <option value="sword">Sword - 1 attack/turn</option>
+                        {% else %}
+                        <option value="sword" disabled style="color: #666;">Sword - 1 attack/turn (Not owned)</option>
+                        {% endif %}
+
+                        {% if game_state.weapons.axe > 0 %}
+                        <option value="axe">Axe - 1 attack/turn</option>
+                        {% else %}
+                        <option value="axe" disabled style="color: #666;">Axe - 1 attack/turn (Not owned)</option>
+                        {% endif %}
+
+                        {% if game_state.weapons.golden_gun > 0 %}
+                        <option value="golden_gun">Golden Gun - 1 attack/turn</option>
+                        {% else %}
+                        <option value="golden_gun" disabled style="color: #666;">Golden Gun - 1 attack/turn (Not owned)</option>
+                        {% endif %}
+
+                        {% if game_state.weapons.poison_blowgun > 0 %}
+                        <option value="poison_blowgun">Poison Blowgun - 1 attack/turn</option>
+                        {% else %}
+                        <option value="poison_blowgun" disabled style="color: #666;">Poison Blowgun - 1 attack/turn (Not owned)</option>
+                        {% endif %}
+
+                        {% if game_state.weapons.chain_whip > 0 %}
+                        <option value="chain_whip">Chain Whip - 1 attack/turn</option>
+                        {% else %}
+                        <option value="chain_whip" disabled style="color: #666;">Chain Whip - 1 attack/turn (Not owned)</option>
+                        {% endif %}
+
+                        {% if game_state.weapons.plasma_cutter > 0 %}
+                        <option value="plasma_cutter">Plasma Cutter - 1 attack/turn</option>
+                        {% else %}
+                        <option value="plasma_cutter" disabled style="color: #666;">Plasma Cutter - 1 attack/turn (Not owned)</option>
+                        {% endif %}
                     </select>
                 </div>
 
