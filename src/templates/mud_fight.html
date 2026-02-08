@@ -104,13 +104,13 @@
                         {% endif %}
 
                         {% if game_state.weapons.vampire_bat > 0 %}
-                        <option value="vampire_bat">Vampire Bat - 2 attacks/turn</option>
+                        <option value="vampire_bat">Vampire Bat - 4 attacks/turn (High damage)</option>
                         {% endif %}
 
                         {% if game_state.weapons.knife > 0 %}
-                        <option value="knife">Knife - 3 attacks/turn</option>
+                        <option value="knife">Knife - 5 attacks/turn (Can miss more often)</option>
                         {% else %}
-                        <option value="knife" disabled style="color: #666;">Knife - 3 attacks/turn (Not owned)</option>
+                        <option value="knife" disabled style="color: #666;">Knife - 5 attacks/turn (Not owned)</option>
                         {% endif %}
 
                         {% if game_state.weapons.sword > 0 %}

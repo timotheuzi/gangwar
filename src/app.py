@@ -546,7 +546,7 @@ def buy_weapon():
         'vest_medium': 15000,
         'vest_heavy': 25000,
         'ar15': 10000,
-        'ghost_gun': 900
+        'ghost_gun': 600
     }
 
     if weapon_type not in weapon_prices:
@@ -1023,8 +1023,15 @@ def wander():
     game_state = get_game_state()
     result = "You wander the streets uneventfully."  # Default result
 
-    # Check for police chase (10% chance)
-    if random.random() < 0.1:
+    # Calculate cop encounter chance - reduced if you have a ghost gun
+    base_cop_chance = 0.1  # 10% base chance
+    if game_state.weapons.ghost_guns > 0:
+        # Each ghost gun reduces cop encounters by 5%
+        reduction = min(0.05 * game_state.weapons.ghost_guns, 0.04)  # Max 4% reduction
+        base_cop_chance -= reduction
+    
+    # Check for police chase
+    if random.random() < base_cop_chance:
         if game_state.flags.has_id:
             result = "You see a police patrol but your fake ID saves you from getting stopped!"
             flash("Your fake ID protected you from police harassment!", "success")
@@ -1993,7 +2000,7 @@ def npc_trade_action(npc_id):
     save_game_state(game_state)
 
     # Save updated NPC data
-    npc_file = os.path.join(os.path.dirname(__file__), '..', 'models', 'npcs.json')
+    npc_file = os.path.join(os.path.dirname(__file__), '..', 'model', 'npcs.json')
     with open(npc_file, 'w') as f:
         json.dump(npcs_data, f, indent=2)
 
@@ -2028,6 +2035,255 @@ def pickup_loot(npc_id):
         message = "You can't loot a living person."
     save_game_state(game_state)
     return render_template('npc_interaction.html', npc=npc, action='loot', message=message, game_state=game_state)
+
+# ============
+# NPC Dialogue System
+# ============
+
+# Define dialogue trees for NPCs
+NPC_DIALOGUES = {
+    'nox': {
+        'greetings': [
+            "Nox leans against the bar, watching you with calculating eyes. 'You looking for information, stranger? That'll cost you.'",
+            "'I know things that could save your life,' Nox says cryptically. 'Interested?'",
+            "Nox glances around nervously. 'Word is you're making waves. You need info, you got credits?'"
+        ],
+        'topics': {
+            'squidies': {
+                'question': "What do you know about the Squidies?",
+                'responses': [
+                    {'text': "The Squidies run the east side. They got muscle, guns, and they don't like outsiders.", 'cost': 500, 'effect': None},
+                    {'text': "Their HQ is in the old warehouse district. Heavy guard at night.", 'cost': 1000, 'effect': 'has_info'},
+                    {'text': "Word is they got a shipment coming next week. Big one. Automatics.", 'cost': 2000, 'effect': 'has_info'},
+                    {'text': "Forget it, I don't want to know.", 'cost': 0, 'effect': None}
+                ]
+            },
+            'police': {
+                'question': "How do I avoid the cops?",
+                'responses': [
+                    {'text': "Get a fake ID. The guy at Pick n Save can hook you up. Costs about $5K.", 'cost': 0, 'effect': None},
+                    {'text': "Police patrol patterns change daily. Check the infobooth for alerts.", 'cost': 300, 'effect': None},
+                    {'text': "There's a tunnel system under the city. Hidden entrances all over. Useful for evading.", 'cost': 1500, 'effect': 'has_info'},
+                    {'text': "Never mind, I'll take my chances.", 'cost': 0, 'effect': None}
+                ]
+            },
+            'weapons': {
+                'question': "Where can I get some serious firepower?",
+                'responses': [
+                    {'text': "Gun Pawn USA on 5th Street. They don't ask questions.", 'cost': 0, 'effect': None},
+                    {'text': "For the really good stuff... talk to Raze. But he's dangerous.", 'cost': 1000, 'effect': None},
+                    {'text': "There's an underground market in the sewers. Weapons, ammo, everything. But it's risky.", 'cost': 2500, 'effect': 'has_info'},
+                    {'text': "I think I'll stick with what I have.", 'cost': 0, 'effect': None}
+                ]
+            },
+            'money': {
+                'question': "How can I make some quick cash?",
+                'responses': [
+                    {'text': "The crackhouse. Buy low, sell high. That's the game.", 'cost': 0, 'effect': None},
+                    {'text': "Gang wars pay well if you win. But it's dangerous.", 'cost': 500, 'effect': None},
+                    {'text': "There's a Pick n Save in the bad part of town. Search it, you might find stashed cash.", 'cost': 800, 'effect': 'has_info'},
+                    {'text': "I heard about some hidden stashes in the alleyways.", 'cost': 1200, 'effect': 'has_info'}
+                ]
+            },
+            'deal': {
+                'question': "I heard you can set up a drug deal...",
+                'responses': [
+                    {'text': "'I got a guy who needs product. Meet me at midnight behind the Pick n Save. Bring $5K worth of weed.'", 'cost': 0, 'effect': 'drug_deal'},
+                    {'text': "'That deal went south last month. Got ambushed by cops. Lost everything.'", 'cost': 200, 'effect': None},
+                    {'text': "'The money is good but the risks are real. You in or out?'", 'cost': 0, 'effect': None}
+                ]
+            },
+            'ripped_off': {
+                'question': "I got ripped off by someone you recommended...",
+                'responses': [
+                    {'text': "'That ain't my problem. Shoulda done your homework before dealing.'", 'cost': 0, 'effect': None},
+                    {'text': "'Alright, I got your back. Tell me who scammed you and I'll have a word with them.'", 'cost': 500, 'effect': 'revenge'},
+                    {'text': "'Bad luck happens. Here's $200 to tide you over. Don't say I never gave you nothing.'", 'cost': 0, 'effect': 'cash_200'}
+                ]
+            },
+            'stranded': {
+                'question': "I'm stranded and need help getting back to HQ...",
+                'responses': [
+                    {'text': "'That'll cost you. $500 for a ride. Take it or walk.'", 'cost': 500, 'effect': 'ride'},
+                    {'text': "'I got a contact who can help. But he owes me one. Consider it paid.'", 'cost': 0, 'effect': 'ride_free'},
+                    {'text': "'You're on your own. Shouldn't have wandered into parts unknown.'", 'cost': 0, 'effect': None}
+                ]
+            }
+        }
+    },
+    'raze': {
+        'greetings': [
+            "Raze stands behind a table filled with weapons and drugs. 'You got money? I got product.'",
+            "'Fresh shipment in,' Raze grins. 'What you looking for?'",
+            "Raze eyes you suspiciously. 'You come recommended? Good. Let's do business.'",
+            "'I heard you're looking for action. I got connections if you got the cash.'",
+            "'Another customer! Welcome to the underground. What can I do you for today?'"
+        ],
+        'topics': {
+            'buy': {
+                'question': "Show me what you have.",
+                'responses': [
+                    {'text': "Weed - $500/kilo, Crack - $1000/kilo, Coke - $2000/kilo", 'cost': 0, 'effect': None},
+                    {'text': "Ice - $1500/kilo, Percs - $800/kilo, Pixie Dust - $3000/kilo", 'cost': 0, 'effect': None},
+                    {'text': "Pistols - $1200, AR-15 - $10,000, Ghost Gun - $600", 'cost': 0, 'effect': None},
+                    {'text': "Vampire Bat - $2,500, Grenades - $1,000 each", 'cost': 0, 'effect': None},
+                    {'text': "Just browsing, thanks.", 'cost': 0, 'effect': None}
+                ]
+            },
+            'discount': {
+                'question': "Can you give me a deal?",
+                'responses': [
+                    {'text': "'You a big buyer? Show me the money and we talk.'", 'cost': 0, 'effect': None},
+                    {'text': "'Buy 10 kilos of anything, get 1 free. That's my deal.'", 'cost': 0, 'effect': None},
+                    {'text': "'New customers get 10% off first purchase. Use code RAZE10.'", 'cost': 0, 'effect': None},
+                    {'text': "Maybe later.", 'cost': 0, 'effect': None}
+                ]
+            },
+            'debt': {
+                'question': "I need more time to pay.",
+                'responses': [
+                    {'text': "Raze's smile vanishes. 'Time? Time costs interest. 15% per day. Take it or leave it.'", 'cost': 0, 'effect': None},
+                    {'text': "'You got one week. After that... my collectors come calling. And they do not miss.'", 'cost': 0, 'effect': None},
+                    {'text': "'I'll have your legs broken. That's my collection policy.'", 'cost': 0, 'effect': None},
+                    {'text': "I'll have the money.", 'cost': 0, 'effect': None}
+                ]
+            },
+            'special': {
+                'question': "What do you have that's special?",
+                'responses': [
+                    {'text': "'Special items cost special prices. Golden Gun - one shot, one kill. $50K.'", 'cost': 0, 'effect': None},
+                    {'text': "'Missile launchers. $1M each. Worth every penny when you need to make a statement.'", 'cost': 0, 'effect': None},
+                    {'text': "'Exploding bullets - $2K for 50. Hollow points - $500 for 50. Heavy stuff.'", 'cost': 0, 'effect': None},
+                    {'text': "Maybe some other time.", 'cost': 0, 'effect': None}
+                ]
+            },
+            'fight': {
+                'question': "Looking for a fight. Got anything for me?",
+                'responses': [
+                    {'text': "'Now you're talking! Underground fight club. Tonight. Winner takes $10K.'", 'cost': 0, 'effect': 'fight_club'},
+                    {'text': "'I got a job. Hit a Squidie outpost. Payment upon completion. $5K upfront.'", 'cost': 0, 'effect': 'raid_job'},
+                    {'text': "'Bad news. Someone put a bounty on your head. $2K. I ain't telling who.'", 'cost': 0, 'effect': 'bounty'},
+                    {'text': "'Stay sharp. Got word cops are planning a raid on this place.'", 'cost': 500, 'effect': 'warning'}
+                ]
+            },
+            'drug_deal': {
+                'question': "I want to set up a big drug deal...",
+                'responses': [
+                    {'text': "'Now you're thinking big! I got a connection who needs 20 kilos. Meet at the docks at 3AM.'", 'cost': 0, 'effect': 'big_deal'},
+                    {'text': "'The competition don't like outsiders muscling in. Expect trouble.'", 'cost': 1000, 'effect': 'warning'},
+                    {'text': "'I can front you the product. 50% cut when it sells. But if you bail...' ", 'cost': 0, 'effect': 'fronted'},
+                    {'text': "'Forget it. Too risky with the cops sniffing around.'", 'cost': 0, 'effect': None}
+                ]
+            },
+            'money': {
+                'question': "I'm short on cash. Any opportunities?",
+                'responses': [
+                    {'text': "'I got a package that needs delivering. Dangerous route but pays $3K.'", 'cost': 0, 'effect': 'delivery'},
+                    {'text': "'You could run errands for me. Small jobs. Pays $500 each.'", 'cost': 0, 'effect': 'errands'},
+                    {'text': "'No handouts here. Come back when you got something to offer.'", 'cost': 0, 'effect': None},
+                    {'text': "'Fine. Here's $300. Don't spend it all at once.'", 'cost': 0, 'effect': 'cash_300'}
+                ]
+            }
+        }
+    }
+}
+
+@app.route('/npc_dialogue/<npc_id>')
+def npc_dialogue(npc_id):
+    """Start a dialogue with an NPC"""
+    if npc_id not in npcs_data:
+        return redirect(url_for('city'))
+    npc = npcs_data[npc_id]
+    game_state = get_game_state()
+    
+    # Get dialogue for this NPC
+    if npc_id in NPC_DIALOGUES:
+        dialogue_data = NPC_DIALOGUES[npc_id]
+        greeting = random.choice(dialogue_data['greetings'])
+        topics = list(dialogue_data['topics'].keys())
+    else:
+        greeting = f"{npc['name']} looks at you. 'What do you want?'"
+        topics = []
+        dialogue_data = None
+    
+    return render_template('npc_dialogue.html', npc=npc, greeting=greeting, topics=topics, dialogue_data=dialogue_data, game_state=game_state)
+
+@app.route('/npc_dialogue/<npc_id>/topic/<topic>')
+def npc_dialogue_topic(npc_id, topic):
+    """Handle NPC dialogue topic selection"""
+    if npc_id not in npcs_data:
+        return redirect(url_for('city'))
+    npc = npcs_data[npc_id]
+    game_state = get_game_state()
+    
+    if npc_id not in NPC_DIALOGUES:
+        flash("This NPC doesn't have dialogue options.", "info")
+        return redirect(url_for('city'))
+    
+    dialogue_data = NPC_DIALOGUES[npc_id]
+    
+    if topic not in dialogue_data['topics']:
+        flash("Invalid dialogue topic.", "warning")
+        return redirect(url_for('npc_dialogue', npc_id=npc_id))
+    
+    topic_data = dialogue_data['topics'][topic]
+    question = topic_data['question']
+    responses = topic_data['responses']
+    
+    return render_template('npc_dialogue_topic.html', npc=npc, topic=topic, question=question, responses=responses, game_state=game_state)
+
+@app.route('/npc_dialogue/<npc_id>/respond', methods=['POST'])
+def npc_dialogue_respond(npc_id):
+    """Handle NPC dialogue response selection"""
+    if npc_id not in npcs_data:
+        return redirect(url_for('city'))
+    
+    game_state = get_game_state()
+    response_index = int(request.form.get('response_index', 0))
+    topic = request.form.get('topic', '')
+    
+    if npc_id not in NPC_DIALOGUES:
+        flash("Invalid NPC.", "warning")
+        return redirect(url_for('city'))
+    
+    dialogue_data = NPC_DIALOGUES[npc_id]
+    
+    if topic not in dialogue_data['topics']:
+        flash("Invalid topic.", "warning")
+        return redirect(url_for('npc_dialogue', npc_id=npc_id))
+    
+    topic_data = dialogue_data['topics'][topic]
+    responses = topic_data['responses']
+    
+    if response_index >= len(responses):
+        flash("Invalid response selection.", "warning")
+        return redirect(url_for('npc_dialogue_topic', npc_id=npc_id, topic=topic))
+    
+    selected_response = responses[response_index]
+    response_text = selected_response['text']
+    cost = selected_response.get('cost', 0)
+    effect = selected_response.get('effect', None)
+    
+    # Handle cost
+    if cost > 0:
+        if game_state.money >= cost:
+            game_state.money -= cost
+            flash(f"You paid ${cost} for information.", "info")
+        else:
+            flash(f"You can't afford the ${cost} cost for this information!", "danger")
+            return redirect(url_for('npc_dialogue_topic', npc_id=npc_id, topic=topic))
+    
+    # Handle effects
+    if effect == 'has_info':
+        game_state.flags.has_info = True
+        flash("You gained valuable information!", "success")
+    elif effect == 'lose_id':
+        game_state.flags.has_id = False
+        flash("You lost your fake ID!", "danger")
+    
+    save_game_state(game_state)
+    
+    return render_template('npc_dialogue_response.html', npc=npcs_data[npc_id], response=response_text, topic=topic, game_state=game_state)
 
 @app.route('/npcs')
 def npcs():
@@ -2381,13 +2637,26 @@ def process_fight_action():
         elif weapon == 'ghost_gun' and game_state.weapons.ghost_guns > 0 and game_state.weapons.bullets > 0:
             game_state.weapons.bullets -= 1
             base_damage = random.randint(15, 25)
-            # Ghost gun jam chance - 20% chance to jam and do no damage
-            if random.random() < 0.2:
-                # When ghost gun jams, 30% chance it blows up in your face
-                if random.random() < 0.3:
-                    blow_up_damage = random.randint(5, 15)
-                    game_state.damage += blow_up_damage
-                    fight_log.append(f"Your ghost gun jammed and BLEW UP in your face! You take {blow_up_damage} damage!")
+            # Ghost gun jam chance - 30% chance to jam (increased from 20%)
+            if random.random() < 0.3:
+                # When ghost gun jams, 40% chance it EXPLODES in your face (increased from 30%)
+                if random.random() < 0.4:
+                    # GHOST GUN EXPLOSION - lose weapon and take damage!
+                    explosion_damage = random.randint(5, 20)
+                    game_state.damage += explosion_damage
+                    # Lose the ghost gun!
+                    game_state.weapons.ghost_guns = max(0, game_state.weapons.ghost_guns - 1)
+                    
+                    # Bloody explosion descriptions
+                    explosion_descriptions = [
+                        f"CATASTROPHIC FAILURE! Your ghost gun explodes in a shower of molten metal and burning propellant! The blast chars your face and hands with sizzling burns, sending jagged shards of the weapon tearing through your flesh!",
+                        f"OH GOD! The ghost gun backfires with terrifying force, the weapon shattering into a thousand red-hot fragments that embed themselves deep in your arm! Blood and burning oil spray across your chest as you scream in agony!",
+                        f"FIRE IN THE HOLE! Your ghost gun's chamber ruptures in a thunderous explosion! Your hand is reduced to a bloody pulp, fingers blown completely off as the weapon disintegrates in your grip!",
+                        f"MERCIFUL MOTHER OF GOD! The ghost gun detonates, sending a cone of molten steel and shattered casing into your face! Your cheek is ripped clean off, exposing raw, bleeding muscle beneath!",
+                        f"THE GUN JUST BLEW UP! A gout of flame erupts from the breach, engulfing your arm in burning gases! Your flesh sizzles and blackens as the weapon tears itself apart in a spray of blood and twisted metal!"
+                    ]
+                    fight_log.append(random.choice(explosion_descriptions))
+                    fight_log.append(f"YOUR GHOST GUN IS DESTROYED! You take {explosion_damage} damage and the weapon is lost forever!")
                     damage = 0
                 else:
                     fight_log.append("Your ghost gun jammed! No damage dealt.")
@@ -2422,10 +2691,14 @@ def process_fight_action():
             enemy_health -= damage
             fight_log.append(f"You fire a missile and deal {damage} damage!")
         elif weapon == 'vampire_bat' and game_state.weapons.vampire_bat > 0:
-            # Vampire bat gets 2 swings - show each swing separately
+            # Vampire bat gets 4 swings - show each swing separately
             total_damage = 0
-            for swing in range(2):
-                swing_damage = random.randint(25, 45)
+            for swing in range(4):
+                # Random damage per swing: 20-50 (more variance)
+                base_swing_damage = random.randint(20, 50)
+                # Add ±30% damage variance per swing
+                damage_variance = random.uniform(0.7, 1.3)
+                swing_damage = int(base_swing_damage * damage_variance)
                 total_damage += swing_damage
                 attack_desc = random.choice(attack_descriptions.get('barbed_wire_bat', ["You swing your vampire bat!"]))
                 fight_log.append(f"{attack_desc} [Swing {swing + 1}] You deal {swing_damage} damage!")
@@ -2433,13 +2706,22 @@ def process_fight_action():
             damage = total_damage
             enemy_health -= damage
         elif weapon == 'knife' and game_state.weapons.knife > 0:
-            # Knife gets 3 attacks per turn - show each stab separately
+            # Knife gets 5 attacks per turn with increased miss chance
             total_damage = 0
-            for stab in range(3):
-                stab_damage = random.randint(10, 20)
-                total_damage += stab_damage
-                attack_desc = random.choice(attack_descriptions.get('knife', ["You stab with your knife!"]))
-                fight_log.append(f"{attack_desc} [Stab {stab + 1}] You deal {stab_damage} damage!")
+            for stab in range(5):
+                # 15% miss chance per stab (increased from ~0%)
+                if random.random() < 0.15:
+                    attack_desc = random.choice(attack_descriptions.get('knife', ["You swing your knife!"]))
+                    fight_log.append(f"{attack_desc} [Stab {stab + 1}] You MISS completely!")
+                else:
+                    # Random damage per stab: 8-25 (more variance)
+                    base_stab_damage = random.randint(8, 25)
+                    # Add ±25% damage variance per stab
+                    damage_variance = random.uniform(0.75, 1.25)
+                    stab_damage = int(base_stab_damage * damage_variance)
+                    total_damage += stab_damage
+                    attack_desc = random.choice(attack_descriptions.get('knife', ["You stab with your knife!"]))
+                    fight_log.append(f"{attack_desc} [Stab {stab + 1}] You deal {stab_damage} damage!")
             fight_log.append(f"Total damage from knife: {total_damage} damage!")
             damage = total_damage
             enemy_health -= damage
@@ -2776,7 +3058,7 @@ def process_fight_action():
         if npc_id and npc_id in npcs_data:
             npc = npcs_data[npc_id]
             npcs_data[npc_id]['is_alive'] = False
-            npc_file = os.path.join(os.path.dirname(__file__), '..', 'models', 'npcs.json')
+            npc_file = os.path.join(os.path.dirname(__file__), '..', 'model', 'npcs.json')
             with open(npc_file, 'w') as f:
                 json.dump(npcs_data, f, indent=2)
 
@@ -2920,14 +3202,22 @@ def process_fight_action():
                 combat_active = False
                 return render_template('mud_fight.html', game_state=game_state, enemy_health=enemy_health, enemy_type=enemy_type, enemy_count=enemy_count, combat_active=combat_active, fight_log=fight_log, combat_id=combat_id)
         else:
-            # Normal defeat - lose a life
+            # Normal defeat - lose a life and all but $500
             game_state.lives -= 1
             final_damage = game_state.damage  # Store the final damage before resetting
             game_state.damage = 0
             game_state.health = 30
-
-            fight_log.append(f"You have been defeated by the {enemy_type}!")
-            fight_log.append(f"You took {final_damage} damage and lost a life.")
+            
+            # Lose all but $500 when you die
+            if game_state.money > 500:
+                lost_money = game_state.money - 500
+                game_state.money = 500
+                fight_log.append(f"You have been defeated by the {enemy_type}!")
+                fight_log.append(f"They took all your money except $500 you had hidden in your sock! You now have ${game_state.money}.")
+            else:
+                game_state.money = 0
+                fight_log.append(f"You have been defeated by the {enemy_type}!")
+                fight_log.append(f"They took everything you had - even the $500 in your sock! You now have nothing.")
 
             if game_state.lives <= 0:
                 # Update high scores when player dies
