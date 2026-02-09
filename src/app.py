@@ -187,27 +187,107 @@ def calculate_score(money_earned: int, days_survived: int, gang_wars_won: int, f
     return money_score + survival_score + gang_war_score + fight_score
 
 # ============
-# SocketIO Setup - Use threading mode to avoid gevent dependency issues
+# Polling-based Chat System (No WebSockets required!)
 # ============
 
-try:
-    from flask_socketio import SocketIO, emit, join_room, leave_room
-    import flask_socketio
-    print("Flask-SocketIO version:", flask_socketio.__version__)
-    # Use threading mode to avoid gevent compilation issues
-    socketio = SocketIO(app, async_mode='threading', cors_allowed_origins="*")
-    print("SocketIO initialized with threading mode")
-except ImportError as e:
-    print("WARNING: Flask-SocketIO not installed - chat functionality will be disabled")
-    print("Install with: pip install flask-socketio")
-    socketio = None
-except Exception as e:
-    print("WARNING: SocketIO initialization error:", str(e))
-    print("Falling back to non-SocketIO mode")
-    socketio = None
+# In-memory message store (could be file-based for persistence)
+chat_messages = []
+chat_last_check = {}
+CHAT_MAX_MESSAGES = 100
 
-# Global player tracking - use a thread-safe dictionary-like structure
+def add_chat_message(player_name, message):
+    """Add a message to the chat"""
+    import time
+    msg = {
+        'id': len(chat_messages) + 1,
+        'player': player_name,
+        'message': message,
+        'timestamp': time.time(),
+        'time_str': time.strftime('%H:%M:%S')
+    }
+    chat_messages.append(msg)
+    
+    # Keep only recent messages
+    if len(chat_messages) > CHAT_MAX_MESSAGES:
+        chat_messages.pop(0)
+    
+    # Update global last check timestamp
+    chat_last_check['global'] = time.time()
+    
+    return msg
+
+# ============
+# Chat API Routes (Polling-based - works everywhere!)
+# ============
+
+@app.route('/api/chat/messages')
+def get_chat_messages():
+    """Get chat messages since timestamp - polling endpoint"""
+    import time
+    try:
+        last_id = int(request.args.get('last_id', 0))
+    except ValueError:
+        last_id = 0
+    
+    # Get messages after the last received ID
+    new_messages = [m for m in chat_messages if m['id'] > last_id]
+    
+    return jsonify({
+        'messages': new_messages,
+        'count': len(new_messages)
+    })
+
+@app.route('/api/chat/send', methods=['POST'])
+def send_chat_message():
+    """Send a chat message"""
+    import time
+    data = request.get_json()
+    
+    if not data:
+        return jsonify({'error': 'No data provided'}), 400
+    
+    player_name = data.get('player_name', '').strip()
+    message = data.get('message', '').strip()
+    
+    if not player_name:
+        # Try to get from session
+        try:
+            game_state = get_game_state()
+            player_name = game_state.player_name or 'Anonymous'
+        except:
+            player_name = 'Anonymous'
+    
+    if not message:
+        return jsonify({'error': 'Message is empty'}), 400
+    
+    if len(message) > 200:
+        return jsonify({'error': 'Message too long (max 200 chars)'}), 400
+    
+    # Add the message
+    msg = add_chat_message(player_name, message)
+    
+    return jsonify({
+        'success': True,
+        'message': msg
+    })
+
+@app.route('/api/chat/status')
+def chat_status():
+    """Get chat status (total messages, etc.)"""
+    return jsonify({
+        'total_messages': len(chat_messages),
+        'online': True,
+        'system': 'polling'
+    })
+
+# ============
+# Legacy SocketIO handlers (kept for reference but not active)
+# ============
+
+# Global player tracking (for future use with PVP etc.)
 connected_players = {}
+
+socketio = None  # SocketIO is disabled - using polling instead
 
 # ============
 # Game State
@@ -2745,11 +2825,12 @@ def process_fight_action():
                 ]
                 member_name = random.choice(member_names)
 
-                # Assign weapon to this member if available
+                # Assign weapon to this member - gang members use weapons WITHOUT depleting player's inventory
+                # Each member randomly chooses from available weapons for the attack, but doesn't consume ammo
                 if available_weapons:
-                    member_weapon = available_weapons.pop(0)  # Each member takes the next available weapon
+                    member_weapon = random.choice(available_weapons)  # Random weapon for flavor, no consumption
                 else:
-                    # No weapons left - member uses fists
+                    # No weapons available - member uses fists
                     member_weapon = 'fists'
 
                 # Calculate member damage and ammo usage based on weapon

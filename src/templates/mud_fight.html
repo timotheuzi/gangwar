@@ -484,11 +484,18 @@ function handleCombatAction(formData, submitter) {
                 updateFightLogInputs(result.fight_log);
             }
 
-            // Clear and update the combat log display with all messages
-            clearCombatLog();
+            // Append new combat log messages to existing log instead of clearing
             if (result.fight_log && result.fight_log.length > 0) {
-                // Use slightly longer delay for better readability
-                animateCombatMessages(result.fight_log, 800);
+                // Find the last message we currently have
+                const combatMessages = document.getElementById('combat-messages');
+                const lastMessage = combatMessages ? combatMessages.lastElementChild : null;
+                const lastText = lastMessage ? lastMessage.textContent : '';
+                
+                // Only add new messages that aren't already displayed
+                const newMessages = result.fight_log.filter(msg => !lastText.includes(msg));
+                if (newMessages.length > 0) {
+                    animateCombatMessages(newMessages, 800);
+                }
             }
 
             // Handle game over scenario
