@@ -852,6 +852,26 @@ def bar():
         save_game_state(game_state)
         return redirect(url_for('bar'))
 
+    # Update drug prices every other day (every 2 days)
+    current_prices_data = load_current_drug_prices()
+    today = time.strftime("%Y-%m-%d")
+    last_update_day = current_prices_data.get('last_update_day', '')
+    last_update_count = current_prices_data.get('update_count', 0)
+
+    # Check if we need to update (every 2 days)
+    if last_update_day != today:
+        # Increment update count
+        new_update_count = last_update_count + 1
+        # Update prices every 2 days
+        if new_update_count >= 2:
+            # Reset count and update prices
+            new_update_count = 0
+            update_global_drug_prices()
+        # Save updated count
+        current_prices_data['update_count'] = new_update_count
+        current_prices_data['last_update_day'] = today
+        save_current_drug_prices(current_prices_data)
+
     # Generate price mood based on current drug prices
     current_prices_data = load_current_drug_prices()
     current_prices = current_prices_data.get('prices', {})
