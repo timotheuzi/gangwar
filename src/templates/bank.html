@@ -57,8 +57,9 @@
                         <option value="25000">$25,000</option>
                         <option value="50000">$50,000</option>
                         <option value="100000">$100,000</option>
-                        <option value="200000">$200,000</option>
-                        <option value="300000">$300,000</option>
+                        {% if game_state.members >= 10 %}
+                        <option value="500000">$500,000 (10+ gang members)</option>
+                        {% endif %}
                     </select>
                 </div>
                 <button type="submit" class="btn btn-danger" style="padding: 4px 8px; font-size: 0.8em;">Get Loan</button>

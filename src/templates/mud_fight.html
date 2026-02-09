@@ -169,7 +169,6 @@
         <!-- Exit buttons - only visible when combat is over -->
         <div class="combat-options" id="combat-exit-options" style="display: none;">
             <h4>Combat Complete</h4>
-            <a href="{{ url_for('wander') }}" class="btn btn-success">Keep Wandering</a>
             <a href="{{ url_for('city') }}" class="btn btn-primary">Return to City</a>
         </div>
     </div>
@@ -306,6 +305,8 @@
 
 <script>
 // Combat log management
+var displayedMessageCount = 0;
+
 document.addEventListener('DOMContentLoaded', function() {
     initializeCombatLog();
     initializeAmmoSelection();
@@ -315,6 +316,10 @@ document.addEventListener('DOMContentLoaded', function() {
 function initializeCombatLog() {
     const combatMessages = document.getElementById('combat-messages');
     if (!combatMessages) return;
+
+    // Count initial messages
+    displayedMessageCount = combatMessages.children.length;
+    console.log('Initial message count:', displayedMessageCount);
 
     // Limit initial messages if there are too many
     limitCombatMessages();
@@ -484,16 +489,22 @@ function handleCombatAction(formData, submitter) {
                 updateFightLogInputs(result.fight_log);
             }
 
-            // Append new combat log messages to existing log instead of clearing
+            // Only append NEW messages - skip ones already displayed
             if (result.fight_log && result.fight_log.length > 0) {
-                // Find the last message we currently have
                 const combatMessages = document.getElementById('combat-messages');
-                const lastMessage = combatMessages ? combatMessages.lastElementChild : null;
-                const lastText = lastMessage ? lastMessage.textContent : '';
+                const currentDisplayedCount = combatMessages ? combatMessages.children.length : 0;
                 
-                // Only add new messages that aren't already displayed
-                const newMessages = result.fight_log.filter(msg => !lastText.includes(msg));
-                if (newMessages.length > 0) {
+                // Calculate how many new messages we have
+                const newMessagesCount = result.fight_log.length - displayedMessageCount;
+                
+                console.log('Server returned', result.fight_log.length, 'total messages');
+                console.log('Already displayed:', displayedMessageCount);
+                console.log('New messages to show:', newMessagesCount);
+                
+                if (newMessagesCount > 0) {
+                    // Only get the new messages (last N messages from server response)
+                    const newMessages = result.fight_log.slice(-newMessagesCount);
+                    displayedMessageCount = result.fight_log.length;
                     animateCombatMessages(newMessages, 800);
                 }
             }

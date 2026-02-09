@@ -1,16 +1,14 @@
 {
   "prices": {
-    "weed": 756,
-    "crack": 1033,
-    "coke": 2296,
-    "ice": 1849,
-    "percs": 189,
-    "pixie_dust": 2693
+    "weed": 565,
+    "crack": 1206,
+    "coke": 1620,
+    "ice": 1669,
+    "percs": 953,
+    "pixie_dust": 3063
   },
-  "fluctuation_alert": "Market FLOODED with PERCS! Prices rock bottom!",
-  "massive_change_drugs": [
-    "percs"
-  ],
-  "last_update": "2026-02-09 00:49:06",
+  "fluctuation_alert": "",
+  "massive_change_drugs": [],
+  "last_update": "2026-02-09 02:40:22",
   "last_update_day": "2026-02-09"
 }

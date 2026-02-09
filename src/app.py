@@ -925,17 +925,27 @@ def bank_transaction():
             flash(f"You withdrew ${amount:,} from your savings!", "success")
 
     elif action == 'loan':
+        # Max loan is 100,000 normally, but 500,000 if you have 10+ gang members
+        max_loan = 100000
+        if game_state.members >= 10:
+            max_loan = 500000
+        
         loan_options = {
             '5000': 5000,
             '10000': 10000,
             '25000': 25000,
             '50000': 50000,
-            '100000': 100000,
-            '200000': 200000,
-            '300000': 300000
+            '100000': 100000
         }
+        
+        # Add 500000 option only if player has 10+ gang members
+        if game_state.members >= 10:
+            loan_options['500000'] = 500000
+        
         if str(amount) not in loan_options:
             flash("Invalid loan amount!", "danger")
+        elif amount > max_loan:
+            flash(f"Maximum loan is ${max_loan:,}!", "danger")
         elif game_state.loan > 0:
             flash("You already have an outstanding loan! Pay it off first.", "danger")
         else:
@@ -1258,9 +1268,9 @@ def wander():
 
     # Regular wander results (remaining ~70% chance)
     else:
-    # List of possible wander results - now ultra bloody and violent
+        # List of possible wander results - now ultra bloody and violent
         wander_messages = [
-            "You stumble upon a gutted corpse in an alleyway, blood pooling around the severed limbs. You search the remains and find $50 in bloody cash!",
+            "You stumble upon a gutted corpse in an alleyway, blood pooling around the severed limbs. You search the remains and find $500 in bloody cash!",
             "A street performer lies slaughtered on the sidewalk, throat slit ear to ear. You overhear whispers of upcoming turf wars from nearby shadows.",
             "You witness a drive-by shooting where rival gang members get their brains blown out onto the pavement, painting the walls red.",
             "You find a quiet spot littered with mangled body parts to rest, regaining health amidst the stench of death.",
@@ -1284,17 +1294,23 @@ def wander():
 
         # Apply effects based on the result
         if "bloody cash" in result:
-            game_state.money += 500
+            # Random cash reward between $500-$1000
+            cash_found = random.randint(500, 1000)
+            game_state.money += cash_found
+            result = result.replace("$500", f"${cash_found}")
         elif "discarded drugs" in result:
             # Increased chance to find drugs instead of just money
             if random.random() < 0.7:  # 70% chance to find drugs
                 drug_types = ['weed', 'crack', 'coke', 'ice', 'percs', 'pixie_dust']
                 drug = random.choice(drug_types)
-                amount = random.randint(1, 3)
+                amount = random.randint(2, 5)
                 setattr(game_state.drugs, drug, getattr(game_state.drugs, drug) + amount)
                 result += f" You find {amount} kilos of {drug}!"
             else:
-                game_state.money += 200
+                # Higher cash fallback reward
+                cash_found = random.randint(300, 800)
+                game_state.money += cash_found
+                result = result.replace("$200", f"${cash_found}")
         elif "quiet spot" in result:
             game_state.health = min(game_state.max_health, game_state.health + 10)
         elif "hidden stash of weapons" in result:
@@ -1324,6 +1340,8 @@ def wander():
             return render_template('mud_fight.html', game_state=game_state, enemy_health=enemy_health, enemy_type=enemy_type, enemy_count=loan_shark_result['num_sharks'], combat_active=combat_active, fight_log=fight_log, combat_id=combat_id)
         # Update drug prices for new day
         update_daily_drug_prices()
+        # Update high scores daily for active players
+        update_daily_high_scores(game_state)
 
     # Check for NPC encounter (15% chance, down from 30% since we have more events now)
     if random.random() < 0.15 and npcs_data:
@@ -2841,16 +2859,26 @@ def process_fight_action():
                 member_name = random.choice(member_names)
 
                 # Assign weapon to this member - gang members use weapons WITHOUT depleting player's inventory
-                # Each member randomly chooses from available weapons for the attack, but doesn't consume ammo
+                # Each member uses their best available weapon with strongest ammo
                 if available_weapons:
                     member_weapon = random.choice(available_weapons)  # Random weapon for flavor, no consumption
                 else:
                     # No weapons available - member uses fists
                     member_weapon = 'fists'
 
+                # Determine ammo type for gang members - use strongest available
+                member_ammo_type = 'normal'
+                if game_state.weapons.exploding_bullets > 0:
+                    member_ammo_type = 'exploding'
+                    game_state.weapons.exploding_bullets -= 1
+                elif game_state.weapons.hollow_point_bullets > 0:
+                    member_ammo_type = 'hollow_point'
+                    game_state.weapons.hollow_point_bullets -= 1
+                elif game_state.weapons.bullets > 0:
+                    game_state.weapons.bullets -= 1
+
                 # Calculate member damage and ammo usage based on weapon
                 if member_weapon == 'pistol':
-                    game_state.weapons.bullets -= 1
                     # Add damage fluctuation and miss chance
                     if random.random() < 0.05:  # 5% miss chance
                         attack_desc = f"{member_name} fires their pistol but misses completely!"
@@ -2860,14 +2888,22 @@ def process_fight_action():
                         # Damage fluctuation: ±20%
                         damage_multiplier = random.uniform(0.8, 1.2)
                         member_damage = int(base_damage * damage_multiplier)
+                        # Apply ammo bonuses
+                        if member_ammo_type == 'exploding':
+                            member_damage *= 2
+                        elif member_ammo_type == 'hollow_point':
+                            member_damage = int(member_damage * 1.2)
                         attack_desc = random.choice([
                             f"{member_name} fires a precise shot from their pistol!",
                             f"{member_name} squeezes off a round, the bullet finding its target!",
                             f"{member_name}'s pistol roars as they take careful aim and fire!",
                             f"{member_name} draws their pistol and fires a lethal shot!"
                         ])
+                        if member_ammo_type == 'exploding':
+                            attack_desc += " (exploding bullet!)"
+                        elif member_ammo_type == 'hollow_point':
+                            attack_desc += " (hollow point bullet!)"
                 elif member_weapon == 'ar15':
-                    game_state.weapons.bullets -= 1
                     if random.random() < 0.03:  # 3% jam chance for AR-15
                         attack_desc = f"{member_name}'s AR-15 jams! No damage dealt."
                         member_damage = 0
@@ -2875,14 +2911,22 @@ def process_fight_action():
                         base_damage = random.randint(12, 20)
                         damage_multiplier = random.uniform(0.85, 1.15)
                         member_damage = int(base_damage * damage_multiplier)
+                        # Apply ammo bonuses
+                        if member_ammo_type == 'exploding':
+                            member_damage *= 2
+                        elif member_ammo_type == 'hollow_point':
+                            member_damage = int(member_damage * 1.2)
                         attack_desc = random.choice([
                             f"{member_name} unleashes a burst from their AR-15!",
                             f"{member_name}'s assault rifle chatters as they fire!",
                             f"{member_name} opens up with their AR-15, spraying bullets!",
                             f"{member_name} fires controlled bursts from their rifle!"
                         ])
+                        if member_ammo_type == 'exploding':
+                            attack_desc += " (exploding ammunition!)"
+                        elif member_ammo_type == 'hollow_point':
+                            attack_desc += " (hollow point ammo!)"
                 elif member_weapon == 'ghost_gun':
-                    game_state.weapons.bullets -= 1
                     if random.random() < 0.2:  # 20% jam chance for ghost gun
                         attack_desc = f"{member_name}'s ghost gun jammed! No damage dealt."
                         member_damage = 0
@@ -2893,11 +2937,20 @@ def process_fight_action():
                         base_damage = random.randint(10, 18)
                         damage_multiplier = random.uniform(0.75, 1.25)
                         member_damage = int(base_damage * damage_multiplier)
+                        # Apply ammo bonuses
+                        if member_ammo_type == 'exploding':
+                            member_damage *= 2
+                        elif member_ammo_type == 'hollow_point':
+                            member_damage = int(member_damage * 1.2)
                         attack_desc = random.choice([
                             f"{member_name} fires their ghost gun with deadly precision!",
                             f"{member_name}'s untraceable weapon whispers death!",
                             f"{member_name} employs a ghost gun, the shot barely audible!"
                         ])
+                        if member_ammo_type == 'exploding':
+                            attack_desc += " (exploding bullet!)"
+                        elif member_ammo_type == 'hollow_point':
+                            attack_desc += " (hollow point bullet!)"
                 elif member_weapon == 'knife':
                     if random.random() < 0.08:  # 8% miss chance for knife
                         attack_desc = f"{member_name} swings their knife but misses the target!"
@@ -3253,16 +3306,15 @@ def process_fight_action():
             game_state.damage = 0
             game_state.health = 30
             
-            # Lose all but $500 when you die
+            # Lose money when you die (keep $500 safe if you have enough, otherwise keep all)
             if game_state.money > 500:
                 lost_money = game_state.money - 500
                 game_state.money = 500
                 fight_log.append(f"You have been defeated by the {enemy_type}!")
                 fight_log.append(f"They took all your money except $500 you had hidden in your sock! You now have ${game_state.money}.")
             else:
-                game_state.money = 0
                 fight_log.append(f"You have been defeated by the {enemy_type}!")
-                fight_log.append(f"They took everything you had - even the $500 in your sock! You now have nothing.")
+                fight_log.append(f"You didn't have enough money to lose anything extra! You keep your ${game_state.money}.")
 
             if game_state.lives <= 0:
                 # Update high scores when player dies
