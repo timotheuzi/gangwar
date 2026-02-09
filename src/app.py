@@ -1,4 +1,19 @@
 # Check if running in PyInstaller bundle
+import sys
+import os
+import time
+import random
+import json
+import argparse
+from dataclasses import dataclass, field, asdict
+from typing import Dict, List
+from flask import Flask, render_template, request, redirect, url_for, flash, session, jsonify
+from functools import wraps
+
+app = Flask(__name__)
+app.secret_key = 'your_secret_key_here'  # Change this for production
+
+# Check if running in PyInstaller bundle
 is_frozen = getattr(sys, 'frozen', False)
 
 # Load NPCs - look in model directory for data files
