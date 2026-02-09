@@ -1,2 +1,32 @@
 [
+  {
+    "player_name": "dfdfdf",
+    "gang_name": "dfddfdfd",
+    "score": 0,
+    "money_earned": 1000,
+    "days_survived": 1,
+    "gang_wars_won": 0,
+    "fights_won": 0,
+    "date_achieved": "2026-02-09 00:49:06"
+  },
+  {
+    "player_name": "ddssdssd",
+    "gang_name": "sdsds",
+    "score": 0,
+    "money_earned": 1000,
+    "days_survived": 1,
+    "gang_wars_won": 0,
+    "fights_won": 0,
+    "date_achieved": "2026-02-09 00:53:59"
+  },
+  {
+    "player_name": "sdfdsfds",
+    "gang_name": "sdfdsfsdf",
+    "score": 0,
+    "money_earned": 1000,
+    "days_survived": 1,
+    "gang_wars_won": 0,
+    "fights_won": 0,
+    "date_achieved": "2026-02-09 01:00:54"
+  }
 ]

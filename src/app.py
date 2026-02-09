@@ -324,7 +324,15 @@ def get_game_state():
     game_dict['weapons'] = Weapons(**game_dict.get('weapons', {}))
     game_dict['drugs'] = Drugs(**game_dict.get('drugs', {}))
     # Load current drug prices from global file
-    game_dict['drug_prices'] = load_current_drug_prices()['prices']
+    drug_prices_data = load_current_drug_prices()
+    game_dict['drug_prices'] = drug_prices_data.get('prices', {}) or {
+        'weed': 500,
+        'crack': 1000,
+        'coke': 2000,
+        'ice': 1500,
+        'percs': 800,
+        'pixie_dust': 3000
+    }
     return GameState(**game_dict)
 
 def update_current_score(game_state):
@@ -749,8 +757,35 @@ def bar():
         save_game_state(game_state)
         return redirect(url_for('bar'))
 
-    # Get current day's drug price mood for bar gossip
-    price_mood = getattr(game_state, '_drug_price_mood', 'Prices are crazy today - keep your eyes open!')
+    # Generate price mood based on current drug prices
+    current_prices_data = load_current_drug_prices()
+    current_prices = current_prices_data.get('prices', {})
+    
+    if current_prices:
+        # Get base prices for comparison
+        base_prices = {name: info['base_price'] for name, info in drug_config.get('drugs', {}).items()}
+        
+        # Analyze price trends
+        price_comments = []
+        for drug, current_price in current_prices.items():
+            base_price = base_prices.get(drug, current_price)
+            if base_price > 0:
+                price_change = ((current_price - base_price) / base_price) * 100
+                
+                if price_change > 50:
+                    price_comments.append(f"{drug.upper()} is EXPENSIVE ({price_change:+.0f}%)")
+                elif price_change < -30:
+                    price_comments.append(f"{drug.upper()} is CHEAP ({price_change:+.0f}%)")
+        
+        if price_comments:
+            # Pick 1-2 random comments
+            import random as rand
+            rand.shuffle(price_comments)
+            price_mood = " | ".join(price_comments[:2])
+        else:
+            price_mood = "Prices are stable today - normal fluctuations expected."
+    else:
+        price_mood = "Prices are crazy today - keep your eyes open!"
 
     return render_template('bar.html', game_state=game_state, price_mood=price_mood)
 

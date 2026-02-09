@@ -166,7 +166,9 @@
             </form>
         </div>
 
-        <div class="combat-options" style="display: {% if not combat_active %}block{% else %}none{% endif %};">
+        <!-- Exit buttons - only visible when combat is over -->
+        <div class="combat-options" id="combat-exit-options" style="display: none;">
+            <h4>Combat Complete</h4>
             <a href="{{ url_for('wander') }}" class="btn btn-success">Keep Wandering</a>
             <a href="{{ url_for('city') }}" class="btn btn-primary">Return to City</a>
         </div>
@@ -577,13 +579,18 @@ function updateCombatState(result) {
     // Update UI based on combat state
     const turnHeading = document.getElementById('turn-heading');
     const actionButtons = document.querySelector('.action-buttons');
-    const combatOptions = document.querySelector('.combat-options');
+    const combatOptions = document.getElementById('combat-exit-options');
 
     if (result.combat_active === false) {
         // Combat ended - hide action buttons and show exit options
         if (turnHeading) turnHeading.style.display = 'none';
         if (actionButtons) actionButtons.style.display = 'none';
-        if (combatOptions) combatOptions.style.display = 'block';
+        if (combatOptions) {
+            combatOptions.style.display = 'block';
+            // Ensure it's visible
+            combatOptions.style.visibility = 'visible';
+            combatOptions.style.opacity = '1';
+        }
 
         // Special handling for game over
         if (result.game_over) {
@@ -595,7 +602,10 @@ function updateCombatState(result) {
         // Combat ongoing - show action UI, hide exit options
         if (turnHeading) turnHeading.style.display = 'block';
         if (actionButtons) actionButtons.style.display = 'block';
-        if (combatOptions) combatOptions.style.display = 'none';
+        if (combatOptions) {
+            combatOptions.style.display = 'none';
+            combatOptions.style.visibility = 'hidden';
+        }
     }
 }
 
