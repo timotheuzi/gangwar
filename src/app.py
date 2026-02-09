@@ -1,25 +1,3 @@
-def update_daily_high_scores(game_state: GameState):
-    """Update high scores daily for active players - called when they visit main pages"""
-    if not game_state.player_name or not game_state.gang_name:
-        return
-
-    # Check if we need to update (once per day per player OR when day changes)
-    today = time.strftime("%Y-%m-%d")
-    last_update_key = f"last_high_score_update_{game_state.player_name}_{game_state.gang_name}"
-    last_day_key = f"last_high_score_day_{game_state.player_name}_{game_state.gang_name}"
-    
-    last_update = session.get(last_update_key, '')
-    last_day = session.get(last_day_key, 0)
-    
-    # Update if it's a new day OR if the game day has changed
-    if last_update != today or last_day != game_state.day:
-        # Update high scores with current progress
-        check_and_update_high_scores(game_state, 0, 0)
-        
-        # Mark as updated today and record the game day
-        session[last_update_key] = today
-        session[last_day_key] = game_state.day
-
 # Check if running in PyInstaller bundle
 is_frozen = getattr(sys, 'frozen', False)
 
