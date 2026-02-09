@@ -23,11 +23,11 @@ function initSocketIO() {
             console.log('SocketIO library not yet loaded, waiting...');
             // Dynamically load SocketIO if not available
             if (!document.querySelector('script[src*="socket.io"]')) {
-                console.log('Loading SocketIO from CDN...');
+                console.log('Loading SocketIO 5.x from CDN...');
                 var script = document.createElement('script');
-                script.src = 'https://cdn.socket.io/4.0.0/socket.io.min.js';
+                script.src = 'https://cdn.socket.io/5.8.0/socket.io.min.js';
                 script.onload = function() {
-                    console.log('SocketIO loaded from CDN');
+                    console.log('SocketIO 5.x loaded from CDN');
                     setTimeout(startSocketIO, 100);
                 };
                 script.onerror = function() {
@@ -69,16 +69,20 @@ function startSocketIO() {
     }
 
     try {
-        console.log('Creating new SocketIO connection to:', window.location.origin);
+        // Get the server URL - handle both HTTP and WS connections
+        var serverUrl = window.location.origin;
+        console.log('Creating new SocketIO connection to:', serverUrl);
         
-        socket = io({
+        // SocketIO 5.x connection options
+        socket = io(serverUrl, {
             reconnection: true,
             reconnectionAttempts: maxReconnectAttempts,
             reconnectionDelay: 1000,
             reconnectionDelayMax: 3000,
             transports: ['websocket', 'polling'],
             timeout: 10000,
-            autoConnect: true
+            autoConnect: true,
+            forceNew: true
         });
 
         // Connection event handlers
