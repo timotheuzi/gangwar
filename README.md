@@ -55,28 +55,41 @@ Build your gang to 10+ members, gather intelligence, and launch a final assault 
 Die in combat, get arrested, or run out of lives. The streets are unforgiving.
 
 ## Technical Requirements
-- Python 3.7+
+- Python 3.8+
 - Flask web framework
-- SocketIO for real-time features
-- Modern web browser
+- Flask-SocketIO for real-time chat features
+- Modern web browser with JavaScript enabled
 
 ## Installation & Running
+
+### Local Development
 1. Install dependencies: `pip install -r requirements.txt`
-2. Run the game: `python app.py`
-3. Open your browser to the displayed URL
+2. Run the game using one of these options:
+   - **Standard Flask**: `python src/app.py --port 6009`
+   - **PythonAnywhere deployment**: `python pythonanywhere_entry.py`
+3. Open your browser to `http://localhost:6009`
 
-## Game Versions
+### PythonAnywhere Deployment
+1. Upload files to PythonAnywhere
+2. Set up virtual environment and install requirements
+3. Configure WSGI file to point to `pythonanywhere_entry.py`
+4. The app will run on the PythonAnywhere domain
 
-### Web Version (Current)
-The primary web-based version with full features including real-time chat, extensive combat, and NPC interactions.
+### Chat System
+The real-time chat system requires:
+- Flask-SocketIO installed (`pip install flask-socketio`)
+- Browser must allow WebSocket connections
+- SocketIO client library is loaded from CDN (cdnjs.cloudflare.com)
 
-### 3D Version (In Development)
-A complete 3D graphical remake using Panda3D engine is available in `GANGWAR3D_README.md` with Stardew Valley-inspired gameplay in a dystopian setting.
+If chat doesn't connect, check:
+1. Browser console for connection errors (F12)
+2. Server console for "SocketIO initialized" message
+3. Ensure port 6009 is accessible
 
 ## Features
 - **Dynamic Economy**: Fluctuating drug prices with daily market alerts and busts/flooded markets
 - **Real-time Multiplayer Chat**: Global chat system with player lists and location-based rooms
-- **PVP Framework**: Player vs player challenge system (combat implementation in development)
+- **PVP Framework**: Player vs player challenge system
 - **High Score Tracking**: Persistent leaderboard with money earned, days survived, and achievements
 - **Extensive Combat System**: Multiple weapons, special ammo, body armor, and tactical combat
 - **NPC Interactions**: Talk to, trade with, and fight non-player characters with unique loot drops
@@ -95,4 +108,4 @@ This game contains extreme violence, gore, drug use, criminal activity, and matu
 
 ---
 
-*Built with Flask and SocketIO. All rights reserved.*
+*Built with Flask and Flask-SocketIO. All rights reserved.*

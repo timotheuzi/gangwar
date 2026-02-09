@@ -9,42 +9,79 @@ var isConnected = false;
 var currentPlayerId = null;
 var reconnectAttempts = 0;
 var maxReconnectAttempts = 5;
+var socketLoading = false;
+var socketLoaded = false;
+
+// Load SocketIO from CDN with fallback
+function loadSocketIO(callback) {
+    if (typeof io !== 'undefined') {
+        console.log('SocketIO already loaded');
+        callback();
+        return;
+    }
+    
+    if (socketLoading) {
+        console.log('SocketIO already being loaded, waiting...');
+        setTimeout(function() {
+            loadSocketIO(callback);
+        }, 100);
+        return;
+    }
+    
+    socketLoading = true;
+    console.log('Loading SocketIO from CDN...');
+    
+    var script = document.createElement('script');
+    script.src = 'https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.5.4/socket.io.min.js';
+    script.onload = function() {
+        console.log('SocketIO loaded successfully from CDN');
+        socketLoading = false;
+        socketLoaded = true;
+        callback();
+    };
+    script.onerror = function() {
+        console.error('Failed to load SocketIO from CDN');
+        socketLoading = false;
+        // Try alternative CDN
+        console.log('Trying alternative CDN (unpkg)...');
+        var altScript = document.createElement('script');
+        altScript.src = 'https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.5.4/socket.io.min.js';
+        altScript.onload = function() {
+            console.log('SocketIO loaded from unpkg');
+            socketLoaded = true;
+            callback();
+        };
+        altScript.onerror = function() {
+            console.error('Failed to load SocketIO from all CDNs');
+            updateConnectionStatus(false, 'SocketIO load failed');
+        };
+        document.head.appendChild(altScript);
+    };
+    document.head.appendChild(script);
+}
 
 // Initialize SocketIO connection
 function initSocketIO() {
-    console.log('Initializing SocketIO connection...');
+    console.log('initSocketIO called');
+    updateConnectionStatus(false, 'Loading SocketIO...');
     
-    // Wait for DOM to be ready and SocketIO library to be loaded
-    function tryConnect() {
-        if (typeof io !== 'undefined') {
-            console.log('SocketIO library found, starting connection...');
-            startSocketIO();
-        } else {
-            console.log('SocketIO library not yet loaded, waiting...');
-            // Dynamically load SocketIO if not available
-            if (!document.querySelector('script[src*="socket.io"]')) {
-                console.log('Loading SocketIO 5.x from CDN...');
-                var script = document.createElement('script');
-                script.src = 'https://cdn.socket.io/5.8.0/socket.io.min.js';
-                script.onload = function() {
-                    console.log('SocketIO 5.x loaded from CDN');
-                    setTimeout(startSocketIO, 100);
-                };
-                script.onerror = function() {
-                    console.error('Failed to load SocketIO from CDN');
-                    updateConnectionStatus(false, 'CDN load failed');
-                };
-                document.head.appendChild(script);
-            }
-            setTimeout(tryConnect, 500);
-        }
-    }
-    
-    setTimeout(tryConnect, 100);
+    loadSocketIO(function() {
+        console.log('SocketIO ready, calling startSocketIO...');
+        startSocketIO();
+    });
 }
 
 function startSocketIO() {
     console.log('startSocketIO called');
+    
+    // Check if io is available
+    if (typeof io === 'undefined') {
+        console.error('SocketIO io variable not defined!');
+        updateConnectionStatus(false, 'SocketIO not loaded');
+        return;
+    }
+    
+    console.log('io is defined:', typeof io);
     
     // Get values from global window object set by template
     if (window.playerName) {
@@ -66,14 +103,16 @@ function startSocketIO() {
         } catch (e) {
             console.log('Error disconnecting existing socket:', e);
         }
+        socket = null;
     }
 
     try {
-        // Get the server URL - handle both HTTP and WS connections
+        // Get the server URL
         var serverUrl = window.location.origin;
-        console.log('Creating new SocketIO connection to:', serverUrl);
+        console.log('Creating SocketIO connection to:', serverUrl);
+        updateConnectionStatus(false, 'Connecting to server...');
         
-        // SocketIO 5.x connection options
+        // SocketIO 5.x connection
         socket = io(serverUrl, {
             reconnection: true,
             reconnectionAttempts: maxReconnectAttempts,
@@ -84,6 +123,8 @@ function startSocketIO() {
             autoConnect: true,
             forceNew: true
         });
+
+        console.log('SocketIO object created, attaching handlers...');
 
         // Connection event handlers
         socket.on('connect', function() {
@@ -188,7 +229,7 @@ function startSocketIO() {
 
         // Trigger connection
         socket.connect();
-        console.log('Socket connect() called');
+        console.log('socket.connect() called');
         
     } catch (e) {
         console.error('Error creating SocketIO connection:', e);
@@ -198,12 +239,11 @@ function startSocketIO() {
 
 // Update connection status indicator
 function updateConnectionStatus(connected, reason) {
-    console.log('updateConnectionStatus called:', connected, reason);
+    console.log('updateConnectionStatus:', connected, reason);
     
     var indicator = document.getElementById('connection-indicator');
     var text = document.getElementById('connection-text');
     
-    // Always try to update text element at minimum
     if (text) {
         if (connected) {
             if (indicator) {
@@ -220,9 +260,8 @@ function updateConnectionStatus(connected, reason) {
         }
     } else {
         console.warn('Connection status elements not found in DOM');
-        // Show notification as fallback
         if (!connected) {
-            showNotification('Chat disconnected: ' + (reason || 'Unknown reason'), 'error');
+            showNotification('Chat: ' + (reason || 'Unknown reason'), 'error');
         }
     }
 }
@@ -341,7 +380,6 @@ function challengePlayer(playerId, playerName) {
 
 // Show notification
 function showNotification(message, type) {
-    // Create a simple notification
     var notification = document.createElement('div');
     notification.className = 'notification notification-' + type;
     notification.textContent = message;
@@ -368,10 +406,10 @@ function handleCommand(command) {
 document.addEventListener('DOMContentLoaded', function() {
     console.log('DOM loaded, initializing chat...');
     
-    // Initialize SocketIO after a short delay to ensure DOM is ready
+    // Small delay to ensure all DOM elements are ready
     setTimeout(function() {
         initSocketIO();
-    }, 200);
+    }, 300);
 
     // Set up chat input handler
     var sendButton = document.getElementById('send-chat');
@@ -429,3 +467,4 @@ window.refreshPlayerList = refreshPlayerList;
 window.challengePlayer = challengePlayer;
 window.handleCommand = handleCommand;
 window.updateConnectionStatus = updateConnectionStatus;
+window.initSocketIO = initSocketIO;

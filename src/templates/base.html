@@ -20,8 +20,8 @@
         .combat-defeat { color: #d32f2f !important; font-weight: bold; font-size: 1.1em; text-shadow: 0 0 8px #d32f2f; }
         .combat-system { color: #90a4ae !important; }
     </style>
-    <!-- SocketIO 5.x client - matching server version python-socketio 5.8.0 -->
-    <script src="https://cdn.socket.io/5.8.0/socket.io.min.js"></script>
+    <!-- SocketIO 4.x client - compatible with python-socketio 5.x server -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.5.4/socket.io.min.js"></script>
     <script>
         // Set global variables from Flask template
         window.playerName = "{{ game_state.player_name or 'Player' }}";
