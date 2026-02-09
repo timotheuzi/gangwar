@@ -53,6 +53,9 @@ function initPollingChat() {
     // Update connection status
     updateConnectionStatus(true, 'Connected (polling)');
     
+    // Update chat users list to show current user
+    updateChatUsersList();
+    
     isChatInitialized = true;
     console.log('Polling chat initialized successfully');
 }
@@ -202,6 +205,26 @@ function updateConnectionStatus(connected, reason) {
             text.style.color = '#ff0000';
         }
     }
+}
+
+function updateChatUsersList() {
+    // Update the chat users list to show current user
+    var pvpListDiv = document.getElementById('pvp-player-list');
+    if (!pvpListDiv) return;
+    
+    // Show the current player and a note about polling chat
+    var safePlayerName = playerName ? playerName.replace(/</g, '<').replace(/>/g, '>') : 'Player';
+    
+    pvpListDiv.innerHTML = 
+        '<div class="user-list-item">' +
+            '<strong>👤 ' + safePlayerName + '</strong> (You)' +
+        '</div>' +
+        '<p style="font-size: 11px; color: #888; margin-top: 10px;">' +
+            '💬 Global chat enabled' +
+        '</p>' +
+        '<p style="font-size: 10px; color: #666;">' +
+            'Messages update every 3s' +
+        '</p>';
 }
 
 function showNotification(message, type) {

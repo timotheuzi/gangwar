@@ -20,8 +20,6 @@
         .combat-defeat { color: #d32f2f !important; font-weight: bold; font-size: 1.1em; text-shadow: 0 0 8px #d32f2f; }
         .combat-system { color: #90a4ae !important; }
     </style>
-    <!-- SocketIO 4.x client - compatible with python-socketio 5.x server -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.5.4/socket.io.min.js"></script>
     <script>
         // Set global variables from Flask template
         window.playerName = "{{ game_state.player_name or 'Player' }}";
@@ -87,10 +85,10 @@
                 <div class="pvp-section">
                     <h3>👥 Chat Users</h3>
                     <div id="pvp-player-list" class="pvp-player-list">
-                        <p>Loading users...</p>
+                        <!-- Will be populated by chat.js -->
                     </div>
                     <div class="pvp-actions">
-                        <button id="refresh-players" onclick="refreshPlayerList()" class="btn btn-secondary btn-small">Refresh Users</button>
+                        <button id="refresh-players" onclick="updateChatUsersList()" class="btn btn-secondary btn-small">Refresh Users</button>
                     </div>
                 </div>
             </div>
