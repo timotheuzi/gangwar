@@ -1,18 +1,18 @@
 {
   "description": "Current day's fluctuating drug prices",
   "day": 1,
-  "last_update": "2026-02-08 18:18:45",
+  "last_update": "2026-02-08 23:52:36",
   "prices": {
-    "weed": 300,
-    "crack": 1112,
-    "coke": 1030,
-    "ice": 1632,
-    "percs": 3934,
-    "pixie_dust": 3018
+    "weed": 533,
+    "crack": 3607,
+    "coke": 3168,
+    "ice": 1444,
+    "percs": 777,
+    "pixie_dust": 1627
   },
-  "fluctuation_alert": "MASSIVE BUSTS on PERCS! Prices through the roof!",
+  "fluctuation_alert": "MASSIVE BUSTS on CRACK! Prices through the roof!",
   "massive_change_drugs": [
-    "percs"
+    "crack"
   ],
   "last_update_day": "2026-02-08"
 }

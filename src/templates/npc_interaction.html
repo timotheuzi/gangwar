@@ -38,11 +38,11 @@
     {% if npc.get('is_alive', True) %}
         <div class="interaction-options">
             <h3>What would you like to do?</h3>
+            <p class="text-muted"><em>Choose an action - you cannot run from this encounter!</em></p>
             <div class="action-buttons">
-                <a href="{{ url_for('talk_to_npc', npc_id=npc.id) }}" class="btn btn-primary">Talk</a>
-                <a href="{{ url_for('trade_with_npc', npc_id=npc.id) }}" class="btn btn-secondary">Trade</a>
+                <a href="{{ url_for('npc_dialogue', npc_id=npc.id) }}" class="btn btn-primary">Talk</a>
                 <button type="button" class="btn btn-danger" onclick="showFightOptions()">Fight</button>
-                <a href="{{ url_for('city') }}" class="btn btn-warning">Run Away</a>
+                <a href="{{ url_for('attempt_flee_npc', npc_id=npc.id) }}" class="btn btn-warning" onclick="return confirm('Attempt to flee? This might fail!');">Attempt to Flee</a>
             </div>
 
             <div id="fight-options" style="display: none; margin-top: 20px;">
@@ -88,7 +88,6 @@
     </script>
 
     <div class="actions">
-        <a href="{{ url_for('city') }}" class="btn btn-primary">Back to City</a>
     </div>
 </div>
 {% endblock %}

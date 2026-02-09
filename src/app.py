@@ -192,14 +192,21 @@ def calculate_score(money_earned: int, days_survived: int, gang_wars_won: int, f
 
 try:
     from flask_socketio import SocketIO, emit, join_room, leave_room
+    import flask_socketio
+    print("Flask-SocketIO version:", flask_socketio.__version__)
     # Use threading mode to avoid gevent compilation issues
     socketio = SocketIO(app, async_mode='threading', cors_allowed_origins="*")
     print("SocketIO initialized with threading mode")
-except (ImportError, Exception) as e:
-    # Suppress SocketIO warning for web-build verification
+except ImportError as e:
+    print("WARNING: Flask-SocketIO not installed - chat functionality will be disabled")
+    print("Install with: pip install flask-socketio")
+    socketio = None
+except Exception as e:
+    print("WARNING: SocketIO initialization error:", str(e))
+    print("Falling back to non-SocketIO mode")
     socketio = None
 
-# Global player tracking
+# Global player tracking - use a thread-safe dictionary-like structure
 connected_players = {}
 
 # ============
@@ -448,9 +455,6 @@ def update_daily_high_scores(game_state: GameState):
     session[last_update_key] = today
     session.modified = True
 
-
-# Global player tracking
-connected_players = {}
 
 # Global drug price update function - called once per day
 def update_global_drug_prices():
@@ -2036,6 +2040,41 @@ def pickup_loot(npc_id):
     save_game_state(game_state)
     return render_template('npc_interaction.html', npc=npc, action='loot', message=message, game_state=game_state)
 
+@app.route('/attempt_flee_npc/<npc_id>')
+def attempt_flee_npc(npc_id):
+    """Attempt to flee from an NPC encounter - might fail!"""
+    if npc_id not in npcs_data:
+        return redirect(url_for('city'))
+    npc = npcs_data[npc_id]
+    game_state = get_game_state()
+    
+    # 50% chance to flee successfully
+    if random.random() < 0.5:
+        flash("You managed to escape!", "success")
+        save_game_state(game_state)
+        return redirect(url_for('city'))
+    else:
+        # Failed to flee - NPC attacks!
+        damage = random.randint(5, 15)
+        game_state.damage += damage
+        flash(f"You tried to flee but {npc['name']} caught you! You take {damage} damage!", "danger")
+        
+        if game_state.damage >= 30:
+            # Player is defeated
+            game_state.lives -= 1
+            game_state.damage = 0
+            game_state.health = 30
+            if game_state.lives <= 0:
+                save_game_state(game_state)
+                return render_template('fight_defeat.html', game_state=game_state, enemy_type=npc['name'], enemy_count=1, fight_log=[f"You have been defeated by {npc['name']}!"], final_damage=damage)
+            else:
+                flash(f"You survived but lost a life! {game_state.lives} lives remaining.", "warning")
+        
+        save_game_state(game_state)
+        return render_template('npc_interaction.html', npc=npc, action='encounter', 
+                             message=f"You encountered {npc['name']}. {npc['description']}", 
+                             game_state=game_state)
+
 # ============
 # NPC Dialogue System
 # ============
@@ -2452,6 +2491,9 @@ def process_fight_action():
         if weapon == 'pistol' and game_state.weapons.pistols > 0 and game_state.weapons.bullets > 0:
             game_state.weapons.bullets -= 1
             base_damage = random.randint(15, 25)
+            # Add ±30% damage variance per shot (making each swing truly random)
+            damage_variance = random.uniform(0.7, 1.3)
+            base_damage = int(base_damage * damage_variance)
             if use_exploding:
                 game_state.weapons.exploding_bullets -= 1
                 base_damage *= 2  # Exploding bullet doubles damage
@@ -2489,7 +2531,10 @@ def process_fight_action():
             enemy_health -= damage if not game_state.weapons.pistol_automatic else total_damage
         elif weapon == 'ar15' and game_state.weapons.ar15 > 0 and game_state.weapons.bullets > 0:
             game_state.weapons.bullets -= 1
-            damage = random.randint(25, 45)
+            base_damage = random.randint(25, 45)
+            # Add ±30% damage variance per shot (making each swing truly random)
+            damage_variance = random.uniform(0.7, 1.3)
+            damage = int(base_damage * damage_variance)
             if use_exploding:
                 game_state.weapons.exploding_bullets -= 1
                 damage *= 2  # Exploding bullet doubles damage
@@ -3190,15 +3235,15 @@ def game_win():
 # ============
 
 if socketio:
-    @socketio.on('join')
+    @socketio.on("join")
     def handle_join(data):
         """Handle player joining a room"""
-        room = data.get('room', 'global')
-        location_room = data.get('location_room', 'city')
-        player_name = data.get('player_name', 'Unknown Player')
+        room = data.get("room", "global")
+        location_room = data.get("location_room", "city")
+        player_name = data.get("player_name", "Unknown Player")
 
         # Always join global room for universal chat
-        join_room('global')
+        join_room("global")
         join_room(room)
         join_room(location_room)
 
@@ -3215,103 +3260,100 @@ if socketio:
 
         # Check if this player name already exists and remove old entry
         for sid, player_info in list(connected_players.items()):
-            if player_info['name'] == player_name:
+            if player_info["name"] == player_name:
                 del connected_players[sid]
 
         # Store player info
         connected_players[request.sid] = {
-            'id': request.sid,
-            'name': player_name,
-            'room': location_room,
-            'in_fight': False,
-            'joined_at': time.time()
+            "id": request.sid,
+            "name": player_name,
+            "room": location_room,
+            "in_fight": False,
+            "joined_at": time.time()
         }
 
-        emit('status', {'msg': f'{player_name} joined the chat'}, broadcast=True)  # Send to everyone
+        emit("status", {"msg": f"{player_name} joined the chat"}, broadcast=True)
         update_player_lists()
 
-    @socketio.on('disconnect')
+    @socketio.on("disconnect")
     def handle_disconnect():
         """Handle player disconnecting"""
         if request.sid in connected_players:
-            player_name = connected_players[request.sid]['name']
+            player_name = connected_players[request.sid]["name"]
             del connected_players[request.sid]
-            emit('status', {'msg': f'{player_name} left the chat'}, broadcast=True)
+            emit("status", {"msg": f"{player_name} left the chat"}, broadcast=True)
             update_player_lists()
 
-    @socketio.on('chat_message')
+    @socketio.on("chat_message")
     def handle_chat_message(data):
         """Handle chat messages - universal chat to all connected players"""
-        room = data.get('room', 'global')
+        room = data.get("room", "global")
 
         # Try to get player name from connected players first, then from session
-        player_name = connected_players.get(request.sid, {}).get('name', '')
+        player_name = connected_players.get(request.sid, {}).get("name", "")
 
         # If not available, try to get from session
         if not player_name:
             try:
                 game_state = get_game_state()
-                player_name = game_state.player_name or 'Anonymous User'
+                player_name = game_state.player_name or "Anonymous User"
             except:
-                player_name = 'Anonymous User'
+                player_name = "Anonymous User"
 
         # Fallback to what was sent
         if not player_name:
-            player_name = data.get('player_name', 'Anonymous User')
+            player_name = data.get("player_name", "Anonymous User")
 
-        message = data.get('message', '')
+        message = data.get("message", "")
 
         if message.strip():
             # Send to ALL connected clients for universal chat
-            emit('chat_message', {
-                'player': player_name,
-                'message': message,
-                'room': 'global'  # Always global for universal chat
+            emit("chat_message", {
+                "player": player_name,
+                "message": message,
+                "room": "global"
             }, broadcast=True)
 
-    @socketio.on('get_player_list')
+    @socketio.on("get_player_list")
     def handle_get_player_list(data):
         """Send complete player list to requesting client - shows ALL online players"""
-        room = data.get('room', 'city')
-        # Return ALL connected players, not just those in a specific room
+        room = data.get("room", "city")
+        # Return ALL connected players
         all_players_online = []
         seen_names = set()
         
         for player in connected_players.values():
-            if player['name'] not in seen_names:
-                seen_names.add(player['name'])
+            if player["name"] not in seen_names:
+                seen_names.add(player["name"])
                 all_players_online.append({
-                    'id': player['id'],
-                    'name': player['name'],
-                    'location': player['room']  # Show their current location
+                    "id": player["id"],
+                    "name": player["name"],
+                    "location": player["room"]
                 })
                 
-        emit('player_list', {'players': all_players_online})
+        emit("player_list", {"players": all_players_online})
 
-    @socketio.on('pvp_challenge')
+    @socketio.on("pvp_challenge")
     def handle_pvp_challenge(data):
         """Handle PVP challenge requests"""
-        target_id = data.get('target_id')
-        room = data.get('room', 'city')
+        target_id = data.get("target_id")
+        room = data.get("room", "city")
 
         if target_id in connected_players:
-            # For now, just send a notification
-            emit('pvp_response', {
-                'success': True,
-                'message': 'PVP challenge sent!'
+            emit("pvp_response", {
+                "success": True,
+                "message": "PVP challenge sent!"
             })
-            # In a real implementation, you'd handle the challenge logic here
         else:
-            emit('pvp_response', {
-                'success': False,
-                'message': 'Player not found or unavailable.'
+            emit("pvp_response", {
+                "success": False,
+                "message": "Player not found or unavailable."
             })
 
     def update_player_lists():
-        """Update player lists for all connected clients in global chat room"""
-        # Send current player list to all connected clients in global room
+        """Update player lists for all connected clients"""
         players_list = list(connected_players.values())
-        socketio.emit('player_list', {'players': players_list}, room='global')
+        socketio.emit("player_list", {"players": players_list}, room="global")
 
 
 if __name__ == '__main__':

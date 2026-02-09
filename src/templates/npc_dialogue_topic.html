@@ -13,6 +13,7 @@
                 <input type="hidden" name="topic" value="{{ topic }}">
                 
                 <div class="list-group">
+					<br />
                     {% for response in responses %}
                     <label class="list-group-item">
                         <input type="radio" name="response_index" value="{{ loop.index0 }}" {% if loop.first %}checked{% endif %}>
