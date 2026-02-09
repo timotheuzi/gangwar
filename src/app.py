@@ -2535,9 +2535,9 @@ def process_fight_action():
                     game_state.weapons.exploding_bullets -= 1
                     base_damage *= 2  # Exploding bullet doubles damage
                 if game_state.weapons.ghost_gun_automatic:
-                    # Automatic ghost gun fires 2 shots - show each shot separately
+                    # Automatic ghost gun fires 3 shots - show each shot separately
                     total_damage = 0
-                    for shot in range(2):
+                    for shot in range(3):
                         shot_damage = base_damage
                         total_damage += shot_damage
                         attack_desc = random.choice(attack_descriptions.get('ghost_gun', ["You fire your automatic ghost gun!"]))

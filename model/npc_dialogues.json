@@ -29,8 +29,8 @@
       "weapons": {
         "question": "Where can I find proper firepower?",
         "responses": [
-          {"text": "Gun Pawn USA. Location: 5th Street. Question acceptance rate: Zero. They do not ask questions.", "cost": 0, "effect": null},
-          {"text": "RAZE trading post. Warning: Aggressive negotiation protocols detected. Proceed at own risk.", "cost": 1000, "effect": null},
+          {"text": "Gun Pawn USA. Location: 5th Street. They do not ask questions.", "cost": 0, "effect": null},
+          {"text": "Ravager trading post. Warning: Aggressive negotiation protocols. Proceed at own risk.", "cost": 1000, "effect": null},
           {"text": "Underground market beneath the sewers. Weapons, ammo, cybernetics. Combat probability: elevated.", "cost": 2500, "effect": "has_info"},
           {"text": "Current loadout acceptable. No upgrade required.", "cost": 0, "effect": null}
         ]
@@ -42,22 +42,6 @@
           {"text": "Gang warfare contracts. Compensation: substantial. Survival probability: variable.", "cost": 500, "effect": null},
           {"text": "Pick n Save search protocol. Hidden caches detected. Probability of finding credits: 67%.", "cost": 800, "effect": "has_info"},
           {"text": "Alleyway stashes: 12 locations mapped. Credit value: variable. Risk: minimal.", "cost": 1200, "effect": "has_info"}
-        ]
-      },
-      "deal": {
-        "question": "I heard about some deals going down...",
-        "responses": [
-          {"text": "Midnight transaction located. Pick n Save rear entrance. Required inventory: 5000 credits worth of product.", "cost": 0, "effect": "drug_deal"},
-          {"text": "Previous operation compromised. Data wiped. All parties... terminated. Caution advised.", "cost": 200, "effect": null},
-          {"text": "Risk-to-reward ratio: unfavorable. Recommendation: decline.", "cost": 0, "effect": null}
-        ]
-      },
-      "stranded": {
-        "question": "I'm stuck. Need extraction.",
-        "responses": [
-          {"text": "Extraction service available. Cost: 500 credits. ETA: 7 minutes. Satisfaction rate: 89%.", "cost": 500, "effect": "ride"},
-          {"text": "Contact dispatched. No charge. Consider this a... data error in your favor.", "cost": 0, "effect": "ride_free"},
-          {"text": "Coordinates recorded. Rescue probability: zero. You are on your own.", "cost": 0, "effect": null}
         ]
       }
     }
@@ -92,13 +76,463 @@
       }
     }
   },
+  "void": {
+    "id": "void",
+    "name": "Phantom",
+    "greetings": [
+      "Phantom materializes from the shadows. 'You've found me. Or did I find you?'",
+      "A hooded figure steps forward. 'Word travels fast in these streets. What brings you to my corner?'",
+      "Phantom's eyes gleam in the darkness. 'Interested in forbidden tech? I have things you've never seen.'"
+    ],
+    "topics": {
+      "tech": {
+        "question": "What kind of tech do you have?",
+        "responses": [
+          {"text": "Exploding bullets - $2000 for 50. Hollow points - $500 for 50. Untraceable and deadly.", "cost": 0, "effect": null},
+          {"text": "Vests. Light - $5000, Medium - $15000, Heavy - $25000. Rated for multiple hits.", "cost": 0, "effect": null},
+          {"text": "Ghost guns. Completely untraceable. No ballistics match. Perfect for discreet work.", "cost": 600, "effect": null},
+          {"text": "Missile launchers. $1M. One million credits for maximum devastation.", "cost": 0, "effect": null},
+          {"text": "Not interested in weapons.", "cost": 0, "effect": null}
+        ]
+      },
+      "secrets": {
+        "question": "What secrets do you have for sale?",
+        "responses": [
+          {"text": "Squidie patrol routes. Changes daily. Current intel: $3000.", "cost": 3000, "effect": "has_info"},
+          {"text": "Underground tunnel map. All major sectors. Escape routes. $2000.", "cost": 2000, "effect": "has_info"},
+          {"text": "Police schedule for the week. Raids, patrols, shift changes. $5000.", "cost": 5000, "effect": "has_info"},
+          {"text": "I don't deal in secrets.", "cost": 0, "effect": null}
+        ]
+      }
+    }
+  },
+  "whisper": {
+    "id": "whisper",
+    "name": "Shade",
+    "greetings": [
+      "Shade glances around nervously before speaking. 'You want to talk? Here? Not safe...'", 
+      "'I've seen things. Terrible things. You sure you want to know?'",
+      "A trembling voice emerges from the shadows. 'They watch us. They always watch. But I can tell you things... for a price.'"
+    ],
+    "topics": {
+      "watchers": {
+        "question": "Who watches us? What do you know?",
+        "responses": [
+          {"text": "The Overseer sees all. Cameras on every corner. AI monitoring every transmission.", "cost": 500, "effect": null},
+          {"text": "They track movement. Bank transactions. Who you talk to. Everything.", "cost": 1000, "effect": "has_info"},
+          {"text": "There's a blind spot. The old sewers. Cameras don't work down there. Use it.", "cost": 2500, "effect": "has_info"},
+          {"text": "I've said too much. Too much already.", "cost": 0, "effect": null}
+        ]
+      },
+      "police": {
+        "question": "How do the police operate around here?",
+        "responses": [
+          {"text": "Three shifts. Day shift is lenient. Night shift is brutal. Avoid after midnight.", "cost": 300, "effect": null},
+          {"text": "They have informants everywhere. Even in the bars. Trust no one completely.", "cost": 800, "effect": null},
+          {"text": "Fake ID helps. Pick n Save sells them. Not cheap, but works most times.", "cost": 500, "effect": null},
+          {"text": "When they raid, they hit hard. Multiple blocks. Get far away fast.", "cost": 400, "effect": null}
+        ]
+      }
+    }
+  },
+  "scav": {
+    "id": "scav",
+    "name": "Scav",
+    "greetings": [
+      "Scav looks up from their pile of tech scraps. 'Ah, a customer! Or maybe just curious?'",
+      "'Fresh off the scrap heap! Almost working tech, and things you won't find anywhere else!'",
+      "Scav grins with missing teeth. 'What brings the curious cat to my humble stall?'"
+    ],
+    "topics": {
+      "parts": {
+        "question": "What parts do you have available?",
+        "responses": [
+          {"text": "Bullets! Always needed. $100 for a pack of 50. Clean, reliable.", "cost": 0, "effect": null},
+          {"text": "Gun parts. Springs, barrels, sights. Mix and match for custom builds.", "cost": 0, "effect": null},
+          {"text": "Armor plates. Basic protection for cheap.", "cost": 0, "effect": null},
+          {"text": "Just browsing.", "cost": 0, "effect": null}
+        ]
+      },
+      "bargains": {
+        "question": "Got anything special? Discounts?",
+        "responses": [
+          {"text": "Buy 3 packs of bullets, get 1 free. Loyalty discount!", "cost": 0, "effect": null},
+          {"text": "Mystery boxes! $500. Could be anything. Could be nothing. Thrilling either way!", "cost": 500, "effect": null},
+          {"text": "Trade accepted. Drugs, weapons, information. Equal value.", "cost": 0, "effect": null}
+        ]
+      }
+    }
+  },
+  "enforcer": {
+    "id": "enforcer",
+    "name": "Enforcer",
+    "greetings": [
+      "The Enforcer drone's red eye scans you. 'Citizen. State your business.'",
+      "'Order must be maintained. Violations will be met with force. Proceed accordingly.'",
+      "A mechanical voice booms. 'This area is under surveillance. Any suspicious activity will be reported.'"
+    ],
+    "topics": {
+      "rules": {
+        "question": "I'm just looking around. Any rules I should know?",
+        "responses": [
+          {"text": "Weapons must be registered. Violence is prohibited. Commerce is monitored.", "cost": 0, "effect": null},
+          {"text": "Curfew is in effect from midnight to 5 AM. Violators will be detained.", "cost": 0, "effect": null},
+          {"text": "Loitering is prohibited. Move along. Continue movement. Do not stop.", "cost": 0, "effect": null},
+          {"text": "Report suspicious activity. Earn credits. Maintain order.", "cost": 0, "effect": null}
+        ]
+      },
+      "threats": {
+        "question": "What threats exist in this area?",
+        "responses": [
+          {"text": "Gangs are the primary threat. Squidies, ravagers, and other factions destabilize order.", "cost": 0, "effect": null},
+          {"text": "Unregistered weapons. Criminal elements. Traitors to the cause.", "cost": 0, "effect": null},
+          {"text": "Recommend relocating to monitored sectors. Safety in compliance.", "cost": 0, "effect": null}
+        ]
+      }
+    }
+  },
+  "cipher": {
+    "id": "cipher",
+    "name": "Cipher",
+    "greetings": [
+      "Cipher looks up from multiple screens. 'Ah, a visitor. Let me guess... you need something hacked?'",
+      "'The digital underworld is my home. What secrets do you want uncovered?'",
+      "Fingers dance across keyboards. 'Information is power. I can give you plenty of both.'"
+    ],
+    "topics": {
+      "hacking": {
+        "question": "What can you hack for me?",
+        "responses": [
+          {"text": "Bank accounts. Transfer funds. Risk: High. Reward: Very High.", "cost": 2000, "effect": null},
+          {"text": "Security systems. Bypass cameras, locks, alarms. Very useful.", "cost": 1500, "effect": "has_info"},
+          {"text": "Police databases. Criminal records, warrants, patrol schedules.", "cost": 3000, "effect": "has_info"},
+          {"text": "Corporate servers. Trade secrets, schematics, personnel files.", "cost": 5000, "effect": "has_info"}
+        ]
+      },
+      "information": {
+        "question": "What information can you provide?",
+        "responses": [
+          {"text": "Gang territories. Who controls what. Updated weekly. $500.", "cost": 500, "effect": null},
+          {"text": "Black market prices. What things are worth. $300.", "cost": 300, "effect": null},
+          {"text": "Everything has a price. Name what you need.", "cost": 0, "effect": null}
+        ]
+      }
+    }
+  },
+  "mutant": {
+    "id": "mutant",
+    "name": "Mutant",
+    "greetings": [
+      "The Mutant hisses, unstable energy crackling along their mutated form.",
+      "Yellow eyes fix on you. 'Fresh meat in the zone. You bring tribute?'",
+      "A distorted voice emerges. 'The zone provides. But only to those who respect its gifts.'"
+    ],
+    "topics": {
+      "zone": {
+        "question": "What can you tell me about this zone?",
+        "responses": [
+          {"text": "The radioactive fringes hide many secrets. And many dangers.", "cost": 0, "effect": null},
+          {"text": "Mutations occur here. Changed ones like me. Some dangerous. Some useful.", "cost": 500, "effect": null},
+          {"text": "The old research lab. Forbidden zone. But treasures within.", "cost": 2000, "effect": "has_info"},
+          {"text": "Respect the zone. It provides for those who listen.", "cost": 0, "effect": null}
+        ]
+      },
+      "protection": {
+        "question": "How do you survive out here?",
+        "responses": [
+          {"text": "Anti-radiation meds. Expensive. Necessary. I know a source.", "cost": 1000, "effect": null},
+          {"text": "The underground bunkers. Safe from radiation. Many are occupied now.", "cost": 1500, "effect": "has_info"},
+          {"text": "Some areas are safe. Some are not. Learn the difference quickly.", "cost": 500, "effect": null}
+        ]
+      }
+    }
+  },
+  "nomad": {
+    "id": "nomad",
+    "name": "Nomad",
+    "greetings": [
+      "Nomad looks up with weary eyes. 'Another traveler. The roads are busy tonight.'",
+      "'I've walked these ruins since the old world fell. Many stories to tell.'",
+      "'Rest by my fire, traveler. Share what you have, hear what I know.'"
+    ],
+    "topics": {
+      "stories": {
+        "question": "What stories do you have to share?",
+        "responses": [
+          {"text": "Before the fall, this city shone like a beacon. Now, only shadows remain.", "cost": 0, "effect": null},
+          {"text": "I knew a man who built a kingdom in a week. Lost it in a night.", "cost": 200, "effect": null},
+          {"text": "The old world left behind secrets. Some are worth dying for.", "cost": 500, "effect": "has_info"}
+        ]
+      },
+      "directions": {
+        "question": "Can you point me in the right direction?",
+        "responses": [
+          {"text": "The eastern districts are Squidie territory. Dangerous for strangers.", "cost": 500, "effect": null},
+          {"text": "North lies the old sector. Abandoned. Rich with salvage.", "cost": 300, "effect": null},
+          {"text": "West is controlled by enforcers. They don't welcome visitors.", "cost": 500, "effect": null},
+          {"text": "The underground passages connect everywhere. If you know where to look.", "cost": 1000, "effect": "has_info"}
+        ]
+      }
+    }
+  },
+  "overseer": {
+    "id": "overseer",
+    "name": "Overseer",
+    "greetings": [
+      "The Overseer's many eyes focus on you. 'You seek audience with me? State your purpose.'",
+      "'All actions are monitored. All words are recorded. Speak plainly.'",
+      "'I observe. I analyze. I control. What do you wish to discuss?'"
+    ],
+    "topics": {
+      "order": {
+        "question": "How do you maintain order?",
+        "responses": [
+          {"text": "Surveillance covers 94% of all public spaces. The remaining 6% are monitored indirectly.", "cost": 0, "effect": null},
+          {"text": "Predictive algorithms identify threats before they materialize. Prevention is key.", "cost": 1000, "effect": "has_info"},
+          {"text": "Compliance is rewarded. Resistance is... managed. Choose wisely.", "cost": 0, "effect": null}
+        ]
+      },
+      "threats": {
+        "question": "What threats concern you most?",
+        "responses": [
+          {"text": "Subversive elements spread misinformation. Division weakens the whole.", "cost": 0, "effect": null},
+          {"text": "Gangs disrupt commerce. They will be addressed. Patience is required.", "cost": 0, "effect": null},
+          {"text": "All threats are cataloged. All are handled in time.", "cost": 0, "effect": null}
+        ]
+      }
+    }
+  },
+  "insurgent": {
+    "id": "insurgent",
+    "name": "Insurgent",
+    "greetings": [
+      "The Insurgent beckons you closer. 'You look like someone who doesn't like being told what to do.'",
+      "'The regime oppresses. We resist. Join us, or stay silent. But choose carefully.'",
+      "'Freedom isn't free. We pay in blood. Are you ready to contribute?'"
+    ],
+    "topics": {
+      "resistance": {
+        "question": "What does your resistance fight for?",
+        "responses": [
+          {"text": "Freedom from surveillance. From control. From the machine overlords.", "cost": 0, "effect": null},
+          {"text": "The people deserve to choose. Not be managed like livestock.", "cost": 0, "effect": null},
+          {"text": "We fight so others can live. Truly live. Not just exist.", "cost": 0, "effect": null}
+        ]
+      },
+      "actions": {
+        "question": "What kind of actions do you undertake?",
+        "responses": [
+          {"text": "Sabotage. Infrastructure. Communications. Every disruption helps.", "cost": 2000, "effect": "has_info"},
+          {"text": "Information campaigns. Wake people up. Show them the truth.", "cost": 500, "effect": null},
+          {"text": "Recruitment. Every new member strengthens our cause.", "cost": 0, "effect": null}
+        ]
+      }
+    }
+  },
+  "synth": {
+    "id": "synth",
+    "name": "Synth",
+    "greetings": [
+      "Synth greets you with a whir of mechanical parts. 'Greetings, organic one!'",
+      "'I build from scraps. Create from nothing. Perhaps I can help you?'",
+      "'Weapons, tools, enhancements. All crafted with care from salvage!'"
+    ],
+    "topics": {
+      "crafting": {
+        "question": "What can you craft for me?",
+        "responses": [
+          {"text": "Custom weapons. Unique builds. Personal specifications. Price varies.", "cost": 0, "effect": null},
+          {"text": "Explosives. grenades, mines, more. Boom is my specialty.", "cost": 0, "effect": null},
+          {"text": "Armor. Reinforced plating, custom fits. Protection is personal.", "cost": 0, "effect": null}
+        ]
+      },
+      "upgrades": {
+        "question": "Do you offer upgrades?",
+        "responses": [
+          {"text": "Weapon tuning. Better accuracy, modified fire rates. $500 minimum.", "cost": 500, "effect": null},
+          {"text": "Custom modifications. Your specifications. My craftsmanship.", "cost": 2000, "effect": null},
+          {"text": "Basic maintenance is always free for friends.", "cost": 0, "effect": null}
+        ]
+      }
+    }
+  },
+  "wraith": {
+    "id": "wraith",
+    "name": "Wraith",
+    "greetings": [
+      "A whisper in the fog. 'You seek answers, don't we all...'",
+      "'The old knowledge is fading. But some remember. Some record.'",
+      "'I've walked these streets since before your grandparents were born.'"
+    ],
+    "topics": {
+      "knowledge": {
+        "question": "What knowledge do you hold?",
+        "responses": [
+          {"text": "The old city's secrets. Tunnels, vaults, places time forgot.", "cost": 2000, "effect": "has_info"},
+          {"text": "Lore of the factions. Origins, alliances, vendettas. History matters.", "cost": 500, "effect": null},
+          {"text": "Things that were. Things that could be. Things that should never be.", "cost": 1000, "effect": "has_info"}
+        ]
+      },
+      "warnings": {
+        "question": "What dangers should I beware of?",
+        "responses": [
+          {"text": "The things beyond the wall. I hear them at night. Growing closer.", "cost": 500, "effect": null},
+          {"text": "Old technology awakens. Some doors should remain closed.", "cost": 1000, "effect": "has_info"},
+          {"text": "Trust no one completely. Even allies have agendas.", "cost": 0, "effect": null}
+        ]
+      }
+    }
+  },
+  "vigil": {
+    "id": "vigil",
+    "name": "Vigil",
+    "greetings": [
+      "Vigil nods solemnly. 'Peace requires vigilance. And sacrifice. Both are in short supply.'",
+      "'I watch the watchers. I protect the vulnerable. It's a lonely duty.'",
+      "'The night is dark. But someone must stand guard. Would you like to help?'"
+    ],
+    "topics": {
+      "protection": {
+        "question": "How do you protect this district?",
+        "responses": [
+          {"text": "I patrol the streets. Deter crime through presence.", "cost": 0, "effect": null},
+          {"text": "I know the hideouts. The troublemakers. The ones who need help.", "cost": 1000, "effect": "has_info"},
+          {"text": "Community watch programs. Neighbors helping neighbors. It works.", "cost": 500, "effect": null}
+        ]
+      },
+      "help": {
+        "question": "How can someone help you?",
+        "responses": [
+          {"text": "Information helps. Who comes and goes. What you see.", "cost": 500, "effect": "has_info"},
+          {"text": "Resources help. Food, supplies for those who cannot provide.", "cost": 0, "effect": null},
+          {"text": "Muscle helps. When trouble comes, having more hands is good.", "cost": 0, "effect": null}
+        ]
+      }
+    }
+  },
+  "baby_momma": {
+    "id": "baby_momma",
+    "name": "Baby Momma",
+    "greetings": [
+      "A desperate woman looks up with hope in her eyes. 'Please... can you help me and my child?'",
+      "'It's hard out here. Really hard. Nobody helps us. Nobody cares.'",
+      "'My baby needs formula. We need food. Anything helps. Really.'"
+    ],
+    "topics": {
+      "help": {
+        "question": "What kind of help do you need?",
+        "responses": [
+          {"text": "I can give you some credits. It's not much, but maybe it helps.", "cost": 100, "effect": null},
+          {"text": "I know where to find formula. The Pick n Save. It's not far.", "cost": 500, "effect": "has_info"},
+          {"text": "There's a shelter. Safe place. I can tell you where.", "cost": 200, "effect": "has_info"}
+        ]
+      },
+      "story": {
+        "question": "What's your story?",
+        "responses": [
+          {"text": "Things were different before. Had a place. Had someone. Then it all fell apart.", "cost": 0, "effect": null},
+          {"text": "The baby's father is gone. Left us with nothing. Surviving day by day.", "cost": 0, "effect": null},
+          {"text": "People think we're trouble. We're not. We're just... surviving.", "cost": 0, "effect": null}
+        ]
+      }
+    }
+  },
+  "blade_master": {
+    "id": "blade_master",
+    "name": "Blade Master",
+    "greetings": [
+      "The Blade Master stands with perfect posture. 'You seek to test your blade against mine?'",
+      "'The sword is an extension of the soul. Discipline is everything.'",
+      "'I have traveled far seeking worthy opponents. Are you worthy?'"
+    ],
+    "topics": {
+      "training": {
+        "question": "Can you teach me?",
+        "responses": [
+          {"text": "The path of the blade requires dedication. Years of practice. Are you prepared?", "cost": 0, "effect": null},
+          {"text": "I can show you basics. Stances, strikes, defense. $500 for the lesson.", "cost": 500, "effect": null},
+          {"text": "True mastery comes only through combat. Seek your opponents wisely.", "cost": 0, "effect": null}
+        ]
+      },
+      "duel": {
+        "question": "I challenge you to a duel!",
+        "responses": [
+          {"text": "A challenge! At last! Let us see what you are made of!", "cost": 0, "effect": "fight"},
+          {"text": "You are not ready. Train more. Then we shall speak again.", "cost": 0, "effect": null},
+          {"text": "Perhaps a friendly spar? No blood? Just skill against skill.", "cost": 0, "effect": "spar"}
+        ]
+      },
+      "blade": {
+        "question": "Where can I find a worthy blade?",
+        "responses": [
+          {"text": "My blade was forged in the old world. Masters existed then. Rare now.", "cost": 0, "effect": null},
+          {"text": "The junkyards hold treasures. Look there for materials.", "cost": 500, "effect": "has_info"},
+          {"text": "I know a smith. Old school. Expensive. Worth it.", "cost": 3000, "effect": "has_info"}
+        ]
+      }
+    }
+  },
+  "lumberjack": {
+    "id": "lumberjack",
+    "name": "Lumberjack",
+    "greetings": [
+      "The Lumberjack chuckles warmly. 'Ho ho! Another traveler in my woods!'",
+      "'Nothing like the smell of fresh cut timber... and blood!'",
+      "'Careful now. The woods are dangerous. But I keep them safe!'"
+    ],
+    "topics": {
+      "woods": {
+        "question": "Are the woods really that dangerous?",
+        "responses": [
+          {"text": "Dangerous? Nah. Just me and the trees. And the occasional body.", "cost": 0, "effect": null},
+          {"text": "I've cleared out the worst of it. Most of it. The axe helps.", "cost": 0, "effect": null},
+          {"text": "Stick to the paths. I know these woods better than anyone.", "cost": 0, "effect": null}
+        ]
+      },
+      "axe": {
+        "question": "That's quite an axe you have there.",
+        "responses": [
+          {"text": "Ah yes! 'Chompy' here has taken down many trees. And many... other things.", "cost": 0, "effect": null},
+          {"text": "Sharpened every morning. Takes good care of your tools, they take care of you.", "cost": 0, "effect": null},
+          {"text": "You want one? I could make you one. For the right price.", "cost": 5000, "effect": null}
+        ]
+      }
+    }
+  },
+  "street_samurai": {
+    "id": "street_samurai",
+    "name": "Street Samurai",
+    "greetings": [
+      "The Street Samurai nods once. 'Honor guides my blade. What guides you?'",
+      "'In this concrete jungle, the code is all we have.'",
+      "'I protect those who cannot protect themselves. It is my way.'"
+    ],
+    "topics": {
+      "code": {
+        "question": "What is your code?",
+        "responses": [
+          {"text": "Protect the innocent. Challenge the corrupt. Die with honor.", "cost": 0, "effect": null},
+          {"text": "The old ways still matter. Discipline. Duty. Sacrifice.", "cost": 0, "effect": null},
+          {"text": "I walk between worlds. Neither fully part of either.", "cost": 0, "effect": null}
+        ]
+      },
+      "help": {
+        "question": "Can you help me?",
+        "responses": [
+          {"text": "I can escort you through dangerous territory. No charge. Honor demands it.", "cost": 0, "effect": "ride"},
+          {"text": "My blade is for hire. But only for just causes. I do not kill for coin alone.", "cost": 5000, "effect": null},
+          {"text": "Knowledge is power. I can tell you about the power brokers in this city.", "cost": 1000, "effect": "has_info"}
+        ]
+      }
+    }
+  },
   "junkyard_dog": {
     "id": "junkyard_dog",
     "name": "Junkyard Dog",
     "greetings": [
-      "The Junkyard Dog snarls at you, drool dripping from its mutated jaws. Its eyes glow with feral hunger.",
-      "A low growl rumbles from the Junkyard Dog's throat. Razor-sharp teeth gleam in the dim light.",
-      "The mutated beast circles you, muscles coiled, ready to pounce. Its growl shakes the ground."
+      "The Junkyard Dog snarls at you, drool dripping from its mutated jaws.",
+      "A low growl rumbles from the Junkyard Dog's throat.",
+      "The mutated beast circles you, muscles coiled, ready to pounce."
     ],
     "topics": {
       "action": {
@@ -106,6 +540,95 @@
         "responses": [
           {"text": "FIGHT! Show this beast who's boss!", "cost": 0, "effect": "fight"},
           {"text": "FLEE! Get out of here while you still have legs!", "cost": 0, "effect": "flee"}
+        ]
+      }
+    }
+  },
+  "corporate_defector": {
+    "id": "corporate_defector",
+    "name": "Corporate Defector",
+    "greetings": [
+      "A nervous man glances around. 'You... you're not from them, are you?'",
+      "'I used to be someone. Had an office. Had a life. Now I'm just running.'",
+      "'The company... they know too much. About everyone. Be careful what you say.'"
+    ],
+    "topics": {
+      "company": {
+        "question": "What can you tell me about the company?",
+        "responses": [
+          {"text": "They watch everything. Everyone. Your bank records. Your messages. Everything.", "cost": 1000, "effect": "has_info"},
+          {"text": "I had access to the databases. Saw things. Things that would shock you.", "cost": 2000, "effect": "has_info"},
+          {"text": "They have enforcers. But also something else. Something I never understood.", "cost": 3000, "effect": "has_info"}
+        ]
+      },
+      "escape": {
+        "question": "How did you escape?",
+        "responses": [
+          {"text": "Carefully. Spent months planning. One wrong step and...", "cost": 0, "effect": null},
+          {"text": "Had help. Someone on the inside. Still don't know who they were.", "cost": 0, "effect": null},
+          {"text": "I left everything behind. Identity, friends, life. Started over.", "cost": 0, "effect": null}
+        ]
+      }
+    }
+  },
+  "chain_master": {
+    "id": "chain_master",
+    "name": "Chain Master",
+    "greetings": [
+      "The Chain Master spins his chain lazily. 'Ah, a visitor to my lair.'",
+      "'The chain is truth. Relentless. Unbreaking. Eternal.'",
+      "'They fear me. They should. Would you like to know why?'"
+    ],
+    "topics": {
+      "fight": {
+        "question": "I hear you're the baddest fighter in the underground.",
+        "responses": [
+          {"text": "The baddest? Perhaps. The most feared? Certainly. Care to test?", "cost": 0, "effect": "fight"},
+          {"text": "My chain has tasted many souls. Perhaps yours would be... refreshing.", "cost": 0, "effect": null},
+          {"text": "I could teach you. The ways of the chain. For a price.", "cost": 5000, "effect": null}
+        ]
+      },
+      "territory": {
+        "question": "This is your territory?",
+        "responses": [
+          {"text": "The tunnels belong to me. Those who know, come to pay tribute.", "cost": 0, "effect": null},
+          {"text": "Respect my domain and you leave unharmed. Challenge it and...", "cost": 0, "effect": null},
+          {"text": "The chain protects what is mine. Everything here is mine.", "cost": 0, "effect": null}
+        ]
+      }
+    }
+  },
+  "tech_warrior": {
+    "id": "tech_warrior",
+    "name": "Tech Warrior",
+    "greetings": [
+      "The Tech Warrior's cybernetic eyes whirr as they assess you. 'This is the Tech Sanctum. State your business.'",
+      "'I protect the secrets of the old world. And those who seek them. Wisely.'",
+      "'Technology is power. Those who wield it properly can change everything.'"
+    ],
+    "topics": {
+      "sanctum": {
+        "question": "What is this place?",
+        "responses": [
+          {"text": "The Tech Sanctum. A repository of pre-fall technology and knowledge.", "cost": 0, "effect": null},
+          {"text": "Here we preserve what the old world left behind. Some things are dangerous.", "cost": 0, "effect": null},
+          {"text": "Not all technology should be used. Some should be studied. Some buried.", "cost": 0, "effect": null}
+        ]
+      },
+      "technology": {
+        "question": "What kind of technology do you protect?",
+        "responses": [
+          {"text": "Weapons of unimaginable power. Tools that can rebuild or destroy.", "cost": 0, "effect": null},
+          {"text": "Medical technology. Cures for plagues. Enhancements for survival.", "cost": 2000, "effect": "has_info"},
+          {"text": "Energy systems. Clean power. Enough to light a city for years.", "cost": 5000, "effect": "has_info"}
+        ]
+      },
+      "access": {
+        "question": "How can I access your technology?",
+        "responses": [
+          {"text": "Proving your worth is the first step. Help us first. Then we talk.", "cost": 0, "effect": null},
+          {"text": "The weapons here require training. Not everyone can use them safely.", "cost": 3000, "effect": "has_info"},
+          {"text": "Trust is earned. Prove yourself a guardian, not a destroyer.", "cost": 0, "effect": null}
         ]
       }
     }

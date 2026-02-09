@@ -20,7 +20,7 @@
         <div class="weapon-item">
             <h4>Ghost Gun</h4>
             <p>Price: $600</p>
-            <p class="text-warning"><small>⚠️ Untraceable but unreliable! Fires 2 shots/turn. High jam risk (30%) + 5% chance to explode and destroy itself!</small></p>
+            <p class="text-warning"><small>⚠️ Untraceable but unreliable! Fires 1 shot/turn. High jam risk (30%) + 5% chance to explode and destroy itself!</small></p>
             <p>You have: {{ game_state.weapons.ghost_guns }}</p>
             <form method="POST" action="{{ url_for('buy_weapon') }}" class="inline-form">
                 <input type="hidden" name="weapon_type" value="ghost_gun">

@@ -59,12 +59,11 @@ build:
 clean:
 	@echo "Cleaning build artifacts..."
 	@echo "Killing existing gangwar processes..."
-	@pkill -f gangwar 2>/dev/null || true
+	@pkill -f "[g]angwar" 2>/dev/null || true
 	@lsof -ti :6009 | xargs kill -9 2>/dev/null || true
-	@chmod -R u+rwx build/ 2>/dev/null || true
-	@chmod -R u+rwx bin/ 2>/dev/null || true
-	@rm -rf build/
-	@rm -rf bin/
+	@if [ -d "build/" ]; then chmod -R u+rwx build/ 2>/dev/null || true; fi
+	@if [ -d "bin/" ]; then chmod -R u+rwx bin/ 2>/dev/null || true; fi
+	@rm -rf build/ bin/
 	@find . -maxdepth 1 -name "*.spec" ! -name "gangwar.spec" -delete 2>/dev/null || true
 	@find . -name "*.pyc" -delete
 	@find . -name "__pycache__" -type d -exec rm -rf {} + 2>/dev/null || true
@@ -72,10 +71,9 @@ clean:
 # Clean everything including dependencies
 distclean:
 	@echo "Cleaning all generated files..."
-	@chmod -R u+rwx build/ 2>/dev/null || true
-	@chmod -R u+rwx bin/ 2>/dev/null || true
-	@rm -rf build/
-	@rm -rf bin/
+	@if [ -d "build/" ]; then chmod -R u+rwx build/ 2>/dev/null || true; fi
+	@if [ -d "bin/" ]; then chmod -R u+rwx bin/ 2>/dev/null || true; fi
+	@rm -rf build/ bin/
 	@rm -rf logs/
 	@rm -f high_scores.json
 	@rm -f .env
@@ -83,8 +81,8 @@ distclean:
 # Clean disk space (aggressive cleanup)
 clean-disk:
 	@echo "Performing aggressive disk cleanup..."
-	@chmod -R u+rwx build/ 2>/dev/null || true
-	@chmod -R u+rwx bin/ 2>/dev/null || true
+	@if [ -d "build/" ]; then chmod -R u+rwx build/ 2>/dev/null || true; fi
+	@if [ -d "bin/" ]; then chmod -R u+rwx bin/ 2>/dev/null || true; fi
 	@rm -rf build/ bin/
 	@find . -maxdepth 1 -name "*.spec" ! -name "gangwar.spec" -delete 2>/dev/null || true
 	@find . -name "__pycache__" -type d -exec rm -rf {} + 2>/dev/null || true
