@@ -12,17 +12,43 @@ var pollIntervalMs = 3000; // Poll every 3 seconds
 document.addEventListener('DOMContentLoaded', function() {
     console.log('DOM loaded, initializing polling chat...');
     
-    // Get player name from window object (set by template)
-    if (window.playerName) {
-        playerName = window.playerName;
-        console.log('Player name:', playerName);
-    }
-    
-    // Small delay to ensure all DOM elements are ready
-    setTimeout(function() {
-        initPollingChat();
-    }, 300);
+    // Fetch player info from server to get the real player name
+    fetchPlayerInfo().then(function() {
+        // Small delay to ensure all DOM elements are ready
+        setTimeout(function() {
+            initPollingChat();
+        }, 300);
+    });
 });
+
+function fetchPlayerInfo() {
+    return new Promise(function(resolve) {
+        var xhr = new XMLHttpRequest();
+        xhr.open('GET', '/api/player/info', true);
+        xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
+        
+        xhr.onreadystatechange = function() {
+            if (xhr.readyState === 4) {
+                if (xhr.status === 200) {
+                    try {
+                        var response = JSON.parse(xhr.responseText);
+                        if (response.player_name) {
+                            playerName = response.player_name;
+                            // Also update window.playerName for other scripts
+                            window.playerName = playerName;
+                            console.log('Fetched player name:', playerName);
+                        }
+                    } catch (e) {
+                        console.error('Error parsing player info:', e);
+                    }
+                }
+                resolve();
+            }
+        };
+        
+        xhr.send();
+    });
+}
 
 function initPollingChat() {
     console.log('Initializing polling chat...');

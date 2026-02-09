@@ -280,6 +280,21 @@ def chat_status():
         'system': 'polling'
     })
 
+@app.route('/api/player/info')
+def get_player_info():
+    """Get current player info for chat"""
+    try:
+        game_state = get_game_state()
+        return jsonify({
+            'player_name': game_state.player_name or 'Player',
+            'location': game_state.current_location or 'city'
+        })
+    except:
+        return jsonify({
+            'player_name': 'Player',
+            'location': 'city'
+        })
+
 # ============
 # Legacy SocketIO handlers (kept for reference but not active)
 # ============
