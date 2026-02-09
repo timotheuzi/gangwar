@@ -620,7 +620,7 @@ def city():
 
 @app.route('/crackhouse')
 def crackhouse():
-    """Big Johnny's Crack House"""
+    """Crackhouse"""
     game_state = get_game_state()
     game_state.current_location = "crackhouse"
     save_game_state(game_state)
