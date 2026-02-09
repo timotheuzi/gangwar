@@ -2040,153 +2040,22 @@ def pickup_loot(npc_id):
 # NPC Dialogue System
 # ============
 
-# Define dialogue trees for NPCs
-NPC_DIALOGUES = {
-    'nox': {
-        'greetings': [
-            "Nox leans against the bar, watching you with calculating eyes. 'You looking for information, stranger? That'll cost you.'",
-            "'I know things that could save your life,' Nox says cryptically. 'Interested?'",
-            "Nox glances around nervously. 'Word is you're making waves. You need info, you got credits?'"
-        ],
-        'topics': {
-            'squidies': {
-                'question': "What do you know about the Squidies?",
-                'responses': [
-                    {'text': "The Squidies run the east side. They got muscle, guns, and they don't like outsiders.", 'cost': 500, 'effect': None},
-                    {'text': "Their HQ is in the old warehouse district. Heavy guard at night.", 'cost': 1000, 'effect': 'has_info'},
-                    {'text': "Word is they got a shipment coming next week. Big one. Automatics.", 'cost': 2000, 'effect': 'has_info'},
-                    {'text': "Forget it, I don't want to know.", 'cost': 0, 'effect': None}
-                ]
-            },
-            'police': {
-                'question': "How do I avoid the cops?",
-                'responses': [
-                    {'text': "Get a fake ID. The guy at Pick n Save can hook you up. Costs about $5K.", 'cost': 0, 'effect': None},
-                    {'text': "Police patrol patterns change daily. Check the infobooth for alerts.", 'cost': 300, 'effect': None},
-                    {'text': "There's a tunnel system under the city. Hidden entrances all over. Useful for evading.", 'cost': 1500, 'effect': 'has_info'},
-                    {'text': "Never mind, I'll take my chances.", 'cost': 0, 'effect': None}
-                ]
-            },
-            'weapons': {
-                'question': "Where can I get some serious firepower?",
-                'responses': [
-                    {'text': "Gun Pawn USA on 5th Street. They don't ask questions.", 'cost': 0, 'effect': None},
-                    {'text': "For the really good stuff... talk to Raze. But he's dangerous.", 'cost': 1000, 'effect': None},
-                    {'text': "There's an underground market in the sewers. Weapons, ammo, everything. But it's risky.", 'cost': 2500, 'effect': 'has_info'},
-                    {'text': "I think I'll stick with what I have.", 'cost': 0, 'effect': None}
-                ]
-            },
-            'money': {
-                'question': "How can I make some quick cash?",
-                'responses': [
-                    {'text': "The crackhouse. Buy low, sell high. That's the game.", 'cost': 0, 'effect': None},
-                    {'text': "Gang wars pay well if you win. But it's dangerous.", 'cost': 500, 'effect': None},
-                    {'text': "There's a Pick n Save in the bad part of town. Search it, you might find stashed cash.", 'cost': 800, 'effect': 'has_info'},
-                    {'text': "I heard about some hidden stashes in the alleyways.", 'cost': 1200, 'effect': 'has_info'}
-                ]
-            },
-            'deal': {
-                'question': "I heard you can set up a drug deal...",
-                'responses': [
-                    {'text': "'I got a guy who needs product. Meet me at midnight behind the Pick n Save. Bring $5K worth of weed.'", 'cost': 0, 'effect': 'drug_deal'},
-                    {'text': "'That deal went south last month. Got ambushed by cops. Lost everything.'", 'cost': 200, 'effect': None},
-                    {'text': "'The money is good but the risks are real. You in or out?'", 'cost': 0, 'effect': None}
-                ]
-            },
-            'ripped_off': {
-                'question': "I got ripped off by someone you recommended...",
-                'responses': [
-                    {'text': "'That ain't my problem. Shoulda done your homework before dealing.'", 'cost': 0, 'effect': None},
-                    {'text': "'Alright, I got your back. Tell me who scammed you and I'll have a word with them.'", 'cost': 500, 'effect': 'revenge'},
-                    {'text': "'Bad luck happens. Here's $200 to tide you over. Don't say I never gave you nothing.'", 'cost': 0, 'effect': 'cash_200'}
-                ]
-            },
-            'stranded': {
-                'question': "I'm stranded and need help getting back to HQ...",
-                'responses': [
-                    {'text': "'That'll cost you. $500 for a ride. Take it or walk.'", 'cost': 500, 'effect': 'ride'},
-                    {'text': "'I got a contact who can help. But he owes me one. Consider it paid.'", 'cost': 0, 'effect': 'ride_free'},
-                    {'text': "'You're on your own. Shouldn't have wandered into parts unknown.'", 'cost': 0, 'effect': None}
-                ]
-            }
-        }
-    },
-    'raze': {
-        'greetings': [
-            "Raze stands behind a table filled with weapons and drugs. 'You got money? I got product.'",
-            "'Fresh shipment in,' Raze grins. 'What you looking for?'",
-            "Raze eyes you suspiciously. 'You come recommended? Good. Let's do business.'",
-            "'I heard you're looking for action. I got connections if you got the cash.'",
-            "'Another customer! Welcome to the underground. What can I do you for today?'"
-        ],
-        'topics': {
-            'buy': {
-                'question': "Show me what you have.",
-                'responses': [
-                    {'text': "Weed - $500/kilo, Crack - $1000/kilo, Coke - $2000/kilo", 'cost': 0, 'effect': None},
-                    {'text': "Ice - $1500/kilo, Percs - $800/kilo, Pixie Dust - $3000/kilo", 'cost': 0, 'effect': None},
-                    {'text': "Pistols - $1200, AR-15 - $10,000, Ghost Gun - $600", 'cost': 0, 'effect': None},
-                    {'text': "Vampire Bat - $2,500, Grenades - $1,000 each", 'cost': 0, 'effect': None},
-                    {'text': "Just browsing, thanks.", 'cost': 0, 'effect': None}
-                ]
-            },
-            'discount': {
-                'question': "Can you give me a deal?",
-                'responses': [
-                    {'text': "'You a big buyer? Show me the money and we talk.'", 'cost': 0, 'effect': None},
-                    {'text': "'Buy 10 kilos of anything, get 1 free. That's my deal.'", 'cost': 0, 'effect': None},
-                    {'text': "'New customers get 10% off first purchase. Use code RAZE10.'", 'cost': 0, 'effect': None},
-                    {'text': "Maybe later.", 'cost': 0, 'effect': None}
-                ]
-            },
-            'debt': {
-                'question': "I need more time to pay.",
-                'responses': [
-                    {'text': "Raze's smile vanishes. 'Time? Time costs interest. 15% per day. Take it or leave it.'", 'cost': 0, 'effect': None},
-                    {'text': "'You got one week. After that... my collectors come calling. And they do not miss.'", 'cost': 0, 'effect': None},
-                    {'text': "'I'll have your legs broken. That's my collection policy.'", 'cost': 0, 'effect': None},
-                    {'text': "I'll have the money.", 'cost': 0, 'effect': None}
-                ]
-            },
-            'special': {
-                'question': "What do you have that's special?",
-                'responses': [
-                    {'text': "'Special items cost special prices. Golden Gun - one shot, one kill. $50K.'", 'cost': 0, 'effect': None},
-                    {'text': "'Missile launchers. $1M each. Worth every penny when you need to make a statement.'", 'cost': 0, 'effect': None},
-                    {'text': "'Exploding bullets - $2K for 50. Hollow points - $500 for 50. Heavy stuff.'", 'cost': 0, 'effect': None},
-                    {'text': "Maybe some other time.", 'cost': 0, 'effect': None}
-                ]
-            },
-            'fight': {
-                'question': "Looking for a fight. Got anything for me?",
-                'responses': [
-                    {'text': "'Now you're talking! Underground fight club. Tonight. Winner takes $10K.'", 'cost': 0, 'effect': 'fight_club'},
-                    {'text': "'I got a job. Hit a Squidie outpost. Payment upon completion. $5K upfront.'", 'cost': 0, 'effect': 'raid_job'},
-                    {'text': "'Bad news. Someone put a bounty on your head. $2K. I ain't telling who.'", 'cost': 0, 'effect': 'bounty'},
-                    {'text': "'Stay sharp. Got word cops are planning a raid on this place.'", 'cost': 500, 'effect': 'warning'}
-                ]
-            },
-            'drug_deal': {
-                'question': "I want to set up a big drug deal...",
-                'responses': [
-                    {'text': "'Now you're thinking big! I got a connection who needs 20 kilos. Meet at the docks at 3AM.'", 'cost': 0, 'effect': 'big_deal'},
-                    {'text': "'The competition don't like outsiders muscling in. Expect trouble.'", 'cost': 1000, 'effect': 'warning'},
-                    {'text': "'I can front you the product. 50% cut when it sells. But if you bail...' ", 'cost': 0, 'effect': 'fronted'},
-                    {'text': "'Forget it. Too risky with the cops sniffing around.'", 'cost': 0, 'effect': None}
-                ]
-            },
-            'money': {
-                'question': "I'm short on cash. Any opportunities?",
-                'responses': [
-                    {'text': "'I got a package that needs delivering. Dangerous route but pays $3K.'", 'cost': 0, 'effect': 'delivery'},
-                    {'text': "'You could run errands for me. Small jobs. Pays $500 each.'", 'cost': 0, 'effect': 'errands'},
-                    {'text': "'No handouts here. Come back when you got something to offer.'", 'cost': 0, 'effect': None},
-                    {'text': "'Fine. Here's $300. Don't spend it all at once.'", 'cost': 0, 'effect': 'cash_300'}
-                ]
-            }
-        }
-    }
-}
+# Load dialogues from JSON file
+def load_npc_dialogues():
+    """Load NPC dialogues from JSON file"""
+    try:
+        dialogue_file = os.path.join(os.path.dirname(__file__), '..', 'model', 'npc_dialogues.json')
+        with open(dialogue_file, 'r') as f:
+            return json.load(f)
+    except FileNotFoundError:
+        return {}
+    except Exception as e:
+        print(f"Error loading NPC dialogues: {e}")
+        return {}
+
+# Load dialogues at module level
+NPC_DIALOGUES = load_npc_dialogues()
+
 
 @app.route('/npc_dialogue/<npc_id>')
 def npc_dialogue(npc_id):
@@ -2637,10 +2506,10 @@ def process_fight_action():
         elif weapon == 'ghost_gun' and game_state.weapons.ghost_guns > 0 and game_state.weapons.bullets > 0:
             game_state.weapons.bullets -= 1
             base_damage = random.randint(15, 25)
-            # Ghost gun jam chance - 30% chance to jam (increased from 20%)
+            # Ghost gun jam chance - 30% chance to jam
             if random.random() < 0.3:
-                # When ghost gun jams, 40% chance it EXPLODES in your face (increased from 30%)
-                if random.random() < 0.4:
+                # When ghost gun jams, 5% chance it EXPLODES in your face
+                if random.random() < 0.05:
                     # GHOST GUN EXPLOSION - lose weapon and take damage!
                     explosion_damage = random.randint(5, 20)
                     game_state.damage += explosion_damage

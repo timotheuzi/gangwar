@@ -1,0 +1,113 @@
+{
+  "nox": {
+    "id": "nox",
+    "name": "Glitch",
+    "greetings": [
+      "Glitch's optical sensors whir as they analyze you. 'You seek information? I have data. You have credits?'",
+      "'Calculating probability of your survival... unfavorable. But I can improve those odds for a price.'",
+      "Glitch's holographic display flickers. 'The undercity whispers secrets. Would you like to listen?'"
+    ],
+    "topics": {
+      "squidies": {
+        "question": "What do you know about the Squidies?",
+        "responses": [
+          {"text": "The Squidies control the east sector. Their cybernetics are outdated but numerous. Recommend avoidance.", "cost": 500, "effect": null},
+          {"text": "Their main server is in the old warehouse. Firewall strength: minimal. Vulnerability: significant.", "cost": 1000, "effect": "has_info"},
+          {"text": "Incoming shipment detected. Heavy weaponry. Automated defense systems. Proceed with extreme caution.", "cost": 2000, "effect": "has_info"},
+          {"text": "Query cancelled. No credits deducted.", "cost": 0, "effect": null}
+        ]
+      },
+      "police": {
+        "question": "How do I avoid the enforcers?",
+        "responses": [
+          {"text": "Purchase counterfeit ID at Pick n Save. Cost: 5000 credits. Authenticity: 94.7%", "cost": 0, "effect": null},
+          {"text": "Enforcer patrol patterns updated hourly. Check the infobooth terminal for real-time data.", "cost": 300, "effect": null},
+          {"text": "Subterranean tunnel network detected. Access points hidden throughout the district.", "cost": 1500, "effect": "has_info"},
+          {"text": "Risk assessment: High. Proceed anyway?", "cost": 0, "effect": null}
+        ]
+      },
+      "weapons": {
+        "question": "Where can I find proper firepower?",
+        "responses": [
+          {"text": "Gun Pawn USA. Location: 5th Street. Question acceptance rate: Zero. They do not ask questions.", "cost": 0, "effect": null},
+          {"text": "RAZE trading post. Warning: Aggressive negotiation protocols detected. Proceed at own risk.", "cost": 1000, "effect": null},
+          {"text": "Underground market beneath the sewers. Weapons, ammo, cybernetics. Combat probability: elevated.", "cost": 2500, "effect": "has_info"},
+          {"text": "Current loadout acceptable. No upgrade required.", "cost": 0, "effect": null}
+        ]
+      },
+      "money": {
+        "question": "I need credits. Fast.",
+        "responses": [
+          {"text": "Crackhouse arbitrage. Buy low, sell high. Profit margin: 150-300%. Recommended strategy.", "cost": 0, "effect": null},
+          {"text": "Gang warfare contracts. Compensation: substantial. Survival probability: variable.", "cost": 500, "effect": null},
+          {"text": "Pick n Save search protocol. Hidden caches detected. Probability of finding credits: 67%.", "cost": 800, "effect": "has_info"},
+          {"text": "Alleyway stashes: 12 locations mapped. Credit value: variable. Risk: minimal.", "cost": 1200, "effect": "has_info"}
+        ]
+      },
+      "deal": {
+        "question": "I heard about some deals going down...",
+        "responses": [
+          {"text": "Midnight transaction located. Pick n Save rear entrance. Required inventory: 5000 credits worth of product.", "cost": 0, "effect": "drug_deal"},
+          {"text": "Previous operation compromised. Data wiped. All parties... terminated. Caution advised.", "cost": 200, "effect": null},
+          {"text": "Risk-to-reward ratio: unfavorable. Recommendation: decline.", "cost": 0, "effect": null}
+        ]
+      },
+      "stranded": {
+        "question": "I'm stuck. Need extraction.",
+        "responses": [
+          {"text": "Extraction service available. Cost: 500 credits. ETA: 7 minutes. Satisfaction rate: 89%.", "cost": 500, "effect": "ride"},
+          {"text": "Contact dispatched. No charge. Consider this a... data error in your favor.", "cost": 0, "effect": "ride_free"},
+          {"text": "Coordinates recorded. Rescue probability: zero. You are on your own.", "cost": 0, "effect": null}
+        ]
+      }
+    }
+  },
+  "raze": {
+    "id": "raze",
+    "name": "Ravager",
+    "greetings": [
+      "Ravager cracks his knuckles, cyber-enhanced fingers sparking. 'You got a problem? I got solutions. Violent ones.'",
+      "'Looking for trouble? Or are you bringing me some? Either way, I'm happy.'",
+      "Ravager eyes you with predatory gleam. 'The streets are hungry. You gonna feed 'em or join 'em?'"
+    ],
+    "topics": {
+      "buy": {
+        "question": "Show me what you got.",
+        "responses": [
+          {"text": "Weed - $500, Crack - $1000, Coke - $2000. Quality product, bottom shelf prices.", "cost": 0, "effect": null},
+          {"text": "Ice - $1500, Percs - $800, Pixie Dust - $3000. The good stuff.", "cost": 0, "effect": null},
+          {"text": "Pistols - $1200, AR-15 - $10000, Ghost Gun - $600. Cheap and untraceable.", "cost": 0, "effect": null},
+          {"text": "Vampire Bat - $2500, Grenades - $1000. Personal favorites.", "cost": 0, "effect": null},
+          {"text": "Just looking.", "cost": 0, "effect": null}
+        ]
+      },
+      "fight": {
+        "question": "I want action. Where can I find some?",
+        "responses": [
+          {"text": "'Underground fight club. Tonight. Winner takes $10K. Loser walks... maybe.'", "cost": 0, "effect": "fight_club"},
+          {"text": "'Squidie outpost needs crashing. Payment: $5K upfront, double on completion.'", "cost": 0, "effect": "raid_job"},
+          {"text": "'Somebody put a bounty on you. $2K. Name not included. Good luck.'", "cost": 0, "effect": "bounty"},
+          {"text": "'Cops sniffing around. My place. Tonight. Move fast or move dead.'", "cost": 500, "effect": "warning"}
+        ]
+      }
+    }
+  },
+  "junkyard_dog": {
+    "id": "junkyard_dog",
+    "name": "Junkyard Dog",
+    "greetings": [
+      "The Junkyard Dog snarls at you, drool dripping from its mutated jaws. Its eyes glow with feral hunger.",
+      "A low growl rumbles from the Junkyard Dog's throat. Razor-sharp teeth gleam in the dim light.",
+      "The mutated beast circles you, muscles coiled, ready to pounce. Its growl shakes the ground."
+    ],
+    "topics": {
+      "action": {
+        "question": "The Junkyard Dog growls menacingly. What do you do?",
+        "responses": [
+          {"text": "FIGHT! Show this beast who's boss!", "cost": 0, "effect": "fight"},
+          {"text": "FLEE! Get out of here while you still have legs!", "cost": 0, "effect": "flee"}
+        ]
+      }
+    }
+  }
+}
