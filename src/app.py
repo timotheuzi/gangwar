@@ -24,6 +24,29 @@ try:
 except FileNotFoundError:
     npcs_data = {}
 
+# Load battle descriptions
+try:
+    battle_desc_file = os.path.join(os.path.dirname(__file__), '..', 'model', 'battle_descriptions.json')
+    with open(battle_desc_file, 'r') as f:
+        BATTLE_DESCRIPTIONS = json.load(f)
+except FileNotFoundError:
+    BATTLE_DESCRIPTIONS = {
+        'player_attack_descriptions': {},
+        'enemy_attack_descriptions': {},
+        'ghost_gun_explosion_descriptions': [],
+        'grim_death_descriptions': [],
+        'collateral_death_descriptions': []
+    }
+
+# Load wander events
+try:
+    wander_file = os.path.join(os.path.dirname(__file__), '..', 'model', 'wander_events.json')
+    with open(wander_file, 'r') as f:
+        wander_events_data = json.load(f)
+        WANDER_MESSAGES = wander_events_data.get('wander_messages', [])
+except FileNotFoundError:
+    WANDER_MESSAGES = []
+
 # Load drug config
 try:
     drug_config_file = os.path.join(os.path.dirname(__file__), '..', 'model', 'drug_config.json')
@@ -1430,29 +1453,33 @@ def wander():
 
     # Regular wander results (remaining ~70% chance)
     else:
-        # List of possible wander results - now ultra bloody and violent
-        wander_messages = [
-            "You stumble upon a gutted corpse in an alleyway, blood pooling around the severed limbs. You search the remains and find $500 in bloody cash!",
-            "A street performer lies slaughtered on the sidewalk, throat slit ear to ear. You overhear whispers of upcoming turf wars from nearby shadows.",
-            "You witness a drive-by shooting where rival gang members get their brains blown out onto the pavement, painting the walls red.",
-            "You find a quiet spot littered with mangled body parts to rest, regaining health amidst the stench of death.",
-            "You notice suspicious activity - a beheaded body hanging from a streetlight - but decide to keep moving before you're next.",
-            "You bump into an old contact who's missing an eye and bleeding profusely, sharing gossip about the bloody underworld.",
-            "You wander into a rough neighborhood where limbs are strewn across the streets and narrowly avoid getting gutted yourself.",
-            "You find some discarded drugs worth $200 on the street, next to a tortured corpse with carved flesh.",
-            "You help a local shopkeeper who's covered in blood from a recent massacre, getting rewarded with information about safe havens.",
-            "You wander around the city, stepping over dismembered bodies without incident, the air thick with the coppery smell of blood.",
-            "You see a police patrol investigating a pile of corpses and quickly hide in an alley reeking of rotting flesh.",
-            "You find a hidden stash of weapons beneath a freshly killed body, blood still warm on the ground.",
-            "You encounter a beggar missing limbs who tells you about secret locations while bleeding out from multiple stab wounds.",
-            "You wander through a market district where bodies hang from hooks like meat, haggling for better prices amidst the gore.",
-            "You stumble upon a gang recruitment drive where initiates are branded with hot irons and tortured to prove loyalty."
-        ]
+        # Use wander messages from JSON file, or fallback to defaults if empty
+        if WANDER_MESSAGES:
+            wander_msg_list = WANDER_MESSAGES
+        else:
+            # Fallback messages if JSON file is empty/missing
+            wander_msg_list = [
+                "You stumble upon a gutted corpse in an alleyway, blood pooling around the severed limbs. You search the remains and find $500 in bloody cash!",
+                "A street performer lies slaughtered on the sidewalk, throat slit ear to ear. You overhear whispers of upcoming turf wars from nearby shadows.",
+                "You witness a drive-by shooting where rival gang members get their brains blown out onto the pavement, painting the walls red.",
+                "You find a quiet spot littered with mangled body parts to rest, regaining health amidst the stench of death.",
+                "You notice suspicious activity - a beheaded body hanging from a streetlight - but decide to keep moving before you're next.",
+                "You bump into an old contact who's missing an eye and bleeding profusely, sharing gossip about the bloody underworld.",
+                "You wander into a rough neighborhood where limbs are strewn across the streets and narrowly avoid getting gutted yourself.",
+                "You find some discarded drugs worth $200 on the street, next to a tortured corpse with carved flesh.",
+                "You help a local shopkeeper who's covered in blood from a recent massacre, getting rewarded with information about safe havens.",
+                "You wander around the city, stepping over dismembered bodies without incident, the air thick with the coppery smell of blood.",
+                "You see a police patrol investigating a pile of corpses and quickly hide in an alley reeking of rotting flesh.",
+                "You find a hidden stash of weapons beneath a freshly killed body, blood still warm on the ground.",
+                "You encounter a beggar missing limbs who tells you about secret locations while bleeding out from multiple stab wounds.",
+                "You wander through a market district where bodies hang from hooks like meat, haggling for better prices amidst the gore.",
+                "You stumble upon a gang recruitment drive where initiates are branded with hot irons and tortured to prove loyalty."
+            ]
 
         # Ensure randomness by seeding with current time
         random.seed(time.time())
         # Select a random message
-        result = random.choice(wander_messages)
+        result = random.choice(wander_msg_list)
 
         # Apply effects based on the result
         if "bloody cash" in result:
@@ -1502,8 +1529,8 @@ def wander():
             return render_template('mud_fight.html', game_state=game_state, enemy_health=enemy_health, enemy_type=enemy_type, enemy_count=loan_shark_result['num_sharks'], combat_active=combat_active, fight_log=fight_log, combat_id=combat_id)
         # Update drug prices for new day
         update_daily_drug_prices()
-        # Update high scores daily for active players
-        update_daily_high_scores(game_state)
+        # Update high scores for new day - CRITICAL: this saves to file
+        check_and_update_high_scores(game_state, 0, 0)
 
     # Check for NPC encounter (15% chance, down from 30% since we have more events now)
     if random.random() < 0.15 and npcs_data:
@@ -1972,6 +1999,8 @@ def search_room():
     if game_state.steps >= game_state.max_steps:
         game_state.day += 1
         game_state.steps = 0
+        # Update high scores for new day
+        check_and_update_high_scores(game_state, 0, 0)
 
     save_game_state(game_state)
     return redirect(url_for('alleyway'))
@@ -2152,6 +2181,8 @@ def move_room(direction):
     if game_state.steps >= game_state.max_steps:
         game_state.day += 1
         game_state.steps = 0
+        # Update high scores for new day
+        check_and_update_high_scores(game_state, 0, 0)
 
     # Check for NPC encounter in alleyway
     if random.random() < 0.2 and npcs_data:
