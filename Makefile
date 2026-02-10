@@ -1,7 +1,7 @@
 # Gangwar Game Makefile
 # Cross-platform build system for the Gangwar game
 
-.PHONY: all build clean distclean clean-disk install-deps run test help web-build web-run web-test web-clean kill-web web-deploy
+.PHONY: all build clean distclean clean-disk install-deps run test lint help web-build web-run web-test web-clean kill-web web-deploy
 
 # Default target
 all: build
@@ -123,6 +123,20 @@ test:
 	@python3 -c "import flask; print('✓ Flask available')"
 	@echo "Basic tests passed!"
 
+# Lint the application
+lint:
+	@echo "Linting Gangwar Game..."
+	@echo "Checking Python syntax..."
+	@python3 -m py_compile src/app.py flask_app.py pythonanywhere_entry.py wsgi.py 2>/dev/null && echo "✓ Python syntax OK" || echo "✗ Python syntax errors found"
+	@echo ""
+	@echo "Checking for common issues..."
+	@python3 -c "import ast; ast.parse(open('src/app.py').read())" 2>/dev/null && echo "✓ src/app.py parses OK" || echo "✗ src/app.py has syntax issues"
+	@python3 -c "import ast; ast.parse(open('flask_app.py').read())" 2>/dev/null && echo "✓ flask_app.py parses OK" || echo "✗ flask_app.py has syntax issues"
+	@echo ""
+	@echo "Checking for undefined imports..."
+	@python3 -c "import sys; sys.path.insert(0, 'src'); import app" 2>/dev/null && echo "✓ src/app imports OK" || echo "✗ src/app has import issues"
+	@echo "Linting complete!"
+
 # Show help
 help:
 	@echo "Gangwar Game Build System"
@@ -140,6 +154,7 @@ help:
 	@echo ""
 	@echo "Test Targets:"
 	@echo "  test         - Test standalone build"
+	@echo "  lint         - Lint Python code"
 	@echo "  web-test     - Test web deployment setup"
 	@echo ""
 	@echo "Clean Targets:"
