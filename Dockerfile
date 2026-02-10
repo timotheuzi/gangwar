@@ -25,7 +25,7 @@ COPY . .
 # Build the application
 RUN pyinstaller --clean gangwar.spec
 
-WORKDIR /app/dist
+WORKDIR /app/bin
 RUN chmod +x gangwar
 
 CMD ["./gangwar"]
