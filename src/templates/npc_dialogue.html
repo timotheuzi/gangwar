@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>Dialogue with {{ npc.name }}</h2>
+    
+    <div class="alert alert-info">
+        <p><strong>{{ npc.name }}:</strong> {{ greeting }}</p>
+    </div>
+    
+    {% if topics %}
+    <div class="card mt-4">
+        <div class="card-header">
+            <h5>What would you like to talk about?</h5>
+        </div>
+        <div class="card-body">
+            <div class="list-group">
+                {% for topic in topics %}
+                <a href="{{ url_for('npc_dialogue_topic', npc_id=npc.id, topic=topic) }}" class="list-group-item list-group-item-action">
+                    {{ topic|title }}
+                </a>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+    {% else %}
+    <div class="alert alert-warning mt-4">
+        <p>This NPC has nothing to say to you right now.</p>
+    </div>
+    {% endif %}
+    
+    <div class="mt-4">
+        <p><em>Choose a dialogue topic - you cannot run away from this conversation!</em></p>
+    </div>
+</div>
+{% endblock %}

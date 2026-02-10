@@ -2,7 +2,7 @@
 
 {% block content %}
 <div class="gunshack-screen">
-    <h2>The Boom Shack</h2>
+    <h2>Gun Pawn USA</h2>
     <p>Get armed and dangerous! Stock up on weapons and protection.</p>
     
     <div class="weapon-grid">
@@ -19,7 +19,8 @@
 
         <div class="weapon-item">
             <h4>Ghost Gun</h4>
-            <p>Price: $2,000</p>
+            <p>Price: $600</p>
+            <p class="text-warning"><small>⚠️ Untraceable but unreliable! Fires 1 shot/turn. High jam risk (30%) + 5% chance to explode and destroy itself!</small></p>
             <p>You have: {{ game_state.weapons.ghost_guns }}</p>
             <form method="POST" action="{{ url_for('buy_weapon') }}" class="inline-form">
                 <input type="hidden" name="weapon_type" value="ghost_gun">
@@ -126,7 +127,7 @@
             {% if game_state.weapons.pistols > 0 and not game_state.weapons.pistol_automatic %}
             <form method="POST" action="{{ url_for('upgrade_weapon') }}" class="inline-form">
                 <input type="hidden" name="weapon_type" value="pistol">
-                <button type="submit" class="btn btn-warning">Buy Switch for Pistol ($2,000)</button>
+                <button type="submit" class="btn btn-warning">Buy Switch for Pistol&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp($2,000)</button>
             </form>
             {% elif game_state.weapons.pistol_automatic %}
             <p>✅ Pistol is already automatic</p>
@@ -135,7 +136,7 @@
             {% if game_state.weapons.ghost_guns > 0 and not game_state.weapons.ghost_gun_automatic %}
             <form method="POST" action="{{ url_for('upgrade_weapon') }}" class="inline-form">
                 <input type="hidden" name="weapon_type" value="ghost_gun">
-                <button type="submit" class="btn btn-warning">Upgrade Ghost Gun to Automatic ($2,000)</button>
+                <button type="submit" class="btn btn-warning">Buy Switch for Ghost Gun ($2,000)</button>
             </form>
             {% elif game_state.weapons.ghost_gun_automatic %}
             <p>✅ Ghost Gun is already automatic</p>

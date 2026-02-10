@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>Dialogue with {{ npc.name }}</h2>
+    
+    <div class="card mt-4">
+        <div class="card-header">
+            <h5>{{ question }}</h5>
+        </div>
+        <div class="card-body">
+            <form action="{{ url_for('npc_dialogue_respond', npc_id=npc.id) }}" method="POST">
+                <input type="hidden" name="topic" value="{{ topic }}">
+                
+                <div class="list-group">
+					<br />
+                    {% for response in responses %}
+                    <label class="list-group-item">
+                        <input type="radio" name="response_index" value="{{ loop.index0 }}" {% if loop.first %}checked{% endif %}>
+                        <span class="ms-2">{{ response.text }}</span>
+                        {% if response.cost > 0 %}
+                        <span class="badge bg-warning text-dark ms-2">${{ response.cost }}</span><br />
+                        {% endif %}
+                    </label><br />
+                    {% endfor %}
+                </div>
+                
+                <div class="mt-4">
+                    <button type="submit" class="btn btn-primary">Select Response</button>
+                    <a href="{{ url_for('npc_dialogue', npc_id=npc.id) }}" class="btn btn-secondary">Back</a>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <div class="mt-4">
+        <a href="{{ url_for('city') }}" class="btn btn-secondary">Back to City</a>
+    </div>
+</div>
+{% endblock %}

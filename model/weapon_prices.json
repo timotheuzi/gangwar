@@ -66,6 +66,14 @@
     "axe": {
       "price": 1200,
       "description": "A heavy two-handed axe"
+    },
+    "chain_whip": {
+      "price": 1500,
+      "description": "A deadly whip with metal chains and barbs"
+    },
+    "plasma_cutter": {
+      "price": 2500,
+      "description": "A high-tech cutting tool that doubles as a weapon"
     }
   },
   "weapon_effects": {
@@ -81,6 +89,8 @@
     "knife_damage": [10, 20],
     "sword_damage": [50, 80],
     "axe_damage": [60, 90],
+    "chain_whip_damage": [40, 70],
+    "plasma_cutter_damage": [70, 100],
     "vest_damage_reduction": 20
   },
   "combat_chances": {

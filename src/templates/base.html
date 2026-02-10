@@ -20,7 +20,6 @@
         .combat-defeat { color: #d32f2f !important; font-weight: bold; font-size: 1.1em; text-shadow: 0 0 8px #d32f2f; }
         .combat-system { color: #90a4ae !important; }
     </style>
-    <script src="https://cdn.socket.io/4.0.0/socket.io.min.js"></script>
     <script>
         // Set global variables from Flask template
         window.playerName = "{{ game_state.player_name or 'Player' }}";
@@ -33,12 +32,12 @@
 <body>
     <div class="container">
         <!-- Player Info Header -->
-        {% if game_state and game_state.player_name and request.endpoint not in ['index', 'new_game'] %}
+        {% if game_state and request.endpoint != 'index' and request.endpoint != "new_game" %}
         <header class="player-info-header">
             <div class="player-info">
                 <div class="player-basic">
-                    <span class="player-name">{{ game_state.player_name }}</span>
-                    <span class="player-score">Score: {{ game_state.current_score }}{% if current_ranking %} (#{{ current_ranking }}){% endif %}</span>
+                    <span class="player-name">{{ game_state.player_name or 'Player' }}</span>
+                    <span class="player-score">Score: {{ game_state.current_score }}</span>
                     <span class="player-steps">Day {{ game_state.day }} - {{ game_state.steps }}/{{ game_state.max_steps }}</span>
                 </div>
                 <div class="player-stats">
@@ -86,10 +85,10 @@
                 <div class="pvp-section">
                     <h3>👥 Chat Users</h3>
                     <div id="pvp-player-list" class="pvp-player-list">
-                        <p>Loading users...</p>
+                        <!-- Will be populated by chat.js -->
                     </div>
                     <div class="pvp-actions">
-                        <button id="refresh-players" onclick="refreshPlayerList()" class="btn btn-secondary btn-small">Refresh Users</button>
+                        <button id="refresh-players" onclick="updateChatUsersList()" class="btn btn-secondary btn-small">Refresh Users</button>
                     </div>
                 </div>
             </div>

@@ -1,205 +1,272 @@
-// Simple chat and PVP functionality for the alleyway
+// Polling-based Chat System (No WebSockets required!)
+// Works on PythonAnywhere free tier and all hosting platforms
 
 // Global variables
-var socket = null;
-var currentRoom = 'global'; // Global chat room
-var locationRoom = 'city'; // Location-specific room for player list and PVP
-var playerName = 'Player'; // Default name
-var isConnected = false;
-var currentPlayerId = null; // Current player's socket ID for self-reference
+var playerName = 'Player';
+var chatPollInterval = null;
+var lastMessageId = 0;
+var isChatInitialized = false;
+var pollIntervalMs = 3000; // Poll every 3 seconds
 
-// Initialize SocketIO connection
-function initSocketIO() {
-    if (typeof io === 'undefined') {
-        console.log('SocketIO not available');
-        return;
-    }
-
-    // Get values from global window object set by template
-    if (window.playerName) {
-        playerName = window.playerName;
-    }
-    if (window.currentRoom) {
-        currentRoom = window.currentRoom;
-    }
-    if (window.locationRoom) {
-        locationRoom = window.locationRoom;
-    }
-
-    socket = io();
-
-    socket.on('connect', function() {
-        console.log('Connected to server');
-        isConnected = true;
-        currentPlayerId = socket.id; // Set current player ID
-        updateConnectionStatus(true);
-
-        socket.emit('join', {room: currentRoom, location_room: locationRoom, player_name: playerName});
-        refreshPlayerList();
+// Initialize chat when DOM is ready
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('DOM loaded, initializing polling chat...');
+    
+    // Fetch player info from server to get the real player name
+    fetchPlayerInfo().then(function() {
+        // Small delay to ensure all DOM elements are ready
+        setTimeout(function() {
+            initPollingChat();
+        }, 300);
     });
+});
 
-    socket.on('disconnect', function() {
-        console.log('Disconnected from server');
-        isConnected = false;
-        updateConnectionStatus(false);
-    });
-
-    socket.on('connect_error', function(error) {
-        console.log('Connection error:', error);
-        isConnected = false;
-        updateConnectionStatus(false);
-    });
-
-    socket.on('status', function(data) {
-        console.log(data.msg);
-        addChatMessage('System', data.msg, 'status');
-        refreshPlayerList();
-    });
-
-    socket.on('chat_message', function(data) {
-        addChatMessage(data.player, data.message, data.message_class || null);
-    });
-
-    socket.on('player_list', function(data) {
-        updatePVPPlayerList(data.players || []);
-    });
-
-    socket.on('pvp_response', function(data) {
-        if (data.success) {
-            showNotification(data.message, 'success');
-        } else {
-            showNotification(data.message, 'error');
-        }
+function fetchPlayerInfo() {
+    return new Promise(function(resolve) {
+        var xhr = new XMLHttpRequest();
+        xhr.open('GET', '/api/player/info', true);
+        xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
+        
+        xhr.onreadystatechange = function() {
+            if (xhr.readyState === 4) {
+                if (xhr.status === 200) {
+                    try {
+                        var response = JSON.parse(xhr.responseText);
+                        if (response.player_name) {
+                            playerName = response.player_name;
+                            // Also update window.playerName for other scripts
+                            window.playerName = playerName;
+                            console.log('Fetched player name:', playerName);
+                        }
+                    } catch (e) {
+                        console.error('Error parsing player info:', e);
+                    }
+                }
+                resolve();
+            }
+        };
+        
+        xhr.send();
     });
 }
 
-// Update connection status indicator
-function updateConnectionStatus(connected) {
+function initPollingChat() {
+    console.log('Initializing polling chat...');
+    
+    // Set up chat input handler
+    var sendButton = document.getElementById('send-chat');
+    var inputField = document.getElementById('chat-input');
+
+    if (sendButton) {
+        sendButton.addEventListener('click', function(e) {
+            e.preventDefault();
+            sendChatMessage();
+        });
+    }
+
+    if (inputField) {
+        inputField.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                sendChatMessage();
+            }
+        });
+    }
+    
+    // Start polling for new messages
+    startPolling();
+    
+    // Update connection status
+    updateConnectionStatus(true, 'Connected (polling)');
+    
+    // Update chat users list to show current user
+    updateChatUsersList();
+    
+    isChatInitialized = true;
+    console.log('Polling chat initialized successfully');
+}
+
+function startPolling() {
+    // Clear any existing interval
+    if (chatPollInterval) {
+        clearInterval(chatPollInterval);
+    }
+    
+    // Fetch messages immediately
+    fetchMessages();
+    
+    // Start polling interval
+    chatPollInterval = setInterval(function() {
+        fetchMessages();
+    }, pollIntervalMs);
+    
+    console.log('Started polling for chat messages every ' + (pollIntervalMs / 1000) + ' seconds');
+}
+
+function stopPolling() {
+    if (chatPollInterval) {
+        clearInterval(chatPollInterval);
+        chatPollInterval = null;
+        console.log('Stopped polling');
+    }
+}
+
+function fetchMessages() {
+    var xhr = new XMLHttpRequest();
+    xhr.open('GET', '/api/chat/messages?last_id=' + lastMessageId, true);
+    xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
+    
+    xhr.onreadystatechange = function() {
+        if (xhr.readyState === 4) {
+            if (xhr.status === 200) {
+                try {
+                    var response = JSON.parse(xhr.responseText);
+                    if (response.messages && response.messages.length > 0) {
+                        // Add new messages to chat
+                        response.messages.forEach(function(msg) {
+                            addChatMessage(msg.player, msg.message, msg.time_str);
+                            lastMessageId = msg.id;
+                        });
+                    }
+                } catch (e) {
+                    console.error('Error parsing messages:', e);
+                }
+            } else {
+                console.error('Error fetching messages:', xhr.status);
+            }
+        }
+    };
+    
+    xhr.send();
+}
+
+function sendChatMessage() {
+    var inputField = document.getElementById('chat-input');
+    if (!inputField) return;
+    
+    var message = inputField.value.trim();
+    if (!message || message.length > 200) {
+        showNotification('Message must be 1-200 characters', 'error');
+        return;
+    }
+    
+    var xhr = new XMLHttpRequest();
+    xhr.open('POST', '/api/chat/send', true);
+    xhr.setRequestHeader('Content-Type', 'application/json');
+    xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
+    
+    xhr.onreadystatechange = function() {
+        if (xhr.readyState === 4) {
+            if (xhr.status === 200) {
+                try {
+                    var response = JSON.parse(xhr.responseText);
+                    if (response.success) {
+                        inputField.value = '';
+                        // Message will appear when fetched via polling
+                        showNotification('Message sent!', 'success');
+                    } else {
+                        showNotification(response.error || 'Failed to send message', 'error');
+                    }
+                } catch (e) {
+                    showNotification('Error sending message', 'error');
+                }
+            } else {
+                showNotification('Error sending message (status: ' + xhr.status + ')', 'error');
+            }
+        }
+    };
+    
+    var payload = JSON.stringify({
+        player_name: playerName,
+        message: message
+    });
+    
+    xhr.send(payload);
+}
+
+function addChatMessage(player, message, timeStr) {
+    var chatMessages = document.getElementById('chat-messages');
+    if (!chatMessages) {
+        console.warn('Chat messages container not found');
+        return;
+    }
+    
+    var messageDiv = document.createElement('div');
+    messageDiv.className = 'chat-message';
+    
+    // Sanitize content
+    var safePlayer = player ? player.replace(/</g, '<').replace(/>/g, '>') : 'Unknown';
+    var safeMessage = message ? message.replace(/</g, '<').replace(/>/g, '>') : '';
+    var safeTime = timeStr || '';
+    
+    messageDiv.innerHTML = '<span class="chat-time">[' + safeTime + ']</span> <strong>' + safePlayer + ':</span> ' + safeMessage;
+    chatMessages.appendChild(messageDiv);
+
+    // Limit chat messages to prevent overflow
+    var maxMessages = 50;
+    while (chatMessages.children.length > maxMessages) {
+        chatMessages.removeChild(chatMessages.firstChild);
+    }
+
+    // Auto-scroll to bottom
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+}
+
+function updateConnectionStatus(connected, reason) {
     var indicator = document.getElementById('connection-indicator');
     var text = document.getElementById('connection-text');
-    if (indicator && text) {
+    
+    if (text) {
         if (connected) {
-            indicator.style.color = '#00ff00'; // Green
-            text.textContent = 'Connected';
+            if (indicator) {
+                indicator.style.color = '#00ff00';
+            }
+            text.textContent = 'Connected (Polling)';
+            text.style.color = '#00ff00';
         } else {
-            indicator.style.color = '#ff0000'; // Red
-            text.textContent = 'Disconnected';
+            if (indicator) {
+                indicator.style.color = '#ff0000';
+            }
+            text.textContent = reason || 'Disconnected';
+            text.style.color = '#ff0000';
         }
     }
 }
 
-// Get game state from session (simplified)
-function getGameState() {
-    // This is a simplified version - in reality you'd need to get this from Flask session
-    return null;
-}
-
-// Add chat message to chat area
-function addChatMessage(player, message, messageClass) {
-    var chatMessages = document.getElementById('chat-messages');
-    if (chatMessages) {
-        var messageDiv = document.createElement('div');
-        messageDiv.className = 'chat-message';
-        if (messageClass) {
-            messageDiv.classList.add(messageClass);
-        }
-        messageDiv.innerHTML = '<strong>' + player + ':</strong> ' + message;
-        chatMessages.appendChild(messageDiv);
-
-        // Limit chat messages to prevent overflow
-        var maxMessages = 50;
-        while (chatMessages.children.length > maxMessages) {
-            chatMessages.removeChild(chatMessages.firstChild);
-        }
-
-        chatMessages.scrollTop = chatMessages.scrollHeight;
-    }
-}
-
-// Update PVP player list
-function updatePVPPlayerList(players) {
+function updateChatUsersList() {
+    // Update the chat users list to show current user
     var pvpListDiv = document.getElementById('pvp-player-list');
     if (!pvpListDiv) return;
-
-    if (!players || players.length === 0) {
-        pvpListDiv.innerHTML = '<p>No players online</p>';
-        return;
-    }
-
-    var html = '<h4>Online Players (' + players.length + ')</h4><ul>';
-    players.forEach(function(player) {
-        html += '<li>';
-        html += '<strong>' + player.name + '</strong>';
-        if (player.room) {
-            html += ' <small>(in ' + player.room + ')</small>';
-        }
-        if (player.id !== currentPlayerId) {  // Don't show challenge button for self
-            html += ' <button class="btn btn-small" onclick="challengePlayer(\'' + player.id + '\', \'' + player.name + '\')">Challenge</button>';
-        }
-        html += '</li>';
-    });
-    html += '</ul>';
-    pvpListDiv.innerHTML = html;
+    
+    // Show the current player and a note about polling chat
+    var safePlayerName = playerName ? playerName.replace(/</g, '<').replace(/>/g, '>') : 'Player';
+    
+    pvpListDiv.innerHTML = 
+        '<div class="user-list-item">' +
+            '<strong>👤 ' + safePlayerName + '</strong> (You)' +
+        '</div>' +
+        '<p style="font-size: 11px; color: #888; margin-top: 10px;">' +
+            '💬 Global chat enabled' +
+        '</p>' +
+        '<p style="font-size: 10px; color: #666;">' +
+            'Messages update every 3s' +
+        '</p>';
 }
 
-// Send chat message
-function sendChatMessage() {
-    if (!socket || !isConnected) {
-        showNotification('Not connected to server. Please wait...', 'error');
-        return;
-    }
-
-    var input = document.getElementById('chat-input');
-    if (!input) return;
-
-    var message = input.value.trim();
-    if (message && message.length <= 200) {
-        socket.emit('chat_message', {
-            room: currentRoom,
-            player_name: playerName,
-            message: message
-        });
-        input.value = '';
-    }
-}
-
-// Refresh player list
-function refreshPlayerList() {
-    if (!socket || !isConnected) {
-        showNotification('Not connected to server. Please wait...', 'error');
-        return;
-    }
-
-    socket.emit('get_player_list', {room: locationRoom});
-}
-
-// Challenge player to PVP
-function challengePlayer(playerId, playerName) {
-    if (!socket || !isConnected) {
-        showNotification('Not connected to server. Please wait...', 'error');
-        return;
-    }
-
-    socket.emit('pvp_challenge', {
-        room: locationRoom,
-        target_id: playerId
-    });
-}
-
-// Show notification
 function showNotification(message, type) {
-    // Create a simple notification
     var notification = document.createElement('div');
     notification.className = 'notification notification-' + type;
     notification.textContent = message;
-    notification.style.cssText = 'position: fixed; top: 20px; right: 20px; background: ' + (type === 'success' ? '#4CAF50' : '#F44336') + '; color: white; padding: 10px; border-radius: 5px; z-index: 10000;';
+    notification.style.cssText = 'position: fixed; top: 20px; right: 20px; background: ' + 
+        (type === 'success' ? '#4CAF50' : type === 'error' ? '#F44336' : '#2196F3') + 
+        '; color: white; padding: 10px 20px; border-radius: 5px; z-index: 10000; box-shadow: 0 2px 10px rgba(0,0,0,0.3);';
     document.body.appendChild(notification);
 
     setTimeout(function() {
         if (notification.parentNode) {
             notification.parentNode.removeChild(notification);
         }
-    }, 3000);
+    }, 5000);
 }
 
 // Handle command buttons
@@ -211,52 +278,7 @@ function handleCommand(command) {
     }
 }
 
-// Initialize when DOM is ready
-document.addEventListener('DOMContentLoaded', function() {
-    // Initialize SocketIO
-    initSocketIO();
-
-    // Set up chat input handler
-    var sendButton = document.getElementById('send-chat');
-    var inputField = document.getElementById('chat-input');
-
-    if (sendButton) {
-        sendButton.addEventListener('click', sendChatMessage);
-    }
-
-    if (inputField) {
-        inputField.addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') {
-                sendChatMessage();
-            }
-        });
-    }
-
-    // Set up command buttons
-    var commandButtons = document.querySelectorAll('.cmd-btn');
-    commandButtons.forEach(function(button) {
-        button.addEventListener('click', function() {
-            var command = this.getAttribute('data-command');
-            if (command) {
-                handleCommand(command);
-            }
-        });
-    });
-
-    // Set up refresh players button
-    var refreshButton = document.getElementById('refresh-players');
-    if (refreshButton) {
-        refreshButton.addEventListener('click', refreshPlayerList);
-    }
-
-    // If already connected, re-join to update player name
-    if (isConnected) {
-        socket.emit('join', {room: currentRoom, location_room: locationRoom, player_name: playerName});
-    }
-});
-
 // Export functions for global access
 window.sendChatMessage = sendChatMessage;
-window.refreshPlayerList = refreshPlayerList;
-window.challengePlayer = challengePlayer;
 window.handleCommand = handleCommand;
+window.updateConnectionStatus = updateConnectionStatus;

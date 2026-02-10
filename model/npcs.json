@@ -264,5 +264,31 @@
     "location": "alleyway",
     "last_interaction": "",
     "description": "A former corporate executive on the run, selling secrets and looking over his shoulder constantly."
+  },
+  "chain_master": {
+    "id": "chain_master",
+    "name": "Chain Master",
+    "personality": "sadistic",
+    "hp": 320,
+    "max_hp": 320,
+    "damage": 32,
+    "is_alive": true,
+    "location": "chain_lair",
+    "last_interaction": "",
+    "description": "A brutal fighter who wields a deadly chain whip with terrifying precision. He's taken over an abandoned subway tunnel and uses it as his personal arena for combat.",
+    "unique_drops": ["chain_whip"]
+  },
+  "tech_warrior": {
+    "id": "tech_warrior",
+    "name": "Tech Warrior",
+    "personality": "calculating",
+    "hp": 380,
+    "max_hp": 380,
+    "damage": 38,
+    "is_alive": true,
+    "location": "tech_sanctum",
+    "last_interaction": "",
+    "description": "A highly advanced cybernetically enhanced warrior who protects a secret technology sanctum. He wields a powerful plasma cutter that can slice through almost anything.",
+    "unique_drops": ["plasma_cutter"]
   }
 }

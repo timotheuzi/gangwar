@@ -6,7 +6,7 @@
   "starting_health": 30,
   "starting_lives": 3,
   "max_health": 100,
-  "max_steps_per_day": 15,
+  "max_steps_per_day": 7,
   "high_scores_file": "high_scores.json",
   "npc_file": "model/npcs.json",
   "rooms_file": "model/rooms.json",

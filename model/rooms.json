@@ -7,6 +7,17 @@
       "south": "city",
       "east": "side_street",
       "west": "dumpster"
+    },
+    "fight_chance": 0.6,
+    "loot": {
+      "cash_min": 100,
+      "cash_max": 400,
+      "items": [
+        {"name": "switchblade", "value": 50, "chance": 0.4},
+        {"name": "lockpick", "value": 30, "chance": 0.5},
+        {"name": "cigarettes", "value": 15, "chance": 0.6},
+        {"name": "rare coin", "value": 100, "chance": 0.2}
+      ]
     }
   },
   "dead_end": {
@@ -38,7 +49,8 @@
     "description": "You discover a cleverly concealed entrance hidden behind a loose section of chain-link fence, partially obscured by overgrown weeds and strategically placed garbage bags that mask its presence from casual observers. The opening leads to what appears to be an underground network of tunnels and passages, their dark maw yawning like the mouth of some subterranean beast hungry for unwary explorers. Cool, damp air wafts up from below, carrying with it the earthy scent of wet soil, mildew, and something metallic that makes your skin prickle with anticipation. Faint sounds emanate from the depths - the drip of water echoing off unseen walls, the occasional skitter of small claws on concrete, and what might be the muffled murmur of voices or perhaps just the wind whistling through forgotten corridors. The entrance is framed by crumbling concrete edges, stained with mineral deposits that glitter like veins of ore in the dim light, hinting at the labyrinthine network that sprawls beneath the city streets, a hidden world where secrets are traded, alliances are forged, and dangers lurk in every shadow.",
     "exits": {
       "south": "side_street",
-      "down": "underground"
+      "down": "underground",
+      "east": "tech_sanctum"
     }
   },
   "underground": {
@@ -335,14 +347,6 @@
       "north": "city"
     }
   },
-  "abandoned_subway_platform": {
-    "title": "Abandoned Subway Platform",
-    "description": "You stumble upon a forgotten subway platform that time has claimed as its own, a ghostly remnant of the city's transportation past now shrouded in darkness and decay. Flickering fluorescent lights cast erratic shadows across cracked tile walls adorned with faded advertisements for products long discontinued, while the tracks below are choked with debris and the skeletal remains of old train cars that have become home to mutated creatures. The air is thick with the metallic tang of rust mixed with the acrid scent of electrical fires that smolder in the distance, and you can hear the distant rumble of active subway trains passing through nearby tunnels, a reminder that this abandoned station exists parallel to the world above. Grotesque mutant rats with glowing eyes and elongated limbs scurry along the platform edges, their twisted forms a result of decades of exposure to toxic waste and chemical runoff. These creatures are fiercely territorial and will attack intruders who venture too close to their nests, but they carry rare mutated organs that alchemists and black market dealers would pay handsomely for. Searching the platform edge reveals a forgotten toolkit worth $150 but also triggers a rat ambush from the tracks below. Hidden among the debris on the platform, you notice several locked maintenance boxes - one contains valuable subway tokens worth $200, another holds old jewelry lost by passengers worth $300, but a third is rigged with a trap that releases toxic gas when opened. The old vending machines along the wall may still contain change and forgotten items, but searching them risks alerting more mutant creatures to your presence.",
-    "exits": {
-      "west": "underground",
-      "down": "subway_tunnels"
-    }
-  },
   "gang_hideout": {
     "title": "Gang Hideout",
     "description": "You discover a heavily fortified gang hideout concealed behind false walls and reinforced doors, a secret lair where the city's most dangerous criminals plan their operations and store their illicit gains. The walls are covered in gang graffiti and murals depicting violent acts of retribution, while the air carries the sharp scent of gun oil, cigarette smoke, and the metallic tang of spilled blood from recent conflicts. Armed thugs patrol the shadows, their faces scarred from street battles and their eyes constantly scanning for intruders or rival gang members. These hardened criminals carry rare modified weapons and wear body armor scavenged from police raids, making them formidable opponents who fight with the desperation of those who have nothing left to lose. Searching the crates reveals bags of illicit drugs worth $800 but alerts nearby guards. The hideout is filled with stolen goods - crates of black market weapons, bags of illicit drugs, and stacks of counterfeit money - but the real treasures are hidden in concealed wall safes and floor compartments that only the gang leaders know about. One floor compartment contains $1,200 in cash and rare experimental drugs, but it's protected by a tripwire that triggers a hidden shotgun trap. Security systems including tripwires and hidden cameras protect the most valuable loot, and defeating the gang members who guard this place could yield rare firearms worth $600 each, experimental drugs worth $400, and information about other criminal operations throughout the city. A hidden wall safe behind the gang leader's desk contains $2,000 in counterfeit money and stolen jewelry worth $1,500, but opening it without the combination triggers a silent alarm that brings reinforcements.",
@@ -476,6 +480,20 @@
     "exits": {
       "west": "ground_level",
       "north": "side_street"
+    }
+  },
+  "chain_lair": {
+    "title": "Chain Master's Lair",
+    "description": "You enter an abandoned subway tunnel that has been converted into a terrifying combat arena. The walls are covered in chains and barbed wire, with dim torchlight flickering off the rusted metal. The air is thick with the scent of blood and sweat, and you can hear the distant rattle of chains echoing through the darkness. In the center of the arena stands a brutal figure wielding a deadly chain whip - the Chain Master. He watches you with sadistic glee, eager to test your skills against his terrifying weapon.",
+    "exits": {
+      "east": "abandoned_subway_platform"
+    }
+  },
+  "tech_sanctum": {
+    "title": "Technology Sanctum",
+    "description": "You discover a hidden technology sanctum tucked away beneath the city streets. The room is filled with advanced machinery, glowing holographic displays, and strange energy fields. In the center of the sanctum stands a cybernetically enhanced warrior - the Tech Warrior. He wields a powerful plasma cutter that hums with unstable energy, and his cybernetic implants glow with an otherworldly light. He guards this sanctum with deadly precision, ensuring that only those worthy can access its secrets.",
+    "exits": {
+      "west": "hidden_entrance"
     }
   }
 }

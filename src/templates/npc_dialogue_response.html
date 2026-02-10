@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>Dialogue with {{ npc.name }}</h2>
+    
+    <div class="alert alert-success mt-4">
+        <p><strong>{{ npc.name }}:</strong> {{ response }}</p>
+    </div>
+    
+    <div class="mt-4">
+        <a href="{{ url_for('city') }}" class="btn btn-primary">Continue</a>
+    </div>
+</div>
+{% endblock %}
