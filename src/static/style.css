@@ -1,7 +1,7 @@
 /* Modern Styling */
 
 :root {
-    --primary-bg: linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 50%, #16213e 100%);
+    --primary-bg: linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%);
     --secondary-bg: linear-gradient(135deg, #1e1e2e 0%, #2a2a4a 100%);
     --accent-bg: linear-gradient(135deg, #3a3a5a 0%, #4a4a6a 100%);
     --dark-bg: linear-gradient(135deg, #0f0f23 0%, #1a1a2e 100%);
@@ -21,6 +21,8 @@
     --radius-sm: 8px;
     --radius-md: 12px;
     --radius-lg: 16px;
+    --blood-color: #8B0000;
+    --blood-drip-speed: 2s;
 }
 
 * {
@@ -39,6 +41,7 @@ body {
     font-size: 16px;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+    transition: all 0.3s ease;
 }
 
 .container {
@@ -212,6 +215,52 @@ header::before {
     50% { opacity: 0.5; }
 }
 
+/* Dripping Blood Animation */
+.dripping-blood {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    pointer-events: none;
+    z-index: -1;
+}
+
+.blood-drop {
+    position: absolute;
+    width: 10px;
+    height: 20px;
+    background: var(--blood-color);
+    opacity: 0.7;
+    border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
+    animation: drip var(--blood-drip-speed) ease-in infinite;
+    box-shadow: 0 0 10px var(--blood-color);
+}
+
+.blood-drop:nth-child(1) { left: 10%; animation-delay: 0s; animation-duration: 3s; }
+.blood-drop:nth-child(2) { left: 30%; animation-delay: 1s; animation-duration: 2.5s; }
+.blood-drop:nth-child(3) { left: 50%; animation-delay: 0.5s; animation-duration: 3.5s; }
+.blood-drop:nth-child(4) { left: 70%; animation-delay: 1.5s; animation-duration: 2s; }
+.blood-drop:nth-child(5) { left: 90%; animation-delay: 2s; animation-duration: 4s; }
+
+@keyframes drip {
+    0% {
+        top: -20px;
+        opacity: 0;
+        transform: scale(0.5);
+    }
+    10% {
+        opacity: 0.7;
+        transform: scale(1);
+    }
+    100% {
+        top: 100%;
+        opacity: 0.2;
+        transform: scale(1.5) translateY(0);
+    }
+}
+
 .connection-status span {
     color: var(--text-warning);
     font-family: 'JetBrains Mono', monospace;
@@ -357,8 +406,9 @@ footer {
 }
 
 .btn:hover {
-    transform: translateY(-2px);
+    transform: translateY(-2px) scale(1.05);
     box-shadow: 0 8px 25px rgba(6, 182, 212, 0.3);
+    transition: transform 0.2s ease-in-out;
 }
 
 .btn:active {
