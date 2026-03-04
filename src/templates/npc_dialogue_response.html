@@ -1,16 +1,23 @@
 {% extends "base.html" %}
 
 {% block content %}
-<div class="container mt-4">
-    <h2>{{ npc.name }}'s Response</h2>
-    
-    <div class="alert alert-info mt-4">
-        <p class="mb-2"><strong>{{ npc.name }}:</strong></p>
-        <p class="fst-italic">"{{ response }}"</p>
-    </div>
-    
-    <div class="mt-4">
-        <a href="{{ url_for('bar') }}" class="btn btn-primary">Back to Bar</a>
+<div class="page-container">
+    <div class="page-content">
+        <div class="page-main">
+            <h2>{{ npc.name }}'s Response</h2>
+            
+            <div class="alert alert-info">
+                <p class="mb-2"><strong>{{ npc.name }}:</strong></p>
+                <p class="fst-italic">"{{ response }}"</p>
+            </div>
+        </div>
+
+        <div class="page-sidebar">
+            <div class="page-actions">
+                <h3>Quick Actions</h3>
+                <a href="{{ url_for('bar') }}" class="btn btn-primary">Back to Bar</a>
+            </div>
+        </div>
     </div>
 </div>
 {% endblock %}

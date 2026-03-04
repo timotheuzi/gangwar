@@ -683,7 +683,7 @@ textarea:focus {
 
 /* City page layout */
 .city-screen {
-    max-width: 1200px;
+    max-width: 1000px;
     margin: 0 auto;
     padding: 20px;
     height: calc(100vh - 40px);
@@ -879,6 +879,136 @@ textarea:focus {
     }
     
     .city-actions, .current-prices {
+        flex: none;
+    }
+}
+
+/* General page layout constraints */
+.page-container {
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 20px;
+    height: calc(100vh - 40px);
+    display: flex;
+    flex-direction: column;
+}
+
+.page-content {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 30px;
+    align-items: start;
+    flex: 1;
+    min-height: 0; /* Allow content to shrink */
+}
+
+.page-main {
+    background: rgba(26, 26, 26, 0.8);
+    backdrop-filter: blur(10px);
+    border-radius: 15px;
+    padding: 25px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+.page-sidebar {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    height: 100%;
+}
+
+.page-actions {
+    background: rgba(26, 26, 26, 0.8);
+    backdrop-filter: blur(10px);
+    border-radius: 15px;
+    padding: 25px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.page-actions .btn {
+    display: block;
+    width: 100%;
+    margin-bottom: 10px;
+    text-align: center;
+    padding: 15px;
+    font-size: 1.1rem;
+}
+
+.page-actions .btn:last-child {
+    margin-bottom: 0;
+}
+
+.page-info {
+    background: rgba(26, 26, 26, 0.8);
+    backdrop-filter: blur(10px);
+    border-radius: 15px;
+    padding: 25px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.page-info h3 {
+    margin-top: 0;
+    color: var(--primary-color);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.page-info ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.page-info li {
+    padding: 12px 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    color: var(--text-color);
+    font-family: 'Orbitron', sans-serif;
+    font-weight: bold;
+    text-align: center;
+}
+
+.page-info li:last-child {
+    border-bottom: none;
+}
+
+/* Responsive design for all pages */
+@media (max-width: 900px) {
+    .page-content {
+        grid-template-columns: 1fr;
+    }
+    
+    .page-container {
+        height: auto;
+        min-height: 100vh;
+    }
+    
+    .page-content {
+        height: auto;
+    }
+    
+    .page-main, .page-sidebar {
+        height: auto;
+    }
+    
+    .page-actions, .page-info {
         flex: none;
     }
 }

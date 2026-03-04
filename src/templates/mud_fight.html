@@ -1,175 +1,189 @@
 {% extends "base.html" %}
 
 {% block content %}
-<div class="mud-fight-screen">
-    <h2>⚔️ Combat ⚔️</h2>
+<div class="page-container">
+    <div class="page-content">
+        <div class="page-main">
+            <h2>⚔️ Combat ⚔️</h2>
 
-    <!-- Upper area with combatant stats -->
-    <div class="combat-status">
-        <div class="player-status">
-            <h4>Your Status</h4>
-            <p>Health: {{ (game_state.health - game_state.damage) if game_state.health - game_state.damage > 0 else 0 }}/{{ game_state.health }}</p>
-            <p>Money: ${{ "{:,}".format(game_state.money) }}</p>
-            <p>Gang Members: {{ game_state.members }}</p>
-        </div>
+            <!-- Upper area with combatant stats -->
+            <div class="combat-status">
+                <div class="player-status">
+                    <h4>Your Status</h4>
+                    <p>Health: {{ (game_state.health - game_state.damage) if game_state.health - game_state.damage > 0 else 0 }}/{{ game_state.health }}</p>
+                    <p>Money: ${{ "{:,}".format(game_state.money) }}</p>
+                    <p>Gang Members: {{ game_state.members }}</p>
+                </div>
 
-        <div class="enemy-status">
-            <h4>Enemy Status</h4>
-            <p>Health: {{ enemy_health }}/{{ max_enemy_hp }}</p>
-            <p>Type: {{ enemy_type }}</p>
-            {% if enemy_count > 1 %}
-            <p>Enemies: {{ enemy_count }}</p>
-            {% endif %}
-        </div>
-    </div>
+                <div class="enemy-status">
+                    <h4>Enemy Status</h4>
+                    <p>Health: {{ enemy_health }}/{{ max_enemy_hp }}</p>
+                    <p>Type: {{ enemy_type }}</p>
+                    {% if enemy_count > 1 %}
+                    <p>Enemies: {{ enemy_count }}</p>
+                    {% endif %}
+                </div>
+            </div>
 
-    <!-- Combat Log and Actions Container -->
-    <div class="combat-container">
-        <div class="combat-chat-section">
-            <h4>⚔️ Combat Log</h4>
-            <div id="combat-messages" class="combat-messages">
-                {% if fight_log %}
-                    {% for line in fight_log %}
-                    <div class="combat-line">{{ line }}</div>
-                    {% endfor %}
-                {% else %}
-                    <div class="combat-line">Combat begins!</div>
-                {% endif %}
+            <!-- Combat Log and Actions Container -->
+            <div class="combat-container">
+                <div class="combat-chat-section">
+                    <h4>⚔️ Combat Log</h4>
+                    <div id="combat-messages" class="combat-messages">
+                        {% if fight_log %}
+                            {% for line in fight_log %}
+                            <div class="combat-line">{{ line }}</div>
+                            {% endfor %}
+                        {% else %}
+                            <div class="combat-line">Combat begins!</div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="combat-actions">
+                    <h3 id="turn-heading" style="display: {% if combat_active %}block{% else %}none{% endif %};">Your Turn - Choose Your Action</h3>
+                    <form method="POST" action="/process_fight_action" id="combat-form">
+                        <input type="hidden" name="combat_id" value="{{ combat_id }}">
+                        <input type="hidden" name="enemy_type" value="{{ enemy_type }}">
+                        <input type="hidden" name="enemy_count" value="{{ enemy_count }}">
+                        <input type="hidden" name="enemy_health" value="{{ enemy_health }}">
+                        {% for entry in fight_log %}
+                        <input type="hidden" name="fight_log" value="{{ entry }}">
+                        {% endfor %}
+
+                        {% if combat_active %}
+                        <div class="action-buttons">
+                            <button type="submit" name="action" value="attack" class="btn btn-danger">Attack</button>
+                            <button type="submit" name="action" value="defend" class="btn btn-warning">Defend</button>
+                            <button type="submit" name="action" value="flee" class="btn btn-secondary">Flee (Risky)</button>
+                        </div>
+                        {% endif %}
+
+                        <div class="drug-options">
+                            <h4>⚡ Quick Drug Boost (Risky!)</h4>
+                            <p style="font-size: 12px; color: #666;">Drugs can boost your power but might backfire!</p>
+                            {% if game_state.drugs.weed > 0 %}
+                            <button type="submit" name="action" value="use_drug" formaction="/process_fight_action?drug=weed" class="btn btn-success btn-small">Use Weed (+Speed, -Accuracy)</button>
+                            {% endif %}
+                            {% if game_state.drugs.crack > 0 %}
+                            <button type="submit" name="action" value="use_drug" formaction="/process_fight_action?drug=crack" class="btn btn-success btn-small">Use Crack (+Power, -Health)</button>
+                            {% endif %}
+                            {% if game_state.drugs.coke > 0 %}
+                            <button type="submit" name="action" value="use_drug" formaction="/process_fight_action?drug=coke" class="btn btn-success btn-small">Use Coke (+Accuracy, Risky)</button>
+                            {% endif %}
+                            {% if game_state.drugs.ice > 0 %}
+                            <button type="submit" name="action" value="use_drug" formaction="/process_fight_action?drug=ice" class="btn btn-success btn-small">Use Ice (+Strength, -Control)</button>
+                            {% endif %}
+                            {% if game_state.drugs.percs > 0 %}
+                            <button type="submit" name="action" value="use_drug" formaction="/process_fight_action?drug=percs" class="btn btn-success btn-small">Use Percs (+Pain Resistance, Drowsy)</button>
+                            {% endif %}
+                            {% if game_state.drugs.pixie_dust > 0 %}
+                            <button type="submit" name="action" value="use_drug" formaction="/process_fight_action?drug=pixie_dust" class="btn btn-success btn-small">Use Pixie Dust (???)</button>
+                            {% endif %}
+                        </div>
+
+                        <div class="weapon-selection">
+                            <label for="weapon">Choose Weapon:</label>
+                            <select name="weapon" id="weapon">
+                                {% if game_state.weapons.pistols > 0 and game_state.weapons.bullets > 0 %}
+                                <option value="pistol">Pistol ({{ game_state.weapons.bullets }} bullets){% if game_state.weapons.pistol_automatic %} (Auto - 3 attacks/turn){% else %} (1 attack/turn){% endif %}</option>
+                                {% endif %}
+
+                                {% if game_state.weapons.ar15 > 0 and game_state.weapons.bullets > 0 %}
+                                <option value="ar15">AR-15 ({{ game_state.weapons.bullets }} bullets) - 1 attack/turn</option>
+                                {% endif %}
+
+                                {% if game_state.weapons.ghost_guns > 0 and game_state.weapons.bullets > 0 %}
+                                <option value="ghost_gun">Ghost Gun ({{ game_state.weapons.bullets }} bullets){% if game_state.weapons.ghost_gun_automatic %} (Auto - 2 attacks/turn){% else %} (1 attack/turn){% endif %}</option>
+                                {% endif %}
+
+                                {% if game_state.weapons.grenades > 0 %}
+                                <option value="grenade">Grenade ({{ game_state.weapons.grenades }} available) - 1 attack/turn</option>
+                                {% endif %}
+
+                                {% if game_state.weapons.missile_launcher > 0 and game_state.weapons.missiles > 0 %}
+                                <option value="missile_launcher">Missile Launcher ({{ game_state.weapons.missiles }} missiles) - 1 attack/turn</option>
+                                {% endif %}
+
+                                {% if game_state.weapons.vampire_bat > 0 %}
+                                <option value="vampire_bat">Vampire Bat - 4 attacks/turn (High damage)</option>
+                                {% endif %}
+
+                                {% if game_state.weapons.knife > 0 %}
+                                <option value="knife">Knife - 5 attacks/turn (Can miss more often)</option>
+                                {% else %}
+                                <option value="knife" disabled style="color: #666;">Knife - 5 attacks/turn (Not owned)</option>
+                                {% endif %}
+
+                                {% if game_state.weapons.sword > 0 %}
+                                <option value="sword">Sword - 1 attack/turn</option>
+                                {% else %}
+                                <option value="sword" disabled style="color: #666;">Sword - 1 attack/turn (Not owned)</option>
+                                {% endif %}
+
+                                {% if game_state.weapons.axe > 0 %}
+                                <option value="axe">Axe - 1 attack/turn</option>
+                                {% else %}
+                                <option value="axe" disabled style="color: #666;">Axe - 1 attack/turn (Not owned)</option>
+                                {% endif %}
+
+                                {% if game_state.weapons.golden_gun > 0 %}
+                                <option value="golden_gun">Golden Gun - 1 attack/turn</option>
+                                {% else %}
+                                <option value="golden_gun" disabled style="color: #666;">Golden Gun - 1 attack/turn (Not owned)</option>
+                                {% endif %}
+
+                                {% if game_state.weapons.poison_blowgun > 0 %}
+                                <option value="poison_blowgun">Poison Blowgun - 1 attack/turn</option>
+                                {% else %}
+                                <option value="poison_blowgun" disabled style="color: #666;">Poison Blowgun - 1 attack/turn (Not owned)</option>
+                                {% endif %}
+
+                                {% if game_state.weapons.chain_whip > 0 %}
+                                <option value="chain_whip">Chain Whip - 1 attack/turn</option>
+                                {% else %}
+                                <option value="chain_whip" disabled style="color: #666;">Chain Whip - 1 attack/turn (Not owned)</option>
+                                {% endif %}
+
+                                {% if game_state.weapons.plasma_cutter > 0 %}
+                                <option value="plasma_cutter">Plasma Cutter - 1 attack/turn</option>
+                                {% else %}
+                                <option value="plasma_cutter" disabled style="color: #666;">Plasma Cutter - 1 attack/turn (Not owned)</option>
+                                {% endif %}
+                            </select>
+                        </div>
+
+                        <div class="ammo-selection" id="ammo-selection">
+                            <label for="ammo">Special Ammo:</label>
+                            <select name="ammo" id="ammo">
+                                <option value="normal">Normal Ammo</option>
+                                {% if game_state.weapons.exploding_bullets > 0 and (game_state.weapons.pistols > 0 or game_state.weapons.ghost_guns > 0 or game_state.weapons.ar15 > 0) and game_state.weapons.bullets > 0 %}
+                                <option value="exploding">Exploding Bullets ({{ game_state.weapons.exploding_bullets }} available) - Double Damage!</option>
+                                {% endif %}
+                                {% if game_state.weapons.hollow_point_bullets > 0 and (game_state.weapons.pistols > 0 or game_state.weapons.ghost_guns > 0 or game_state.weapons.ar15 > 0) and game_state.weapons.bullets > 0 %}
+                                <option value="hollow_point">Hollow Point Bullets ({{ game_state.weapons.hollow_point_bullets }} available) - 20% Extra Damage!</option>
+                                {% endif %}
+                            </select>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Exit buttons - only visible when combat is over -->
+                <div class="combat-options" id="combat-exit-options" style="display: none;">
+                    <h4>Combat Complete</h4>
+                    <a href="{{ url_for('city') }}" class="btn btn-primary">Return to City</a>
+                </div>
             </div>
         </div>
 
-        <div class="combat-actions">
-            <h3 id="turn-heading" style="display: {% if combat_active %}block{% else %}none{% endif %};">Your Turn - Choose Your Action</h3>
-            <form method="POST" action="/process_fight_action" id="combat-form">
-                <input type="hidden" name="combat_id" value="{{ combat_id }}">
-                <input type="hidden" name="enemy_type" value="{{ enemy_type }}">
-                <input type="hidden" name="enemy_count" value="{{ enemy_count }}">
-                <input type="hidden" name="enemy_health" value="{{ enemy_health }}">
-                {% for entry in fight_log %}
-                <input type="hidden" name="fight_log" value="{{ entry }}">
-                {% endfor %}
-
-                {% if combat_active %}
-                <div class="action-buttons">
-                    <button type="submit" name="action" value="attack" class="btn btn-danger">Attack</button>
-                    <button type="submit" name="action" value="defend" class="btn btn-warning">Defend</button>
-                    <button type="submit" name="action" value="flee" class="btn btn-secondary">Flee (Risky)</button>
-                </div>
-                {% endif %}
-
-                <div class="drug-options">
-                    <h4>⚡ Quick Drug Boost (Risky!)</h4>
-                    <p style="font-size: 12px; color: #666;">Drugs can boost your power but might backfire!</p>
-                    {% if game_state.drugs.weed > 0 %}
-                    <button type="submit" name="action" value="use_drug" formaction="/process_fight_action?drug=weed" class="btn btn-success btn-small">Use Weed (+Speed, -Accuracy)</button>
-                    {% endif %}
-                    {% if game_state.drugs.crack > 0 %}
-                    <button type="submit" name="action" value="use_drug" formaction="/process_fight_action?drug=crack" class="btn btn-success btn-small">Use Crack (+Power, -Health)</button>
-                    {% endif %}
-                    {% if game_state.drugs.coke > 0 %}
-                    <button type="submit" name="action" value="use_drug" formaction="/process_fight_action?drug=coke" class="btn btn-success btn-small">Use Coke (+Accuracy, Risky)</button>
-                    {% endif %}
-                    {% if game_state.drugs.ice > 0 %}
-                    <button type="submit" name="action" value="use_drug" formaction="/process_fight_action?drug=ice" class="btn btn-success btn-small">Use Ice (+Strength, -Control)</button>
-                    {% endif %}
-                    {% if game_state.drugs.percs > 0 %}
-                    <button type="submit" name="action" value="use_drug" formaction="/process_fight_action?drug=percs" class="btn btn-success btn-small">Use Percs (+Pain Resistance, Drowsy)</button>
-                    {% endif %}
-                    {% if game_state.drugs.pixie_dust > 0 %}
-                    <button type="submit" name="action" value="use_drug" formaction="/process_fight_action?drug=pixie_dust" class="btn btn-success btn-small">Use Pixie Dust (???)</button>
-                    {% endif %}
-                </div>
-
-                <div class="weapon-selection">
-                    <label for="weapon">Choose Weapon:</label>
-                    <select name="weapon" id="weapon">
-                        {% if game_state.weapons.pistols > 0 and game_state.weapons.bullets > 0 %}
-                        <option value="pistol">Pistol ({{ game_state.weapons.bullets }} bullets){% if game_state.weapons.pistol_automatic %} (Auto - 3 attacks/turn){% else %} (1 attack/turn){% endif %}</option>
-                        {% endif %}
-
-                        {% if game_state.weapons.ar15 > 0 and game_state.weapons.bullets > 0 %}
-                        <option value="ar15">AR-15 ({{ game_state.weapons.bullets }} bullets) - 1 attack/turn</option>
-                        {% endif %}
-
-                        {% if game_state.weapons.ghost_guns > 0 and game_state.weapons.bullets > 0 %}
-                        <option value="ghost_gun">Ghost Gun ({{ game_state.weapons.bullets }} bullets){% if game_state.weapons.ghost_gun_automatic %} (Auto - 2 attacks/turn){% else %} (1 attack/turn){% endif %}</option>
-                        {% endif %}
-
-                        {% if game_state.weapons.grenades > 0 %}
-                        <option value="grenade">Grenade ({{ game_state.weapons.grenades }} available) - 1 attack/turn</option>
-                        {% endif %}
-
-                        {% if game_state.weapons.missile_launcher > 0 and game_state.weapons.missiles > 0 %}
-                        <option value="missile_launcher">Missile Launcher ({{ game_state.weapons.missiles }} missiles) - 1 attack/turn</option>
-                        {% endif %}
-
-                        {% if game_state.weapons.vampire_bat > 0 %}
-                        <option value="vampire_bat">Vampire Bat - 4 attacks/turn (High damage)</option>
-                        {% endif %}
-
-                        {% if game_state.weapons.knife > 0 %}
-                        <option value="knife">Knife - 5 attacks/turn (Can miss more often)</option>
-                        {% else %}
-                        <option value="knife" disabled style="color: #666;">Knife - 5 attacks/turn (Not owned)</option>
-                        {% endif %}
-
-                        {% if game_state.weapons.sword > 0 %}
-                        <option value="sword">Sword - 1 attack/turn</option>
-                        {% else %}
-                        <option value="sword" disabled style="color: #666;">Sword - 1 attack/turn (Not owned)</option>
-                        {% endif %}
-
-                        {% if game_state.weapons.axe > 0 %}
-                        <option value="axe">Axe - 1 attack/turn</option>
-                        {% else %}
-                        <option value="axe" disabled style="color: #666;">Axe - 1 attack/turn (Not owned)</option>
-                        {% endif %}
-
-                        {% if game_state.weapons.golden_gun > 0 %}
-                        <option value="golden_gun">Golden Gun - 1 attack/turn</option>
-                        {% else %}
-                        <option value="golden_gun" disabled style="color: #666;">Golden Gun - 1 attack/turn (Not owned)</option>
-                        {% endif %}
-
-                        {% if game_state.weapons.poison_blowgun > 0 %}
-                        <option value="poison_blowgun">Poison Blowgun - 1 attack/turn</option>
-                        {% else %}
-                        <option value="poison_blowgun" disabled style="color: #666;">Poison Blowgun - 1 attack/turn (Not owned)</option>
-                        {% endif %}
-
-                        {% if game_state.weapons.chain_whip > 0 %}
-                        <option value="chain_whip">Chain Whip - 1 attack/turn</option>
-                        {% else %}
-                        <option value="chain_whip" disabled style="color: #666;">Chain Whip - 1 attack/turn (Not owned)</option>
-                        {% endif %}
-
-                        {% if game_state.weapons.plasma_cutter > 0 %}
-                        <option value="plasma_cutter">Plasma Cutter - 1 attack/turn</option>
-                        {% else %}
-                        <option value="plasma_cutter" disabled style="color: #666;">Plasma Cutter - 1 attack/turn (Not owned)</option>
-                        {% endif %}
-                    </select>
-                </div>
-
-                <div class="ammo-selection" id="ammo-selection">
-                    <label for="ammo">Special Ammo:</label>
-                    <select name="ammo" id="ammo">
-                        <option value="normal">Normal Ammo</option>
-                        {% if game_state.weapons.exploding_bullets > 0 and (game_state.weapons.pistols > 0 or game_state.weapons.ghost_guns > 0 or game_state.weapons.ar15 > 0) and game_state.weapons.bullets > 0 %}
-                        <option value="exploding">Exploding Bullets ({{ game_state.weapons.exploding_bullets }} available) - Double Damage!</option>
-                        {% endif %}
-                        {% if game_state.weapons.hollow_point_bullets > 0 and (game_state.weapons.pistols > 0 or game_state.weapons.ghost_guns > 0 or game_state.weapons.ar15 > 0) and game_state.weapons.bullets > 0 %}
-                        <option value="hollow_point">Hollow Point Bullets ({{ game_state.weapons.hollow_point_bullets }} available) - 20% Extra Damage!</option>
-                        {% endif %}
-                    </select>
-                </div>
-            </form>
-        </div>
-
-        <!-- Exit buttons - only visible when combat is over -->
-        <div class="combat-options" id="combat-exit-options" style="display: none;">
-            <h4>Combat Complete</h4>
-            <a href="{{ url_for('city') }}" class="btn btn-primary">Return to City</a>
+        <div class="page-sidebar">
+            <div class="page-actions">
+                <h3>Quick Actions</h3>
+                <button type="submit" name="action" value="attack" class="btn btn-danger">Attack</button>
+                <button type="submit" name="action" value="defend" class="btn btn-warning">Defend</button>
+                <button type="submit" name="action" value="flee" class="btn btn-secondary">Flee (Risky)</button>
+                <a href="{{ url_for('city') }}" class="btn btn-primary">Return to City</a>
+            </div>
         </div>
     </div>
 </div>
