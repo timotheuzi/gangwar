@@ -22,5 +22,44 @@
     "quick_service": "You don't have enough money for a quick service!",
     "vip_experience": "You don't have enough money for a VIP experience!",
     "recruit_hooker": "You don't have enough money to recruit a hooker!"
+  },
+  "benefits": {
+    "daily_benefits": [
+      {
+        "name": "Street Intel",
+        "description": "Your recruited hookers provide valuable street information",
+        "effects": {
+          "police_awareness": 0.1,
+          "drug_price_bonus": 0.05
+        },
+        "chance": 0.3
+      },
+      {
+        "name": "Extra Earnings",
+        "description": "Your hookers bring in extra cash from their side work",
+        "effects": {
+          "money_bonus": 100
+        },
+        "chance": 0.4
+      },
+      {
+        "name": "Gang Morale",
+        "description": "Your gang members are happier with the extra company",
+        "effects": {
+          "combat_bonus": 0.05,
+          "recruitment_bonus": 0.1
+        },
+        "chance": 0.25
+      },
+      {
+        "name": "Safe House",
+        "description": "Your hookers know safe locations around the city",
+        "effects": {
+          "escape_bonus": 0.15,
+          "hideout_bonus": 0.1
+        },
+        "chance": 0.2
+      }
+    ]
   }
 }

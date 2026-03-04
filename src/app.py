@@ -488,6 +488,8 @@ class GameState:
     weapons: Weapons = field(default_factory=Weapons)
     drugs: Drugs = field(default_factory=Drugs)
     gang_members: List[GangMember] = field(default_factory=list)
+    prostitutes: int = 0  # Number of prostitutes recruited to the gang
+    last_prostitute_benefit_day: int = 0  # Track last day benefits were received
 
     @property
     def max_health(self) -> int:
@@ -591,6 +593,62 @@ def process_daily_interest_and_loans(game_state):
             }
 
     return {'loan_shark_attack': False}
+
+def process_daily_prostitute_benefits(game_state):
+    """Process daily benefits from recruited prostitutes"""
+    # Load prostitute config
+    try:
+        prostitute_config_file = os.path.join(os.path.dirname(__file__), '..', 'model', 'prostitute_config.json')
+        with open(prostitute_config_file, 'r') as f:
+            prostitute_config = json.load(f)
+    except:
+        prostitute_config = {}
+    
+    benefits = prostitute_config.get('benefits', {}).get('daily_benefits', [])
+    
+    # Only process benefits if player has prostitutes and it's a new day
+    if game_state.prostitutes > 0 and game_state.day != game_state.last_prostitute_benefit_day:
+        # Check for random benefits
+        for benefit in benefits:
+            if random.random() < benefit['chance']:
+                # Apply benefit effects
+                effects = benefit['effects']
+                message = f"Your recruited hookers provide: {benefit['description']}"
+                
+                if 'money_bonus' in effects:
+                    bonus = effects['money_bonus']
+                    game_state.money += bonus
+                    message += f" You receive ${bonus}!"
+                
+                if 'police_awareness' in effects:
+                    # Reduce police encounter chance (this would need to be tracked in game state)
+                    message += " Your gang has better police awareness!"
+                
+                if 'drug_price_bonus' in effects:
+                    # Apply drug price bonus (this would need to be tracked in game state)
+                    message += " You get better drug prices!"
+                
+                if 'combat_bonus' in effects:
+                    # Apply combat bonus (this would need to be tracked in game state)
+                    message += " Your gang fights better!"
+                
+                if 'recruitment_bonus' in effects:
+                    # Apply recruitment bonus (this would need to be tracked in game state)
+                    message += " Recruitment is easier!"
+                
+                if 'escape_bonus' in effects:
+                    # Apply escape bonus (this would need to be tracked in game state)
+                    message += " Escaping is easier!"
+                
+                if 'hideout_bonus' in effects:
+                    # Apply hideout bonus (this would need to be tracked in game state)
+                    message += " You know more safe locations!"
+                
+                # Add message to session flash
+                flash(message, "success")
+        
+        # Update last benefit day
+        game_state.last_prostitute_benefit_day = game_state.day
 
 def save_game_state(game_state):
     """Save game state to session"""
@@ -1527,6 +1585,8 @@ def wander():
             fight_log = [loan_shark_result['message']]
             combat_id = f"loan_sharks_{random.randint(1000, 9999)}"
             return render_template('mud_fight.html', game_state=game_state, enemy_health=enemy_health, enemy_type=enemy_type, enemy_count=loan_shark_result['num_sharks'], combat_active=combat_active, fight_log=fight_log, combat_id=combat_id)
+        # Process daily prostitute benefits
+        process_daily_prostitute_benefits(game_state)
         # Update drug prices for new day
         update_daily_drug_prices()
         # Update high scores for new day - CRITICAL: this saves to file
