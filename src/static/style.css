@@ -681,6 +681,149 @@ textarea:focus {
     to { transform: rotate(360deg); }
 }
 
+/* City page layout */
+.city-screen {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+.city-content {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 30px;
+    align-items: start;
+}
+
+.city-map {
+    background: rgba(26, 26, 26, 0.8);
+    backdrop-filter: blur(10px);
+    border-radius: 15px;
+    padding: 25px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+}
+
+.location-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+}
+
+.location {
+    background: rgba(0, 0, 0, 0.5);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    padding: 20px;
+    border-radius: 10px;
+    text-align: center;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.location:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 25px rgba(0, 255, 255, 0.2);
+    border-color: var(--primary-color);
+}
+
+.location-btn {
+    text-decoration: none;
+    color: white;
+    display: block;
+    height: 100%;
+    transition: all 0.3s ease;
+}
+
+.location-btn:hover {
+    transform: scale(1.05);
+}
+
+.location h3 {
+    margin: 0 0 10px 0;
+    color: var(--primary-color);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-size: 1.2rem;
+}
+
+.location p {
+    margin: 0;
+    color: var(--muted-color);
+    font-size: 0.9rem;
+}
+
+.city-sidebar {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.city-actions {
+    background: rgba(26, 26, 26, 0.8);
+    backdrop-filter: blur(10px);
+    border-radius: 15px;
+    padding: 25px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+}
+
+.city-actions .btn {
+    display: block;
+    width: 100%;
+    margin-bottom: 10px;
+    text-align: center;
+}
+
+.city-actions .btn:last-child {
+    margin-bottom: 0;
+}
+
+.current-prices {
+    background: rgba(26, 26, 26, 0.8);
+    backdrop-filter: blur(10px);
+    border-radius: 15px;
+    padding: 25px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+}
+
+.current-prices h3 {
+    margin-top: 0;
+    color: var(--primary-color);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.current-prices ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.current-prices li {
+    padding: 8px 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    color: var(--text-color);
+    font-family: 'Orbitron', sans-serif;
+    font-weight: bold;
+}
+
+.current-prices li:last-child {
+    border-bottom: none;
+}
+
+/* Responsive design for city page */
+@media (max-width: 900px) {
+    .city-content {
+        grid-template-columns: 1fr;
+    }
+    
+    .location-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
 /* Scrollbar styling */
 ::-webkit-scrollbar {
     width: 10px;
