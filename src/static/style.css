@@ -686,6 +686,9 @@ textarea:focus {
     max-width: 1200px;
     margin: 0 auto;
     padding: 20px;
+    height: calc(100vh - 40px);
+    display: flex;
+    flex-direction: column;
 }
 
 .city-content {
@@ -693,6 +696,8 @@ textarea:focus {
     grid-template-columns: 2fr 1fr;
     gap: 30px;
     align-items: start;
+    flex: 1;
+    min-height: 0; /* Allow content to shrink */
 }
 
 .city-map {
@@ -702,12 +707,17 @@ textarea:focus {
     padding: 25px;
     border: 1px solid rgba(255, 255, 255, 0.1);
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+    display: flex;
+    flex-direction: column;
+    height: 100%;
 }
 
 .location-grid {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
     gap: 20px;
+    flex: 1;
+    align-content: start;
 }
 
 .location {
@@ -719,6 +729,10 @@ textarea:focus {
     transition: all 0.3s ease;
     position: relative;
     overflow: hidden;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
 }
 
 .location:hover {
@@ -730,13 +744,23 @@ textarea:focus {
 .location-btn {
     text-decoration: none;
     color: white;
-    display: block;
+    display: flex;
+    flex-direction: column;
     height: 100%;
     transition: all 0.3s ease;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    border-radius: 8px;
+    background: linear-gradient(135deg, rgba(0, 255, 255, 0.1), rgba(255, 0, 255, 0.1));
+    border: 2px solid transparent;
 }
 
 .location-btn:hover {
     transform: scale(1.05);
+    background: linear-gradient(135deg, rgba(0, 255, 255, 0.2), rgba(255, 0, 255, 0.2));
+    border-color: var(--primary-color);
+    box-shadow: 0 0 20px rgba(0, 255, 255, 0.3);
 }
 
 .location h3 {
@@ -745,18 +769,22 @@ textarea:focus {
     text-transform: uppercase;
     letter-spacing: 1px;
     font-size: 1.2rem;
+    text-align: center;
 }
 
 .location p {
     margin: 0;
     color: var(--muted-color);
     font-size: 0.9rem;
+    text-align: center;
+    line-height: 1.4;
 }
 
 .city-sidebar {
     display: flex;
     flex-direction: column;
     gap: 20px;
+    height: 100%;
 }
 
 .city-actions {
@@ -766,6 +794,10 @@ textarea:focus {
     padding: 25px;
     border: 1px solid rgba(255, 255, 255, 0.1);
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
 }
 
 .city-actions .btn {
@@ -773,6 +805,8 @@ textarea:focus {
     width: 100%;
     margin-bottom: 10px;
     text-align: center;
+    padding: 15px;
+    font-size: 1.1rem;
 }
 
 .city-actions .btn:last-child {
@@ -786,6 +820,9 @@ textarea:focus {
     padding: 25px;
     border: 1px solid rgba(255, 255, 255, 0.1);
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+    flex: 1;
+    display: flex;
+    flex-direction: column;
 }
 
 .current-prices h3 {
@@ -799,14 +836,19 @@ textarea:focus {
     list-style: none;
     padding: 0;
     margin: 0;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
 }
 
 .current-prices li {
-    padding: 8px 0;
+    padding: 12px 0;
     border-bottom: 1px solid rgba(255, 255, 255, 0.1);
     color: var(--text-color);
     font-family: 'Orbitron', sans-serif;
     font-weight: bold;
+    text-align: center;
 }
 
 .current-prices li:last-child {
@@ -821,6 +863,23 @@ textarea:focus {
     
     .location-grid {
         grid-template-columns: 1fr;
+    }
+    
+    .city-screen {
+        height: auto;
+        min-height: 100vh;
+    }
+    
+    .city-content {
+        height: auto;
+    }
+    
+    .city-map, .city-sidebar {
+        height: auto;
+    }
+    
+    .city-actions, .current-prices {
+        flex: none;
     }
 }
 
