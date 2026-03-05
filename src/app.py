@@ -488,6 +488,7 @@ class GameState:
     weapons: Weapons = field(default_factory=Weapons)
     drugs: Drugs = field(default_factory=Drugs)
     gang_members: List[GangMember] = field(default_factory=list)
+    last_prostitute_benefit_day: int = 0
 
     @property
     def max_health(self) -> int:
