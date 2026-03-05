@@ -1,19 +1,17 @@
 {% extends "base.html" %}
 
 {% block content %}
-<div class="page-container">
-    <div class="page-content">
-        <div class="page-main">
-            <h2 class="flash">GAME OVER</h2>
-            
-            <div class="game-over-message">
-                <p>Sorry G, your gangwar' days are over!</p>
-                <p>You ran out of lives and couldn't make it in the streets.</p>
-                <p>You go back to the mud.</p>
-            </div>
-            
-            <div class="game-over-ascii">
-                <pre>
+<div class="game-over">
+    <h2 class="flash">GAME OVER</h2>
+    
+    <div class="game-over-message">
+        <p>Sorry G, your gangwar' days are over!</p>
+        <p>You ran out of lives and couldn't make it in the streets.</p>
+        <p>You go back to the mud.</p>
+    </div>
+    
+    <div class="game-over-ascii">
+        <pre>
                     ,--.    ,--.
                    (( \\   // ))
                     \\ \\_/ //
@@ -61,22 +59,13 @@
            |  But the streets    |
            |  always win.        |
            '--------------------'
-                </pre>
-            </div>
-            
-            <div class="game-over-actions">
-                <a href="{{ url_for('index') }}" class="btn btn-primary">Try Again</a>
-                <a href="{{ url_for('new_game') }}" class="btn btn-secondary">New Game</a>
-            </div>
-        </div>
-
-        <div class="page-sidebar">
-            <div class="page-actions">
-                <h3>Quick Actions</h3>
-                <a href="{{ url_for('index') }}" class="btn btn-primary">Try Again</a>
-                <a href="{{ url_for('new_game') }}" class="btn btn-secondary">New Game</a>
-            </div>
-        </div>
+        </pre>
     </div>
-</div>
+    
+    <div class="game-over-actions">
+        <a href="{{ url_for('index') }}" class="btn btn-primary">Try Again</a>
+        <a href="{{ url_for('new_game') }}" class="btn btn-secondary">New Game</a>
+    </div>
+
+
 {% endblock %}

@@ -1,132 +1,125 @@
 {% extends "base.html" %}
 
 {% block content %}
-<div class="page-container">
-    <div class="page-content">
-        <div class="page-main">
-            <h2>The Local Pub</h2>
-            <p>A seedy bar where deals are made and information flows freely.</p>
-            
-            <div class="bar-content">
-                <div class="bar-info-grid">
-                    <div class="contact-section">
-                        <h3>Contacts</h3>
-                        
-                        {% if not game_state.flags.eric_met %}
-                        <div class="contact">
-                            <h4>Nox the Informant</h4>
-                            <p>Street intelligence expert</p>
-                            <span class="status">Not met</span>
-                            <form action="{{ url_for('bar') }}" method="post">
-                                <input type="hidden" name="contact" value="nox">
-                                <button type="submit" class="btn btn-success">Meet Nox</button>
-                            </form>
-                        </div>
-                        {% else %}
-                        <div class="contact">
-                            <h4>Nox the Informant</h4>
-                            <p>Your trusted source for street intel</p>
-                            <span class="status">Available</span>
-                            <div class="contact-actions">
-                                <a href="{{ url_for('talk_to_npc', npc_id='nox') }}" class="btn btn-primary">Talk</a>
-                                <a href="{{ url_for('trade_with_npc', npc_id='nox') }}" class="btn btn-secondary">Trade</a>
-                                <form method="POST" action="{{ url_for('fight_npc', npc_id='nox') }}" style="display: inline;">
-                                    <button type="submit" class="btn btn-danger">Fight</button>
-                                </form>
-                            </div>
-                        </div>
-                        {% endif %}
+<div class="bar-screen">
+    <h2>The Local Pub</h2>
+    <p>A seedy bar where deals are made and information flows freely.</p>
+    
+    <div class="bar-content">
+        <div class="bar-info-grid">
+            <div class="contact-section">
+                <h3>Contacts</h3>
+                
+                {% if not game_state.flags.eric_met %}
+                <div class="contact">
+                    <h4>Nox the Informant</h4>
+                    <p>Street intelligence expert</p>
+                    <span class="status">Not met</span>
+                    <form action="{{ url_for('bar') }}" method="post">
+                        <input type="hidden" name="contact" value="nox">
+                        <button type="submit" class="btn btn-success">Meet Nox</button>
+                    </form>
+                </div>
+                {% else %}
+                <div class="contact">
+                    <h4>Nox the Informant</h4>
+                    <p>Your trusted source for street intel</p>
+                    <span class="status">Available</span>
+                    <div class="contact-actions">
+                        <a href="{{ url_for('talk_to_npc', npc_id='nox') }}" class="btn btn-primary">Talk</a>
+                        <a href="{{ url_for('trade_with_npc', npc_id='nox') }}" class="btn btn-secondary">Trade</a>
+                        <form method="POST" action="{{ url_for('fight_npc', npc_id='nox') }}" style="display: inline;">
+                            <button type="submit" class="btn btn-danger">Fight</button>
+                        </form>
+                    </div>
+                </div>
+                {% endif %}
 
-                        {% if not game_state.flags.steve_met %}
-                        <div class="contact">
-                            <h4>Raze the Supplier</h4>
-                            <p>Bulk deals specialist</p>
-                            <span class="status">Not met</span>
-                            <form action="{{ url_for('bar') }}" method="post">
-                                <input type="hidden" name="contact" value="raze">
-                                <button type="submit" class="btn btn-success">Meet Raze</button>
-                            </form>
-                        </div>
-                        {% else %}
-                        <div class="contact">
-                            <h4>Raze the Supplier</h4>
-                            <p>Your go-to for bulk purchases</p>
-                            <span class="status">Available</span>
-                            <div class="contact-actions">
-                                <a href="{{ url_for('talk_to_npc', npc_id='raze') }}" class="btn btn-primary">Talk</a>
-                                <a href="{{ url_for('trade_with_npc', npc_id='raze') }}" class="btn btn-secondary">Trade</a>
-                                <a href="{{ url_for('closet') }}" class="btn btn-warning">Closet</a>
-                                <form method="POST" action="{{ url_for('fight_npc', npc_id='raze') }}" style="display: inline;">
-                                    <button type="submit" class="btn btn-danger">Fight</button>
-                                </form>
-                            </div>
-                        </div>
-                        {% endif %}
+                {% if not game_state.flags.steve_met %}
+                <div class="contact">
+                    <h4>Raze the Supplier</h4>
+                    <p>Bulk deals specialist</p>
+                    <span class="status">Not met</span>
+                    <form action="{{ url_for('bar') }}" method="post">
+                        <input type="hidden" name="contact" value="raze">
+                        <button type="submit" class="btn btn-success">Meet Raze</button>
+                    </form>
+                </div>
+                {% else %}
+                <div class="contact">
+                    <h4>Raze the Supplier</h4>
+                    <p>Your go-to for bulk purchases</p>
+                    <span class="status">Available</span>
+                    <div class="contact-actions">
+                        <a href="{{ url_for('talk_to_npc', npc_id='raze') }}" class="btn btn-primary">Talk</a>
+                        <a href="{{ url_for('trade_with_npc', npc_id='raze') }}" class="btn btn-secondary">Trade</a>
+                        <a href="{{ url_for('closet') }}" class="btn btn-warning">Closet</a>
+                        <form method="POST" action="{{ url_for('fight_npc', npc_id='raze') }}" style="display: inline;">
+                            <button type="submit" class="btn btn-danger">Fight</button>
+                        </form>
                     </div>
-                    
-                    <div class="market-info">
-                        <h3>Market Status</h3>
-                        <div class="market-grid">
-                            <div class="market-item">
-                                <span class="market-label">Weed:</span>
-                                <span class="market-value {% if game_state.drug_prices['weed'] > 75 %}market-high{% else %}market-low{% endif %}">
-                                    {% if game_state.drug_prices['weed'] > 75 %}High{% else %}Low{% endif %}
-                                </span>
-                            </div>
-                            <div class="market-item">
-                                <span class="market-label">Crack:</span>
-                                <span class="market-value {% if game_state.drug_prices['crack'] > 1500 %}market-high{% else %}market-low{% endif %}">
-                                    {% if game_state.drug_prices['crack'] > 1500 %}Hot{% else %}Cool{% endif %}
-                                </span>
-                            </div>
-                            <div class="market-item">
-                                <span class="market-label">Cocaine:</span>
-                                <span class="market-value {% if game_state.drug_prices['coke'] > 10000 %}market-high{% else %}market-low{% endif %}">
-                                    {% if game_state.drug_prices['coke'] > 10000 %}Booming{% else %}Stable{% endif %}
-                                </span>
-                            </div>
-                            <div class="market-item">
-                                <span class="market-label">Ice:</span>
-                                <span class="market-value {% if game_state.drug_prices['ice'] > 5000 %}market-high{% else %}market-low{% endif %}">
-                                    {% if game_state.drug_prices['ice'] > 5000 %}Rising{% else %}Falling{% endif %}
-                                </span>
-                            </div>
-                            <div class="market-item">
-                                <span class="market-label">Percs:</span>
-                                <span class="market-value {% if game_state.drug_prices['percs'] > 20000 %}market-high{% else %}market-low{% endif %}">
-                                    {% if game_state.drug_prices['percs'] > 20000 %}Volatile{% else %}Calm{% endif %}
-                                </span>
-                            </div>
-                            <div class="market-item">
-                                <span class="market-label">Pixie Dust:</span>
-                                <span class="market-value {% if game_state.drug_prices['pixie_dust'] > 100000 %}market-high{% else %}market-low{% endif %}">
-                                    {% if game_state.drug_prices['pixie_dust'] > 100000 %}Explosive{% else %}Quiet{% endif %}
-                                </span>
-                            </div>
-                        </div>
+                </div>
+                {% endif %}
+            </div>
+            
+            <div class="market-info">
+                <h3>Market Status</h3>
+                <div class="market-grid">
+                    <div class="market-item">
+                        <span class="market-label">Weed:</span>
+                        <span class="market-value {% if game_state.drug_prices['weed'] > 75 %}market-high{% else %}market-low{% endif %}">
+                            {% if game_state.drug_prices['weed'] > 75 %}High{% else %}Low{% endif %}
+                        </span>
                     </div>
-                    
-                    <div class="street-tips">
-                        <h3>Tips</h3>
-                        <ul>
-                            <li>Carry protection with large amounts</li>
-                            <li>Watch for undercover cops</li>
-                            <li>Buy low, sell high</li>
-                            <li>Squidies are getting stronger</li>
-                            <li>New drugs hitting the streets</li>
-                        </ul>
+                    <div class="market-item">
+                        <span class="market-label">Crack:</span>
+                        <span class="market-value {% if game_state.drug_prices['crack'] > 1500 %}market-high{% else %}market-low{% endif %}">
+                            {% if game_state.drug_prices['crack'] > 1500 %}Hot{% else %}Cool{% endif %}
+                        </span>
+                    </div>
+                    <div class="market-item">
+                        <span class="market-label">Cocaine:</span>
+                        <span class="market-value {% if game_state.drug_prices['coke'] > 10000 %}market-high{% else %}market-low{% endif %}">
+                            {% if game_state.drug_prices['coke'] > 10000 %}Booming{% else %}Stable{% endif %}
+                        </span>
+                    </div>
+                    <div class="market-item">
+                        <span class="market-label">Ice:</span>
+                        <span class="market-value {% if game_state.drug_prices['ice'] > 5000 %}market-high{% else %}market-low{% endif %}">
+                            {% if game_state.drug_prices['ice'] > 5000 %}Rising{% else %}Falling{% endif %}
+                        </span>
+                    </div>
+                    <div class="market-item">
+                        <span class="market-label">Percs:</span>
+                        <span class="market-value {% if game_state.drug_prices['percs'] > 20000 %}market-high{% else %}market-low{% endif %}">
+                            {% if game_state.drug_prices['percs'] > 20000 %}Volatile{% else %}Calm{% endif %}
+                        </span>
+                    </div>
+                    <div class="market-item">
+                        <span class="market-label">Pixie Dust:</span>
+                        <span class="market-value {% if game_state.drug_prices['pixie_dust'] > 100000 %}market-high{% else %}market-low{% endif %}">
+                            {% if game_state.drug_prices['pixie_dust'] > 100000 %}Explosive{% else %}Quiet{% endif %}
+                        </span>
                     </div>
                 </div>
             </div>
-        </div>
-
-        <div class="page-sidebar">
-            <div class="page-actions">
-                <h3>Quick Actions</h3>
-                <a href="{{ url_for('npcs') }}" class="btn btn-info">Look Around</a>
-                <a href="{{ url_for('city') }}" class="btn btn-primary">Back to City</a>
+            
+            <div class="street-tips">
+                <h3>Tips</h3>
+                <ul>
+                    <li>Carry protection with large amounts</li>
+                    <li>Watch for undercover cops</li>
+                    <li>Buy low, sell high</li>
+                    <li>Squidies are getting stronger</li>
+                    <li>New drugs hitting the streets</li>
+                </ul>
             </div>
         </div>
+    </div>
+    
+    <div class="actions">
+        <a href="{{ url_for('npcs') }}" class="btn btn-info">Look Around</a>
+        <a href="{{ url_for('city') }}" class="btn btn-primary">Back to City</a>
     </div>
 </div>
 {% endblock %}

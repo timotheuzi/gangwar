@@ -19,8 +19,6 @@ web-build:
 
 web-run:
 	@echo "Running Gangwar Game in web development mode..."
-	@echo "Installing web dependencies if needed..."
-	@python3 -m pip install --break-system-packages flask flask-socketio python-socketio 2>/dev/null || true
 	@python3 pythonanywhere_entry.py
 
 web-test:
