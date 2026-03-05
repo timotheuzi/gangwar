@@ -204,6 +204,9 @@ install-deps:
 # Run the application in development mode
 run:
 	@echo "Running Gangwar Game in development mode..."
+	@echo "Killing any existing gangwar processes on port 6009..."
+	@lsof -ti :6009 | xargs kill -9 2>/dev/null || true
+	@sleep 1
 	@./scripts/run.sh
 
 # Run the built executable
