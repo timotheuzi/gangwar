@@ -1,0 +1,147 @@
+{
+  "npc_evolution_system": {
+    "version": "1.0",
+    "description": "Configuration for NPC evolution and personality system",
+    "evolution_triggers": {
+      "time_based": {
+        "enabled": true,
+        "days_between_evolution": 3,
+        "chance_per_npc_per_day": 0.15
+      },
+      "player_interaction": {
+        "enabled": true,
+        "relationship_threshold": 50,
+        "hostility_threshold": 75
+      },
+      "combat_outcomes": {
+        "enabled": true,
+        "win_streak_trigger": 3,
+        "loss_streak_trigger": 2
+      }
+    },
+    "power_levels": {
+      "levels": [
+        {
+          "name": "Weak",
+          "min_power": 0,
+          "max_power": 100,
+          "hp_multiplier": 0.8,
+          "damage_multiplier": 0.8,
+          "description": "Struggling to survive"
+        },
+        {
+          "name": "Average",
+          "min_power": 101,
+          "max_power": 250,
+          "hp_multiplier": 1.0,
+          "damage_multiplier": 1.0,
+          "description": "Competent and capable"
+        },
+        {
+          "name": "Strong",
+          "min_power": 251,
+          "max_power": 500,
+          "hp_multiplier": 1.3,
+          "damage_multiplier": 1.2,
+          "description": "Formidable and dangerous"
+        },
+        {
+          "name": "Elite",
+          "min_power": 501,
+          "max_power": 1000,
+          "hp_multiplier": 1.6,
+          "damage_multiplier": 1.5,
+          "description": "Elite warrior, feared by many"
+        },
+        {
+          "name": "Legendary",
+          "min_power": 1001,
+          "max_power": 9999,
+          "hp_multiplier": 2.0,
+          "damage_multiplier": 1.8,
+          "description": "Legendary status, commands respect"
+        }
+      ]
+    },
+    "traits": {
+      "positive_traits": [
+        {"name": "Wise", "description": "Provides better information and advice", "effect": "info_bonus"},
+        {"name": "Generous", "description": "Offers discounts and better deals", "effect": "price_discount"},
+        {"name": "Loyal", "description": "Remembers past kindnesses", "effect": "relationship_bonus"},
+        {"name": "Resourceful", "description": "Has access to rare items", "effect": "rare_items"},
+        {"name": "Connected", "description": "Knows important people", "effect": "network_access"},
+        {"name": "Honorable", "description": "Fights fair, respects codes", "effect": "fair_fight"},
+        {"name": "Protective", "description": "Watches over weaker NPCs", "effect": "guardian"},
+        {"name": "Innovative", "description": "Creates new technologies", "effect": "tech_innovation"}
+      ],
+      "negative_traits": [
+        {"name": "Paranoid", "description": "Distrustful of everyone", "effect": "suspicious"},
+        {"name": "Greedy", "description": "Always wants more money", "effect": "price_gouging"},
+        {"name": "Cruel", "description": "Enjoys causing pain", "effect": "torture"},
+        {"name": "Unpredictable", "description": "Mood swings, violent outbursts", "effect": "unstable"},
+        {"name": "Cowardly", "description": "Runs from danger", "effect": "flee_combat"},
+        {"name": "Arrogant", "description": "Looks down on others", "effect": "dismissive"},
+        {"name": "Vengeful", "description": "Holds grudges forever", "effect": "revenge"},
+        {"name": "Addicted", "description": "Substance dependency", "effect": "impairment"}
+      ],
+      "neutral_traits": [
+        {"name": "Adaptable", "description": "Quickly adjusts to changes", "effect": "adaptation"},
+        {"name": "Observant", "description": "Notices details others miss", "effect": "perception"},
+        {"name": "Charismatic", "description": "Can persuade others easily", "effect": "persuasion"},
+        {"name": "Secretive", "description": "Keeps information hidden", "effect": "secrecy"},
+        {"name": "Traditional", "description": "Values old ways", "effect": "conservative"},
+        {"name": "Rebellious", "description": "Challenges authority", "effect": "defiance"},
+        {"name": "Practical", "description": "Focuses on what works", "effect": "efficiency"},
+        {"name": "Curious", "description": "Always seeking knowledge", "effect": "exploration"}
+      ]
+    },
+    "relationships": {
+      "relationship_types": {
+        "enemy": {"min": -100, "max": -50, "color": "#d32f2f"},
+        "hostile": {"min": -49, "max": -20, "color": "#f57c00"},
+        "neutral": {"min": -19, "max": 19, "color": "#757575"},
+        "friendly": {"min": 20, "max": 49, "color": "#388e3c"},
+        "ally": {"min": 50, "max": 79, "color": "#1976d2"},
+        "trusted": {"min": 80, "max": 100, "color": "#9c27b0"}
+      },
+      "relationship_changes": {
+        "help_npc": 15,
+        "defeat_npc": -25,
+        "trade_fairly": 5,
+        "cheat_npc": -30,
+        "gift_npc": 20,
+        "ignore_npc": -2,
+        "save_npc": 40,
+        "betray_npc": -60
+      }
+    },
+    "memory_system": {
+      "memory_types": {
+        "combat": {"duration": 30, "weight": 10},
+        "trade": {"duration": 20, "weight": 5},
+        "conversation": {"duration": 15, "weight": 3},
+        "favor": {"duration": 50, "weight": 15},
+        "betrayal": {"duration": 100, "weight": 20}
+      }
+    },
+    "evolution_events": {
+      "positive_events": [
+        {"name": "Power Surge", "description": "NPC gains significant power boost", "power_gain": 50, "trait_chance": 0.3},
+        {"name": "New Ally", "description": "NPC gains a powerful ally", "ally_gain": true, "trait_chance": 0.2},
+        {"name": "Discovery", "description": "NPC finds valuable resources", "wealth_gain": 1000, "trait_chance": 0.25},
+        {"name": "Training", "description": "NPC improves their skills", "skill_gain": 20, "trait_chance": 0.15}
+      ],
+      "negative_events": [
+        {"name": "Power Drain", "description": "NPC loses significant power", "power_loss": 30, "trait_chance": 0.4},
+        {"name": "Betrayal", "description": "NPC is betrayed by an ally", "ally_loss": true, "trait_chance": 0.35},
+        {"name": "Addiction", "description": "NPC develops substance dependency", "impairment": true, "trait_chance": 0.5},
+        {"name": "Injury", "description": "NPC suffers lasting injury", "damage_penalty": 0.8, "trait_chance": 0.3}
+      ],
+      "neutral_events": [
+        {"name": "Wanderlust", "description": "NPC moves to new location", "location_change": true, "trait_chance": 0.2},
+        {"name": "Mystery", "description": "NPC becomes more secretive", "secrecy_increase": true, "trait_chance": 0.25},
+        {"name": "Revelation", "description": "NPC gains new insights", "wisdom_gain": 15, "trait_chance": 0.2}
+      ]
+    }
+  }
+}

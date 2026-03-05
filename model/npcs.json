@@ -17,6 +17,37 @@
       "ice": 1,
       "percs": 4,
       "pixie_dust": 1
+    },
+    "evolution": {
+      "power_level": 200,
+      "evolution_points": 0,
+      "traits": [
+        "Wise",
+        "Observant"
+      ],
+      "relationships": {
+        "player": 0,
+        "raze": -30,
+        "void": 20
+      },
+      "memory": {
+        "last_evolution": "2026-03-01",
+        "significant_events": [
+          {
+            "type": "discovery",
+            "description": "Found hidden data cache",
+            "date": "2026-02-25",
+            "impact": 15
+          }
+        ],
+        "player_interactions": []
+      },
+      "status_effects": [],
+      "location_history": [
+        "bar",
+        "alleyway"
+      ],
+      "evolution_stage": "Average"
     }
   },
   "raze": {
@@ -29,7 +60,47 @@
     "is_alive": true,
     "location": "wander",
     "last_interaction": "",
-    "description": "A brutal enforcer who patrols the undercity with relentless force, crushing dissent in the shadows."
+    "description": "A brutal enforcer who patrols the undercity with relentless force, crushing dissent in the shadows.",
+    "evolution": {
+      "power_level": 400,
+      "evolution_points": 50,
+      "traits": [
+        "Cruel",
+        "Unpredictable"
+      ],
+      "relationships": {
+        "player": -40,
+        "nox": -30,
+        "void": -50,
+        "new_ally": 50
+      },
+      "memory": {
+        "last_evolution": "2026-03-05",
+        "significant_events": [
+          {
+            "type": "combat_victory",
+            "description": "Defeated rival gang leader",
+            "date": "2026-02-20",
+            "impact": 25
+          },
+          {
+            "type": "evolution_event",
+            "description": "NPC gains a powerful ally",
+            "date": "2026-03-05",
+            "impact": 0
+          }
+        ],
+        "player_interactions": []
+      },
+      "status_effects": [
+        "bloodlust"
+      ],
+      "location_history": [
+        "wander",
+        "bar"
+      ],
+      "evolution_stage": "Strong"
+    }
   },
   "void": {
     "id": "void",
@@ -49,6 +120,44 @@
       "ice": 2,
       "percs": 6,
       "pixie_dust": 2
+    },
+    "evolution": {
+      "power_level": 150,
+      "evolution_points": 25,
+      "traits": [
+        "Secretive",
+        "Resourceful",
+        "Cruel"
+      ],
+      "relationships": {
+        "player": 10,
+        "nox": 20,
+        "raze": -50
+      },
+      "memory": {
+        "last_evolution": "2026-03-05",
+        "significant_events": [
+          {
+            "type": "trade_deal",
+            "description": "Made profitable deal with underground network",
+            "date": "2026-02-15",
+            "impact": 10
+          },
+          {
+            "type": "evolution_event",
+            "description": "NPC suffers lasting injury",
+            "date": "2026-03-05",
+            "impact": 0
+          }
+        ],
+        "player_interactions": []
+      },
+      "status_effects": [],
+      "location_history": [
+        "alleyway",
+        "bar"
+      ],
+      "evolution_stage": "Average"
     }
   },
   "whisper": {
@@ -61,7 +170,36 @@
     "is_alive": true,
     "location": "bar",
     "last_interaction": "",
-    "description": "A jittery informant who whispers warnings from the darkness of surveillance towers."
+    "description": "A jittery informant who whispers warnings from the darkness of surveillance towers.",
+    "evolution": {
+      "power_level": 100,
+      "evolution_points": 0,
+      "traits": [
+        "Addicted"
+      ],
+      "relationships": {
+        "player": 0
+      },
+      "memory": {
+        "last_evolution": "2026-03-05",
+        "significant_events": [
+          {
+            "type": "evolution_event",
+            "description": "NPC develops substance dependency",
+            "date": "2026-03-05",
+            "impact": 0
+          }
+        ],
+        "player_interactions": []
+      },
+      "status_effects": [
+        "withdrawal"
+      ],
+      "location_history": [
+        "bar"
+      ],
+      "evolution_stage": "Weak"
+    }
   },
   "scav": {
     "id": "scav",
@@ -81,6 +219,34 @@
       "ice": 3,
       "percs": 5,
       "pixie_dust": 1
+    },
+    "evolution": {
+      "power_level": 100,
+      "evolution_points": 0,
+      "traits": [
+        "Generous"
+      ],
+      "relationships": {
+        "player": 0,
+        "new_ally": 50
+      },
+      "memory": {
+        "last_evolution": "2026-03-05",
+        "significant_events": [
+          {
+            "type": "evolution_event",
+            "description": "NPC gains a powerful ally",
+            "date": "2026-03-05",
+            "impact": 0
+          }
+        ],
+        "player_interactions": []
+      },
+      "status_effects": [],
+      "location_history": [
+        "alleyway"
+      ],
+      "evolution_stage": "Weak"
     }
   },
   "enforcer": {
@@ -93,7 +259,34 @@
     "is_alive": true,
     "location": "wander",
     "last_interaction": "",
-    "description": "An authoritarian drone programmed to maintain order in the oppressed districts."
+    "description": "An authoritarian drone programmed to maintain order in the oppressed districts.",
+    "evolution": {
+      "power_level": 70,
+      "evolution_points": 0,
+      "traits": [
+        "Cowardly"
+      ],
+      "relationships": {
+        "player": 0
+      },
+      "memory": {
+        "last_evolution": "2026-03-05",
+        "significant_events": [
+          {
+            "type": "evolution_event",
+            "description": "NPC loses significant power",
+            "date": "2026-03-05",
+            "impact": 30
+          }
+        ],
+        "player_interactions": []
+      },
+      "status_effects": [],
+      "location_history": [
+        "wander"
+      ],
+      "evolution_stage": "Weak"
+    }
   },
   "cipher": {
     "id": "cipher",
@@ -153,7 +346,34 @@
     "is_alive": true,
     "location": "bar",
     "last_interaction": "",
-    "description": "A defiant rebel fighting against the oppressive regime in hidden underground networks."
+    "description": "A defiant rebel fighting against the oppressive regime in hidden underground networks.",
+    "evolution": {
+      "power_level": 100,
+      "evolution_points": 0,
+      "traits": [
+        "Traditional"
+      ],
+      "relationships": {
+        "player": 0
+      },
+      "memory": {
+        "last_evolution": "2026-03-05",
+        "significant_events": [
+          {
+            "type": "evolution_event",
+            "description": "NPC is betrayed by an ally",
+            "date": "2026-03-05",
+            "impact": 0
+          }
+        ],
+        "player_interactions": []
+      },
+      "status_effects": [],
+      "location_history": [
+        "bar"
+      ],
+      "evolution_stage": "Weak"
+    }
   },
   "synth": {
     "id": "synth",
@@ -165,7 +385,34 @@
     "is_alive": true,
     "location": "wander",
     "last_interaction": "",
-    "description": "An inventive synthetic being who crafts makeshift weapons from junkyard scraps."
+    "description": "An inventive synthetic being who crafts makeshift weapons from junkyard scraps.",
+    "evolution": {
+      "power_level": 100,
+      "evolution_points": 0,
+      "traits": [
+        "Cowardly"
+      ],
+      "relationships": {
+        "player": 0
+      },
+      "memory": {
+        "last_evolution": "2026-03-05",
+        "significant_events": [
+          {
+            "type": "evolution_event",
+            "description": "NPC is betrayed by an ally",
+            "date": "2026-03-05",
+            "impact": 0
+          }
+        ],
+        "player_interactions": []
+      },
+      "status_effects": [],
+      "location_history": [
+        "wander"
+      ],
+      "evolution_stage": "Weak"
+    }
   },
   "wraith": {
     "id": "wraith",
@@ -177,7 +424,32 @@
     "is_alive": true,
     "location": "alleyway",
     "last_interaction": "",
-    "description": "A mysterious apparition that glides through the fog-shrouded streets, whispering forgotten lore."
+    "description": "A mysterious apparition that glides through the fog-shrouded streets, whispering forgotten lore.",
+    "evolution": {
+      "power_level": 100,
+      "evolution_points": 0,
+      "traits": [],
+      "relationships": {
+        "player": 0
+      },
+      "memory": {
+        "last_evolution": "2026-03-05",
+        "significant_events": [
+          {
+            "type": "evolution_event",
+            "description": "NPC suffers lasting injury",
+            "date": "2026-03-05",
+            "impact": 0
+          }
+        ],
+        "player_interactions": []
+      },
+      "status_effects": [],
+      "location_history": [
+        "alleyway"
+      ],
+      "evolution_stage": "Weak"
+    }
   },
   "vigil": {
     "id": "vigil",
@@ -189,7 +461,34 @@
     "is_alive": true,
     "location": "wander",
     "last_interaction": "",
-    "description": "A vigilant guardian who watches over the vulnerable in the crime-ridden districts."
+    "description": "A vigilant guardian who watches over the vulnerable in the crime-ridden districts.",
+    "evolution": {
+      "power_level": 100,
+      "evolution_points": 0,
+      "traits": [
+        "Secretive"
+      ],
+      "relationships": {
+        "player": 0
+      },
+      "memory": {
+        "last_evolution": "2026-03-05",
+        "significant_events": [
+          {
+            "type": "evolution_event",
+            "description": "NPC becomes more secretive",
+            "date": "2026-03-05",
+            "impact": 0
+          }
+        ],
+        "player_interactions": []
+      },
+      "status_effects": [],
+      "location_history": [
+        "wander"
+      ],
+      "evolution_stage": "Weak"
+    }
   },
   "baby_momma": {
     "id": "baby_momma",
@@ -201,7 +500,32 @@
     "is_alive": true,
     "location": "wander",
     "last_interaction": "",
-    "description": "A desperate woman looking for help with her child."
+    "description": "A desperate woman looking for help with her child.",
+    "evolution": {
+      "power_level": 100,
+      "evolution_points": 0,
+      "traits": [],
+      "relationships": {
+        "player": 0
+      },
+      "memory": {
+        "last_evolution": "2026-03-05",
+        "significant_events": [
+          {
+            "type": "evolution_event",
+            "description": "NPC finds valuable resources",
+            "date": "2026-03-05",
+            "impact": 0
+          }
+        ],
+        "player_interactions": []
+      },
+      "status_effects": [],
+      "location_history": [
+        "wander"
+      ],
+      "evolution_stage": "Weak"
+    }
   },
   "blade_master": {
     "id": "blade_master",
@@ -214,7 +538,34 @@
     "location": "wander",
     "last_interaction": "",
     "description": "A master swordsman who wanders the streets, seeking worthy opponents to test his blade.",
-    "unique_drops": ["sword"]
+    "unique_drops": [
+      "sword"
+    ],
+    "evolution": {
+      "power_level": 100,
+      "evolution_points": 0,
+      "traits": [],
+      "relationships": {
+        "player": 0
+      },
+      "memory": {
+        "last_evolution": "2026-03-05",
+        "significant_events": [
+          {
+            "type": "evolution_event",
+            "description": "NPC finds valuable resources",
+            "date": "2026-03-05",
+            "impact": 0
+          }
+        ],
+        "player_interactions": []
+      },
+      "status_effects": [],
+      "location_history": [
+        "wander"
+      ],
+      "evolution_stage": "Weak"
+    }
   },
   "lumberjack": {
     "id": "lumberjack",
@@ -227,7 +578,34 @@
     "location": "alleyway",
     "last_interaction": "",
     "description": "A massive, axe-wielding brute who chops through anything in his path, including people.",
-    "unique_drops": ["axe"]
+    "unique_drops": [
+      "axe"
+    ],
+    "evolution": {
+      "power_level": 100,
+      "evolution_points": 0,
+      "traits": [],
+      "relationships": {
+        "player": 0
+      },
+      "memory": {
+        "last_evolution": "2026-03-05",
+        "significant_events": [
+          {
+            "type": "evolution_event",
+            "description": "NPC suffers lasting injury",
+            "date": "2026-03-05",
+            "impact": 0
+          }
+        ],
+        "player_interactions": []
+      },
+      "status_effects": [],
+      "location_history": [
+        "alleyway"
+      ],
+      "evolution_stage": "Weak"
+    }
   },
   "street_samurai": {
     "id": "street_samurai",
@@ -276,7 +654,9 @@
     "location": "chain_lair",
     "last_interaction": "",
     "description": "A brutal fighter who wields a deadly chain whip with terrifying precision. He's taken over an abandoned subway tunnel and uses it as his personal arena for combat.",
-    "unique_drops": ["chain_whip"]
+    "unique_drops": [
+      "chain_whip"
+    ]
   },
   "tech_warrior": {
     "id": "tech_warrior",
@@ -289,6 +669,8 @@
     "location": "tech_sanctum",
     "last_interaction": "",
     "description": "A highly advanced cybernetically enhanced warrior who protects a secret technology sanctum. He wields a powerful plasma cutter that can slice through almost anything.",
-    "unique_drops": ["plasma_cutter"]
+    "unique_drops": [
+      "plasma_cutter"
+    ]
   }
 }
