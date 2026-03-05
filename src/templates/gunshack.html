@@ -1,175 +1,355 @@
 {% extends "base.html" %}
 
+{% block title %}Gun Pawn USA{% endblock %}
+
 {% block content %}
-<div class="gunshack-screen">
-    <h2>Gun Pawn USA</h2>
-    <p>Get armed and dangerous! Stock up on weapons and protection.</p>
-    
-    <div class="weapon-grid">
-        <div class="weapon-item">
-            <h4>Pistol</h4>
-            <p>Price: $1,200</p>
-            <p>You have: {{ game_state.weapons.pistols }}</p>
-            <form method="POST" action="{{ url_for('buy_weapon') }}" class="inline-form">
-                <input type="hidden" name="weapon_type" value="pistol">
-                <input type="hidden" name="quantity" value="1">
-                <button type="submit" class="btn btn-primary">Buy Pistol</button>
-            </form>
+<div class="container">
+    <h1>Gun Pawn USA</h1>
+    <div class="row">
+        <div class="col-md-6">
+            <h3>Available Weapons</h3>
+            <div class="list-group">
+                <!-- Basic Weapons -->
+                <div class="list-group-item">
+                    <h5>Pistol</h5>
+                    <p class="text-muted">Standard sidearm. Reliable and accurate.</p>
+                    <p class="text-success">Price: $1,200</p>
+                    <form method="POST" action="{{ url_for('buy_weapon') }}" class="d-inline">
+                        <input type="hidden" name="weapon_type" value="pistol">
+                        <input type="hidden" name="quantity" value="1">
+                        <button type="submit" class="btn btn-primary btn-sm">Buy Pistol</button>
+                    </form>
+                    <span class="badge bg-secondary ms-2">{{ game_state.weapons.pistols }} owned</span>
+                </div>
+
+                <div class="list-group-item">
+                    <h5>AR-15</h5>
+                    <p class="text-muted">Fully automatic assault rifle. High rate of fire.</p>
+                    <p class="text-success">Price: $10,000</p>
+                    <form method="POST" action="{{ url_for('buy_weapon') }}" class="d-inline">
+                        <input type="hidden" name="weapon_type" value="ar15">
+                        <input type="hidden" name="quantity" value="1">
+                        <button type="submit" class="btn btn-primary btn-sm">Buy AR-15</button>
+                    </form>
+                    <span class="badge bg-secondary ms-2">{{ game_state.weapons.ar15 }} owned</span>
+                </div>
+
+                <div class="list-group-item">
+                    <h5>Ghost Gun</h5>
+                    <p class="text-muted">Untraceable firearm. Reduces police encounters.</p>
+                    <p class="text-success">Price: $600</p>
+                    <form method="POST" action="{{ url_for('buy_weapon') }}" class="d-inline">
+                        <input type="hidden" name="weapon_type" value="ghost_gun">
+                        <input type="hidden" name="quantity" value="1">
+                        <button type="submit" class="btn btn-primary btn-sm">Buy Ghost Gun</button>
+                    </form>
+                    <span class="badge bg-secondary ms-2">{{ game_state.weapons.ghost_guns }} owned</span>
+                </div>
+
+                <div class="list-group-item">
+                    <h5>Missile Launcher</h5>
+                    <p class="text-muted">Heavy weapon. Destroys everything in its path.</p>
+                    <p class="text-success">Price: $1,000,000</p>
+                    <form method="POST" action="{{ url_for('buy_weapon') }}" class="d-inline">
+                        <input type="hidden" name="weapon_type" value="missile_launcher">
+                        <input type="hidden" name="quantity" value="1">
+                        <button type="submit" class="btn btn-primary btn-sm">Buy Missile Launcher</button>
+                    </form>
+                    <span class="badge bg-secondary ms-2">{{ game_state.weapons.missile_launcher }} owned</span>
+                </div>
+
+                <!-- Melee Weapons -->
+                <div class="list-group-item">
+                    <h5>Knife</h5>
+                    <p class="text-muted">Close combat weapon. Silent but deadly.</p>
+                    <p class="text-success">Price: $50</p>
+                    <form method="POST" action="{{ url_for('buy_weapon') }}" class="d-inline">
+                        <input type="hidden" name="weapon_type" value="knife">
+                        <input type="hidden" name="quantity" value="1">
+                        <button type="submit" class="btn btn-primary btn-sm">Buy Knife</button>
+                    </form>
+                    <span class="badge bg-secondary ms-2">{{ game_state.weapons.knife }} owned</span>
+                </div>
+
+                <div class="list-group-item">
+                    <h5>Vampire Bat</h5>
+                    <p class="text-muted">Spiked baseball bat. Brutal melee weapon.</p>
+                    <p class="text-success">Price: $2,500</p>
+                    <form method="POST" action="{{ url_for('buy_weapon') }}" class="d-inline">
+                        <input type="hidden" name="weapon_type" value="vampire_bat">
+                        <input type="hidden" name="quantity" value="1">
+                        <button type="submit" class="btn btn-primary btn-sm">Buy Vampire Bat</button>
+                    </form>
+                    <span class="badge bg-secondary ms-2">{{ game_state.weapons.vampire_bat }} owned</span>
+                </div>
+
+                <!-- Unique Weapons -->
+                <div class="list-group-item">
+                    <h5>Sword</h5>
+                    <p class="text-muted">Bladed weapon. Elegant and deadly.</p>
+                    <p class="text-success">Price: $5,000</p>
+                    <form method="POST" action="{{ url_for('buy_weapon') }}" class="d-inline">
+                        <input type="hidden" name="weapon_type" value="sword">
+                        <input type="hidden" name="quantity" value="1">
+                        <button type="submit" class="btn btn-primary btn-sm">Buy Sword</button>
+                    </form>
+                    <span class="badge bg-secondary ms-2">{{ game_state.weapons.sword }} owned</span>
+                </div>
+
+                <div class="list-group-item">
+                    <h5>Axe</h5>
+                    <p class="text-muted">Heavy cleaving weapon. Devastating damage.</p>
+                    <p class="text-success">Price: $7,500</p>
+                    <form method="POST" action="{{ url_for('buy_weapon') }}" class="d-inline">
+                        <input type="hidden" name="weapon_type" value="axe">
+                        <input type="hidden" name="quantity" value="1">
+                        <button type="submit" class="btn btn-primary btn-sm">Buy Axe</button>
+                    </form>
+                    <span class="badge bg-secondary ms-2">{{ game_state.weapons.axe }} owned</span>
+                </div>
+
+                <div class="list-group-item">
+                    <h5>Golden Gun</h5>
+                    <p class="text-muted">Legendary weapon. Massive damage potential.</p>
+                    <p class="text-success">Price: $50,000</p>
+                    <form method="POST" action="{{ url_for('buy_weapon') }}" class="d-inline">
+                        <input type="hidden" name="weapon_type" value="golden_gun">
+                        <input type="hidden" name="quantity" value="1">
+                        <button type="submit" class="btn btn-primary btn-sm">Buy Golden Gun</button>
+                    </form>
+                    <span class="badge bg-secondary ms-2">{{ game_state.weapons.golden_gun }} owned</span>
+                </div>
+
+                <div class="list-group-item">
+                    <h5>Poison Blowgun</h5>
+                    <p class="text-muted">Silent ranged weapon. Poison effects.</p>
+                    <p class="text-success">Price: $3,000</p>
+                    <form method="POST" action="{{ url_for('buy_weapon') }}" class="d-inline">
+                        <input type="hidden" name="weapon_type" value="poison_blowgun">
+                        <input type="hidden" name="quantity" value="1">
+                        <button type="submit" class="btn btn-primary btn-sm">Buy Poison Blowgun</button>
+                    </form>
+                    <span class="badge bg-secondary ms-2">{{ game_state.weapons.poison_blowgun }} owned</span>
+                </div>
+
+                <div class="list-group-item">
+                    <h5>Chain Whip</h5>
+                    <p class="text-muted">Flexible weapon. Long reach and high damage.</p>
+                    <p class="text-success">Price: $4,500</p>
+                    <form method="POST" action="{{ url_for('buy_weapon') }}" class="d-inline">
+                        <input type="hidden" name="weapon_type" value="chain_whip">
+                        <input type="hidden" name="quantity" value="1">
+                        <button type="submit" class="btn btn-primary btn-sm">Buy Chain Whip</button>
+                    </form>
+                    <span class="badge bg-secondary ms-2">{{ game_state.weapons.chain_whip }} owned</span>
+                </div>
+
+                <div class="list-group-item">
+                    <h5>Plasma Cutter</h5>
+                    <p class="text-muted">Futuristic weapon. Melts through anything.</p>
+                    <p class="text-success">Price: $25,000</p>
+                    <form method="POST" action="{{ url_for('buy_weapon') }}" class="d-inline">
+                        <input type="hidden" name="weapon_type" value="plasma_cutter">
+                        <input type="hidden" name="quantity" value="1">
+                        <button type="submit" class="btn btn-primary btn-sm">Buy Plasma Cutter</button>
+                    </form>
+                    <span class="badge bg-secondary ms-2">{{ game_state.weapons.plasma_cutter }} owned</span>
+                </div>
+            </div>
         </div>
 
-        <div class="weapon-item">
-            <h4>Ghost Gun</h4>
-            <p>Price: $600</p>
-            <p class="text-warning"><small>⚠️ Untraceable but unreliable! Fires 1 shot/turn. High jam risk (30%) + 5% chance to explode and destroy itself!</small></p>
-            <p>You have: {{ game_state.weapons.ghost_guns }}</p>
-            <form method="POST" action="{{ url_for('buy_weapon') }}" class="inline-form">
-                <input type="hidden" name="weapon_type" value="ghost_gun">
-                <input type="hidden" name="quantity" value="1">
-                <button type="submit" class="btn btn-primary">Buy Ghost Gun</button>
-            </form>
-        </div>
-        
-        <div class="weapon-item">
-            <h4>Bullets (50 pack)</h4>
-            <p>Price: $100</p>
-            <p>You have: {{ game_state.weapons.bullets }}</p>
-            <form method="POST" action="{{ url_for('buy_weapon') }}" class="inline-form">
-                <input type="hidden" name="weapon_type" value="bullets">
-                <input type="hidden" name="quantity" value="1">
-                <button type="submit" class="btn btn-primary">Buy Bullets</button>
-            </form>
-        </div>
+        <div class="col-md-6">
+            <h3>Ammunition & Upgrades</h3>
+            <div class="list-group">
+                <!-- Ammunition -->
+                <div class="list-group-item">
+                    <h5>Bullets (Pack of 50)</h5>
+                    <p class="text-muted">Standard ammunition for pistols and rifles.</p>
+                    <p class="text-success">Price: $100</p>
+                    <form method="POST" action="{{ url_for('buy_weapon') }}" class="d-inline">
+                        <input type="hidden" name="weapon_type" value="bullets">
+                        <input type="hidden" name="quantity" value="1">
+                        <button type="submit" class="btn btn-success btn-sm">Buy Bullets</button>
+                    </form>
+                    <span class="badge bg-secondary ms-2">{{ game_state.weapons.bullets }} rounds</span>
+                </div>
 
-        <div class="weapon-item">
-            <h4>Exploding Bullets (50 pack)</h4>
-            <p>Price: $2,000</p>
-            <p>You have: {{ game_state.weapons.exploding_bullets }}</p>
-            <form method="POST" action="{{ url_for('buy_weapon') }}" class="inline-form">
-                <input type="hidden" name="weapon_type" value="exploding_bullets">
-                <input type="hidden" name="quantity" value="1">
-                <button type="submit" class="btn btn-primary">Buy Exploding Bullets</button>
-            </form>
-        </div>
-        
-        <div class="weapon-item">
-            <h4>Hollow Point Bullets (50 pack)</h4>
-            <p>Price: $500</p>
-            <p>You have: {{ game_state.weapons.hollow_point_bullets }}</p>
-            <form method="POST" action="{{ url_for('buy_weapon') }}" class="inline-form">
-                <input type="hidden" name="weapon_type" value="hollow_point_bullets">
-                <input type="hidden" name="quantity" value="1">
-                <button type="submit" class="btn btn-primary">Buy Hollow Point Bullets</button>
-            </form>
-        </div>
-        
-        <div class="weapon-item">
-            <h4>Grenade</h4>
-            <p>Price: $1,000</p>
-            <p>You have: {{ game_state.weapons.grenades }}</p>
-            <form method="POST" action="{{ url_for('buy_weapon') }}" class="inline-form">
-                <input type="hidden" name="weapon_type" value="grenade">
-                <input type="hidden" name="quantity" value="1">
-                <button type="submit" class="btn btn-primary">Buy Grenade</button>
-            </form>
-        </div>
+                <div class="list-group-item">
+                    <h5>Exploding Bullets (Pack of 50)</h5>
+                    <p class="text-muted">Special ammunition. Double damage on impact.</p>
+                    <p class="text-success">Price: $2,000</p>
+                    <form method="POST" action="{{ url_for('buy_weapon') }}" class="d-inline">
+                        <input type="hidden" name="weapon_type" value="exploding_bullets">
+                        <input type="hidden" name="quantity" value="1">
+                        <button type="submit" class="btn btn-danger btn-sm">Buy Exploding Bullets</button>
+                    </form>
+                    <span class="badge bg-secondary ms-2">{{ game_state.weapons.exploding_bullets }} rounds</span>
+                </div>
 
-        <div class="weapon-item">
-            <h4>Vampire Bat</h4>
-            <p>Price: $2,500</p>
-            <p>You have: {{ game_state.weapons.vampire_bat }}</p>
-            <form method="POST" action="{{ url_for('buy_weapon') }}" class="inline-form">
-                <input type="hidden" name="weapon_type" value="vampire_bat">
-                <input type="hidden" name="quantity" value="1">
-                <button type="submit" class="btn btn-primary">Buy Vampire Bat</button>
-            </form>
-        </div>
-        
-        <div class="weapon-item">
-            <h4>Missile Launcher</h4>
-            <p>Price: $1,000,000</p>
-            <p>You have: {{ game_state.weapons.missile_launcher }}</p>
-            <form method="POST" action="{{ url_for('buy_weapon') }}" class="inline-form">
-                <input type="hidden" name="weapon_type" value="missile_launcher">
-                <input type="hidden" name="quantity" value="1">
-                <button type="submit" class="btn btn-primary">Buy Launcher</button>
-            </form>
-        </div>
-        
-        <div class="weapon-item">
-            <h4>Missile</h4>
-            <p>Price: $100,000</p>
-            <p>You have: {{ game_state.weapons.missiles }}</p>
-            <form method="POST" action="{{ url_for('buy_weapon') }}" class="inline-form">
-                <input type="hidden" name="weapon_type" value="missile">
-                <input type="hidden" name="quantity" value="1">
-                <button type="submit" class="btn btn-primary">Buy Missile</button>
-            </form>
-        </div>
+                <div class="list-group-item">
+                    <h5>Hollow Point Bullets (Pack of 50)</h5>
+                    <p class="text-muted">Special ammunition. 20% more damage.</p>
+                    <p class="text-success">Price: $500</p>
+                    <form method="POST" action="{{ url_for('buy_weapon') }}" class="d-inline">
+                        <input type="hidden" name="weapon_type" value="hollow_point_bullets">
+                        <input type="hidden" name="quantity" value="1">
+                        <button type="submit" class="btn btn-warning btn-sm">Buy Hollow Point Bullets</button>
+                    </form>
+                    <span class="badge bg-secondary ms-2">{{ game_state.weapons.hollow_point_bullets }} rounds</span>
+                </div>
 
-        <div class="weapon-item">
-            <h4>AR-15</h4>
-            <p>Price: $50,000</p>
-            <p>You have: {{ game_state.weapons.ar15 }}</p>
-            <form method="POST" action="{{ url_for('buy_weapon') }}" class="inline-form">
-                <input type="hidden" name="weapon_type" value="ar15">
-                <input type="hidden" name="quantity" value="1">
-                <button type="submit" class="btn btn-primary">Buy AR-15</button>
-            </form>
+                <div class="list-group-item">
+                    <h5>Grenades</h5>
+                    <p class="text-muted">Explosive devices. Area of effect damage.</p>
+                    <p class="text-success">Price: $1,000</p>
+                    <form method="POST" action="{{ url_for('buy_weapon') }}" class="d-inline">
+                        <input type="hidden" name="weapon_type" value="grenade">
+                        <input type="hidden" name="quantity" value="1">
+                        <button type="submit" class="btn btn-danger btn-sm">Buy Grenade</button>
+                    </form>
+                    <span class="badge bg-secondary ms-2">{{ game_state.weapons.grenades }} grenades</span>
+                </div>
+
+                <div class="list-group-item">
+                    <h5>Missiles</h5>
+                    <p class="text-muted">Rocket ammunition for missile launchers.</p>
+                    <p class="text-success">Price: $100,000</p>
+                    <form method="POST" action="{{ url_for('buy_weapon') }}" class="d-inline">
+                        <input type="hidden" name="weapon_type" value="missile">
+                        <input type="hidden" name="quantity" value="1">
+                        <button type="submit" class="btn btn-danger btn-sm">Buy Missile</button>
+                    </form>
+                    <span class="badge bg-secondary ms-2">{{ game_state.weapons.missiles }} missiles</span>
+                </div>
+
+                <!-- Upgrades -->
+                <div class="list-group-item">
+                    <h5>Vest (Light)</h5>
+                    <p class="text-muted">Light body armor. +5 hit protection.</p>
+                    <p class="text-success">Price: $5,000</p>
+                    <form method="POST" action="{{ url_for('buy_weapon') }}" class="d-inline">
+                        <input type="hidden" name="weapon_type" value="vest_light">
+                        <input type="hidden" name="quantity" value="1">
+                        <button type="submit" class="btn btn-info btn-sm">Buy Light Vest</button>
+                    </form>
+                    <span class="badge bg-secondary ms-2">{{ game_state.weapons.vest }} protection</span>
+                </div>
+
+                <div class="list-group-item">
+                    <h5>Vest (Medium)</h5>
+                    <p class="text-muted">Medium body armor. +10 hit protection.</p>
+                    <p class="text-success">Price: $15,000</p>
+                    <form method="POST" action="{{ url_for('buy_weapon') }}" class="d-inline">
+                        <input type="hidden" name="weapon_type" value="vest_medium">
+                        <input type="hidden" name="quantity" value="1">
+                        <button type="submit" class="btn btn-info btn-sm">Buy Medium Vest</button>
+                    </form>
+                    <span class="badge bg-secondary ms-2">{{ game_state.weapons.vest }} protection</span>
+                </div>
+
+                <div class="list-group-item">
+                    <h5>Vest (Heavy)</h5>
+                    <p class="text-muted">Heavy body armor. +15 hit protection.</p>
+                    <p class="text-success">Price: $25,000</p>
+                    <form method="POST" action="{{ url_for('buy_weapon') }}" class="d-inline">
+                        <input type="hidden" name="weapon_type" value="vest_heavy">
+                        <input type="hidden" name="quantity" value="1">
+                        <button type="submit" class="btn btn-info btn-sm">Buy Heavy Vest</button>
+                    </form>
+                    <span class="badge bg-secondary ms-2">{{ game_state.weapons.vest }} protection</span>
+                </div>
+
+                <!-- Weapon Upgrades -->
+                <div class="list-group-item">
+                    <h5>Pistol Upgrade</h5>
+                    <p class="text-muted">Convert pistol to automatic fire.</p>
+                    <p class="text-success">Price: $2,000</p>
+                    <form method="POST" action="{{ url_for('upgrade_weapon') }}" class="d-inline">
+                        <input type="hidden" name="weapon_type" value="pistol">
+                        <button type="submit" class="btn btn-warning btn-sm">Upgrade Pistol</button>
+                    </form>
+                    <span class="badge bg-success ms-2">{{ 'Automatic' if game_state.weapons.pistol_automatic else 'Semi-Auto' }}</span>
+                </div>
+
+                <div class="list-group-item">
+                    <h5>Ghost Gun Upgrade</h5>
+                    <p class="text-muted">Convert ghost gun to automatic fire.</p>
+                    <p class="text-success">Price: $2,000</p>
+                    <form method="POST" action="{{ url_for('upgrade_weapon') }}" class="d-inline">
+                        <input type="hidden" name="weapon_type" value="ghost_gun">
+                        <button type="submit" class="btn btn-warning btn-sm">Upgrade Ghost Gun</button>
+                    </form>
+                    <span class="badge bg-success ms-2">{{ 'Automatic' if game_state.weapons.ghost_gun_automatic else 'Semi-Auto' }}</span>
+                </div>
+            </div>
         </div>
-
-
     </div>
-    
-    <div class="upgrade-section">
-        <h3>Weapon Upgrades</h3>
-        <p>Upgrade your weapons for better performance!</p>
-        <div class="upgrade-options">
-            {% if game_state.weapons.pistols > 0 and not game_state.weapons.pistol_automatic %}
-            <form method="POST" action="{{ url_for('upgrade_weapon') }}" class="inline-form">
-                <input type="hidden" name="weapon_type" value="pistol">
-                <button type="submit" class="btn btn-warning">Buy Switch for Pistol&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp($2,000)</button>
-            </form>
-            {% elif game_state.weapons.pistol_automatic %}
-            <p>✅ Pistol is already automatic</p>
-            {% endif %}
 
-            {% if game_state.weapons.ghost_guns > 0 and not game_state.weapons.ghost_gun_automatic %}
-            <form method="POST" action="{{ url_for('upgrade_weapon') }}" class="inline-form">
-                <input type="hidden" name="weapon_type" value="ghost_gun">
-                <button type="submit" class="btn btn-warning">Buy Switch for Ghost Gun ($2,000)</button>
-            </form>
-            {% elif game_state.weapons.ghost_gun_automatic %}
-            <p>✅ Ghost Gun is already automatic</p>
-            {% endif %}
+    <div class="row mt-4">
+        <div class="col-md-12">
+            <h3>Your Arsenal</h3>
+            <div class="row">
+                <div class="col-md-4">
+                    <div class="card">
+                        <div class="card-body">
+                            <h5 class="card-title">Firearms</h5>
+                            <ul class="list-unstyled">
+                                <li><strong>Pistols:</strong> {{ game_state.weapons.pistols }}</li>
+                                <li><strong>AR-15s:</strong> {{ game_state.weapons.ar15 }}</li>
+                                <li><strong>Ghost Guns:</strong> {{ game_state.weapons.ghost_guns }}</li>
+                                <li><strong>Missile Launchers:</strong> {{ game_state.weapons.missile_launcher }}</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card">
+                        <div class="card-body">
+                            <h5 class="card-title">Ammunition</h5>
+                            <ul class="list-unstyled">
+                                <li><strong>Regular Bullets:</strong> {{ game_state.weapons.bullets }}</li>
+                                <li><strong>Exploding Bullets:</strong> {{ game_state.weapons.exploding_bullets }}</li>
+                                <li><strong>Hollow Point Bullets:</strong> {{ game_state.weapons.hollow_point_bullets }}</li>
+                                <li><strong>Grenades:</strong> {{ game_state.weapons.grenades }}</li>
+                                <li><strong>Missiles:</strong> {{ game_state.weapons.missiles }}</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card">
+                        <div class="card-body">
+                            <h5 class="card-title">Melee & Special</h5>
+                            <ul class="list-unstyled">
+                                <li><strong>Knives:</strong> {{ game_state.weapons.knife }}</li>
+                                <li><strong>Vampire Bats:</strong> {{ game_state.weapons.vampire_bat }}</li>
+                                <li><strong>Swords:</strong> {{ game_state.weapons.sword }}</li>
+                                <li><strong>Axes:</strong> {{ game_state.weapons.axe }}</li>
+                                <li><strong>Golden Guns:</strong> {{ game_state.weapons.golden_gun }}</li>
+                                <li><strong>Poison Blowguns:</strong> {{ game_state.weapons.poison_blowgun }}</li>
+                                <li><strong>Chain Whips:</strong> {{ game_state.weapons.chain_whip }}</li>
+                                <li><strong>Plasma Cutters:</strong> {{ game_state.weapons.plasma_cutter }}</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 
-    <div class="vest-section">
-        <h3>Body Armor</h3>
-        <p>Current protection: {{ game_state.weapons.vest }} hits</p>
-        <div class="vest-options">
-            <form method="POST" action="{{ url_for('buy_weapon') }}" class="inline-form">
-                <input type="hidden" name="weapon_type" value="vest_light">
-                <input type="hidden" name="quantity" value="1">
-                <button type="submit" class="btn btn-secondary">Light Vest ($5,000) - 5 hits</button>
-            </form>
-
-            <form method="POST" action="{{ url_for('buy_weapon') }}" class="inline-form">
-                <input type="hidden" name="weapon_type" value="vest_medium">
-                <input type="hidden" name="quantity" value="1">
-                <button type="submit" class="btn btn-secondary">Medium Vest ($25,000) - 10 hits</button>
-            </form>
-
-            <form method="POST" action="{{ url_for('buy_weapon') }}" class="inline-form">
-                <input type="hidden" name="weapon_type" value="vest_heavy">
-                <input type="hidden" name="quantity" value="1">
-                <button type="submit" class="btn btn-secondary">Heavy Vest ($35,000) - 15 hits</button>
-            </form>
+    <div class="row mt-4">
+        <div class="col-md-12">
+            <div class="alert alert-info">
+                <h5>Combat Tips:</h5>
+                <ul>
+                    <li><strong>Automatic Weapons:</strong> Pistols and Ghost Guns can be upgraded to automatic fire for rapid damage.</li>
+                    <li><strong>Special Ammunition:</strong> Exploding bullets double damage, hollow point bullets increase damage by 20%.</li>
+                    <li><strong>Gang Members:</strong> Each gang member can use one weapon per combat turn without consuming your ammo.</li>
+                    <li><strong>Vest Protection:</strong> Body armor reduces incoming damage by 20 points per hit.</li>
+                    <li><strong>Weapon Variety:</strong> Different weapons have different damage ranges and special effects.</li>
+                </ul>
+            </div>
         </div>
-    </div>
-    
-    <div class="actions">
-        <a href="{{ url_for('city') }}" class="btn btn-primary">Back to City</a>
     </div>
 </div>
 {% endblock %}

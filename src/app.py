@@ -3015,18 +3015,42 @@ def process_fight_action():
         }
 
         # Handle weapon attacks with enhanced descriptions
-        if weapon == 'pistol' and game_state.weapons.pistols > 0 and game_state.weapons.bullets > 0:
-            game_state.weapons.bullets -= 1
-            base_damage = random.randint(15, 25)
-            # Add ±30% damage variance per shot (making each swing truly random)
-            damage_variance = random.uniform(0.7, 1.3)
-            base_damage = int(base_damage * damage_variance)
-            if use_exploding:
+        # Enhanced ammo system: pistols and ghost guns can use any available ammo type
+        if weapon == 'pistol' and game_state.weapons.pistols > 0:
+            # Check for available ammo types
+            has_regular_bullets = game_state.weapons.bullets > 0
+            has_exploding_bullets = game_state.weapons.exploding_bullets > 0
+            has_hollow_point_bullets = game_state.weapons.hollow_point_bullets > 0
+            
+            if not (has_regular_bullets or has_exploding_bullets or has_hollow_point_bullets):
+                fight_log.append("You don't have any bullets for your pistol!")
+                return render_template('mud_fight.html', game_state=game_state, enemy_health=enemy_health, enemy_type=enemy_type, enemy_count=enemy_count, combat_active=combat_active, fight_log=fight_log, combat_id=combat_id)
+            
+            # Use ammo based on preference: exploding > hollow point > regular
+            if has_exploding_bullets:
                 game_state.weapons.exploding_bullets -= 1
+                base_damage = random.randint(15, 25)
+                # Add ±30% damage variance per shot
+                damage_variance = random.uniform(0.7, 1.3)
+                base_damage = int(base_damage * damage_variance)
                 base_damage *= 2  # Exploding bullet doubles damage
-            elif use_hollow_point:
+                ammo_used = "exploding"
+            elif has_hollow_point_bullets:
                 game_state.weapons.hollow_point_bullets -= 1
+                base_damage = random.randint(15, 25)
+                # Add ±30% damage variance per shot
+                damage_variance = random.uniform(0.7, 1.3)
+                base_damage = int(base_damage * damage_variance)
                 base_damage = int(base_damage * 1.2)  # Hollow point bullets are 20% stronger
+                ammo_used = "hollow point"
+            else:
+                game_state.weapons.bullets -= 1
+                base_damage = random.randint(15, 25)
+                # Add ±30% damage variance per shot
+                damage_variance = random.uniform(0.7, 1.3)
+                base_damage = int(base_damage * damage_variance)
+                ammo_used = "regular"
+            
             if game_state.weapons.pistol_automatic:
                 # Automatic pistol fires 3 shots - show each shot separately
                 total_damage = 0
@@ -3034,48 +3058,51 @@ def process_fight_action():
                     shot_damage = base_damage
                     total_damage += shot_damage
                     attack_desc = random.choice(attack_descriptions.get('pistol', ["You fire your automatic pistol!"]))
-                    ammo_type = ""
-                    if use_exploding:
-                        ammo_type = " (exploding bullet!)"
-                    elif use_hollow_point:
-                        ammo_type = " (hollow point bullet!)"
-                    fight_log.append(f"{attack_desc} [Shot {shot + 1}] You deal {shot_damage} damage{ammo_type}!")
-                ammo_desc = ""
-                if use_exploding:
-                    ammo_desc = " (exploding bullets have devastating effect!)"
-                elif use_hollow_point:
-                    ammo_desc = " (hollow point bullets maximize damage!)"
-                fight_log.append(f"Total damage from automatic pistol: {total_damage} damage{ammo_desc}!")
+                    fight_log.append(f"{attack_desc} [Shot {shot + 1}] You deal {shot_damage} damage ({ammo_used} bullets)!")
+                fight_log.append(f"Total damage from automatic pistol: {total_damage} damage ({ammo_used} bullets have devastating effect!)!")
             else:
                 damage = base_damage
                 attack_desc = random.choice(attack_descriptions.get('pistol', ["You fire your pistol!"]))
-                ammo_type = ""
-                if use_exploding:
-                    ammo_type = " (exploding bullet!)"
-                elif use_hollow_point:
-                    ammo_type = " (hollow point bullet!)"
-                fight_log.append(f"{attack_desc} You deal {damage} damage{ammo_type}!")
+                fight_log.append(f"{attack_desc} You deal {damage} damage ({ammo_used} bullets)!")
             enemy_health -= damage if not game_state.weapons.pistol_automatic else total_damage
-        elif weapon == 'ar15' and game_state.weapons.ar15 > 0 and game_state.weapons.bullets > 0:
-            game_state.weapons.bullets -= 1
-            base_damage = random.randint(25, 45)
-            # Add ±30% damage variance per shot (making each swing truly random)
-            damage_variance = random.uniform(0.7, 1.3)
-            damage = int(base_damage * damage_variance)
-            if use_exploding:
+        elif weapon == 'ar15' and game_state.weapons.ar15 > 0:
+            # AR-15 can also use any ammo type
+            has_regular_bullets = game_state.weapons.bullets > 0
+            has_exploding_bullets = game_state.weapons.exploding_bullets > 0
+            has_hollow_point_bullets = game_state.weapons.hollow_point_bullets > 0
+            
+            if not (has_regular_bullets or has_exploding_bullets or has_hollow_point_bullets):
+                fight_log.append("You don't have any bullets for your AR-15!")
+                return render_template('mud_fight.html', game_state=game_state, enemy_health=enemy_health, enemy_type=enemy_type, enemy_count=enemy_count, combat_active=combat_active, fight_log=fight_log, combat_id=combat_id)
+            
+            # Use ammo based on preference: exploding > hollow point > regular
+            if has_exploding_bullets:
                 game_state.weapons.exploding_bullets -= 1
+                base_damage = random.randint(25, 45)
+                # Add ±30% damage variance per shot
+                damage_variance = random.uniform(0.7, 1.3)
+                damage = int(base_damage * damage_variance)
                 damage *= 2  # Exploding bullet doubles damage
-            elif use_hollow_point:
+                ammo_used = "exploding"
+            elif has_hollow_point_bullets:
                 game_state.weapons.hollow_point_bullets -= 1
+                base_damage = random.randint(25, 45)
+                # Add ±30% damage variance per shot
+                damage_variance = random.uniform(0.7, 1.3)
+                damage = int(base_damage * damage_variance)
                 damage = int(damage * 1.2)  # Hollow point bullets are 20% stronger
+                ammo_used = "hollow point"
+            else:
+                game_state.weapons.bullets -= 1
+                base_damage = random.randint(25, 45)
+                # Add ±30% damage variance per shot
+                damage_variance = random.uniform(0.7, 1.3)
+                damage = int(base_damage * damage_variance)
+                ammo_used = "regular"
+            
             enemy_health -= damage
-            ammo_desc = ""
-            if use_exploding:
-                ammo_desc = " (exploding ammunition shreds through!)"
-            elif use_hollow_point:
-                ammo_desc = " (hollow point bullets maximize damage!)"
-            fight_log.append(f"You fire your AR-15 and deal {damage} damage{ammo_desc}!")
-        elif weapon == 'ghost_gun' and game_state.weapons.ghost_guns > 0 and game_state.weapons.bullets > 0:
+            fight_log.append(f"You fire your AR-15 and deal {damage} damage ({ammo_used} ammunition shreds through!)!")
+        elif weapon == 'ghost_gun' and game_state.weapons.ghost_guns > 0:
             game_state.weapons.bullets -= 1
             base_damage = random.randint(15, 25)
             # Ghost gun jam chance - 30% chance to jam
