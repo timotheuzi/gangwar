@@ -527,6 +527,15 @@ def get_game_state():
     if 'game_state' not in session:
         session['game_state'] = asdict(GameState())
     game_dict = session['game_state']
+    
+    # Remove any unexpected fields that might be in the saved session data
+    # but not in the current GameState definition
+    expected_fields = set(GameState.__dataclass_fields__.keys())
+    unexpected_fields = set(game_dict.keys()) - expected_fields
+    
+    for field in unexpected_fields:
+        del game_dict[field]
+    
     # Convert nested dicts back to objects
     game_dict['flags'] = Flags(**game_dict.get('flags', {}))
     game_dict['weapons'] = Weapons(**game_dict.get('weapons', {}))
