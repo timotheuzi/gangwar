@@ -11,37 +11,276 @@
       "squidies": {
         "question": "What do you know about the Squidies?",
         "responses": [
-          {"text": "The Squidies control the east sector. Their cybernetics are outdated but numerous. Recommend avoidance.", "cost": 500, "effect": null},
-          {"text": "Their main server is in the old warehouse. Firewall strength: minimal. Vulnerability: significant.", "cost": 1000, "effect": "has_info"},
-          {"text": "Incoming shipment detected. Heavy weaponry. Automated defense systems. Proceed with extreme caution.", "cost": 2000, "effect": "has_info"},
-          {"text": "Query cancelled. No credits deducted.", "cost": 0, "effect": null}
+          {
+            "text": "The Squidies control the east sector. Their cybernetics are outdated but numerous. Recommend avoidance.",
+            "cost": 500,
+            "effect": null,
+            "conditions": {
+              "min_money": 1000,
+              "max_members": 3
+            },
+            "weight_factors": {
+              "wealth_weight": {
+                "poor": 0.5,
+                "medium": 1.0,
+                "rich": 1.5
+              },
+              "gang_size_weight": {
+                "small": 2.0,
+                "medium": 1.0,
+                "large": 0.5
+              }
+            }
+          },
+          {
+            "text": "Their main server is in the old warehouse. Firewall strength: minimal. Vulnerability: significant.",
+            "cost": 1000,
+            "effect": "has_info",
+            "conditions": {
+              "min_wealth": 5000,
+              "requires_info": true
+            },
+            "weight_factors": {
+              "wealth_weight": {
+                "poor": 0.2,
+                "medium": 1.0,
+                "rich": 2.0
+              }
+            }
+          },
+          {
+            "text": "Incoming shipment detected. Heavy weaponry. Automated defense systems. Proceed with extreme caution.",
+            "cost": 2000,
+            "effect": "has_info",
+            "conditions": {
+              "min_wealth": 10000,
+              "min_members": 5
+            },
+            "weight_factors": {
+              "wealth_weight": {
+                "poor": 0.1,
+                "medium": 0.5,
+                "rich": 2.5
+              },
+              "gang_size_weight": {
+                "small": 0.5,
+                "medium": 1.0,
+                "large": 2.0
+              }
+            }
+          },
+          {
+            "text": "Query cancelled. No credits deducted.",
+            "cost": 0,
+            "effect": null,
+            "weight_factors": {
+              "wealth_weight": {
+                "poor": 2.0,
+                "medium": 1.0,
+                "rich": 0.5
+              }
+            }
+          }
         ]
       },
       "police": {
         "question": "How do I avoid the enforcers?",
         "responses": [
-          {"text": "Purchase counterfeit ID at Pick n Save. Cost: 5000 credits. Authenticity: 94.7%", "cost": 0, "effect": null},
-          {"text": "Enforcer patrol patterns updated hourly. Check the infobooth terminal for real-time data.", "cost": 300, "effect": null},
-          {"text": "Subterranean tunnel network detected. Access points hidden throughout the district.", "cost": 1500, "effect": "has_info"},
-          {"text": "Risk assessment: High. Proceed anyway?", "cost": 0, "effect": null}
+          {
+            "text": "Purchase counterfeit ID at Pick n Save. Cost: 5000 credits. Authenticity: 94.7%",
+            "cost": 0,
+            "effect": null,
+            "conditions": {
+              "no_id": true
+            },
+            "weight_factors": {
+              "wealth_weight": {
+                "poor": 0.5,
+                "medium": 1.0,
+                "rich": 1.5
+              }
+            }
+          },
+          {
+            "text": "Enforcer patrol patterns updated hourly. Check the infobooth terminal for real-time data.",
+            "cost": 300,
+            "effect": null,
+            "conditions": {
+              "min_money": 500
+            },
+            "weight_factors": {
+              "day_weight": {
+                "early": 0.5,
+                "mid": 1.0,
+                "late": 2.0
+              }
+            }
+          },
+          {
+            "text": "Subterranean tunnel network detected. Access points hidden throughout the district.",
+            "cost": 1500,
+            "effect": "has_info",
+            "conditions": {
+              "min_wealth": 3000,
+              "max_health": 25
+            },
+            "weight_factors": {
+              "health_weight": {
+                "low": 2.0,
+                "medium": 1.0,
+                "high": 0.5
+              }
+            }
+          },
+          {
+            "text": "Risk assessment: High. Proceed anyway?",
+            "cost": 0,
+            "effect": null,
+            "weight_factors": {
+              "gang_size_weight": {
+                "small": 1.5,
+                "medium": 1.0,
+                "large": 0.5
+              }
+            }
+          }
         ]
       },
       "weapons": {
         "question": "Where can I find proper firepower?",
         "responses": [
-          {"text": "Gun Pawn USA. Location: 5th Street. They do not ask questions.", "cost": 0, "effect": null},
-          {"text": "Ravager trading post. Warning: Aggressive negotiation protocols. Proceed at own risk.", "cost": 1000, "effect": null},
-          {"text": "Underground market beneath the sewers. Weapons, ammo, cybernetics. Combat probability: elevated.", "cost": 2500, "effect": "has_info"},
-          {"text": "Current loadout acceptable. No upgrade required.", "cost": 0, "effect": null}
+          {
+            "text": "Gun Pawn USA. Location: 5th Street. They do not ask questions.",
+            "cost": 0,
+            "effect": null,
+            "weight_factors": {
+              "min_weapons": 0,
+              "max_weapons": 2
+            }
+          },
+          {
+            "text": "Ravager trading post. Warning: Aggressive negotiation protocols. Proceed at own risk.",
+            "cost": 1000,
+            "effect": null,
+            "conditions": {
+              "min_members": 4
+            },
+            "weight_factors": {
+              "gang_size_weight": {
+                "small": 0.5,
+                "medium": 1.0,
+                "large": 2.0
+              }
+            }
+          },
+          {
+            "text": "Underground market beneath the sewers. Weapons, ammo, cybernetics. Combat probability: elevated.",
+            "cost": 2500,
+            "effect": "has_info",
+            "conditions": {
+              "min_wealth": 5000,
+              "min_weapons": 3
+            },
+            "weight_factors": {
+              "wealth_weight": {
+                "poor": 0.2,
+                "medium": 1.0,
+                "rich": 2.0
+              },
+              "weapon_weight": {
+                "few": 0.5,
+                "medium": 1.0,
+                "many": 2.0
+              }
+            }
+          },
+          {
+            "text": "Current loadout acceptable. No upgrade required.",
+            "cost": 0,
+            "effect": null,
+            "conditions": {
+              "min_weapons": 5
+            },
+            "weight_factors": {
+              "weapon_weight": {
+                "few": 0.2,
+                "medium": 0.8,
+                "many": 2.0
+              }
+            }
+          }
         ]
       },
       "money": {
         "question": "I need credits. Fast.",
         "responses": [
-          {"text": "Crackhouse arbitrage. Buy low, sell high. Profit margin: 150-300%. Recommended strategy.", "cost": 0, "effect": null},
-          {"text": "Gang warfare contracts. Compensation: substantial. Survival probability: variable.", "cost": 500, "effect": null},
-          {"text": "Pick n Save search protocol. Hidden caches detected. Probability of finding credits: 67%.", "cost": 800, "effect": "has_info"},
-          {"text": "Alleyway stashes: 12 locations mapped. Credit value: variable. Risk: minimal.", "cost": 1200, "effect": "has_info"}
+          {
+            "text": "Crackhouse arbitrage. Buy low, sell high. Profit margin: 150-300%. Recommended strategy.",
+            "cost": 0,
+            "effect": null,
+            "conditions": {
+              "min_drugs": 0
+            },
+            "weight_factors": {
+              "drug_weight": {
+                "none": 2.0,
+                "few": 1.0,
+                "many": 0.5
+              }
+            }
+          },
+          {
+            "text": "Gang warfare contracts. Compensation: substantial. Survival probability: variable.",
+            "cost": 500,
+            "effect": null,
+            "conditions": {
+              "min_members": 3,
+              "min_weapons": 2
+            },
+            "weight_factors": {
+              "gang_size_weight": {
+                "small": 0.5,
+                "medium": 1.0,
+                "large": 2.0
+              },
+              "weapon_weight": {
+                "few": 0.5,
+                "medium": 1.0,
+                "many": 2.0
+              }
+            }
+          },
+          {
+            "text": "Pick n Save search protocol. Hidden caches detected. Probability of finding credits: 67%.",
+            "cost": 800,
+            "effect": "has_info",
+            "conditions": {
+              "min_money": 1000
+            },
+            "weight_factors": {
+              "wealth_weight": {
+                "poor": 1.5,
+                "medium": 1.0,
+                "rich": 0.5
+              }
+            }
+          },
+          {
+            "text": "Alleyway stashes: 12 locations mapped. Credit value: variable. Risk: minimal.",
+            "cost": 1200,
+            "effect": "has_info",
+            "conditions": {
+              "min_money": 2000,
+              "min_day": 3
+            },
+            "weight_factors": {
+              "day_weight": {
+                "early": 0.5,
+                "mid": 1.0,
+                "late": 2.0
+              }
+            }
+          }
         ]
       }
     }

@@ -179,39 +179,29 @@ def generate_default_high_scores() -> List[HighScore]:
 
     default_scores = []
     current_score = base_score
-
-    # Generate names and gang names for variety - authentic 1800s American outlaws and criminals
-    player_names = [
-        "Adam Worth", "Billy the Kid", "Jesse James", "Belle Starr", "Black Bart",
-        "Soapy Smith", "Sam Bass", "Cherokee Bill", "Johnny Ringo", "Curly Bill Brocius"
-    ]
-
-    gang_names = [
-        "The Worth Gang", "Billy's Boys", "The James Gang", "Starr's Outlaws", "Black Bart's Raiders",
-        "The Soap Gang", "Bass's Raiders", "Cherokee's Crew", "Ringo's Raiders", "Curly Bill's Bunch"
-    ]
-
-    current_date = time.strftime("%Y-%m-%d %H:%M:%S")
-
-    for i in range(min(max_scores, len(player_names))):
-        score_entry = HighScore(
-            player_name=player_names[i],
-            gang_name=gang_names[i],
-            score=int(current_score),
-            money_earned=int(current_score * 20),  # Rough estimate
-            days_survived=max(1, int(current_score / 100)),  # Rough estimate
-            gang_wars_won=max(0, int(current_score / 1000)),  # Rough estimate
-            fights_won=max(0, int(current_score / 50)),  # Rough estimate
-            date_achieved=current_date
-        )
-        default_scores.append(score_entry)
-
-        # Halve the score for next entry if configured
+    
+    # Generate default scores with decreasing values
+    for i in range(max_scores):
         if config.get('dummy_score_half_of_last', True):
-            current_score = max(1, current_score // 2)
+            # Each score is half of the previous one
+            score_value = current_score
+            current_score = max(1, current_score // 2)  # Ensure minimum score of 1
         else:
-            current_score = max(1, int(current_score * 0.7))
-
+            # Fixed decrement
+            score_value = current_score
+            current_score = max(1, current_score - 50)  # Decrease by 50 each time, minimum 1
+        
+        default_scores.append(HighScore(
+            player_name=default_entry["player_name"],
+            gang_name=default_entry["gang_name"],
+            score=score_value,
+            money_earned=score_value * 1000,  # Rough estimate
+            days_survived=max(1, score_value // 100),  # Rough estimate
+            gang_wars_won=0,
+            fights_won=0,
+            date_achieved="Server Start"
+        ))
+    
     return default_scores
 
 def load_high_scores() -> List[HighScore]:
@@ -2492,12 +2482,11 @@ def npc_dialogue_topic(npc_id, topic):
 
 @app.route('/npc_dialogue/<npc_id>/respond', methods=['POST'])
 def npc_dialogue_respond(npc_id):
-    """Handle NPC dialogue response selection"""
+    """Handle NPC dialogue response - now automatic based on user's previous answers"""
     if npc_id not in npcs_data:
         return redirect(url_for('city'))
     
     game_state = get_game_state()
-    response_index = int(request.form.get('response_index', 0))
     topic = request.form.get('topic', '')
     
     if npc_id not in NPC_DIALOGUES:
@@ -2513,11 +2502,8 @@ def npc_dialogue_respond(npc_id):
     topic_data = dialogue_data['topics'][topic]
     responses = topic_data['responses']
     
-    if response_index >= len(responses):
-        flash("Invalid response selection.", "warning")
-        return redirect(url_for('npc_dialogue_topic', npc_id=npc_id, topic=topic))
-    
-    selected_response = responses[response_index]
+    # Determine NPC response automatically based on user's game state and previous answers
+    selected_response = determine_npc_response(game_state, topic_data, responses)
     response_text = selected_response['text']
     cost = selected_response.get('cost', 0)
     effect = selected_response.get('effect', None)
@@ -2542,6 +2528,197 @@ def npc_dialogue_respond(npc_id):
     save_game_state(game_state)
     
     return render_template('npc_dialogue_response.html', npc=npcs_data[npc_id], response=response_text, topic=topic, game_state=game_state)
+
+def determine_npc_response(game_state, topic_data, responses):
+    """Determine which NPC response to use based on user's game state and previous answers"""
+    
+    # Get user's current stats and progress
+    money = game_state.money
+    members = game_state.members
+    health = game_state.health
+    day = game_state.day
+    has_info = game_state.flags.has_info
+    has_id = game_state.flags.has_id
+    account = game_state.account
+    loan = game_state.loan
+    
+    # Calculate total wealth (cash + savings)
+    total_wealth = money + account
+    
+    # Check what drugs the user has
+    total_drugs = sum([getattr(game_state.drugs, drug) for drug in ['weed', 'crack', 'coke', 'ice', 'percs', 'pixie_dust']])
+    
+    # Check what weapons the user has
+    total_weapons = (game_state.weapons.pistols + game_state.weapons.ar15 + 
+                    game_state.weapons.ghost_guns + game_state.weapons.missile_launcher)
+    total_ammo = (game_state.weapons.bullets + game_state.weapons.exploding_bullets + 
+                 game_state.weapons.hollow_point_bullets)
+    
+    # Determine response based on user's profile and topic
+    topic_name = topic_data.get('question', '').lower()
+    
+    # Filter responses that have conditions
+    conditional_responses = []
+    default_responses = []
+    
+    for response in responses:
+        if 'conditions' in response:
+            conditional_responses.append(response)
+        else:
+            default_responses.append(response)
+    
+    # Evaluate conditional responses first
+    for response in conditional_responses:
+        if evaluate_response_conditions(response['conditions'], game_state):
+            return response
+    
+    # If no conditions match, use a default response
+    if default_responses:
+        # Use weighted selection based on user's profile
+        return select_weighted_response(default_responses, game_state, topic_name)
+    
+    # Fallback to first response if no others match
+    return responses[0] if responses else {"text": "I have nothing to say to you.", "cost": 0, "effect": None}
+
+def evaluate_response_conditions(conditions, game_state):
+    """Evaluate if response conditions are met"""
+    
+    # Money conditions
+    if 'min_money' in conditions and game_state.money < conditions['min_money']:
+        return False
+    if 'max_money' in conditions and game_state.money > conditions['max_money']:
+        return False
+    
+    # Wealth conditions (cash + savings)
+    total_wealth = game_state.money + game_state.account
+    if 'min_wealth' in conditions and total_wealth < conditions['min_wealth']:
+        return False
+    if 'max_wealth' in conditions and total_wealth > conditions['max_wealth']:
+        return False
+    
+    # Gang size conditions
+    if 'min_members' in conditions and game_state.members < conditions['min_members']:
+        return False
+    if 'max_members' in conditions and game_state.members > conditions['max_members']:
+        return False
+    
+    # Health conditions
+    current_health = game_state.health - game_state.damage
+    if 'min_health' in conditions and current_health < conditions['min_health']:
+        return False
+    if 'max_health' in conditions and current_health > conditions['max_health']:
+        return False
+    
+    # Day conditions
+    if 'min_day' in conditions and game_state.day < conditions['min_day']:
+        return False
+    if 'max_day' in conditions and game_state.day > conditions['max_day']:
+        return False
+    
+    # Flag conditions
+    if 'requires_info' in conditions and not game_state.flags.has_info:
+        return False
+    if 'requires_id' in conditions and not game_state.flags.has_id:
+        return False
+    if 'no_info' in conditions and game_state.flags.has_info:
+        return False
+    if 'no_id' in conditions and game_state.flags.has_id:
+        return False
+    
+    # Loan conditions
+    if 'has_loan' in conditions and game_state.loan <= 0:
+        return False
+    if 'no_loan' in conditions and game_state.loan > 0:
+        return False
+    
+    # Drug conditions
+    total_drugs = sum([getattr(game_state.drugs, drug) for drug in ['weed', 'crack', 'coke', 'ice', 'percs', 'pixie_dust']])
+    if 'min_drugs' in conditions and total_drugs < conditions['min_drugs']:
+        return False
+    if 'max_drugs' in conditions and total_drugs > conditions['max_drugs']:
+        return False
+    
+    # Weapon conditions
+    total_weapons = (game_state.weapons.pistols + game_state.weapons.ar15 + 
+                    game_state.weapons.ghost_guns + game_state.weapons.missile_launcher)
+    if 'min_weapons' in conditions and total_weapons < conditions['min_weapons']:
+        return False
+    if 'max_weapons' in conditions and total_weapons > conditions['max_weapons']:
+        return False
+    
+    # Ammo conditions
+    total_ammo = (game_state.weapons.bullets + game_state.weapons.exploding_bullets + 
+                 game_state.weapons.hollow_point_bullets)
+    if 'min_ammo' in conditions and total_ammo < conditions['min_ammo']:
+        return False
+    if 'max_ammo' in conditions and total_ammo > conditions['max_ammo']:
+        return False
+    
+    return True
+
+def select_weighted_response(responses, game_state, topic_name):
+    """Select a response based on weighted probabilities"""
+    
+    # Calculate weights based on user's profile
+    weights = []
+    
+    for response in responses:
+        weight = 1.0  # Base weight
+        
+        # Adjust weight based on user's situation
+        if 'weight_factors' in response:
+            factors = response['weight_factors']
+            
+            # Money-based weighting
+            if 'wealth_weight' in factors:
+                wealth = game_state.money + game_state.account
+                if wealth < 1000:
+                    weight *= factors['wealth_weight'].get('poor', 1.0)
+                elif wealth < 5000:
+                    weight *= factors['wealth_weight'].get('medium', 1.0)
+                else:
+                    weight *= factors['wealth_weight'].get('rich', 1.0)
+            
+            # Gang size weighting
+            if 'gang_size_weight' in factors:
+                members = game_state.members
+                if members <= 2:
+                    weight *= factors['gang_size_weight'].get('small', 1.0)
+                elif members <= 5:
+                    weight *= factors['gang_size_weight'].get('medium', 1.0)
+                else:
+                    weight *= factors['gang_size_weight'].get('large', 1.0)
+            
+            # Health weighting
+            if 'health_weight' in factors:
+                current_health = game_state.health - game_state.damage
+                if current_health < 10:
+                    weight *= factors['health_weight'].get('low', 1.0)
+                elif current_health < 20:
+                    weight *= factors['health_weight'].get('medium', 1.0)
+                else:
+                    weight *= factors['health_weight'].get('high', 1.0)
+            
+            # Day weighting
+            if 'day_weight' in factors:
+                day = game_state.day
+                if day <= 3:
+                    weight *= factors['day_weight'].get('early', 1.0)
+                elif day <= 7:
+                    weight *= factors['day_weight'].get('mid', 1.0)
+                else:
+                    weight *= factors['day_weight'].get('late', 1.0)
+        
+        weights.append(weight)
+    
+    # Select response based on weights
+    if sum(weights) > 0:
+        import random
+        return random.choices(responses, weights=weights, k=1)[0]
+    
+    # Fallback to random selection
+    import random
+    return random.choice(responses)
 
 @app.route('/npcs')
 def npcs():

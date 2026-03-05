@@ -1,2 +1,102 @@
 [
+  {
+    "player_name": "Anonymous",
+    "gang_name": "Unknown Gang",
+    "score": 100,
+    "money_earned": 100000,
+    "days_survived": 1,
+    "gang_wars_won": 0,
+    "fights_won": 0,
+    "date_achieved": "Server Start"
+  },
+  {
+    "player_name": "Anonymous",
+    "gang_name": "Unknown Gang",
+    "score": 50,
+    "money_earned": 50000,
+    "days_survived": 1,
+    "gang_wars_won": 0,
+    "fights_won": 0,
+    "date_achieved": "Server Start"
+  },
+  {
+    "player_name": "Anonymous",
+    "gang_name": "Unknown Gang",
+    "score": 25,
+    "money_earned": 25000,
+    "days_survived": 1,
+    "gang_wars_won": 0,
+    "fights_won": 0,
+    "date_achieved": "Server Start"
+  },
+  {
+    "player_name": "Anonymous",
+    "gang_name": "Unknown Gang",
+    "score": 12,
+    "money_earned": 12000,
+    "days_survived": 1,
+    "gang_wars_won": 0,
+    "fights_won": 0,
+    "date_achieved": "Server Start"
+  },
+  {
+    "player_name": "Anonymous",
+    "gang_name": "Unknown Gang",
+    "score": 6,
+    "money_earned": 6000,
+    "days_survived": 1,
+    "gang_wars_won": 0,
+    "fights_won": 0,
+    "date_achieved": "Server Start"
+  },
+  {
+    "player_name": "Anonymous",
+    "gang_name": "Unknown Gang",
+    "score": 3,
+    "money_earned": 3000,
+    "days_survived": 1,
+    "gang_wars_won": 0,
+    "fights_won": 0,
+    "date_achieved": "Server Start"
+  },
+  {
+    "player_name": "Anonymous",
+    "gang_name": "Unknown Gang",
+    "score": 1,
+    "money_earned": 1000,
+    "days_survived": 1,
+    "gang_wars_won": 0,
+    "fights_won": 0,
+    "date_achieved": "Server Start"
+  },
+  {
+    "player_name": "Anonymous",
+    "gang_name": "Unknown Gang",
+    "score": 1,
+    "money_earned": 1000,
+    "days_survived": 1,
+    "gang_wars_won": 0,
+    "fights_won": 0,
+    "date_achieved": "Server Start"
+  },
+  {
+    "player_name": "Anonymous",
+    "gang_name": "Unknown Gang",
+    "score": 1,
+    "money_earned": 1000,
+    "days_survived": 1,
+    "gang_wars_won": 0,
+    "fights_won": 0,
+    "date_achieved": "Server Start"
+  },
+  {
+    "player_name": "Anonymous",
+    "gang_name": "Unknown Gang",
+    "score": 1,
+    "money_earned": 1000,
+    "days_survived": 1,
+    "gang_wars_won": 0,
+    "fights_won": 0,
+    "date_achieved": "Server Start"
+  }
 ]

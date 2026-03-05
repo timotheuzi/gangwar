@@ -9,24 +9,17 @@
             <h5>{{ question }}</h5>
         </div>
         <div class="card-body">
+            <p class="text-muted">The NPC considers your question and responds based on your reputation and current situation...</p>
+            
             <form action="{{ url_for('npc_dialogue_respond', npc_id=npc.id) }}" method="POST">
                 <input type="hidden" name="topic" value="{{ topic }}">
                 
-                <div class="list-group">
-					<br />
-                    {% for response in responses %}
-                    <label class="list-group-item">
-                        <input type="radio" name="response_index" value="{{ loop.index0 }}" {% if loop.first %}checked{% endif %}>
-                        <span class="ms-2">{{ response.text }}</span>
-                        {% if response.cost > 0 %}
-                        <span class="badge bg-warning text-dark ms-2">${{ response.cost }}</span><br />
-                        {% endif %}
-                    </label><br />
-                    {% endfor %}
+                <div class="alert alert-info">
+                    <p><strong>{{ npc.name }}:</strong> "Based on your current situation, I have this to say..."</p>
                 </div>
                 
                 <div class="mt-4">
-                    <button type="submit" class="btn btn-primary">Select Response</button>
+                    <button type="submit" class="btn btn-primary">Get Response</button>
                     <a href="{{ url_for('npc_dialogue', npc_id=npc.id) }}" class="btn btn-secondary">Back</a>
                 </div>
             </form>
