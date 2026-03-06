@@ -2,124 +2,352 @@
 
 {% block content %}
 <div class="bar-screen">
-    <h2>The Local Pub</h2>
-    <p>A seedy bar where deals are made and information flows freely.</p>
+    <div class="bar-header">
+        <h2 class="bar-title">The Local Pub</h2>
+        <p class="bar-subtitle">A seedy bar where deals are made and information flows freely</p>
+    </div>
     
     <div class="bar-content">
         <div class="bar-info-grid">
-            <div class="contact-section">
-                <h3>Contacts</h3>
+            <div class="contact-section enhanced-section">
+                <h3 class="section-title">Underground Contacts</h3>
+                <p class="section-description">Meet the players who control the streets</p>
                 
                 {% if not game_state.flags.eric_met %}
-                <div class="contact">
-                    <h4>Nox the Informant</h4>
-                    <p>Street intelligence expert</p>
-                    <span class="status">Not met</span>
-                    <form action="{{ url_for('bar') }}" method="post">
-                        <input type="hidden" name="contact" value="nox">
-                        <button type="submit" class="btn btn-success">Meet Nox</button>
-                    </form>
-                </div>
-                {% else %}
-                <div class="contact">
-                    <h4>Nox the Informant</h4>
-                    <p>Your trusted source for street intel</p>
-                    <span class="status">Available</span>
+                <div class="contact-card premium-card">
+                    <div class="contact-header">
+                        <div class="contact-avatar">
+                            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/>
+                                <line x1="4" y1="22" x2="4" y2="15"/>
+                            </svg>
+                        </div>
+                        <div class="contact-info">
+                            <h4 class="contact-name">Nox the Informant</h4>
+                            <p class="contact-role">Street Intelligence Expert</p>
+                        </div>
+                    </div>
+                    <div class="contact-status">
+                        <span class="status-badge status-pending">Not Met</span>
+                    </div>
                     <div class="contact-actions">
-                        <a href="{{ url_for('talk_to_npc', npc_id='nox') }}" class="btn btn-primary">Talk</a>
-                        <a href="{{ url_for('trade_with_npc', npc_id='nox') }}" class="btn btn-secondary">Trade</a>
-                        <form method="POST" action="{{ url_for('fight_npc', npc_id='nox') }}" style="display: inline;">
-                            <button type="submit" class="btn btn-danger">Fight</button>
+                        <form action="{{ url_for('bar') }}" method="post" class="contact-form">
+                            <input type="hidden" name="contact" value="nox">
+                            <button type="submit" class="btn btn-success contact-btn">Establish Contact</button>
                         </form>
                     </div>
+                    <div class="contact-hover-effect"></div>
+                </div>
+                {% else %}
+                <div class="contact-card standard-card">
+                    <div class="contact-header">
+                        <div class="contact-avatar">
+                            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/>
+                                <line x1="4" y1="22" x2="4" y2="15"/>
+                            </svg>
+                        </div>
+                        <div class="contact-info">
+                            <h4 class="contact-name">Nox the Informant</h4>
+                            <p class="contact-role">Your Trusted Street Source</p>
+                        </div>
+                    </div>
+                    <div class="contact-status">
+                        <span class="status-badge status-active">Available</span>
+                    </div>
+                    <div class="contact-actions">
+                        <a href="{{ url_for('talk_to_npc', npc_id='nox') }}" class="btn btn-primary contact-btn">Gather Intel</a>
+                        <a href="{{ url_for('trade_with_npc', npc_id='nox') }}" class="btn btn-secondary contact-btn">Trade Info</a>
+                        <form method="POST" action="{{ url_for('fight_npc', npc_id='nox') }}" style="display: inline;">
+                            <button type="submit" class="btn btn-danger contact-btn">Confront</button>
+                        </form>
+                    </div>
+                    <div class="contact-hover-effect"></div>
                 </div>
                 {% endif %}
 
                 {% if not game_state.flags.steve_met %}
-                <div class="contact">
-                    <h4>Raze the Supplier</h4>
-                    <p>Bulk deals specialist</p>
-                    <span class="status">Not met</span>
-                    <form action="{{ url_for('bar') }}" method="post">
-                        <input type="hidden" name="contact" value="raze">
-                        <button type="submit" class="btn btn-success">Meet Raze</button>
-                    </form>
-                </div>
-                {% else %}
-                <div class="contact">
-                    <h4>Raze the Supplier</h4>
-                    <p>Your go-to for bulk purchases</p>
-                    <span class="status">Available</span>
+                <div class="contact-card premium-card">
+                    <div class="contact-header">
+                        <div class="contact-avatar">
+                            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/>
+                                <polyline points="3.27 6.96 12 12.01 20.73 6.96"/>
+                                <line x1="12" y1="22.08" x2="12" y2="12"/>
+                            </svg>
+                        </div>
+                        <div class="contact-info">
+                            <h4 class="contact-name">Raze the Supplier</h4>
+                            <p class="contact-role">Bulk Deals Specialist</p>
+                        </div>
+                    </div>
+                    <div class="contact-status">
+                        <span class="status-badge status-pending">Not Met</span>
+                    </div>
                     <div class="contact-actions">
-                        <a href="{{ url_for('talk_to_npc', npc_id='raze') }}" class="btn btn-primary">Talk</a>
-                        <a href="{{ url_for('trade_with_npc', npc_id='raze') }}" class="btn btn-secondary">Trade</a>
-                        <a href="{{ url_for('closet') }}" class="btn btn-warning">Closet</a>
-                        <form method="POST" action="{{ url_for('fight_npc', npc_id='raze') }}" style="display: inline;">
-                            <button type="submit" class="btn btn-danger">Fight</button>
+                        <form action="{{ url_for('bar') }}" method="post" class="contact-form">
+                            <input type="hidden" name="contact" value="raze">
+                            <button type="submit" class="btn btn-success contact-btn">Make Contact</button>
                         </form>
                     </div>
+                    <div class="contact-hover-effect"></div>
+                </div>
+                {% else %}
+                <div class="contact-card standard-card">
+                    <div class="contact-header">
+                        <div class="contact-avatar">
+                            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/>
+                                <polyline points="3.27 6.96 12 12.01 20.73 6.96"/>
+                                <line x1="12" y1="22.08" x2="12" y2="12"/>
+                            </svg>
+                        </div>
+                        <div class="contact-info">
+                            <h4 class="contact-name">Raze the Supplier</h4>
+                            <p class="contact-role">Your Bulk Purchase Partner</p>
+                        </div>
+                    </div>
+                    <div class="contact-status">
+                        <span class="status-badge status-active">Available</span>
+                    </div>
+                    <div class="contact-actions">
+                        <a href="{{ url_for('talk_to_npc', npc_id='raze') }}" class="btn btn-primary contact-btn">Negotiate</a>
+                        <a href="{{ url_for('trade_with_npc', npc_id='raze') }}" class="btn btn-secondary contact-btn">Bulk Trade</a>
+                        <a href="{{ url_for('closet') }}" class="btn btn-warning contact-btn">Access Closet</a>
+                        <form method="POST" action="{{ url_for('fight_npc', npc_id='raze') }}" style="display: inline;">
+                            <button type="submit" class="btn btn-danger contact-btn">Challenge</button>
+                        </form>
+                    </div>
+                    <div class="contact-hover-effect"></div>
                 </div>
                 {% endif %}
             </div>
             
-            <div class="market-info">
-                <h3>Market Status</h3>
+            <div class="market-info enhanced-section">
+                <h3 class="section-title">Market Intelligence</h3>
+                <p class="section-description">Current street prices and trends</p>
                 <div class="market-grid">
                     <div class="market-item">
-                        <span class="market-label">Weed:</span>
-                        <span class="market-value {% if game_state.drug_prices['weed'] > 75 %}market-high{% else %}market-low{% endif %}">
-                            {% if game_state.drug_prices['weed'] > 75 %}High{% else %}Low{% endif %}
-                        </span>
+                        <div class="market-icon">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M2 20h20"/>
+                                <path d="M12 4v16"/>
+                                <path d="M4 12h16"/>
+                            </svg>
+                        </div>
+                        <div class="market-details">
+                            <span class="market-label">Weed</span>
+                            <span class="market-trend {% if game_state.drug_prices['weed'] > 75 %}trend-high{% else %}trend-low{% endif %}">
+                                {% if game_state.drug_prices['weed'] > 75 %}High Demand{% else %}Low Demand{% endif %}
+                            </span>
+                        </div>
+                        <div class="market-indicator">
+                            <div class="market-dot {% if game_state.drug_prices['weed'] > 75 %}dot-hot{% else %}dot-cool{% endif %}"></div>
+                        </div>
                     </div>
+                    
                     <div class="market-item">
-                        <span class="market-label">Crack:</span>
-                        <span class="market-value {% if game_state.drug_prices['crack'] > 1500 %}market-high{% else %}market-low{% endif %}">
-                            {% if game_state.drug_prices['crack'] > 1500 %}Hot{% else %}Cool{% endif %}
-                        </span>
+                        <div class="market-icon">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <circle cx="12" cy="12" r="10"/>
+                                <path d="M8 12h8"/>
+                            </svg>
+                        </div>
+                        <div class="market-details">
+                            <span class="market-label">Crack</span>
+                            <span class="market-trend {% if game_state.drug_prices['crack'] > 1500 %}trend-high{% else %}trend-low{% endif %}">
+                                {% if game_state.drug_prices['crack'] > 1500 %}Hot Market{% else %}Cool Market{% endif %}
+                            </span>
+                        </div>
+                        <div class="market-indicator">
+                            <div class="market-dot {% if game_state.drug_prices['crack'] > 1500 %}dot-hot{% else %}dot-cool{% endif %}"></div>
+                        </div>
                     </div>
+                    
                     <div class="market-item">
-                        <span class="market-label">Cocaine:</span>
-                        <span class="market-value {% if game_state.drug_prices['coke'] > 10000 %}market-high{% else %}market-low{% endif %}">
-                            {% if game_state.drug_prices['coke'] > 10000 %}Booming{% else %}Stable{% endif %}
-                        </span>
+                        <div class="market-icon">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M12 2L2 7l10 5 10-5-10-5z"/>
+                                <path d="M2 17l10 5 10-5"/>
+                            </svg>
+                        </div>
+                        <div class="market-details">
+                            <span class="market-label">Cocaine</span>
+                            <span class="market-trend {% if game_state.drug_prices['coke'] > 10000 %}trend-high{% else %}trend-low{% endif %}">
+                                {% if game_state.drug_prices['coke'] > 10000 %}Booming{% else %}Stable{% endif %}
+                            </span>
+                        </div>
+                        <div class="market-indicator">
+                            <div class="market-dot {% if game_state.drug_prices['coke'] > 10000 %}dot-hot{% else %}dot-cool{% endif %}"></div>
+                        </div>
                     </div>
+                    
                     <div class="market-item">
-                        <span class="market-label">Ice:</span>
-                        <span class="market-value {% if game_state.drug_prices['ice'] > 5000 %}market-high{% else %}market-low{% endif %}">
-                            {% if game_state.drug_prices['ice'] > 5000 %}Rising{% else %}Falling{% endif %}
-                        </span>
+                        <div class="market-icon">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M12 2v20"/>
+                                <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
+                            </svg>
+                        </div>
+                        <div class="market-details">
+                            <span class="market-label">Ice</span>
+                            <span class="market-trend {% if game_state.drug_prices['ice'] > 5000 %}trend-high{% else %}trend-low{% endif %}">
+                                {% if game_state.drug_prices['ice'] > 5000 %}Rising Fast{% else %}Falling Slow{% endif %}
+                            </span>
+                        </div>
+                        <div class="market-indicator">
+                            <div class="market-dot {% if game_state.drug_prices['ice'] > 5000 %}dot-hot{% else %}dot-cool{% endif %}"></div>
+                        </div>
                     </div>
+                    
                     <div class="market-item">
-                        <span class="market-label">Percs:</span>
-                        <span class="market-value {% if game_state.drug_prices['percs'] > 20000 %}market-high{% else %}market-low{% endif %}">
-                            {% if game_state.drug_prices['percs'] > 20000 %}Volatile{% else %}Calm{% endif %}
-                        </span>
+                        <div class="market-icon">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M4 7h16"/>
+                                <path d="M10 11h4"/>
+                                <path d="M12 15h2"/>
+                                <circle cx="12" cy="19" r="2"/>
+                            </svg>
+                        </div>
+                        <div class="market-details">
+                            <span class="market-label">Percs</span>
+                            <span class="market-trend {% if game_state.drug_prices['percs'] > 20000 %}trend-high{% else %}trend-low{% endif %}">
+                                {% if game_state.drug_prices['percs'] > 20000 %}Volatile{% else %}Calm{% endif %}
+                            </span>
+                        </div>
+                        <div class="market-indicator">
+                            <div class="market-dot {% if game_state.drug_prices['percs'] > 20000 %}dot-hot{% else %}dot-cool{% endif %}"></div>
+                        </div>
                     </div>
+                    
                     <div class="market-item">
-                        <span class="market-label">Pixie Dust:</span>
-                        <span class="market-value {% if game_state.drug_prices['pixie_dust'] > 100000 %}market-high{% else %}market-low{% endif %}">
-                            {% if game_state.drug_prices['pixie_dust'] > 100000 %}Explosive{% else %}Quiet{% endif %}
-                        </span>
+                        <div class="market-icon">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+                            </svg>
+                        </div>
+                        <div class="market-details">
+                            <span class="market-label">Pixie Dust</span>
+                            <span class="market-trend {% if game_state.drug_prices['pixie_dust'] > 100000 %}trend-high{% else %}trend-low{% endif %}">
+                                {% if game_state.drug_prices['pixie_dust'] > 100000 %}Explosive{% else %}Quiet{% endif %}
+                            </span>
+                        </div>
+                        <div class="market-indicator">
+                            <div class="market-dot {% if game_state.drug_prices['pixie_dust'] > 100000 %}dot-hot{% else %}dot-cool{% endif %}"></div>
+                        </div>
                     </div>
                 </div>
             </div>
             
-            <div class="street-tips">
-                <h3>Tips</h3>
-                <ul>
-                    <li>Carry protection with large amounts</li>
-                    <li>Watch for undercover cops</li>
-                    <li>Buy low, sell high</li>
-                    <li>Squidies are getting stronger</li>
-                    <li>New drugs hitting the streets</li>
-                </ul>
+            <div class="street-tips enhanced-section">
+                <h3 class="section-title">Street Wisdom</h3>
+                <p class="section-description">Survival tips from the underground</p>
+                <div class="tips-grid">
+                    <div class="tip-item">
+                        <div class="tip-icon">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/>
+                                <polyline points="3.27 6.96 12 12.01 20.73 6.96"/>
+                                <line x1="12" y1="22.08" x2="12" y2="12"/>
+                            </svg>
+                        </div>
+                        <div class="tip-content">
+                            <h4 class="tip-title">Protection Protocol</h4>
+                            <p class="tip-text">Carry protection when moving large quantities</p>
+                        </div>
+                    </div>
+                    
+                    <div class="tip-item">
+                        <div class="tip-icon">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M21 12a9 9 0 1 1-6.219-8.56"/>
+                                <path d="M21 4v8h-8"/>
+                            </svg>
+                        </div>
+                        <div class="tip-content">
+                            <h4 class="tip-title">Cop Watch</h4>
+                            <p class="tip-text">Always watch for undercover officers</p>
+                        </div>
+                    </div>
+                    
+                    <div class="tip-item">
+                        <div class="tip-icon">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M12 2v20"/>
+                                <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
+                            </svg>
+                        </div>
+                        <div class="tip-content">
+                            <h4 class="tip-title">Market Strategy</h4>
+                            <p class="tip-text">Buy low, sell high - timing is everything</p>
+                        </div>
+                    </div>
+                    
+                    <div class="tip-item">
+                        <div class="tip-icon">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M4 7h16"/>
+                                <path d="M10 11h4"/>
+                                <path d="M12 15h2"/>
+                                <circle cx="12" cy="19" r="2"/>
+                            </svg>
+                        </div>
+                        <div class="tip-content">
+                            <h4 class="tip-title">Enemy Intel</h4>
+                            <p class="tip-text">Squidies are getting stronger - stay alert</p>
+                        </div>
+                    </div>
+                    
+                    <div class="tip-item">
+                        <div class="tip-icon">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M12 2L2 7l10 5 10-5-10-5z"/>
+                                <path d="M2 17l10 5 10-5"/>
+                            </svg>
+                        </div>
+                        <div class="tip-content">
+                            <h4 class="tip-title">New Product</h4>
+                            <p class="tip-text">New drugs hitting the streets - research first</p>
+                        </div>
+                    </div>
+                    
+                    <div class="tip-item">
+                        <div class="tip-icon">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+                            </svg>
+                        </div>
+                        <div class="tip-content">
+                            <h4 class="tip-title">Network Building</h4>
+                            <p class="tip-text">Contacts are your most valuable asset</p>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
     
-    <div class="actions">
-        <a href="{{ url_for('npcs') }}" class="btn btn-info">Look Around</a>
-        <a href="{{ url_for('city') }}" class="btn btn-primary">Back to City</a>
+    <div class="bar-actions">
+        <div class="action-grid">
+            <a href="{{ url_for('npcs') }}" class="btn btn-info bar-btn">
+                <div class="btn-icon">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M12 20h9"/>
+                        <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/>
+                    </svg>
+                </div>
+                <span class="btn-text">Scout the Area</span>
+            </a>
+            <a href="{{ url_for('city') }}" class="btn btn-primary bar-btn">
+                <div class="btn-icon">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+                        <polyline points="9 22 9 12 15 12 15 22"/>
+                    </svg>
+                </div>
+                <span class="btn-text">Return to Streets</span>
+            </a>
+        </div>
     </div>
 </div>
 {% endblock %}

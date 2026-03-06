@@ -2485,3 +2485,865 @@ footer {
         transform: translateY(0);
     }
 }
+
+/* Enhanced Gunshop Styles */
+.gunshop-title {
+    color: #ff0000;
+    font-size: 2.6em;
+    font-weight: 700;
+    text-align: center;
+    margin-bottom: 8px;
+    text-shadow: 0 0 20px rgba(255, 0, 0, 0.5);
+    background: linear-gradient(135deg, #ff0000, #ff4500);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.gunshop-subtitle {
+    color: #ffff00;
+    font-size: 1.1em;
+    text-align: center;
+    margin-bottom: 24px;
+    font-weight: 500;
+    text-shadow: 0 0 10px rgba(255, 255, 0, 0.3);
+}
+
+.weapon-categories {
+    margin: 0 auto;
+    max-width: 1200px;
+}
+
+.category-tabs {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    margin-bottom: 20px;
+    padding: 8px;
+    background: var(--secondary-bg);
+    border: 1px solid var(--border-primary);
+    border-radius: var(--radius-lg);
+    position: sticky;
+    top: 70px;
+    z-index: 100;
+    backdrop-filter: blur(10px);
+}
+
+.category-btn {
+    padding: 10px 16px;
+    border: 2px solid var(--border-secondary);
+    background: var(--accent-bg);
+    color: var(--text-secondary);
+    font-weight: 600;
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-transform: uppercase;
+    font-size: 0.9em;
+    letter-spacing: 0.5px;
+}
+
+.category-btn:hover {
+    background: var(--text-accent);
+    color: white;
+    border-color: var(--text-accent);
+    transform: translateY(-2px);
+    box-shadow: var(--glow-primary);
+}
+
+.category-btn.active {
+    background: linear-gradient(135deg, var(--text-accent), #0891b2);
+    color: white;
+    border-color: var(--text-accent);
+    box-shadow: var(--glow-primary);
+    text-shadow: 0 0 10px rgba(6, 182, 212, 0.5);
+}
+
+.enhanced-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 16px;
+    margin-bottom: 24px;
+}
+
+.weapon-card {
+    background: var(--secondary-bg);
+    border: 1px solid var(--border-secondary);
+    border-radius: var(--radius-lg);
+    padding: 16px;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    overflow: hidden;
+    backdrop-filter: blur(10px);
+    box-shadow: var(--shadow-secondary);
+}
+
+.weapon-card:hover {
+    transform: translateY(-4px);
+    border-color: var(--text-accent);
+    box-shadow: 0 12px 30px rgba(6, 182, 212, 0.2);
+}
+
+.weapon-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, transparent, var(--text-accent), transparent);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.weapon-card:hover::before {
+    opacity: 1;
+}
+
+.weapon-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+}
+
+.weapon-header h4 {
+    color: var(--text-primary);
+    font-size: 1.3em;
+    font-weight: 700;
+    margin: 0;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.weapon-icon {
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(6, 182, 212, 0.1);
+    border: 1px solid rgba(6, 182, 212, 0.3);
+    border-radius: 8px;
+    transition: all 0.3s ease;
+}
+
+.weapon-card:hover .weapon-icon {
+    background: rgba(6, 182, 212, 0.3);
+    border-color: var(--text-accent);
+    transform: rotate(5deg) scale(1.1);
+}
+
+.weapon-details {
+    margin-bottom: 16px;
+}
+
+.weapon-price {
+    color: var(--text-warning);
+    font-size: 1.2em;
+    font-weight: 700;
+    font-family: 'JetBrains Mono', monospace;
+    margin-bottom: 6px;
+}
+
+.weapon-quantity {
+    color: var(--text-accent);
+    font-size: 0.95em;
+    font-weight: 600;
+    margin-bottom: 8px;
+}
+
+.weapon-description {
+    color: var(--text-secondary);
+    font-size: 0.9em;
+    line-height: 1.4;
+    margin: 0;
+}
+
+.warning-text {
+    color: var(--text-warning) !important;
+    font-weight: 600 !important;
+}
+
+.weapon-form {
+    margin-top: auto;
+}
+
+.weapon-btn {
+    width: 100%;
+    padding: 12px;
+    font-size: 1em;
+    font-weight: 600;
+    border-radius: var(--radius-md);
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.weapon-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(6, 182, 212, 0.3);
+}
+
+.weapon-card.standard-card .weapon-btn {
+    background: linear-gradient(135deg, #64748b, #475569);
+    border-color: #64748b;
+    color: white;
+}
+
+.weapon-card.standard-card .weapon-btn:hover {
+    background: linear-gradient(135deg, #475569, #64748b);
+    box-shadow: 0 0 25px rgba(100, 116, 139, 0.4);
+}
+
+.weapon-card.premium-card .weapon-btn {
+    background: linear-gradient(135deg, var(--text-danger), #dc2626);
+    border-color: var(--text-danger);
+    color: white;
+    box-shadow: var(--glow-danger);
+}
+
+.weapon-card.premium-card .weapon-btn:hover {
+    background: linear-gradient(135deg, #dc2626, var(--text-danger));
+    box-shadow: 0 0 30px rgba(239, 68, 68, 0.5);
+}
+
+.weapon-card.premium-card .weapon-header h4 {
+    color: var(--text-danger);
+    text-shadow: 0 0 10px rgba(239, 68, 68, 0.3);
+}
+
+.weapon-card.premium-card .weapon-icon {
+    background: rgba(239, 68, 68, 0.1);
+    border-color: rgba(239, 68, 68, 0.3);
+}
+
+.weapon-card.premium-card:hover .weapon-icon {
+    background: rgba(239, 68, 68, 0.3);
+    border-color: var(--text-danger);
+}
+
+.card-hover-effect {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(135deg, rgba(6, 182, 212, 0.1), rgba(239, 68, 68, 0.1));
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    pointer-events: none;
+}
+
+.weapon-card:hover .card-hover-effect {
+    opacity: 1;
+}
+
+.enhanced-section {
+    background: var(--secondary-bg);
+    border: 1px solid var(--border-primary);
+    border-radius: var(--radius-lg);
+    padding: 16px;
+    margin-bottom: 16px;
+    backdrop-filter: blur(10px);
+    box-shadow: var(--shadow-secondary);
+}
+
+.enhanced-section h3 {
+    color: var(--text-accent);
+    font-size: 1.4em;
+    font-weight: 700;
+    margin-bottom: 8px;
+    border-bottom: 2px solid var(--border-primary);
+    padding-bottom: 8px;
+}
+
+.section-subtitle {
+    color: var(--text-secondary);
+    font-size: 0.95em;
+    margin-bottom: 16px;
+    font-style: italic;
+}
+
+.upgrade-options,
+.vest-options {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    align-items: center;
+}
+
+.upgrade-form,
+.vest-form {
+    flex: 1;
+    min-width: 200px;
+}
+
+.upgrade-btn,
+.vest-btn {
+    width: 100%;
+    padding: 12px;
+    font-size: 1em;
+    font-weight: 600;
+    border-radius: var(--radius-md);
+    transition: all 0.3s ease;
+}
+
+.upgrade-status {
+    color: var(--text-success);
+    font-weight: 600;
+    font-size: 1em;
+    padding: 12px;
+    background: rgba(16, 185, 129, 0.1);
+    border: 1px solid rgba(16, 185, 129, 0.3);
+    border-radius: var(--radius-md);
+}
+
+/* Responsive Design for Gunshop */
+@media (max-width: 768px) {
+    .category-tabs {
+        flex-wrap: wrap;
+        gap: 6px;
+    }
+    
+    .category-btn {
+        flex: 1;
+        min-width: 120px;
+    }
+    
+    .enhanced-grid {
+        grid-template-columns: 1fr;
+        gap: 12px;
+    }
+    
+    .upgrade-options,
+    .vest-options {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .gunshop-title {
+        font-size: 2em;
+    }
+    
+    .gunshop-subtitle {
+        font-size: 1em;
+    }
+}
+
+/* Page Layout Enhancements */
+.page-container {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 16px;
+}
+
+.page-content {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 16px;
+}
+
+.page-main {
+    background: var(--secondary-bg);
+    border: 1px solid var(--border-primary);
+    border-radius: var(--radius-lg);
+    padding: 16px;
+    backdrop-filter: blur(10px);
+    box-shadow: var(--shadow-primary);
+}
+
+.page-sidebar {
+    background: var(--secondary-bg);
+    border: 1px solid var(--border-primary);
+    border-radius: var(--radius-lg);
+    padding: 16px;
+    backdrop-filter: blur(10px);
+    box-shadow: var(--shadow-secondary);
+}
+
+.page-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.page-actions h3 {
+    color: var(--text-accent);
+    font-size: 1.2em;
+    font-weight: 700;
+    margin-bottom: 12px;
+    border-bottom: 2px solid var(--border-primary);
+    padding-bottom: 8px;
+}
+
+/* Enhanced Button Styles for Gunshop */
+.btn-primary.weapon-btn {
+    background: linear-gradient(135deg, var(--text-accent), #0891b2);
+    border-color: var(--text-accent);
+    color: white;
+    box-shadow: var(--glow-primary);
+}
+
+.btn-primary.weapon-btn:hover {
+    background: linear-gradient(135deg, #0891b2, var(--text-accent));
+    box-shadow: 0 0 30px rgba(6, 182, 212, 0.5);
+}
+
+.btn-warning.upgrade-btn {
+    background: linear-gradient(135deg, var(--text-warning), #d97706);
+    border-color: var(--text-warning);
+    color: white;
+    box-shadow: 0 0 20px rgba(251, 191, 36, 0.3);
+}
+
+.btn-warning.upgrade-btn:hover {
+    background: linear-gradient(135deg, #d97706, var(--text-warning));
+    box-shadow: 0 0 30px rgba(251, 191, 36, 0.5);
+}
+
+.btn-secondary.vest-btn {
+    background: linear-gradient(135deg, #64748b, #475569);
+    border-color: #64748b;
+    color: white;
+}
+
+.btn-secondary.vest-btn:hover {
+    background: linear-gradient(135deg, #475569, #64748b);
+    box-shadow: 0 0 25px rgba(100, 116, 139, 0.4);
+}
+
+/* Enhanced Bar Styles */
+.bar-header {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.bar-title {
+    color: #ff0000;
+    font-size: 2.6em;
+    font-weight: 700;
+    margin-bottom: 8px;
+    text-shadow: 0 0 20px rgba(255, 0, 0, 0.5);
+    background: linear-gradient(135deg, #ff0000, #ff4500);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.bar-subtitle {
+    color: #ffff00;
+    font-size: 1.1em;
+    font-weight: 500;
+    text-shadow: 0 0 10px rgba(255, 255, 0, 0.3);
+}
+
+.contact-card {
+    background: var(--secondary-bg);
+    border: 1px solid var(--border-secondary);
+    border-radius: var(--radius-lg);
+    padding: 16px;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    overflow: hidden;
+    backdrop-filter: blur(10px);
+    box-shadow: var(--shadow-secondary);
+    margin-bottom: 16px;
+}
+
+.contact-card:hover {
+    transform: translateY(-4px);
+    border-color: var(--text-accent);
+    box-shadow: 0 12px 30px rgba(6, 182, 212, 0.2);
+}
+
+.contact-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, transparent, var(--text-accent), transparent);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.contact-card:hover::before {
+    opacity: 1;
+}
+
+.contact-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 12px;
+}
+
+.contact-avatar {
+    width: 48px;
+    height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(6, 182, 212, 0.1);
+    border: 1px solid rgba(6, 182, 212, 0.3);
+    border-radius: 12px;
+    transition: all 0.3s ease;
+}
+
+.contact-card:hover .contact-avatar {
+    background: rgba(6, 182, 212, 0.3);
+    border-color: var(--text-accent);
+    transform: rotate(5deg) scale(1.1);
+}
+
+.contact-info {
+    flex: 1;
+}
+
+.contact-name {
+    color: var(--text-primary);
+    font-size: 1.2em;
+    font-weight: 700;
+    margin: 0 0 4px 0;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.contact-role {
+    color: var(--text-secondary);
+    font-size: 0.9em;
+    margin: 0;
+}
+
+.contact-status {
+    margin-bottom: 12px;
+}
+
+.status-badge {
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 0.85em;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    border: 1px solid;
+    transition: all 0.3s ease;
+}
+
+.status-active {
+    background: rgba(16, 185, 129, 0.1);
+    border-color: rgba(16, 185, 129, 0.3);
+    color: var(--text-success);
+}
+
+.status-pending {
+    background: rgba(251, 191, 36, 0.1);
+    border-color: rgba(251, 191, 36, 0.3);
+    color: var(--text-warning);
+}
+
+.contact-actions {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.contact-btn {
+    flex: 1;
+    min-width: 120px;
+    padding: 10px 12px;
+    font-size: 0.9em;
+    font-weight: 600;
+    border-radius: var(--radius-md);
+    transition: all 0.3s ease;
+}
+
+.contact-card.standard-card .contact-btn {
+    background: linear-gradient(135deg, #64748b, #475569);
+    border-color: #64748b;
+    color: white;
+}
+
+.contact-card.standard-card .contact-btn:hover {
+    background: linear-gradient(135deg, #475569, #64748b);
+    box-shadow: 0 0 25px rgba(100, 116, 139, 0.4);
+}
+
+.contact-card.premium-card .contact-btn {
+    background: linear-gradient(135deg, var(--text-danger), #dc2626);
+    border-color: var(--text-danger);
+    color: white;
+    box-shadow: var(--glow-danger);
+}
+
+.contact-card.premium-card .contact-btn:hover {
+    background: linear-gradient(135deg, #dc2626, var(--text-danger));
+    box-shadow: 0 0 30px rgba(239, 68, 68, 0.5);
+}
+
+.contact-card.premium-card .contact-name {
+    color: var(--text-danger);
+    text-shadow: 0 0 10px rgba(239, 68, 68, 0.3);
+}
+
+.contact-card.premium-card .contact-avatar {
+    background: rgba(239, 68, 68, 0.1);
+    border-color: rgba(239, 68, 68, 0.3);
+}
+
+.contact-card.premium-card:hover .contact-avatar {
+    background: rgba(239, 68, 68, 0.3);
+    border-color: var(--text-danger);
+}
+
+.contact-hover-effect {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(135deg, rgba(6, 182, 212, 0.1), rgba(239, 68, 68, 0.1));
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    pointer-events: none;
+}
+
+.contact-card:hover .contact-hover-effect {
+    opacity: 1;
+}
+
+.market-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 12px;
+    margin-top: 12px;
+}
+
+.market-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px;
+    background: rgba(6, 182, 212, 0.05);
+    border: 1px solid rgba(6, 182, 212, 0.2);
+    border-radius: var(--radius-md);
+    transition: all 0.3s ease;
+}
+
+.market-item:hover {
+    background: rgba(6, 182, 212, 0.1);
+    border-color: var(--text-accent);
+    transform: translateX(4px);
+}
+
+.market-icon {
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(6, 182, 212, 0.1);
+    border: 1px solid rgba(6, 182, 212, 0.3);
+    border-radius: 8px;
+    flex-shrink: 0;
+}
+
+.market-details {
+    flex: 1;
+}
+
+.market-label {
+    color: var(--text-primary);
+    font-size: 1em;
+    font-weight: 700;
+    display: block;
+    margin-bottom: 4px;
+}
+
+.market-trend {
+    color: var(--text-secondary);
+    font-size: 0.85em;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.market-trend.trend-high {
+    color: var(--text-danger);
+    text-shadow: 0 0 5px rgba(239, 68, 68, 0.3);
+}
+
+.market-trend.trend-low {
+    color: var(--text-success);
+    text-shadow: 0 0 5px rgba(16, 185, 129, 0.3);
+}
+
+.market-indicator {
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.market-dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: var(--text-secondary);
+    box-shadow: 0 0 8px rgba(0, 0, 0, 0.5);
+    transition: all 0.3s ease;
+}
+
+.market-dot.dot-hot {
+    background: var(--text-danger);
+    box-shadow: 0 0 15px rgba(239, 68, 68, 0.5);
+    animation: pulse 2s infinite;
+}
+
+.market-dot.dot-cool {
+    background: var(--text-success);
+    box-shadow: 0 0 15px rgba(16, 185, 129, 0.5);
+}
+
+.tips-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 12px;
+    margin-top: 12px;
+}
+
+.tip-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 12px;
+    background: rgba(251, 191, 36, 0.05);
+    border: 1px solid rgba(251, 191, 36, 0.2);
+    border-radius: var(--radius-md);
+    transition: all 0.3s ease;
+}
+
+.tip-item:hover {
+    background: rgba(251, 191, 36, 0.1);
+    border-color: var(--text-warning);
+    transform: translateY(-2px);
+}
+
+.tip-icon {
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(251, 191, 36, 0.1);
+    border: 1px solid rgba(251, 191, 36, 0.3);
+    border-radius: 8px;
+    flex-shrink: 0;
+}
+
+.tip-content {
+    flex: 1;
+}
+
+.tip-title {
+    color: var(--text-warning);
+    font-size: 1em;
+    font-weight: 700;
+    margin: 0 0 4px 0;
+}
+
+.tip-text {
+    color: var(--text-secondary);
+    font-size: 0.9em;
+    margin: 0;
+    line-height: 1.4;
+}
+
+.bar-actions {
+    margin-top: 24px;
+    text-align: center;
+}
+
+.action-grid {
+    display: flex;
+    justify-content: center;
+    gap: 16px;
+    flex-wrap: wrap;
+}
+
+.bar-btn {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 20px;
+    font-size: 1em;
+    font-weight: 600;
+    border-radius: var(--radius-md);
+    transition: all 0.3s ease;
+    min-width: 180px;
+}
+
+.bar-btn .btn-icon {
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(6, 182, 212, 0.1);
+    border: 1px solid rgba(6, 182, 212, 0.3);
+    border-radius: 6px;
+    transition: all 0.3s ease;
+}
+
+.bar-btn:hover .btn-icon {
+    background: rgba(6, 182, 212, 0.3);
+    border-color: var(--text-accent);
+    transform: rotate(5deg) scale(1.1);
+}
+
+.bar-btn .btn-text {
+    font-weight: 600;
+}
+
+/* Responsive Design for Bar */
+@media (max-width: 768px) {
+    .market-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .tips-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .action-grid {
+        flex-direction: column;
+        align-items: center;
+    }
+    
+    .bar-btn {
+        width: 100%;
+        max-width: 300px;
+    }
+    
+    .contact-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
+    }
+    
+    .contact-avatar {
+        width: 40px;
+        height: 40px;
+    }
+    
+    .bar-title {
+        font-size: 2em;
+    }
+    
+    .bar-subtitle {
+        font-size: 1em;
+    }
+}
