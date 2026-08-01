@@ -1,339 +1,167 @@
 {
   "description": "Grim dark battle descriptions and combat messages",
-        "attack_messages": {
-            "pistol": "You fire your pistol!",
-            "ghost_gun": "You fire your ghost gun!",
-            "ar15": "You fire your AR-15!",
-            "exploding_bullets": "You fire an exploding bullet! 💥 BOOM!",
-            "hollow_point_bullets": "You fire a hollow point bullet! 💥 THUNK!",
-            "grenade": "You throw a grenade!",
-            "missile_launcher": "You fire a missile!",
-            "barbed_wire_bat": "You swing your barbed wire bat!",
-            "knife": "You stab with your knife!"
-        },
-        "player_attack_descriptions": {
-            "pistol": [
-                "You squeeze off a precise shot from your pistol, the barrel flashing as the bullet screams toward your target!",
-                "Your pistol bucks in your hand as you fire, sending a slug hurtling through the air with deadly intent!",
-                "You line up the sights and pull the trigger, your pistol roaring as it launches death toward your enemy!",
-                "With practiced precision, you fire your pistol, the shot echoing like thunder in the confined space!",
-                "Your finger tightens on the trigger, unleashing a devastating round that finds its mark unerringly!"
-            ],
-            "ghost_gun": [
-                "Your ghost gun whispers death in silence, the untraceable shot eliminating your target with surgical precision!",
-                "The ghost gun does its deadly work, firing a shot that leaves no evidence but a corpse cooling on the ground!",
-                "You employ the untraceable firearm, its muffled report barely audible as it extinguishes another life!",
-                "The ghost gun lives up to its name, firing a shot that disappears like smoke, leaving only death behind!",
-                "Your untraceable weapon speaks volumes in silence, the shot finding its target with lethal accuracy!"
-            ],
-            "ar15": [
-                "You unleash a burst from your AR-15, the rifle chattering like an angry mechanical demon!",
-                "The AR-15 roars in your hands, spitting a stream of lead that tears through your enemies!",
-                "You squeeze the trigger and your AR-15 responds with fury, unleashing a hailstorm of bullets!",
-                "Your assault rifle bucks against your shoulder as it unleashes controlled devastation on your foes!",
-                "The AR-15 sings its song of destruction, each burst finding targets with mechanical precision!"
-            ],
-            "exploding_bullets": [
-                "You fire an exploding bullet that detonates on impact, shredding flesh and bone in a horrific explosion!",
-                "The exploding round screams toward your target and erupts in a devastating blast of shrapnel and fire!",
-                "Your special ammunition detonates with terrifying force, turning your enemy into a cloud of blood and gore!",
-                "The exploding bullet finds its mark and unleashes hell, the detonation ripping through everything in its path!",
-                "You watch as your explosive projectile impacts and erupts, painting the surroundings in crimson destruction!"
-            ],
-            "hollow_point_bullets": [
-                "You fire a hollow point bullet that expands on impact, creating devastating wound channels!",
-                "The hollow point round mushrooms dramatically as it strikes, maximizing tissue damage and stopping power!",
-                "Your specialized ammunition fragments inside the target, causing massive internal trauma and blood loss!",
-                "The hollow point bullet transfers all its energy into the target, creating a devastating hydrostatic shock!",
-                "You watch as the hollow point round creates a devastating exit wound, the bullet having expanded to three times its size!"
-            ],
-            "grenade": [
-                "You hurl a grenade that bounces toward your enemies, the fuse hissing as it counts down to oblivion!",
-                "The grenade leaves your hand in a perfect arc, exploding in a shower of deadly shrapnel moments later!",
-                "You cook off a grenade and throw it, the explosion ripping through your enemies like divine judgment!",
-                "Your grenade finds its target and detonates with earth-shaking force, scattering foes like broken dolls!",
-                "The grenade explodes in a cataclysm of fire and metal, leaving nothing but silence and death in its wake!"
-            ],
-            "missile_launcher": [
-                "You fire the missile launcher, the rocket screaming toward your target like the wrath of an angry god!",
-                "The missile streaks from the launcher, its contrail marking a path of inevitable destruction!",
-                "You unleash hell with the missile launcher, the projectile reducing everything in its path to rubble!",
-                "The rocket-propelled death leaves your launcher, homing in on your enemies with mechanical precision!",
-                "Your missile finds its mark and detonates in a massive explosion that shakes the very foundations!"
-            ],
-            "barbed_wire_bat": [
-                "You swing your barbed wire bat with savage force, the cruel spikes tearing through flesh and bone!",
-                "The barbed wire-wrapped bat connects with devastating impact, ripping and tearing everything it touches!",
-                "You bring the brutal weapon down in a crushing arc, the barbed wire leaving trails of blood and agony!",
-                "Your spiked bat finds its target, the barbs digging deep and tearing flesh in a symphony of pain!",
-                "The barbed wire bat swings in a deadly arc, connecting with bone-crunching force and horrific tearing!"
-            ],
-            "knife": [
-                "You lunge forward with your knife, the blade flashing as it seeks out vital arteries and organs!",
-                "Your knife strikes with surgical precision, slipping between ribs to find the enemy's beating heart!",
-                "You drive the blade home with lethal force, twisting and tearing through flesh and muscle!",
-                "The knife finds its mark in a spray of crimson, your strike both swift and merciless!",
-                "You stab with calculated brutality, the blade drinking deep of your enemy's lifeblood!"
-            ]
-        },
-        "enemy_attack_descriptions": {
-            "police_pistol": [
-                "A police officer fires their service pistol, the shot narrowly missing your vital organs!",
-                "The cop squeezes off a round that grazes your shoulder, leaving a burning trail of pain!",
-                "Police gunfire echoes as a bullet finds your leg, the impact sending shockwaves through your body!",
-                "An officer's pistol shot catches you in the side, the bullet burning a path through your flesh!",
-                "The police officer fires with trained precision, their bullet finding a home in your torso!"
-            ],
-            "gang_pistol": [
-                "A gang member fires wildly, their pistol shots spraying the area with hot lead!",
-                "The gangster's pistol bucks as they fire, bullets whizzing past your head dangerously close!",
-                "Gang gunfire erupts as a pistol shot catches you in the arm, the impact spinning you around!",
-                "A rival thug unloads their pistol, one shot finding its mark in your chest with burning force!",
-                "The gang member's pistol shot tears through your defenses, leaving you gasping in pain!"
-            ],
-            "squidie_pistol": [
-                "A Squidie fires their customized pistol, the shot enhanced with their signature brutality!",
-                "The Squidie gangster's pistol shot burns a path across your body, their aim unnaturally accurate!",
-                "Squidie gunfire echoes as their bullet finds your flesh, the wound burning with unnatural heat!",
-                "A Squidie thug's pistol shot catches you off guard, the impact sending waves of agony through you!",
-                "The Squidie's enhanced pistol fires with deadly precision, their bullet ripping through your defenses!"
-            ],
-            "police_bat": [
-                "A police officer swings their nightstick with brutal force, the impact cracking against your skull!",
-                "The cop's baton connects with crushing force, stars exploding in your vision from the blow!",
-                "Police brutality rains down as the officer's nightstick finds your ribs with bone-crunching impact!",
-                "An officer's baton swing catches you across the back, the pain exploding through your body!",
-                "The police officer's nightstick descends like judgment, connecting with devastating force!"
-            ],
-            "gang_bat": [
-                "A gang member swings their improvised weapon, the crude bat connecting with savage force!",
-                "The gangster's bat finds your shoulder, the impact sending shockwaves of pain through your body!",
-                "Gang brutality erupts as a bat swing catches you in the gut, driving the air from your lungs!",
-                "A rival thug's bat connects with your leg, the blow nearly taking you off your feet!",
-                "The gang member's improvised weapon finds its mark, the impact leaving you reeling in pain!"
-            ],
-            "squidie_tentacle": [
-                "A Squidie's tentacle whips out with inhuman speed, the slimy appendage lashing across your face!",
-                "The Squidie abomination strikes with its tentacle, the blow leaving a burning trail on your skin!",
-                "Squidie tentacles lash out like whips, one finding your chest with crushing, burning force!",
-                "A Squidie's unnatural limb connects with devastating impact, the touch burning like acid!",
-                "The Squidie monster's tentacle strikes with otherworldly strength, leaving you gasping in agony!"
-            ],
-            "knife_attack": [
-                "An enemy knife flashes toward you, the blade seeking out your most vulnerable areas!",
-                "A blade-wielding attacker lunges, their knife finding a home in your defenses!",
-                "The knife strikes with deadly precision, slipping past your guard to draw blood!",
-                "An enemy's blade connects with burning sharpness, the wound deep and immediately painful!",
-                "The knife-wielding foe strikes true, their blade opening a line of fire across your body!"
-            ],
-            "junkyard_dog_pistol": [
-                "Junkyard Dog lunges at you with feral intensity, sinking his jagged teeth into your flesh like a rabid beast!",
-                "The Junkyard Dog charges like a rabid scavenger, his claws raking through your defenses in a spray of blood!",
-                "Junkyard Dog's eyes glow with insane hunger as he leaps upon you, tearing into you with savage, animal ferocity!",
-                "The feral scavenger lunges forward, his mangled jaws clamping down with bone-shattering force!",
-                "Junkyard Dog fights like the cornered predator he is, his ravenous bites fueled by junkyard madness!"
-            ],
-            "nox_pistol": [
-                "Glitch aims his jury-rigged pistol at you, the weapon whirring with malfunctioning servos as it discharges electromagnetic interference!",
-                "The android hacker unloads his weapon, bullets interlaced with digital viruses that corrupt your nervous system!",
-                "Glitch fires his experimental weapon, the pistol's targeting algorithm glitching wildly as it hits you with ionized plasma rounds!",
-                "The synthetic being discharges his weapon, bullets leaving trails of corrupted code and static electricity in the air!",
-                "Glitch's cybernetic implants overload his weapon, firing bullets that carry a payload of malware into your bloodstream!"
-            ],
-            "raze_pistol": [
-                "Ravager unloads his weapon with brutal efficiency, each bullet a instrument of relentless destruction!",
-                "The enforcer's pistol thunders with authoritarian force, bullets seeking to crush all opposition!",
-                "Raze fires methodical bursts, his shots calculated to maximize suffering and minimize survival!",
-                "The brutal enforcer's weapon speaks with the voice of oppression, each round a declaration of dominance!",
-                "Raze's pistol bucks with cruel precision, bullets finding weaknesses with sadistic accuracy!"
-            ],
-            "void_pistol": [
-                "Phantom emerges from shadows to fire, his bullets whispering death from the darkness!",
-                "The shadowy figure's pistol reveals itself in muzzle flash, projectiles born from forbidden knowledge!",
-                "Void's weapon discharges with spectral energy, bullets that carry the chill of forgotten secrets!",
-                "The phantom executes perfect ambush fire, his shots emerging from angles that shouldn't exist!",
-                "Void's pistol speaks in tongues of the underworld, each bullet a fragment of stolen power!"
-            ],
-            "whisper_pistol": [
-                "Shade trembles as he fires, his shaky aim somehow finding vital targets through sheer desperation!",
-                "The nervous informant unloads his weapon in panicked bursts, bullets flying wildly but finding their mark!",
-                "Whisper's jittery fingers discharge round after round, his fear translating to frantic but effective fire!",
-                "The informant fires with survival instinct overriding skill, bullets that carry the weight of dark knowledge!",
-                "Shade's panic results in desperate marksmanship, each shot a plea for continued existence!"
-            ],
-            "scav_pistol": [
-                "Scav fires his jury-rigged weapon with resourceful versatility, bullets from scavenged ammunition!",
-                "The scavenger discharges rounds from mismatched magazines, his shots as unpredictable as the wastes!",
-                "Scav's pistol barks with scavenged authority, each bullet carrying the weight of survival!",
-                "The resourceful survivor unloads with wasteland cunning, shots finding weaknesses others miss!",
-                "Scav fires salvaged rounds with desperate ingenuity, bullets born from the toxic fringes!"
-            ],
-            "enforcer_pistol": [
-                "The enforcer drone fires with programmed precision, bullets delivered according to directive parameters!",
-                "Authorization confirmed - the AI discharges lethal force with bureaucratic efficiency!",
-                "Enforcer executes termination protocol, pistol rounds carrying the weight of lawful authority!",
-                "The synthetic lawgiver unloads with calculated cruelty, each bullet a line of code executed!",
-                "Drone logic dictates lethal response, pistol fire communicating clear directives to organic tissue!"
-            ],
-            "cipher_pistol": [
-                "Cipher fires with encrypted precision, bullets carrying viruses that rewrite biological code!",
-                "The hacker's weapon interfaces with reality, shots defying physics through sheer computational power!",
-                "Cipher unloads digital destruction, pistol rounds that crash systems and spill vital processes!",
-                "The clever hacker discharges algorithmic death, each bullet a line of malicious code!",
-                "Cipher's weapon speaks in ones and zeros, translating digital commands to explosive finality!"
-            ],
-            "mutant_pistol": [
-                "The mutant fires erratically, his unpredictable physiology causing bullets to ricochet unpredictably!",
-                "Mutant's enhanced form unloads with primal fury, pistol rounds carrying mutated energies!",
-                "The unstable being discharges weapons fire with feral intensity, bullets warped by genetic chaos!",
-                "Mutant physiology causes pistol to fire with impossible cadence, rounds defying ballistic logic!",
-                "The unpredictable mutant unleashes biological mayhem, each bullet infused with gamma-irradiated rage!"
-            ],
-            "nomad_pistol": [
-                "Nomad fires with lonely determination, each bullet carrying the weight of years spent wandering alone!",
-                "The wanderer discharges his weapon with isolation-hardened precision, shots carrying desert wisdom!",
-                "Nomad's pistol speaks with the voice of endless horizons, bullets seeking targets with worn certainty!",
-                "The lonely wanderer unloads rounds honed by solitude, each shot a companion in the empty wastes!",
-                "Nomad fires with the resolve of those who walk alone, bullets carrying stories untold!"
-            ],
-            "overseer_pistol": [
-                "Overseer authorizes lethal force execution, spire-mounted weapons releasing judgment from above!",
-                "The controlling AI discharges divine retribution, bullets raining down with bureaucratic wrath!",
-                "Overseer protocols dictate termination sequence, pistol fire enforcing corporate supremacy!",
-                "The towering construct unleashes orbital justice, rounds falling with the weight of countless eyes!",
-                "Overseer control network executes, weapon discharge coordinating with surveillance omnipresence!"
-            ],
-            "insurgent_pistol": [
-                "The rebel fires with defiant fury, bullets carrying the spark of revolution and righteous anger!",
-                "Insurgent unloads with underground passion, shots fueled by years of oppression and hidden rage!",
-                "The defiant fighter discharges weapons fire that echoes liberty's call, each bullet a cry for freedom!",
-                "Rebel forces manifest in pistol fire, rounds carrying the will to overthrow tyranny!",
-                "The insurgent's weapon barks defiance, bullets that carry the hope of a liberated underground!"
-            ],
-            "synth_pistol": [
-                "Synth fires with inventive improvisation, jury-rigged weapon discharging scavenged ordinance!",
-                "The synthetic being unloads with creative violence, bullets born from junkyard ingenuity!",
-                "Synth's pistol expresses artificial creativity, rounds defying conventional ballistic parameters!",
-                "The inventive construct discharges weapons fire with mechanical imagination, each shot a work of art!",
-                "Synth executes calculated mayhem, pistol rounds carrying the spark of artificial inspiration!"
-            ],
-            "wraith_pistol": [
-                "Wraith materializes briefly to fire, spectral bullets carrying whispers from beyond the veil!",
-                "The apparition's weapon discharges ethereal rounds, projectiles that phase through reality itself!",
-                "Wraith's pistol speaks with voices from the mist, bullets carrying fog-shrouded mysteries!",
-                "The mysterious specter unloads otherworldly fire, shots that echo with forgotten lore!",
-                "Wraith executes existence's uncertain mercy, pistol rounds carrying the chill of endless fog!"
-            ],
-            "vigil_pistol": [
-                "Vigil fires with protective fury, bullets serving as guardians of the vulnerable in darkness!",
-                "The guardian's weapon discharges righteous protection, rounds defending the weak with guardian's wrath!",
-                "Vigil's pistol speaks for those who cannot speak, each bullet a defender's solemn vow!",
-                "The watchful protector unloads justified force, shots carrying the weight of righteous vigilance!",
-                "Vigil executes protective protocol, weapon fire defending the innocent with determined resolve!"
-            ],
-            "street_samurai_pistol": [
-                "Street Samurai fires with cybernetic precision, bullets enhanced by neural interfaces and chrome!",
-                "The enhanced warrior discharges digital death, pistol rounds carrying the weight of bushido programming!",
-                "Samurai executes lethal kata through pistol fire, bullets dancing with martial artistry!",
-                "The cybernetically augmented fighter unloads chrome fury, shots carrying silicon soul!",
-                "Street Samurai's weapon speaks the ancient code, projectiles enhanced by technological enlightenment!"
-            ],
-            "corporate_defector_pistol": [
-                "The paranoid defector fires with executive precision, bullets carrying classified secrets and betrayal!",
-                "Corporate Defector unloads with boardroom brutality, pistol rounds echoing former power!",
-                "The fugitive executive discharges weapons fire with bureaucratic efficiency and personal desperation!",
-                "Defector's pistol speaks of corporate secrets, bullets carrying poison pills and backroom deals!",
-                "The paranoid ex-executive fires with survival instinct, shots born from boardroom cannibalism!"
-            ],
-            "baby_momma_pistol": [
-                "Baby Momma fires with desperate fury, bullets carrying the righteous anger of a mother protecting her child!",
-                "The desperate woman unloads her weapon with maternal rage, each shot fueled by love and desperation!",
-                "Baby Momma's pistol barks with protective instinct, rounds carrying the weight of family bonds!",
-                "The woman's weapon discharges with fierce determination, bullets born from a mother's unbreakable will!",
-                "Baby Momma fires with survival instinct overriding fear, each shot a declaration of family loyalty!"
-            ],
-            "lumberjack_pistol": [
-                "Lumberjack unloads his oversized pistol with brutal force, rounds carrying the weight of felled timber!",
-                "The massive logger fires methodical shots, his pistol discharging with tree-felling authority!",
-                "Lumberjack's weapon discharges with lumberjack fury, bullets splitting through defenses like axe through bark!",
-                "The axe-man executes calculated pistol fire, each round carrying the precision of a woodsman's aim!",
-                "Lumberjack's pistol barks with frontier justice, bullets born from the heart of the wilderness!"
-            ],
-            "lumberjack_melee": [
-                "The Lumberjack swings his massive axe in a brutal arc, the blade biting deep into your flesh!",
-                "Lumberjack brings his axe down with tree-felling force, splitting your defenses like rotten wood!",
-                "The axe-wielding brute attacks with savage strength, each swing carrying the power to fell a redwood!",
-                "Lumberjack's axe sings through the air, connecting with devastating impact that leaves you gasping!",
-                "The massive logger strikes with trunk-smashing power, his axe cleaving through armor and bone alike!"
-            ],
-            "blade_master_sword": [
-                "Blade Master strikes with honorable precision, his sword a blur of deadly steel that seeks your vitals!",
-                "The disciplined swordsman attacks with martial artistry, each strike a masterpiece of lethal technique!",
-                "Blade Master wields his katana with samurai grace, the blade whispering death in elegant motion!",
-                "The sword master's controlled fury erupts, his blade finding gaps in your defense with masterful skill!",
-                "Blade Master channels his warrior spirit into each attack, sword strikes flowing like liquid death!"
-            ]
-        },
-        "exploding_damage_messages": {
-            "police": "💥 The exploding bullet detonates on impact, shredding the police officer's body in a horrific explosion of blood and bone fragments!",
-            "gang": "💥 The exploding bullet erupts inside the gang member's chest, blasting apart their ribcage in a shower of gore and splintered bone!",
-            "squidie": "💥 The exploding bullet detonates within the Squidie monstrosity, their foul flesh exploding outward in a putrid spray of ichor and viscera!",
-            "generic": "💥 The exploding bullet detonates with devastating force, tearing through flesh and bone in a catastrophic explosion of tissue and blood!"
-        },
+  "ghost_gun_explosion_descriptions": [
+    "CATASTROPHIC FAILURE! Your ghost gun explodes in a shower of molten metal and burning propellant! The blast chars your face and hands with sizzling burns, sending jagged shards tearing through your flesh!",
+    "OH GOD! The ghost gun backfires with terrifying force, the weapon shattering into red-hot fragments that embed themselves deep in your arm! Blood and burning oil spray across your chest!",
+    "FIRE IN THE HOLE! Your ghost gun's chamber ruptures in an explosion! Your hand is reduced to a bloody pulp, fingers blown off as the weapon disintegrates in your grip!",
+    "MERCIFUL MOTHER OF GOD! The ghost gun detonates, sending molten steel into your face! Your cheek is ripped clean off, exposing raw, bleeding muscle!",
+    "THE GUN JUST BLEW UP! A gout of flame erupts from the breach, engulfing your arm in burning gases! Your flesh sizzles as the weapon tears itself apart!"
+  ],
+  "grim_death_descriptions": [
+    "A hail of bullets rips through Squad Member #{member_num}, their body jerking violently as blood sprays across the ground!",
+    "Your loyal Lieutenant #{member_num} screams as gunfire shreds their chest, collapsing in a pool of their own viscera!",
+    "Gang Member #{member_num} takes a fatal shot to the throat, gurgling wetly as blood pours from the wound!",
+    "Enemy fire catches Soldier #{member_num} in the gut, their intestines spilling onto the street!",
+    "A bullet punches through Trooper #{member_num}'s skull, brain matter splattering with a sickening crack!",
+    "Loyal Squad Member #{member_num} collapses with multiple gunshot wounds, their blood pooling beneath them!",
+    "Your Enforcer #{member_num} takes a final, fatal shot, their eyes glazing over as life drains away!",
+    "Companion #{member_num} falls with a guttural cry, comrades forced to step over their still-twitching corpse!"
+  ],
+  "collateral_death_descriptions": [
+    "In the chaos of battle, a stray bullet catches Squad Member #{member_num} in the temple - their skull exploding in a fountain of gore!",
+    "The crossfire is merciless - Trooper #{member_num} takes shrapnel to the neck, arterial blood spraying like a macabre sprinkler!",
+    "A ricochet claims Gang Member #{member_num}, their screams cut short as they claw futilely at the hole in their chest!",
+    "Enforcer #{member_num} drops silently, a bullet having passed through their spine!",
+    "The close-quarters combat turns deadly - Lieutenant #{member_num}'s arm is blown off at the shoulder, bleeding out in seconds!",
+    "Bullets fly everywhere - Soldier #{member_num} catches one in the eye socket, their orbital cavity erupting in bloody ruin!"
+  ],
+  "player_attack_descriptions": {
+    "pistol": [
+      "You squeeze off a precise shot from your pistol, the barrel flashing as the bullet screams toward your target!",
+      "Your pistol bucks as you fire, sending a slug hurtling through the air with deadly intent!",
+      "You line up the sights and pull the trigger, your pistol roaring as it launches death toward your enemy!",
+      "With practiced precision, you fire your pistol, the shot echoing like thunder!",
+      "Your finger tightens on the trigger, unleashing a devastating round that finds its mark unerringly!"
+    ],
+    "ghost_gun": [
+      "Your ghost gun whispers death in silence, the untraceable shot eliminating your target with surgical precision!",
+      "The ghost gun does its deadly work, firing a shot that leaves no evidence but a corpse cooling on the ground!",
+      "You employ the untraceable firearm, its muffled report barely audible as it extinguishes another life!"
+    ],
+    "ar15": [
+      "You unleash a burst from your AR-15, the rifle chattering like an angry mechanical demon!",
+      "The AR-15 roars in your hands, spitting a stream of lead that tears through your enemies!",
+      "You squeeze the trigger and your AR-15 responds with fury, unleashing a hailstorm of bullets!",
+      "Your assault rifle bucks against your shoulder as it unleashes controlled devastation on your foes!"
+    ],
+    "exploding_bullets": [
+      "You fire an exploding bullet that detonates on impact, shredding flesh and bone in a horrific explosion!",
+      "The exploding round screams toward your target and erupts in a devastating blast of shrapnel and fire!",
+      "Your special ammunition detonates with terrifying force, turning your enemy into a cloud of blood and gore!"
+    ],
+    "hollow_point_bullets": [
+      "You fire a hollow point bullet that expands on impact, creating devastating wound channels!",
+      "The hollow point round mushrooms dramatically as it strikes, maximizing tissue damage and stopping power!",
+      "Your specialized ammunition fragments inside the target, causing massive internal trauma and blood loss!"
+    ],
+    "grenade": [
+      "You hurl a grenade that bounces toward your enemies, the fuse hissing as it counts down to oblivion!",
+      "The grenade leaves your hand in a perfect arc, exploding in a shower of deadly shrapnel moments later!",
+      "You cook off a grenade and throw it, the explosion ripping through your enemies like divine judgment!"
+    ],
+    "missile_launcher": [
+      "You fire the missile launcher, the rocket screaming toward your target like the wrath of an angry god!",
+      "The missile streaks from the launcher, its contrail marking a path of inevitable destruction!",
+      "You unleash hell with the missile launcher, the projectile reducing everything in its path to rubble!"
+    ],
+    "barbed_wire_bat": [
+      "You swing your barbed wire bat with savage force, the cruel spikes tearing through flesh and bone!",
+      "The barbed wire-wrapped bat connects with devastating impact, ripping and tearing everything it touches!",
+      "You bring the brutal weapon down in a crushing arc, leaving trails of blood and agony!"
+    ],
+    "knife": [
+      "You lunge forward with your knife, the blade flashing as it seeks out vital arteries and organs!",
+      "Your knife strikes with surgical precision, slipping between ribs to find the enemy's beating heart!",
+      "You drive the blade home with lethal force, twisting and tearing through flesh and muscle!"
+    ],
+    "vampire_bat": [
+      "You swing your vampire bat with savage force, the cruel spikes tearing through flesh and bone!",
+      "The vampire bat connects with devastating impact, ripping and tearing everything it touches!"
+    ],
+    "chain_whip": [
+      "You crack your chain whip with deadly precision, the links wrapping around your enemy's limbs!",
+      "The chain whip catches your target, yanking them off their feet with brutal force!"
+    ],
+    "sword": [
+      "You slash with your sword, the blade gleaming as it cuts through air and enemy alike!",
+      "The sword finds its mark, steel parting flesh with ancient lethality!"
+    ],
+    "axe": [
+      "You swing your axe with tree-felling force, the blade biting deep into enemy flesh!",
+      "The axe connects with bone-crushing power, splitting armor and skull alike!"
+    ],
+    "golden_gun": [
+      "You fire the golden gun, its gleaming barrel marking death with golden finality!",
+      "The golden gun speaks once, its shot finding its mark with mythological precision!"
+    ],
+    "poison_blowgun": [
+      "You blow a poisoned dart, its tiny form carrying death on silent wings!",
+      "The poison dart finds its mark, toxins spreading through your enemy's veins!"
+    ],
+    "plasma_cutter": [
+      "You activate the plasma cutter, its humming blade slicing through flesh like butter!",
+      "The plasma blade burns through armor and bone with equal ease!"
+    ]
+  },
+  "enemy_attack_descriptions": {
+    "police_pistol": [
+      "A police officer fires their service pistol, the shot narrowly missing your vital organs!",
+      "The cop squeezes off a round that grazes your shoulder, leaving a burning trail of pain!",
+      "Police gunfire echoes as a bullet finds your leg, the impact sending shockwaves through your body!",
+      "An officer's pistol shot catches you in the side, the bullet burning a path through your flesh!"
+    ],
+    "gang_pistol": [
+      "A gang member fires wildly, their pistol shots spraying the area with hot lead!",
+      "The gangster's pistol bucks as they fire, bullets whizzing past your head dangerously close!",
+      "Gang gunfire erupts as a pistol shot catches you in the arm, the impact spinning you around!"
+    ],
+    "squidie_pistol": [
+      "A Squidie fires their customized pistol, the shot enhanced with their signature brutality!",
+      "The Squidie gangster's pistol shot burns a path across your body!",
+      "Squidie gunfire echoes as their bullet finds your flesh, the wound burning with unnatural heat!"
+    ],
+    "knife_attack": [
+      "An enemy knife flashes toward you, the blade seeking out your most vulnerable areas!",
+      "A blade-wielding attacker lunges, their knife finding a home in your defenses!",
+      "The knife strikes with deadly precision, slipping past your guard to draw blood!"
+    ],
+    "junkyard_dog_pistol": [
+      "Junkyard Dog lunges at you with feral intensity, sinking jagged teeth into your flesh!",
+      "The Junkyard Dog charges like a rabid scavenger, claws raking through your defenses!",
+      "Junkyard Dog's eyes glow with insane hunger as he leaps upon you, tearing into you with savage ferocity!"
+    ],
+    "police_bat": [
+      "A police officer swings their nightstick with brutal force, the impact cracking against your skull!",
+      "The cop's baton connects with crushing force, stars exploding in your vision!"
+    ],
+    "gang_bat": [
+      "A gang member swings their improvised weapon, the crude bat connecting with savage force!",
+      "The gangster's bat finds your shoulder, the impact sending shockwaves of pain through your body!"
+    ],
+    "squidie_tentacle": [
+      "A Squidie's tentacle whips out with inhuman speed, the slimy appendage lashing across your face!",
+      "The Squidie abomination strikes with its tentacle, the blow leaving a burning trail on your skin!"
+    ]
+  },
   "gang_attack_messages": {
     "pistol": "Your gang member unleashes a hail of lead, each bullet finding its mark in the enemy's decaying flesh!",
     "ar15": "Your gang member sprays death with ruthless efficiency, their AR-15 singing a dirge for the fallen!",
     "barbed_wire_bat": "Your gang member smashes bone and sinew with their barbed weapon, painting the ground in crimson!",
     "knife": "Your gang member strikes with lethal precision, their blade drinking deep of enemy lifeblood!"
   },
-  "damage_messages": {
-    "enemy_damage": "The enemy strikes back with savage fury, their attacks leaving bloody furrows in your flesh!",
-    "vest_absorbs": "Your vest catches the brunt of the assault, sparing you from the worst of the carnage!",
-    "vest_breaks": "Your vest shatters under the relentless assault, leaving you exposed to the enemy's merciless wrath!"
-  },
-  "kill_messages": {
-    "police_singular": "💀 You extinguish the life of a corrupt enforcer, their badge stained with the blood of the innocent!",
-    "police_plural": "💀 You slaughter {count} police dogs, their uniforms soaked in the blood of those they preyed upon!",
-    "gang_singular": "💀 You eradicate a rival predator from the streets, their corpse a warning to others in the shadows!",
-    "gang_plural": "💀 You butcher {count} rival gang scum, their bodies littering the ground like the refuse they are!",
-    "squidie_singular": "💀 You slay a Squidie abomination, their foul blood pooling in the gutters where it belongs!",
-    "squidie_plural": "💀 You massacre {count} Squidie monstrosities, their vile empire crumbling with each corpse!",
-    "generic_singular": "💀 You end the miserable existence of another wretched soul, their life extinguished in the darkness!",
-    "generic_plural": "💀 You annihilate {count} enemy wretches, their broken forms testament to your merciless dominance!",
-    "police_individual": "💀 You swing your barbed wire bat with savage force, the cruel spikes tearing through flesh and bone in a symphony of agony! A police officer falls, their life extinguished!",
-    "gang_individual": "💀 You swing your barbed wire bat with savage force, the cruel spikes tearing through flesh and bone in a symphony of agony! A gang member crumples to the ground, defeated!",
-    "squidie_individual": "💀 You swing your barbed wire bat with savage force, the cruel spikes tearing through flesh and bone in a symphony of agony! A Squidie monstrosity falls, their foul blood pooling!",
-    "generic_individual": "💀 You swing your barbed wire bat with savage force, the cruel spikes tearing through flesh and bone in a symphony of agony! An enemy falls, their life extinguished!"
-  },
   "victory_messages": {
     "complete_victory": "VICTORY! You have annihilated every last one of these pathetic wretches, their blood staining the ground!",
     "partial_victory": "VICTORY! You slaughtered {killed} and drove the survivors into the shadows, broken and fleeing!",
-    "recruitment": "One of the defeated wretches begs for mercy and joins your ranks, their loyalty forged in terror and blood!",
-    "npc_defeated": "You vanquish {npc_name}, their body crumpling to the ground in a lifeless heap, looted for $100 of meager possessions!",
-    "detailed_stats": "VICTORY! Combat Statistics - Killed: {killed}, Recruited: {recruited}, Escaped: {escaped}",
     "police_victory": "VICTORY! You eliminated {killed} corrupt police officers, {recruited} joined your gang in fear, {escaped} escaped!",
     "gang_victory": "VICTORY! You crushed {killed} rival gang members, {recruited} defeated enemies switched sides, {escaped} escaped!",
-    "squidie_victory": "VICTORY! You slaughtered {killed} Squidie monstrosities, {recruited} joined your gang, {escaped} escaped! Their foul empire weakens!"
+    "squidie_victory": "VICTORY! You slaughtered {killed} Squidie monstrosities, {recruited} joined your gang, {escaped} escaped!"
   },
   "defeat_messages": {
     "standard": "DEFEAT! The enemy overwhelms you with brutal force, leaving you broken and bleeding on the cold ground!",
-    "final_death": "FINAL DEATH! Your last life is extinguished in a torrent of agony, your body joining the countless others in eternal darkness!",
-    "damage_taken": "You suffer {damage} grievous wounds, your flesh torn and blood flowing freely!"
+    "final_death": "FINAL DEATH! Your last life is extinguished in a torrent of agony, your body joining the countless others in eternal darkness!"
   },
   "flee_messages": {
     "success": "You flee into the shadows like a hunted animal, heart pounding with the terror of the pursuit!",
     "failure": "Your desperate flight fails, and the enemy descends upon you with renewed savagery, tearing into your flesh!"
-  },
-  "combat_status": {
-    "start_combat": "COMBAT BEGINS! The air thickens with the stench of fear and blood as battle erupts!",
-    "enemy_counterattack": "The enemy retaliates with savage ferocity, their weapons seeking your vital organs!",
-    "defend_action": "You crouch in desperate defense, weathering the storm of blows that rains down upon you!",
-    "change_weapon": "You hesitate, your mind racing through the arsenal of death at your disposal!",
-    "use_drug_crack": "You consume crack with desperate hunger, your body surging with unholy power but taking damage from the foul substance!",
-    "use_drug_percs": "You swallow painkillers, dulling the agony and healing {healed} wounds through chemical oblivion!",
-    "drug_generic": "You ingest {drug_name}, feeling its dark influence course through your veins!"
-  },
-  "squidie_specific": {
-    "gang_loss": "The Squidies' foul empire suffers a grievous wound, losing {count} of their monstrous brethren to your righteous fury!"
   }
 }
