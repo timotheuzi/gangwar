@@ -201,13 +201,13 @@
       "evolution_stage": "Weak"
     }
   },
-  "scav": {
-    "id": "scav",
-    "name": "Scav",
-    "personality": "resourceful",
-    "hp": 150,
-    "max_hp": 200,
-    "damage": 15,
+  "lord_vader": {
+    "id": "lord_vader",
+    "name": "Darth Pimp",
+    "personality": "tyrannical",
+    "hp": 1500,
+    "max_hp": 1500,
+    "damage": 80,
     "is_alive": true,
     "location": "alleyway",
     "last_interaction": "",
@@ -527,12 +527,12 @@
       "evolution_stage": "Weak"
     }
   },
-  "blade_master": {
-    "id": "blade_master",
-    "name": "Blade Master",
-    "personality": "disciplined",
-    "hp": 350,
-    "max_hp": 350,
+  "madame_v": {
+    "id": "madame_v",
+    "name": "Madame Velvet",
+    "personality": "calculating",
+    "hp": 450,
+    "max_hp": 450,
     "damage": 35,
     "is_alive": true,
     "location": "wander",
@@ -619,9 +619,9 @@
     "last_interaction": "",
     "description": "A cybernetically enhanced warrior following the bushido code in the urban jungle."
   },
-  "junkyard_dog": {
-    "id": "junkyard_dog",
-    "name": "Junkyard Dog",
+  "the_butcher": {
+    "id": "the_butcher",
+    "name": "Big Slice",
     "personality": "feral",
     "hp": 180,
     "max_hp": 180,
