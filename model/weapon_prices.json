@@ -74,28 +74,50 @@
     "plasma_cutter": {
       "price": 2500,
       "description": "A high-tech cutting tool that doubles as a weapon"
+    },
+    "golden_gun": {
+      "price": 5000000,
+      "description": "A solid gold pistol that deals incredible damage."
+    },
+    "flamethrower": {
+      "price": 75000,
+      "description": "Incinerate your enemies with a stream of fire."
+    },
+    "katana": {
+      "price": 15000,
+      "description": "A master-crafted blade for high-speed combat."
+    },
+    "brass_knuckles": {
+      "price": 150,
+      "description": "Pack a harder punch in street brawls."
+    },
+    "uzi": {
+      "price": 25000,
+      "description": "Fast-firing submachine gun."
+    },
+    "sawed_off_shotgun": {
+      "price": 8000,
+      "description": "Massive damage at close range."
+    },
+    "sniper_rifle": {
+      "price": 120000,
+      "description": "One shot, one kill."
+    },
+    "molotov": {
+      "price": 400,
+      "description": "A glass bottle of fire."
+    },
+    "micro_smg": {
+      "price": 12000,
+      "description": "Spray and pray. High fire rate."
+    },
+    "grenade_launcher": {
+      "price": 450000,
+      "description": "Thump... BOOM. Crowd control."
+    },
+    "combat_knife": {
+      "price": 300,
+      "description": "Standard issue military blade."
     }
-  },
-  "weapon_effects": {
-    "pistol_damage": [15, 25],
-    "ghost_gun_damage": [15, 25],
-    "ar15_damage": [20, 40],
-    "ar15_bullets_used": 3,
-    "exploding_bullet_damage": [45, 75],
-    "hollow_point_bullet_damage": [18, 30],
-    "grenade_damage": [30, 60],
-    "missile_damage": [50, 100],
-    "barbed_bat_damage": [25, 45],
-    "knife_damage": [10, 20],
-    "sword_damage": [50, 80],
-    "axe_damage": [60, 90],
-    "chain_whip_damage": [40, 70],
-    "plasma_cutter_damage": [70, 100],
-    "vest_damage_reduction": 20
-  },
-  "combat_chances": {
-    "escape_chance": 0.4,
-    "vest_damage_absorption": 0.5,
-    "recruit_chance": 0.3
   }
 }

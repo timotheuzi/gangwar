@@ -1,47 +1,36 @@
 {
-  "description": "Drug prices and configurations",
+  "description": "Comprehensive drug catalog with market baseline prices.",
   "drugs": {
-    "weed": {
-      "base_price": 500,
-      "description": "Marijuana"
-    },
-    "crack": {
-      "base_price": 1000,
-      "description": "Crack cocaine"
-    },
-    "coke": {
-      "base_price": 2000,
-      "description": "Cocaine"
-    },
-    "ice": {
-      "base_price": 1500,
-      "description": "Methamphetamine (Ice)"
-    },
-    "percs": {
-      "base_price": 800,
-      "description": "Percocet painkillers"
-    },
-    "pixie_dust": {
-      "base_price": 3000,
-      "description": "MDMA (Ecstasy)"
-    }
+    "weed": {"base_price": 500, "description": "Standard street green."},
+    "crack": {"base_price": 1000, "description": "High-velocity street rocks."},
+    "coke": {"base_price": 2000, "description": "Pure white snow."},
+    "ice": {"base_price": 1500, "description": "Methamphetamine crystals."},
+    "percs": {"base_price": 800, "description": "Painkillers for the weary."},
+    "pixie_dust": {"base_price": 3000, "description": "Synthetic euphoria."},
+    "lean": {"base_price": 1200, "description": "Sippin' purple syrup."},
+    "shrooms": {"base_price": 600, "description": "Psilocybin fungi."},
+    "acid": {"base_price": 1800, "description": "LSD tabs."},
+    "opium": {"base_price": 2500, "description": "Sticky black resin."},
+    "crystal_blue": {"base_price": 4000, "description": "High-purity blue glass."},
+    "white_widow": {"base_price": 3500, "description": "Top-shelf hybrid strain."},
+    "purple_haze": {"base_price": 1500, "description": "Classic psychedelic weed."},
+    "fentanyl": {"base_price": 5000, "description": "Extremely potent synthetic opioid."},
+    "ketamine": {"base_price": 2200, "description": "Animal tranquilizer / Special K."},
+    "speed": {"base_price": 900, "description": "Amphetamine salts."},
+    "blue_dream": {"base_price": 4200, "description": "California sativa staple."},
+    "red_devil": {"base_price": 2800, "description": "Dangerous stimulant cocktail."},
+    "white_china": {"base_price": 6000, "description": "Grade-A pure heroin."},
+    "mdma_crystals": {"base_price": 3200, "description": "Raw molly crystals."},
+    "moon_rocks": {"base_price": 4500, "description": "Concentrate-dipped nugs."},
+    "blue_magic": {"base_price": 5500, "description": "Legendary purity H."},
+    "grey_death": {"base_price": 7000, "description": "Lethal heroin/fentanyl mix."},
+    "super_lemon_haze": {"base_price": 3800, "description": "Citrus sativa power."}
   },
   "drug_effects": {
-    "crack": {
-      "description": "Gains power but takes damage",
-      "damage": 5,
-      "message": "You use crack, gaining power but taking 5 damage!"
-    },
-    "percs": {
-      "description": "Heals damage",
-      "heal_amount": 10,
-      "message": "You use percs, healing {healed} damage!"
-    },
-    "other_drugs": {
-      "message": "You use {drug_name}, feeling its effects!"
-    }
-  },
-  "bulk_purchase_discount": 0.8,
-  "recruitment_threshold": 5000,
-  "recruitment_chance": 0.25
+    "crack": {"damage": 5, "message": "You smoke the rock. You feel invincible, but your heart hammers painfully!"},
+    "percs": {"heal_amount": 10, "message": "Pain fades away as the percs kick in. Healed 10 HP."},
+    "fentanyl": {"damage": 25, "message": "You dance with death. Your breathing slows dangerously. Took 25 damage!"},
+    "lean": {"message": "Everything slows down... you feel heavy and relaxed."},
+    "crystal_blue": {"message": "Sudden burst of intense energy and focus!"}
+  }
 }

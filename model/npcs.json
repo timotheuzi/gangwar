@@ -10,14 +10,7 @@
     "location": "bar",
     "last_interaction": "",
     "description": "A malfunctioning android who offers cryptic advice in the neon-drenched slums.",
-    "drugs": {
-      "weed": 5,
-      "crack": 3,
-      "coke": 2,
-      "ice": 1,
-      "percs": 4,
-      "pixie_dust": 1
-    }
+    "drugs": {"weed": 5, "crack": 3, "coke": 2, "ice": 1, "percs": 4, "pixie_dust": 1}
   },
   "raze": {
     "id": "raze",
@@ -29,7 +22,7 @@
     "is_alive": true,
     "location": "wander",
     "last_interaction": "",
-    "description": "A brutal enforcer who patrols the undercity with relentless force, crushing dissent in the shadows."
+    "description": "A brutal enforcer who patrols the undercity with relentless force."
   },
   "void": {
     "id": "void",
@@ -41,15 +34,8 @@
     "is_alive": true,
     "location": "alleyway",
     "last_interaction": "",
-    "description": "A shadowy figure who deals in forbidden tech and secrets from the decaying megastructures.",
-    "drugs": {
-      "weed": 8,
-      "crack": 5,
-      "coke": 3,
-      "ice": 2,
-      "percs": 6,
-      "pixie_dust": 2
-    }
+    "description": "A shadowy figure who deals in forbidden tech and secrets.",
+    "drugs": {"weed": 8, "crack": 5, "coke": 3, "ice": 2, "percs": 6, "pixie_dust": 2}
   },
   "whisper": {
     "id": "whisper",
@@ -61,234 +47,90 @@
     "is_alive": true,
     "location": "bar",
     "last_interaction": "",
-    "description": "A jittery informant who whispers warnings from the darkness of surveillance towers."
+    "description": "A jittery informant who whispers warnings from the darkness."
   },
-  "scav": {
-    "id": "scav",
-    "name": "Scav",
-    "personality": "resourceful",
-    "hp": 150,
-    "max_hp": 200,
-    "damage": 15,
+  "lord_vader": {
+    "id": "lord_vader",
+    "name": "Darth Pimp",
+    "personality": "tyrannical",
+    "hp": 1500,
+    "max_hp": 1500,
+    "damage": 80,
     "is_alive": true,
-    "location": "alleyway",
-    "last_interaction": "",
-    "description": "A resourceful scavenger who prowls the toxic waste zones, trading scavenged tech for survival.",
-    "drugs": {
-      "weed": 6,
-      "crack": 2,
-      "coke": 1,
-      "ice": 3,
-      "percs": 5,
-      "pixie_dust": 1
-    }
+    "location": "secret_room",
+    "description": "The ultimate kingpin of the underground. He wears a diamond-encrusted mask.",
+    "unique_drops": ["golden_gun", "opium"]
   },
-  "enforcer": {
-    "id": "enforcer",
-    "name": "Enforcer",
-    "personality": "authoritarian",
-    "hp": 250,
-    "max_hp": 250,
-    "damage": 25,
+  "chrome_jaw": {
+    "id": "chrome_jaw",
+    "name": "Chrome Jaw",
+    "personality": "sadistic",
+    "hp": 600,
+    "max_hp": 600,
+    "damage": 45,
     "is_alive": true,
-    "location": "wander",
-    "last_interaction": "",
-    "description": "An authoritarian drone programmed to maintain order in the oppressed districts."
+    "location": "underground",
+    "description": "A cyborg enforcer with a jaw made of solid chrome.",
+    "unique_drops": ["plasma_cutter"]
   },
-  "cipher": {
-    "id": "cipher",
-    "name": "Cipher",
-    "personality": "clever",
-    "hp": 100,
-    "max_hp": 150,
-    "damage": 12,
-    "is_alive": true,
-    "location": "bar",
-    "last_interaction": "",
-    "description": "A clever hacker who navigates the digital underworld, exposing corporate conspiracies."
-  },
-  "mutant": {
-    "id": "mutant",
-    "name": "Mutant",
-    "personality": "unpredictable",
-    "hp": 200,
-    "max_hp": 220,
-    "damage": 20,
-    "is_alive": true,
-    "location": "wander",
-    "last_interaction": "",
-    "description": "An unpredictable mutant altered by experimental tech, lurking in the radioactive fringes."
-  },
-  "nomad": {
-    "id": "nomad",
-    "name": "Nomad",
-    "personality": "lonely",
-    "hp": 130,
-    "max_hp": 160,
-    "damage": 16,
-    "is_alive": true,
-    "location": "alleyway",
-    "last_interaction": "",
-    "description": "A lonely wanderer drifting through the abandoned sectors, haunted by memories of the old world."
-  },
-  "overseer": {
-    "id": "overseer",
-    "name": "Overseer",
-    "personality": "controlling",
-    "hp": 280,
-    "max_hp": 300,
-    "damage": 28,
-    "is_alive": true,
-    "location": "wander",
-    "last_interaction": "",
-    "description": "A controlling AI construct that monitors and manipulates the populace from towering spires."
-  },
-  "insurgent": {
-    "id": "insurgent",
-    "name": "Insurgent",
-    "personality": "defiant",
-    "hp": 180,
-    "max_hp": 200,
-    "damage": 18,
-    "is_alive": true,
-    "location": "bar",
-    "last_interaction": "",
-    "description": "A defiant rebel fighting against the oppressive regime in hidden underground networks."
-  },
-  "synth": {
-    "id": "synth",
-    "name": "Synth",
-    "personality": "inventive",
-    "hp": 60,
-    "max_hp": 140,
-    "damage": 14,
-    "is_alive": true,
-    "location": "wander",
-    "last_interaction": "",
-    "description": "An inventive synthetic being who crafts makeshift weapons from junkyard scraps."
-  },
-  "wraith": {
-    "id": "wraith",
-    "name": "Wraith",
-    "personality": "mysterious",
-    "hp": 160,
-    "max_hp": 180,
-    "damage": 17,
-    "is_alive": true,
-    "location": "alleyway",
-    "last_interaction": "",
-    "description": "A mysterious apparition that glides through the fog-shrouded streets, whispering forgotten lore."
-  },
-  "vigil": {
-    "id": "vigil",
-    "name": "Vigil",
-    "personality": "vigilant",
-    "hp": 220,
-    "max_hp": 240,
-    "damage": 21,
-    "is_alive": true,
-    "location": "wander",
-    "last_interaction": "",
-    "description": "A vigilant guardian who watches over the vulnerable in the crime-ridden districts."
-  },
-  "baby_momma": {
-    "id": "baby_momma",
-    "name": "Baby Momma",
-    "personality": "desperate",
-    "hp": 100,
-    "max_hp": 100,
-    "damage": 10,
-    "is_alive": true,
-    "location": "wander",
-    "last_interaction": "",
-    "description": "A desperate woman looking for help with her child."
-  },
-  "blade_master": {
-    "id": "blade_master",
-    "name": "Blade Master",
-    "personality": "disciplined",
-    "hp": 350,
-    "max_hp": 350,
+  "madame_v": {
+    "id": "madame_v",
+    "name": "Madame Velvet",
+    "personality": "calculating",
+    "hp": 450,
+    "max_hp": 450,
     "damage": 35,
     "is_alive": true,
-    "location": "wander",
-    "last_interaction": "",
-    "description": "A master swordsman who wanders the streets, seeking worthy opponents to test his blade.",
-    "unique_drops": ["sword"]
+    "location": "penthouse_ruins",
+    "description": "She runs the most exclusive drug circles in the city.",
+    "unique_drops": ["acid", "pixie_dust"]
   },
-  "lumberjack": {
-    "id": "lumberjack",
-    "name": "Lumberjack",
-    "personality": "gruff",
-    "hp": 280,
-    "max_hp": 280,
-    "damage": 28,
-    "is_alive": true,
-    "location": "alleyway",
-    "last_interaction": "",
-    "description": "A massive, axe-wielding brute who chops through anything in his path, including people.",
-    "unique_drops": ["axe"]
-  },
-  "street_samurai": {
-    "id": "street_samurai",
-    "name": "Street Samurai",
-    "personality": "honorable",
-    "hp": 220,
-    "max_hp": 220,
-    "damage": 22,
-    "is_alive": true,
-    "location": "bar",
-    "last_interaction": "",
-    "description": "A cybernetically enhanced warrior following the bushido code in the urban jungle."
-  },
-  "junkyard_dog": {
-    "id": "junkyard_dog",
-    "name": "Junkyard Dog",
+  "the_butcher": {
+    "id": "the_butcher",
+    "name": "Big Slice",
     "personality": "feral",
-    "hp": 180,
-    "max_hp": 180,
-    "damage": 18,
+    "hp": 800,
+    "max_hp": 800,
+    "damage": 60,
     "is_alive": true,
-    "location": "wander",
-    "last_interaction": "",
-    "description": "A wild, mutated scavenger who prowls the scrap yards, fighting with feral intensity."
+    "location": "loading_dock",
+    "description": "A massive man with an oversized cleaver.",
+    "unique_drops": ["axe", "white_china"]
   },
-  "corporate_defector": {
-    "id": "corporate_defector",
-    "name": "Corporate Defector",
-    "personality": "paranoid",
-    "hp": 150,
-    "max_hp": 150,
-    "damage": 15,
+  "neon_reaper": {
+    "id": "neon_reaper",
+    "name": "Neon Reaper",
+    "personality": "silent",
+    "hp": 1000,
+    "max_hp": 1000,
+    "damage": 70,
     "is_alive": true,
-    "location": "alleyway",
-    "last_interaction": "",
-    "description": "A former corporate executive on the run, selling secrets and looking over his shoulder constantly."
+    "location": "sewer_tunnels",
+    "description": "A legendary assassin who lurks in the sewers, lit only by glowing graffiti.",
+    "unique_drops": ["katana", "fentanyl"]
   },
-  "chain_master": {
-    "id": "chain_master",
-    "name": "Chain Master",
-    "personality": "sadistic",
-    "hp": 320,
-    "max_hp": 320,
-    "damage": 32,
+  "cyber_don": {
+    "id": "cyber_don",
+    "name": "Cyber Don",
+    "personality": "arrogant",
+    "hp": 1200,
+    "max_hp": 1200,
+    "damage": 55,
     "is_alive": true,
-    "location": "chain_lair",
-    "last_interaction": "",
-    "description": "A brutal fighter who wields a deadly chain whip with terrifying precision. He's taken over an abandoned subway tunnel and uses it as his personal arena for combat.",
-    "unique_drops": ["chain_whip"]
+    "location": "hidden_lab",
+    "description": "A tech-obsessed kingpin who has replaced 90% of his body with illegal hardware.",
+    "unique_drops": ["flamethrower", "crystal_blue"]
   },
-  "tech_warrior": {
-    "id": "tech_warrior",
-    "name": "Tech Warrior",
-    "personality": "calculating",
-    "hp": 380,
-    "max_hp": 380,
-    "damage": 38,
+  "arena_master": {
+    "id": "arena_master",
+    "name": "Pit Boss Jax",
+    "personality": "jovial",
+    "hp": 700,
+    "max_hp": 700,
+    "damage": 50,
     "is_alive": true,
-    "location": "tech_sanctum",
-    "last_interaction": "",
-    "description": "A highly advanced cybernetically enhanced warrior who protects a secret technology sanctum. He wields a powerful plasma cutter that can slice through almost anything.",
-    "unique_drops": ["plasma_cutter"]
+    "location": "illegal_arena",
+    "description": "He runs the blood-sport matches in the underground market.",
+    "unique_drops": ["brass_knuckles", "ketamine"]
   }
 }

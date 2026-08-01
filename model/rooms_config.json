@@ -3,161 +3,98 @@
   "rooms": {
     "entrance": {
       "title": "Dark Alley Entrance",
-      "description": "You stand at the entrance of a dark alleyway. The streetlights cast long shadows, and you can hear distant sounds echoing off the walls.",
-      "exits": {
-        "north": "dead_end",
-        "south": "city",
-        "east": "side_street",
-        "west": "dumpster"
-      }
+      "description": "You stand at the entrance of a dark alleyway. Shadows dance under flickering neon signs.",
+      "exits": {"north": "dead_end", "south": "city", "east": "side_street", "west": "dumpster"}
     },
     "dead_end": {
       "title": "Dead End",
-      "description": "You reach a dead end with graffiti-covered walls. There's nothing here but trash and shadows.",
-      "exits": {
-        "south": "entrance"
-      }
+      "description": "A brick wall covered in gang tags. The smell of garbage is overwhelming.",
+      "exits": {"south": "entrance"}
     },
     "side_street": {
       "title": "Side Street",
-      "description": "You emerge onto a narrow side street. Cars occasionally drive by, and you see a few shady figures watching you.",
-      "exits": {
-        "west": "entrance",
-        "north": "hidden_entrance"
-      }
+      "description": "A narrow street where deals go down in the open.",
+      "exits": {"west": "entrance", "north": "hidden_entrance", "east": "abandoned_building"}
     },
     "dumpster": {
       "title": "Behind the Dumpster",
-      "description": "You hide behind a large dumpster. The smell is awful, but you're well concealed. You find some discarded items.",
-      "exits": {
-        "east": "entrance"
-      }
+      "description": "You hide in the shadows of a massive steel bin.",
+      "exits": {"east": "entrance", "north": "maintenance_shaft"}
     },
     "hidden_entrance": {
       "title": "Hidden Entrance",
-      "description": "You find a hidden entrance to an underground network. This could lead to interesting places...",
-      "exits": {
-        "south": "side_street",
-        "down": "underground"
-      }
+      "description": "A heavy steel door hidden behind a stack of crates.",
+      "exits": {"south": "side_street", "down": "underground", "east": "sewer_entrance"}
     },
     "underground": {
       "title": "Underground Passage",
-      "description": "You descend into a dimly lit underground passage. Water drips from the ceiling, and you hear echoes of distant footsteps.",
-      "exits": {
-        "up": "hidden_entrance",
-        "north": "secret_room"
-      }
+      "description": "Damp, dark, and dangerous. Echoes of footsteps haunt the tunnel.",
+      "exits": {"up": "hidden_entrance", "north": "secret_room", "east": "underground_market"}
     },
     "secret_room": {
-      "title": "Secret Room",
-      "description": "You enter a secret room filled with old crates and mysterious artifacts. There might be valuable items here.",
-      "exits": {
-        "south": "underground"
-      }
-    }
-  },
-  "searchable_rooms": {
-    "secret_room": {
-      "search_results": {
-        "0.1": {
-          "description": "trap",
-          "damage": [15, 35],
-          "message": "You trigger a trap! A hidden spike pit injures you for {damage} damage!"
-        },
-        "0.25": {
-          "description": "secret_hint",
-          "message": "You find a mysterious inscription on the wall: 'The true treasure lies deeper within.' You sense there might be more to discover!",
-          "sets_secret_found": true
-        },
-        "0.45": {
-          "description": "weapon_cache",
-          "bullets": [10, 25],
-          "message": "You find a hidden weapon cache! You gain {bullets} bullets!"
-        },
-        "0.65": {
-          "description": "drug_stash",
-          "drugs": ["weed", "crack", "coke"],
-          "amount": [2, 5],
-          "message": "You discover a drug stash! You find {amount} kilos of {drug}!"
-        },
-        "0.85": {
-          "description": "money",
-          "money_range": [200, 800],
-          "message": "You find a hidden stash of cash! You gain ${money}!"
-        },
-        "1.0": {
-          "description": "nothing",
-          "message": "You search thoroughly but find nothing of value."
-        }
-      }
+      "title": "The Pimp Vault",
+      "description": "A heavily guarded room with velvet walls and gold trim. Boss territory.",
+      "exits": {"south": "underground"}
     },
-    "hidden_entrance": {
-      "search_results": {
-        "0.15": {
-          "description": "trap",
-          "damage": [10, 25],
-          "message": "You disturb a sleeping rat colony! They attack you for {damage} damage!"
-        },
-        "0.4": {
-          "description": "money",
-          "money_range": [50, 200],
-          "message": "You find some loose change and bills! You gain ${money}!"
-        },
-        "0.6": {
-          "description": "bullets",
-          "bullets": [5, 15],
-          "message": "You find some discarded ammo! You gain {bullets} bullets!"
-        },
-        "1.0": {
-          "description": "nothing",
-          "message": "The area looks like it's been searched before. Nothing here."
-        }
-      }
+    "abandoned_building": {
+      "title": "Abandoned Building",
+      "description": "A decaying structure once belonging to the elite.",
+      "exits": {"west": "side_street", "up": "rooftop_access", "north": "old_warehouse"}
     },
-    "underground": {
-      "search_results": {
-        "0.2": {
-          "description": "trap",
-          "damage": [20, 40],
-          "message": "You step on a pressure plate! Poison darts shoot out, dealing {damage} damage!"
-        },
-        "0.5": {
-          "description": "reward",
-          "money_range": [300, 600],
-          "drug_types": ["weed", "crack"],
-          "drug_amount": [3, 7],
-          "message_money": "You find a waterproof bag with cash! You gain ${money}!",
-          "message_drugs": "You find a hidden compartment with drugs! You gain {amount} kilos of {drug}!"
-        },
-        "0.8": {
-          "description": "bullets",
-          "bullets": [3, 8],
-          "message": "You find a few loose bullets! You gain {bullets} bullets!"
-        },
-        "1.0": {
-          "description": "nothing",
-          "message": "The underground passage is damp and empty. Nothing of interest."
-        }
-      }
+    "sewer_entrance": {
+      "title": "Sewer Entrance",
+      "description": "A rusty manhole cover leading to the city's underbelly.",
+      "exits": {"west": "hidden_entrance", "down": "sewer_tunnels"}
     },
-    "generic_secret": {
-      "search_results": {
-        "0.25": {
-          "description": "trap",
-          "damage": [5, 20],
-          "message": "You find a trap! You take {damage} damage!"
-        },
-        "0.6": {
-          "description": "money",
-          "money_range": [25, 150],
-          "message": "You find some hidden money! You gain ${money}!"
-        },
-        "1.0": {
-          "description": "nothing",
-          "message": "You search carefully but find nothing special."
-        }
-      }
+    "sewer_tunnels": {
+      "title": "Sewer Tunnels",
+      "description": "Labyrinth of toxic runoff and glowing graffiti. Home of the Reaper.",
+      "exits": {"up": "sewer_entrance", "north": "flooded_chamber"}
+    },
+    "rooftop_access": {
+      "title": "Rooftop Access",
+      "description": "High above the chaos, the wind howls between skyscrapers.",
+      "exits": {"down": "abandoned_building", "north": "penthouse_ruins"}
+    },
+    "penthouse_ruins": {
+      "title": "Penthouse Ruins",
+      "description": "Madame Velvet's shattered palace. The ultimate view of the city.",
+      "exits": {"south": "rooftop_access"}
+    },
+    "underground_market": {
+      "title": "Underground Market",
+      "description": "Illegal goods and blood sports are traded here freely.",
+      "exits": {"west": "underground", "north": "hidden_lab", "east": "illegal_arena"}
+    },
+    "hidden_lab": {
+      "title": "Hidden Lab",
+      "description": "High-tech equipment producing the city's purest product.",
+      "exits": {"south": "underground_market"}
+    },
+    "illegal_arena": {
+      "title": "The Blood Pit",
+      "description": "An arena where Jax hosts matches. The air smells of copper and sweat.",
+      "exits": {"west": "underground_market"}
+    },
+    "old_warehouse": {
+      "title": "Old Warehouse",
+      "description": "A massive storage space filled with rusted machinery.",
+      "exits": {"south": "abandoned_building", "east": "loading_dock"}
+    },
+    "loading_dock": {
+      "title": "The Loading Dock",
+      "description": "Where the Butcher processes his shipments. Blood stains the concrete.",
+      "exits": {"west": "old_warehouse"}
+    },
+    "maintenance_shaft": {
+      "title": "Maintenance Shaft",
+      "description": "Cramped crawlspace filled with pipes and steam.",
+      "exits": {"south": "dumpster"}
+    },
+    "flooded_chamber": {
+      "title": "Flooded Chamber",
+      "description": "Ankle-deep water hides what lurks beneath.",
+      "exits": {"south": "sewer_tunnels"}
     }
   }
 }

@@ -1,0 +1,152 @@
+[
+  {
+    "name": "Slick Rick",
+    "money": 5000,
+    "members": 3,
+    "location": "city",
+    "drugs": {"crack": 10},
+    "weapons": {"pistol": 1, "bullets": 50},
+    "chat_personality": "smooth",
+    "last_action": ""
+  },
+  {
+    "name": "Bishop Don Juan",
+    "money": 10000,
+    "members": 5,
+    "location": "bar",
+    "drugs": {"coke": 5},
+    "weapons": {"pistol": 2, "bullets": 100, "vest": 5},
+    "chat_personality": "religious_pimp",
+    "last_action": ""
+  },
+  {
+    "name": "Iceberg Slim",
+    "money": 7500,
+    "members": 4,
+    "location": "crackhouse",
+    "drugs": {"ice": 8},
+    "weapons": {"knife": 1, "pistol": 1, "bullets": 30},
+    "chat_personality": "cold",
+    "last_action": ""
+  },
+  {
+    "name": "Diamond Jim",
+    "money": 15000,
+    "members": 10,
+    "location": "bank",
+    "drugs": {"pixie_dust": 12},
+    "weapons": {"ar15": 1, "bullets": 200, "vest": 15},
+    "chat_personality": "flashy",
+    "last_action": ""
+  },
+  {
+    "name": "Sweet Daddy Dee",
+    "money": 3000,
+    "members": 2,
+    "location": "city",
+    "drugs": {"weed": 20},
+    "weapons": {"knife": 2},
+    "chat_personality": "street",
+    "last_action": ""
+  },
+  {
+    "name": "Silky Slim",
+    "money": 6000,
+    "members": 4,
+    "location": "bar",
+    "drugs": {"lean": 15},
+    "weapons": {"pistol": 1, "bullets": 40},
+    "chat_personality": "smooth",
+    "last_action": ""
+  },
+  {
+    "name": "Pimpin Ken",
+    "money": 12000,
+    "members": 7,
+    "location": "bank",
+    "drugs": {"coke": 10},
+    "weapons": {"pistol": 1, "bullets": 60, "vest": 10},
+    "chat_personality": "flashy",
+    "last_action": ""
+  },
+  {
+    "name": "Fillmore Slim",
+    "money": 4500,
+    "members": 3,
+    "location": "alleyway",
+    "drugs": {"shrooms": 12},
+    "weapons": {"knife": 3},
+    "chat_personality": "street",
+    "last_action": ""
+  },
+  {
+    "name": "Magic Juan",
+    "money": 9000,
+    "members": 6,
+    "location": "crackhouse",
+    "drugs": {"crystal_blue": 5},
+    "weapons": {"ar15": 1, "bullets": 150},
+    "chat_personality": "religious_pimp",
+    "last_action": ""
+  },
+  {
+    "name": "Goldie",
+    "money": 25000,
+    "members": 15,
+    "location": "city",
+    "drugs": {"opium": 20},
+    "weapons": {"golden_gun": 1, "bullets": 50, "vest": 20},
+    "chat_personality": "flashy",
+    "last_action": ""
+  },
+  {
+    "name": "Velvet Teddy",
+    "money": 8000,
+    "members": 5,
+    "location": "bar",
+    "drugs": {"mdma_crystals": 10},
+    "weapons": {"pistol": 1, "bullets": 80},
+    "chat_personality": "smooth",
+    "last_action": ""
+  },
+  {
+    "name": "Do-Dirty",
+    "money": 5500,
+    "members": 6,
+    "location": "alleyway",
+    "drugs": {"crack": 15},
+    "weapons": {"sawed_off_shotgun": 1, "bullets": 20},
+    "chat_personality": "street",
+    "last_action": ""
+  },
+  {
+    "name": "Candy Man",
+    "money": 11000,
+    "members": 8,
+    "location": "city",
+    "drugs": {"pixie_dust": 25},
+    "weapons": {"uzi": 1, "bullets": 120},
+    "chat_personality": "flashy",
+    "last_action": ""
+  },
+  {
+    "name": "Pretty Tony",
+    "money": 14000,
+    "members": 9,
+    "location": "bank",
+    "drugs": {"white_widow": 10},
+    "weapons": {"katana": 1},
+    "chat_personality": "smooth",
+    "last_action": ""
+  },
+  {
+    "name": "Gorgon",
+    "money": 20000,
+    "members": 12,
+    "location": "underground",
+    "drugs": {"fentanyl": 5},
+    "weapons": {"missile_launcher": 1, "missiles": 2},
+    "chat_personality": "cold",
+    "last_action": ""
+  }
+]
