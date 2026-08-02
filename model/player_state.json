@@ -1,29 +1,23 @@
 {
-  "player_name": "Test",
-  "gang_name": "Testers",
-  "money": 6840,
+  "player_name": "dfdffs",
+  "gang_name": "sdd",
+  "money": 1000,
   "account": 0,
   "loan": 0,
   "loan_days": 0,
   "members": 1,
   "squidies": 25,
-  "squidies_pistols": 10,
-  "squidies_ar15s": 5,
-  "squidies_bullets": 100,
-  "squidies_grenades": 20,
-  "squidies_missile_launcher": 2,
-  "squidies_missiles": 10,
   "day": 1,
   "health": 30,
-  "steps": 11,
+  "steps": 0,
   "max_steps": 7,
-  "current_score": 156,
+  "current_score": 151,
   "current_location": "city",
   "lives": 3,
   "damage": 0,
   "drugs": {
     "weed": 0,
-    "crack": 0,
+    "crack": 5,
     "coke": 0,
     "ice": 0,
     "percs": 0,
@@ -100,9 +94,5 @@
     "blue_magic": 5544,
     "grey_death": 5981,
     "super_lemon_haze": 3276
-  },
-  "flags": {
-    "has_id": false,
-    "has_info": false
   }
 }
