@@ -16,11 +16,11 @@
   },
   {
     "name": "Bishop Don Juan",
-    "money": 10000,
+    "money": 21010,
     "members": 5,
     "location": "city",
     "drugs": {
-      "coke": 5
+      "coke": 0
     },
     "weapons": {
       "pistol": 2,
@@ -34,7 +34,7 @@
     "name": "Iceberg Slim",
     "money": 7500,
     "members": 4,
-    "location": "picknsave",
+    "location": "city",
     "drugs": {
       "ice": 8
     },
@@ -97,7 +97,7 @@
     "name": "Pimpin Ken",
     "money": 9330,
     "members": 7,
-    "location": "picknsave",
+    "location": "city",
     "drugs": {
       "coke": 10,
       "percs": 3
