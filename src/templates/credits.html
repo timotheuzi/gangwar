@@ -12,7 +12,7 @@
   / ____|        | |    / ____| |  | | |          | | (_)
  | |     ___ _ __| |_  | |    | |  | | |_ __ _   _| |_ _  ___  _ __  ___
  | |    / _ \ '__| __| | |    | |  | | __/ _` | | | __| |/ _ \| '_ \/ __|
- | |___|  __/ |  | |_  | |____| |__| | || (_| |_| | |_| | (_) | | | \__ \
+ | |___|  __/ |  | |_  | |____| |__| | || (_| |_| | (_) | | | \__ \
   \_____\___|_|   \__|  \_____|\____/ \__\__,_(_)_|\__|_|\___/|_| |_|___/
 
 
@@ -30,7 +30,7 @@
             </div>
         </div>
 
-       <!--<div class="high-scores-section">
+       <div class="high-scores-section">
             <h3>All-Time High Scores</h3>
             <div class="high-scores-content">
                 {% if high_scores %}
@@ -63,36 +63,12 @@
                 {% endif %}
             </div>
         </div>
-    </div>-->
+    </div>
     
     <div class="actions">
-        <a href="{{ url_for('high_scores') }}" class="btn btn-secondary">View High Scores</a>
+        <a href="{{ url_for('high_scores') }}" class="btn btn-secondary">View High Scores Full Page</a>
         <a href="{{ url_for('city') }}" class="btn btn-primary">Back to City</a>
     </div>
 
-    <div class="chat-pvp-container">
-        <div class="chat-section">
-            <h4>City Chat</h4>
-            <div id="chat-messages" class="chat-messages"></div>
-            <div class="chat-input">
-                <input type="text" id="chat-input" placeholder="Type your message..." maxlength="200">
-                <button id="send-chat" class="btn btn-primary btn-small">Send</button>
-            </div>
-        </div>
-
-        <!-- Chat Users Section -->
-        <div class="pvp-section">
-            <h3>👥 Chat Users</h3>
-            <div id="pvp-player-list" class="pvp-player-list">
-                <p>Loading users...</p>
-            </div>
-            <div class="pvp-actions">
-                <button id="refresh-players" onclick="refreshPlayerList()" class="btn btn-secondary btn-small">Refresh Users</button>
-            </div>
-        </div>
-    </div>
 </div>
-
-{% block chat %}
-{% endblock %}
 {% endblock %}

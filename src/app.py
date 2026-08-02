@@ -16,18 +16,12 @@ socketio = None # Standard SocketIO placeholder for WSGI entries
 # Data Helpers
 # ============
 
+# Base directory for model files - ensure it's absolute and correct relative to app.py
+MODEL_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'model'))
+
 def get_model_path(filename):
     """Returns the absolute path to a model file for server stability."""
-    # Try multiple common locations for model files
-    possible_paths = [
-        os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'model', filename)),
-        os.path.abspath(os.path.join(os.getcwd(), 'model', filename)),
-        os.path.abspath(os.path.join('/home/gangwars/gangwar/model', filename))
-    ]
-    for path in possible_paths:
-        if os.path.exists(path):
-            return path
-    return possible_paths[0] # Default
+    return os.path.join(MODEL_DIR, filename)
 
 def load_json(filename, default=None):
     path = get_model_path(filename)
@@ -35,7 +29,8 @@ def load_json(filename, default=None):
         if os.path.exists(path):
             with open(path, 'r') as f:
                 content = f.read()
-                return json.loads(content) if content else (default or {})
+                if content.strip():
+                    return json.loads(content)
     except Exception as e:
         print(f"Error loading {filename}: {e}")
     return default if default is not None else {}
@@ -191,13 +186,16 @@ def update_daily_prices():
 # ============
 
 def get_high_scores():
-    return load_json(HIGH_SCORES_FILE, [])
+    scores = load_json(HIGH_SCORES_FILE, [])
+    if not isinstance(scores, list):
+        return []
+    return scores
 
 def add_high_score(gs):
     scores = get_high_scores()
     new_score = {
-        "player_name": gs.player_name,
-        "gang_name": gs.gang_name,
+        "player_name": gs.player_name or "Unknown Pimp",
+        "gang_name": gs.gang_name or "No Gang",
         "score": gs.current_score,
         "money_earned": gs.money + gs.account,
         "days_survived": gs.day,
@@ -206,7 +204,7 @@ def add_high_score(gs):
         "date_achieved": time.strftime("%Y-%m-%d")
     }
     scores.append(new_score)
-    scores.sort(key=lambda x: x['score'], reverse=True)
+    scores.sort(key=lambda x: x.get('score', 0), reverse=True)
     save_json(HIGH_SCORES_FILE, scores[:100])
 
 # ============
@@ -314,6 +312,8 @@ def process_combat_action(gs, action, weapon, enemy_hp, enemy_type, enemy_count,
         gs.lives -= 1; gs.damage = 0; gs.health = 30
         log.append("YOU WERE KNOCKED OUT! Lost a life.")
         dead = (gs.lives <= 0)
+        if dead:
+            add_high_score(gs)
         
     save_game_state(gs)
     return defeated, enemy_hp, log, dead
@@ -396,7 +396,8 @@ def picknsave():
 
 @app.route('/credits')
 def credits():
-    return render_template('credits.html')
+    scores = get_high_scores()
+    return render_template('credits.html', high_scores=scores)
 
 @app.route('/high_scores')
 def high_scores():
