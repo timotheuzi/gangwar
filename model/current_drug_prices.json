@@ -1,14 +1,30 @@
 {
-  "prices": {
-    "weed": 475,
-    "crack": 1298,
-    "coke": 2019,
-    "ice": 960,
-    "percs": 1033,
-    "pixie_dust": 2631
+  "event_multipliers": {
+    "weed": 0.9876351037202025,
+    "crack": 0.8660835891905928,
+    "coke": 1.1013327486386406,
+    "ice": 0.835629532170721,
+    "percs": 1.1127838677978366,
+    "pixie_dust": 0.8098746839530894,
+    "lean": 0.9531458685746245,
+    "shrooms": 4.7122383715016,
+    "acid": 1.175173956773662,
+    "opium": 1.0241847852157349,
+    "crystal_blue": 0.9596582881690167,
+    "white_widow": 1.0364212089331108,
+    "purple_haze": 0.8670236168036525,
+    "fentanyl": 1.057134069424041,
+    "ketamine": 0.8085601924050578,
+    "speed": 1.1890535451232118,
+    "blue_dream": 0.8171412882258381,
+    "red_devil": 0.9016063802978306,
+    "white_china": 1.0227697046298942,
+    "mdma_crystals": 0.9768013917626633,
+    "moon_rocks": 0.9867135353643834,
+    "blue_magic": 1.0081229107758871,
+    "grey_death": 0.8544338867573575,
+    "super_lemon_haze": 0.8622355627474113
   },
-  "fluctuation_alert": "",
-  "massive_change_drugs": [],
-  "last_update": "2026-05-09 19:31:24",
-  "last_update_day": "2026-05-09"
+  "day": "2026-08-02",
+  "fluctuation_alert": "POLICE RAIDS ON SHROOMS!"
 }
