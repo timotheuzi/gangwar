@@ -16,33 +16,36 @@ socketio = None # Standard SocketIO placeholder for WSGI entries
 # Data Helpers
 # ============
 
-# Base directory for model files - ensure it's absolute and correct relative to app.py
-MODEL_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'model'))
+# Dynamic project path detection
+APP_DIR = os.path.dirname(os.path.abspath(__file__))
+PROJECT_ROOT = os.path.dirname(APP_DIR)
+MODEL_DIR = os.path.join(PROJECT_ROOT, "model")
 
 def get_model_path(filename):
-    """Returns the absolute path to a model file for server stability."""
+    """Returns the absolute path to a model file."""
     return os.path.join(MODEL_DIR, filename)
 
 def load_json(filename, default=None):
     path = get_model_path(filename)
     try:
         if os.path.exists(path):
-            with open(path, 'r') as f:
-                content = f.read()
-                if content.strip():
+            with open(path, 'r', encoding='utf-8') as f:
+                content = f.read().strip()
+                if content:
                     return json.loads(content)
+        return default if default is not None else {}
     except Exception as e:
-        print(f"Error loading {filename}: {e}")
-    return default if default is not None else {}
+        print(f"Error loading {filename} from {path}: {e}")
+        return default if default is not None else {}
 
 def save_json(filename, data):
     path = get_model_path(filename)
     try:
         os.makedirs(os.path.dirname(path), exist_ok=True)
-        with open(path, 'w') as f:
+        with open(path, 'w', encoding='utf-8') as f:
             json.dump(data, f, indent=2)
     except Exception as e:
-        print(f"Error saving {filename}: {e}")
+        print(f"Error saving {filename} to {path}: {e}")
 
 # Shared Data Files
 BOTS_FILE = 'bots.json'
@@ -106,13 +109,18 @@ def reset_game_state():
     save_game_state(gs)
     return gs
 
-# CRITICAL FIX: Always inject game_state into ALL templates automatically
+# Context processor for templates
 @app.context_processor
-def inject_game_state():
+def inject_globals():
     try:
-        return dict(game_state=get_game_state())
+        gs = get_game_state()
     except:
-        return dict(game_state=GameState())
+        gs = GameState()
+    try:
+        hs = get_high_scores()
+    except:
+        hs = []
+    return dict(game_state=gs, high_scores=hs)
 
 # ============
 # Market System
@@ -161,7 +169,7 @@ def get_current_prices():
     dynamic_prices = {}
     
     for drug in drug_config_data.get('drugs', {}):
-        info = drug_config_data['drugs'][drug]
+        info = drug_config_data.get('drugs', {}).get(drug, {})
         base = info.get('base_price', 1000)
         supply = market.get(drug, 100)
         supply_mult = min(5.0, max(0.2, 100.0 / max(1, supply)))
@@ -174,12 +182,9 @@ def get_current_prices():
         "day": prices_state.get('day')
     }
 
-# For compatibility with main.py
-def load_current_drug_prices():
-    return get_current_prices()
-
-def update_daily_prices():
-    return update_daily_market_events()
+# Compatibility helpers
+def load_current_drug_prices(): return get_current_prices()
+def update_daily_prices(): return update_daily_market_events()
 
 # ============
 # High Scores
@@ -187,9 +192,9 @@ def update_daily_prices():
 
 def get_high_scores():
     scores = load_json(HIGH_SCORES_FILE, [])
-    if not isinstance(scores, list):
-        return []
-    return scores
+    if isinstance(scores, list):
+        return scores
+    return []
 
 def add_high_score(gs):
     scores = get_high_scores()
@@ -199,8 +204,8 @@ def add_high_score(gs):
         "score": gs.current_score,
         "money_earned": gs.money + gs.account,
         "days_survived": gs.day,
-        "gang_wars_won": 0, # Placeholder
-        "fights_won": 0,    # Placeholder
+        "gang_wars_won": 0,
+        "fights_won": 0,
         "date_achieved": time.strftime("%Y-%m-%d")
     }
     scores.append(new_score)
@@ -235,28 +240,30 @@ def simulate_bots(player_loc=None, player_name=None):
         elif roll < 0.60 and drug_list:
             d = random.choice(drug_list)
             p = prices.get(d, 1000)
-            if random.random() < 0.4 and b['money'] > p * 10:
+            if random.random() < 0.4 and b.get('money', 0) > p * 10:
                 qty = random.randint(2, 10); b['money'] -= qty * p; b['drugs'][d] = b['drugs'].get(d, 0) + qty
                 modify_market_supply(d, -qty); add_chat_message(b['name'], f"Secured a batch of {d}.")
-            elif b['drugs'].get(d, 0) > 0:
+            elif b.get('drugs', {}).get(d, 0) > 0:
                 qty = b['drugs'][d]; b['money'] += qty * p; b['drugs'][d] = 0
                 modify_market_supply(d, qty); add_chat_message(b['name'], f"Unloaded some weight of {d.upper()}. Cash only.")
         elif roll < 0.85:
-            if b['location'] == player_loc and player_name and not BOT_CHALLENGE:
+            if b.get('location') == player_loc and player_name and not BOT_CHALLENGE:
                 BOT_CHALLENGE = b['name']
                 add_chat_message(b['name'], f"Yo {player_name}, this is MY turf! Get out or get smoked!")
     save_json(BOTS_FILE, bots)
 
+def load_bots(): return load_json(BOTS_FILE, [])
+
 def get_who_list():
     gs = get_game_state()
     online = [{"name": gs.player_name, "type": "Player", "loc": gs.current_location}]
-    bots = load_json(BOTS_FILE, [])
+    bots = load_bots()
     for b in bots:
         online.append({"name": b['name'], "type": "Bot", "loc": b.get('location', 'city')})
     return online
 
 def get_top_list():
-    bots = load_json(BOTS_FILE, [])
+    bots = load_bots()
     all_p = [{"name": b['name'], "score": (b.get('money', 0) // 1000) + (b.get('members', 1) * 50)} for b in bots]
     gs = get_game_state()
     all_p.append({"name": gs.player_name, "score": gs.current_score})
@@ -312,8 +319,7 @@ def process_combat_action(gs, action, weapon, enemy_hp, enemy_type, enemy_count,
         gs.lives -= 1; gs.damage = 0; gs.health = 30
         log.append("YOU WERE KNOCKED OUT! Lost a life.")
         dead = (gs.lives <= 0)
-        if dead:
-            add_high_score(gs)
+        if dead: add_high_score(gs)
         
     save_game_state(gs)
     return defeated, enemy_hp, log, dead
@@ -346,8 +352,7 @@ def generate_random_room(current_rid):
 
 @app.route('/')
 def index():
-    gs = get_game_state()
-    return render_template('index.html', game_state=gs)
+    return render_template('index.html')
 
 @app.route('/new_game', methods=['GET', 'POST'])
 def new_game():
@@ -367,42 +372,42 @@ def city():
     gs.current_location = "city"
     save_game_state(gs)
     prices_data = get_current_prices()
-    return render_template('city.html', game_state=gs, city_alert=prices_data.get('fluctuation_alert', ""))
+    return render_template('city.html', city_alert=prices_data.get('fluctuation_alert', ""))
 
 @app.route('/crackhouse')
 def crackhouse():
     gs = get_game_state(); gs.current_location = "crackhouse"; save_game_state(gs)
-    return render_template('crackhouse.html', game_state=gs)
+    return render_template('crackhouse.html')
 
 @app.route('/gunshack')
 def gunshack():
     gs = get_game_state(); gs.current_location = "gunshack"; save_game_state(gs)
-    return render_template('gunshack.html', game_state=gs)
+    return render_template('gunshack.html')
 
 @app.route('/bar')
 def bar():
     gs = get_game_state(); gs.current_location = "bar"; save_game_state(gs)
-    return render_template('bar.html', game_state=gs)
+    return render_template('bar.html')
 
 @app.route('/bank')
 def bank():
     gs = get_game_state(); gs.current_location = "bank"; save_game_state(gs)
-    return render_template('bank.html', game_state=gs)
+    return render_template('bank.html')
 
 @app.route('/picknsave')
 def picknsave():
     gs = get_game_state(); gs.current_location = "picknsave"; save_game_state(gs)
-    return render_template('picknsave.html', game_state=gs)
+    return render_template('picknsave.html')
 
 @app.route('/credits')
 def credits():
-    scores = get_high_scores()
-    return render_template('credits.html', high_scores=scores)
+    hs = get_high_scores()
+    return render_template('credits.html', high_scores=hs)
 
 @app.route('/high_scores')
 def high_scores():
-    scores = get_high_scores()
-    return render_template('high_scores.html', high_scores=scores)
+    hs = get_high_scores()
+    return render_template('high_scores.html', high_scores=hs)
 
 @app.route('/wander')
 def wander():
@@ -410,22 +415,21 @@ def wander():
     gs.steps += 1
     simulate_bots(gs.current_location, gs.player_name)
     save_game_state(gs)
-    return render_template('wander_result.html', game_state=gs)
+    return render_template('wander_result.html')
 
 @app.route('/alleyway')
 def alleyway():
     gs = get_game_state(); gs.current_location = "alleyway"; save_game_state(gs)
-    return render_template('alleyway.html', game_state=gs)
+    room = rooms_config['rooms'].get('entrance')
+    return render_template('alleyway.html', current_room=room)
 
 @app.route('/stats')
 def stats():
-    gs = get_game_state()
-    return render_template('stats.html', game_state=gs)
+    return render_template('stats.html')
 
 @app.route('/final_battle')
 def final_battle():
-    gs = get_game_state()
-    return render_template('final_battle.html', game_state=gs)
+    return render_template('final_battle.html')
 
 @app.route('/trade_drugs', methods=['POST'])
 def trade_drugs():
@@ -450,12 +454,10 @@ def api_send_chat():
     if msg.startswith('/'):
         cmd = msg[1:].lower().split()[0]
         if cmd == 'who':
-            who = [get_game_state().player_name] + [b['name'] for b in load_json(BOTS_FILE, [])]
+            who = [get_game_state().player_name] + [b['name'] for b in load_bots()]
             add_chat_message("SYSTEM", f"Online: {', '.join(filter(None, who))}")
         elif cmd == 'top':
-            all_p = [{"name": b['name'], "score": (b['money'] // 1000) + (b['members'] * 50)} for b in load_json(BOTS_FILE, [])]
-            all_p.append({"name": get_game_state().player_name, "score": get_game_state().current_score})
-            all_p.sort(key=lambda x: x['score'], reverse=True)
+            all_p = get_top_list()
             add_chat_message("SYSTEM", f"Top: {' | '.join([f'{p['name']} ({p['score']})' for p in all_p[:5]])}")
         return jsonify({"success": True})
     return jsonify({"success": True, "msg": add_chat_message(player, msg)})
