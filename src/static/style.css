@@ -734,6 +734,38 @@ footer {
     margin-bottom: 15px;
 }
 
+/* Crackhouse Market Prices Grid */
+.prices-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 8px;
+    margin-top: 10px;
+}
+
+.price-item {
+    background-color: #444;
+    padding: 6px 10px;
+    border: 1px solid #ffff00;
+    border-radius: 4px;
+    font-size: 0.85em;
+    color: #00ff00;
+    white-space: nowrap;
+    text-align: center;
+}
+
+.market-prices h3 {
+    color: #ffff00;
+    font-size: 1.1em;
+    margin-bottom: 8px;
+}
+
+.market-prices {
+    background-color: #333;
+    padding: 12px;
+    border: 1px solid #00ff00;
+    margin: 10px 0;
+}
+
 .price-display,
 .inventory-display {
     background-color: #333;

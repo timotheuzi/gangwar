@@ -12,6 +12,21 @@ app = Flask(__name__)
 app.secret_key = 'pimp_syndicate_secret_777_stable'
 socketio = None # Standard SocketIO placeholder for WSGI entries
 
+# Suppress successful GET request logs (only show errors and warnings)
+import logging
+from werkzeug.serving import WSGIRequestHandler
+
+class SuppressSuccessfulGETFilter(logging.Filter):
+    def filter(self, record):
+        # Suppress logs for successful GET requests (200 status)
+        if 'GET' in record.getMessage() and ' 200 ' in record.getMessage():
+            return False
+        return True
+
+# Apply filter to Werkzeug logger
+werkzeug_logger = logging.getLogger('werkzeug')
+werkzeug_logger.addFilter(SuppressSuccessfulGETFilter())
+
 # ============
 # Data Helpers
 # ============
@@ -62,7 +77,7 @@ HIGH_SCORES_FILE = 'high_scores.json'
 
 @dataclass
 class Drugs:
-    weed: int = 0; crack: int = 5; coke: int = 0; ice: int = 0; percs: int = 0; pixie_dust: int = 0; lean: int = 0; shrooms: int = 0; acid: int = 0; opium: int = 0; crystal_blue: int = 0; white_widow: int = 0; purple_haze: int = 0; fentanyl: int = 0; ketamine: int = 0; speed: int = 0; blue_dream: int = 0; red_devil: int = 0; white_china: int = 0; mdma_crystals: int = 0
+    weed: int = 0; crack: int = 5; coke: int = 0; ice: int = 0; percs: int = 0; pixie_dust: int = 0; lean: int = 0; shrooms: int = 0; acid: int = 0; opium: int = 0; crystal_blue: int = 0; white_widow: int = 0; purple_haze: int = 0; fentanyl: int = 0; ketamine: int = 0; speed: int = 0; blue_dream: int = 0; red_devil: int = 0; white_china: int = 0; mdma_crystals: int = 0; moon_rocks: int = 0; blue_magic: int = 0; grey_death: int = 0; super_lemon_haze: int = 0
     def keys(self): 
         config = load_json('drug_config.json', {"drugs": {}})
         return list(config.get('drugs', {}).keys())
@@ -73,7 +88,7 @@ class Weapons:
 
 @dataclass
 class GameState:
-    player_name: str = ""; gang_name: str = ""; money: int = 1000; account: int = 0; loan: int = 0; loan_days: int = 0; members: int = 1; squidies: int = 25; day: int = 1; health: int = 30; steps: int = 0; max_steps: int = 7; current_score: int = 0; current_location: str = "city"; lives: int = 3; damage: int = 0; drugs: Drugs = field(default_factory=Drugs); weapons: Weapons = field(default_factory=Weapons); drug_prices: Dict[str, int] = field(default_factory=dict)
+    player_name: str = ""; gang_name: str = ""; money: int = 1000; account: int = 0; loan: int = 0; loan_days: int = 0; members: int = 1; squidies: int = 25; day: int = 1; health: int = 30; steps: int = 0; max_steps: int = 7; current_score: int = 0; current_location: str = "city"; lives: int = 3; damage: int = 0; drugs: Drugs = field(default_factory=Drugs); weapons: Weapons = field(default_factory=Weapons); drug_prices: Dict[str, int] = field(default_factory=dict); flags: Dict[str, bool] = field(default_factory=lambda: {"eric_met": False, "steve_met": False, "has_id": False}); squidies_pistols: int = 50; squidies_bullets: int = 500; squidies_grenades: int = 20; squidies_missile_launcher: int = 5; squidies_missiles: int = 50
     @property
     def max_health(self) -> int: return 30 + 10 * (self.members - 1)
 
@@ -120,7 +135,11 @@ def inject_globals():
         hs = get_high_scores()
     except:
         hs = []
-    return dict(game_state=gs, high_scores=hs)
+    try:
+        drug_config_data = load_json('drug_config.json', {"drugs": {}})
+    except:
+        drug_config_data = {"drugs": {}}
+    return dict(game_state=gs, high_scores=hs, drug_config=drug_config_data)
 
 # ============
 # Market System
@@ -141,12 +160,14 @@ def update_daily_market_events():
     alerts = []
     for drug in drug_config_data.get('drugs', {}):
         roll = random.random()
+        # Format drug name for display (replace underscores with spaces)
+        display_name = drug.replace('_', ' ').title()
         if roll < 0.05:
             event_multipliers[drug] = random.uniform(3.0, 6.0)
-            alerts.append(f"POLICE RAIDS ON {drug.upper()}!")
+            alerts.append(f"POLICE RAIDS ON {display_name.upper()}!")
         elif roll < 0.10:
             event_multipliers[drug] = random.uniform(0.1, 0.3)
-            alerts.append(f"MARKET FLOODED WITH {drug.upper()}!")
+            alerts.append(f"MARKET FLOODED WITH {display_name.upper()}!")
         else:
             event_multipliers[drug] = random.uniform(0.8, 1.2)
             
@@ -225,31 +246,147 @@ def add_chat_message(player, msg):
     if len(CHAT_MESSAGES) > 100: CHAT_MESSAGES.pop(0)
     return m
 
+def drop_drugs_on_death(bot, player_loc=None):
+    """Drop drugs when a bot dies/gets knocked out"""
+    drug_config_data = load_json('drug_config.json', {"drugs": {}})
+    drug_list = list(drug_config_data.get('drugs', {}).keys())
+    
+    # Drop all drugs the bot was carrying
+    dropped_drugs = []
+    for drug in drug_list:
+        qty = bot.get('drugs', {}).get(drug, 0)
+        if qty > 0:
+            dropped_drugs.append(f"{qty} {drug}")
+            # Add to market supply (drugs are now available in the area)
+            modify_market_supply(drug, qty)
+            bot['drugs'][drug] = 0
+    
+    # Announce the drop if player is in the same room
+    if dropped_drugs and bot.get('current_room') == player_loc:
+        add_chat_message("SYSTEM", f"💀 {bot['name']} was knocked out! Dropped: {', '.join(dropped_drugs)}")
+    
+    return dropped_drugs
+
 def simulate_bots(player_loc=None, player_name=None):
     global BOT_CHALLENGE
     bots = load_json(BOTS_FILE, [])
     prices_info = get_current_prices()
     prices = prices_info['prices']
-    drug_config_data = load_json('drug_config.json', {"drugs": {}})
+    drug_config_data = load_json('drug_config.json', {"drugs": {}, "drug_effects": {}})
     drug_list = list(drug_config_data.get('drugs', {}).keys())
+    drug_effects = drug_config_data.get('drug_effects', {})
+    
+    # Load all available rooms from rooms_config
+    rooms_config_data = load_json(ROOMS_FILE, {"rooms": {}})
+    all_rooms = list(rooms_config_data.get('rooms', {}).keys())
+    
+    # Define allowed rooms for bots (wandering streets and dark alleyway areas)
+    allowed_bot_rooms = [
+        "entrance", "dead_end", "side_street", "dumpster", "hidden_entrance",
+        "underground", "secret_room", "abandoned_lot", "burned_out_car",
+        "construction_site", "alley_graffiti_wall", "overgrown_garden",
+        "flooded_chamber", "alley_fight_club", "mysterious_door", "ancient_vault",
+        "speakeasy", "rooftop_access", "rooftop_garden", "abandoned_roof_deck",
+        "rooftop_hideout", "penthouse_ruins", "makeshift_bridge", "rooftop_observatory",
+        "neighboring_roof", "emergency_stairwell", "service_elevator", "maintenance_tunnel",
+        "basement_storage", "utility_room", "sewer_access", "forgotten_archive",
+        "boiler_room", "sewer_main_line", "coal_storage", "sewer_junction",
+        "underground_stream", "storm_drain", "maintenance_shaft", "crystal_cave",
+        "drainage_basin", "street_level_access", "gang_hideout", "forgotten_laboratory",
+        "buried_vault", "sewage_treatment_chamber", "abandoned_warehouse",
+        "loading_dock", "warehouse_office", "industrial_yard", "catwalk",
+        "junkyard_office", "roof_access", "scale_house", "water_tower",
+        "weigh_station", "maintenance_ladder", "ground_level", "perimeter_fence",
+        "chain_lair", "tech_sanctum"
+    ]
     
     for b in bots:
         roll = random.random()
+        
+        # Bot movement - can explore everywhere but stays in wandering/street areas
         if roll < 0.20:
-            b['location'] = random.choice(["city", "crackhouse", "bar", "bank", "alleyway", "gunshack", "picknsave"])
+            # Move to a random allowed room
+            if allowed_bot_rooms:
+                new_room = random.choice(allowed_bot_rooms)
+                b['location'] = new_room
+                b['current_room'] = new_room
+        
+        # Bot drug usage - bots occasionally take drugs
+        elif roll < 0.35 and drug_list and drug_effects:
+            # Bot takes a drug they have
+            available_drugs = [d for d in drug_list if b.get('drugs', {}).get(d, 0) > 0]
+            if available_drugs and random.random() < 0.3:  # 30% chance to use if they have drugs
+                drug = random.choice(available_drugs)
+                b['drugs'][drug] -= 1
+                effect = drug_effects.get(drug, {})
+                
+                # Apply drug effects to bot
+                if 'heal_amount' in effect:
+                    b['health'] = b.get('health', 100) + effect['heal_amount']
+                if 'damage' in effect:
+                    b['health'] = b.get('health', 100) - effect['damage']
+                
+                # Check if bot died from drug damage
+                if b.get('health', 100) <= 0:
+                    drop_drugs_on_death(b, player_loc)
+                    # Respawn bot after a short delay (reset health and move to random room)
+                    b['health'] = 100
+                    if allowed_bot_rooms:
+                        new_room = random.choice(allowed_bot_rooms)
+                        b['location'] = new_room
+                        b['current_room'] = new_room
+                else:
+                    # Announce if player is in same room
+                    if b.get('current_room') == player_loc:
+                        add_chat_message(b['name'], effect.get('message', f"Used {drug}."))
+        
+        # Bot trading activities
         elif roll < 0.60 and drug_list:
             d = random.choice(drug_list)
             p = prices.get(d, 1000)
             if random.random() < 0.4 and b.get('money', 0) > p * 10:
                 qty = random.randint(2, 10); b['money'] -= qty * p; b['drugs'][d] = b['drugs'].get(d, 0) + qty
-                modify_market_supply(d, -qty); add_chat_message(b['name'], f"Secured a batch of {d}.")
+                modify_market_supply(d, -qty)
+                # Only add chat message if player is in the same room
+                if b.get('current_room') == player_loc:
+                    add_chat_message(b['name'], f"Secured a batch of {d}.")
             elif b.get('drugs', {}).get(d, 0) > 0:
                 qty = b['drugs'][d]; b['money'] += qty * p; b['drugs'][d] = 0
-                modify_market_supply(d, qty); add_chat_message(b['name'], f"Unloaded some weight of {d.upper()}. Cash only.")
+                modify_market_supply(d, qty)
+                # Only add chat message if player is in the same room
+                if b.get('current_room') == player_loc:
+                    add_chat_message(b['name'], f"Unloaded some weight of {d.upper()}. Cash only.")
+        
+        # Bot challenges/interactions
         elif roll < 0.85:
-            if b.get('location') == player_loc and player_name and not BOT_CHALLENGE:
+            if b.get('current_room') == player_loc and player_name and not BOT_CHALLENGE:
                 BOT_CHALLENGE = b['name']
                 add_chat_message(b['name'], f"Yo {player_name}, this is MY turf! Get out or get smoked!")
+        
+        # Bot-initiated trading with player (rare)
+        elif roll < 0.90 and drug_list:
+            # Bot tries to trade with player if in same room
+            if b.get('current_room') == player_loc and player_name:
+                # Bot has drugs to sell or wants to buy
+                bot_drugs = b.get('drugs', {})
+                available_to_sell = {d: qty for d, qty in bot_drugs.items() if qty > 0}
+                
+                if available_to_sell and random.random() < 0.2:  # 20% chance to offer trade
+                    drug_to_sell = random.choice(list(available_to_sell.keys()))
+                    qty = min(available_to_sell[drug_to_sell], random.randint(1, 3))
+                    price = prices.get(drug_to_sell, 1000)
+                    
+                    # Store trade offer in bot data
+                    b['trade_offer'] = {
+                        'drug': drug_to_sell,
+                        'quantity': qty,
+                        'price': price,
+                        'action': 'sell',  # Bot is selling to player
+                        'timestamp': time.time()
+                    }
+                    
+                    add_chat_message(b['name'], f"🤝 Hey {player_name}, I got {qty} {drug_to_sell} for ${price * qty}. Type '/trade {b['name']}' to buy!")
+    
     save_json(BOTS_FILE, bots)
 
 def load_bots(): return load_json(BOTS_FILE, [])
@@ -259,7 +396,7 @@ def get_who_list():
     online = [{"name": gs.player_name, "type": "Player", "loc": gs.current_location}]
     bots = load_bots()
     for b in bots:
-        online.append({"name": b['name'], "type": "Bot", "loc": b.get('location', 'city')})
+        online.append({"name": b['name'], "type": "Bot", "loc": b.get('current_room', b.get('location', 'city'))})
     return online
 
 def get_top_list():
@@ -445,22 +582,452 @@ def trade_drugs():
 
 @app.route('/api/chat/messages')
 def api_get_chat():
-    return jsonify({"messages": CHAT_MESSAGES})
+    gs = get_game_state()
+    # Get room from request parameter or fall back to player's current location
+    player_room = request.args.get('room', gs.current_location)
+    
+    # Filter messages to only show those from the same room
+    # Messages from bots include their current_room in the message data
+    room_messages = []
+    for msg in CHAT_MESSAGES:
+        # Always include player messages and system messages
+        if msg['player'] == gs.player_name or msg['player'] == 'SYSTEM':
+            room_messages.append(msg)
+        else:
+            # For bot messages, check if bot is in the same room
+            bots = load_bots()
+            bot = next((b for b in bots if b['name'] == msg['player']), None)
+            if bot and bot.get('current_room') == player_room:
+                room_messages.append(msg)
+    
+    return jsonify({"messages": room_messages})
 
 @app.route('/api/chat/send', methods=['POST'])
 def api_send_chat():
     data = request.get_json(); player = data.get('player_name', 'Anonymous'); msg = data.get('message', '').strip()
     if not msg: return jsonify({"error": "Empty"}), 400
     if msg.startswith('/'):
-        cmd = msg[1:].lower().split()[0]
+        cmd_parts = msg[1:].lower().split()
+        cmd = cmd_parts[0]
         if cmd == 'who':
             who = [get_game_state().player_name] + [b['name'] for b in load_bots()]
             add_chat_message("SYSTEM", f"Online: {', '.join(filter(None, who))}")
         elif cmd == 'top':
             all_p = get_top_list()
             add_chat_message("SYSTEM", f"Top: {' | '.join([f'{p['name']} ({p['score']})' for p in all_p[:5]])}")
+        elif cmd == 'trade' and len(cmd_parts) >= 2:
+            # Handle bot trade: /trade <bot_name> [accept/decline]
+            bot_name = ' '.join(cmd_parts[1:])
+            bots = load_bots()
+            bot = next((b for b in bots if b['name'].lower() == bot_name.lower()), None)
+            
+            if not bot:
+                add_chat_message("SYSTEM", f"Bot '{bot_name}' not found.")
+            elif bot.get('current_room') != get_game_state().current_location:
+                add_chat_message("SYSTEM", f"{bot_name} is not in your room.")
+            elif 'trade_offer' not in bot:
+                add_chat_message("SYSTEM", f"{bot_name} has no trade offer.")
+            else:
+                # Execute the trade
+                offer = bot['trade_offer']
+                gs = get_game_state()
+                drug_type = offer['drug']
+                qty = offer['quantity']
+                price = offer['price']
+                
+                if gs.money >= price * qty:
+                    gs.money -= price * qty
+                    setattr(gs.drugs, drug_type, getattr(gs.drugs, drug_type) + qty)
+                    bot['money'] = bot.get('money', 0) + price * qty
+                    bot['drugs'][drug_type] -= qty
+                    save_game_state(gs)
+                    add_chat_message("SYSTEM", f"✅ Trade complete! Bought {qty} {drug_type} from {bot_name} for ${price * qty}")
+                    del bot['trade_offer']
+                else:
+                    add_chat_message("SYSTEM", f"❌ Not enough money! Need ${price * qty}")
         return jsonify({"success": True})
     return jsonify({"success": True, "msg": add_chat_message(player, msg)})
+
+@app.route('/api/chat/users')
+def api_get_chat_users():
+    """Get list of users (bots and player) in the same room"""
+    gs = get_game_state()
+    player_room = request.args.get('room', gs.current_location)
+    
+    # Only show users in wandering/street/alleyway rooms
+    wandering_rooms = [
+        "entrance", "dead_end", "side_street", "dumpster", "hidden_entrance",
+        "underground", "secret_room", "abandoned_lot", "burned_out_car",
+        "construction_site", "alley_graffiti_wall", "overgrown_garden",
+        "flooded_chamber", "alley_fight_club", "mysterious_door", "ancient_vault",
+        "speakeasy", "rooftop_access", "rooftop_garden", "abandoned_roof_deck",
+        "rooftop_hideout", "penthouse_ruins", "makeshift_bridge", "rooftop_observatory",
+        "neighboring_roof", "emergency_stairwell", "service_elevator", "maintenance_tunnel",
+        "basement_storage", "utility_room", "sewer_access", "forgotten_archive",
+        "boiler_room", "sewer_main_line", "coal_storage", "sewer_junction",
+        "underground_stream", "storm_drain", "maintenance_shaft", "crystal_cave",
+        "drainage_basin", "street_level_access", "gang_hideout", "forgotten_laboratory",
+        "buried_vault", "sewage_treatment_chamber", "abandoned_warehouse",
+        "loading_dock", "warehouse_office", "industrial_yard", "catwalk",
+        "junkyard_office", "roof_access", "scale_house", "water_tower",
+        "weigh_station", "maintenance_ladder", "ground_level", "perimeter_fence",
+        "chain_lair", "tech_sanctum", "alleyway"
+    ]
+    
+    # Only return users if we're in a wandering/street room
+    if player_room not in wandering_rooms:
+        return jsonify({"users": []})
+    
+    users = []
+    
+    # Add player
+    users.append({
+        "name": gs.player_name,
+        "type": "Player",
+        "room": player_room
+    })
+    
+    # Add bots in the same room
+    bots = load_bots()
+    for b in bots:
+        if b.get('current_room') == player_room:
+            users.append({
+                "name": b['name'],
+                "type": "Bot",
+                "room": b.get('current_room', '')
+            })
+    
+    return jsonify({"users": users})
+
+@app.route('/bot_trade', methods=['POST'])
+def bot_trade():
+    """Allow bots to rarely trade drugs with the player"""
+    gs = get_game_state()
+    bot_name = request.form.get('bot_name')
+    action = request.form.get('action')  # 'buy' or 'sell'
+    drug_type = request.form.get('drug_type')
+    quantity = int(request.form.get('quantity', 1))
+    
+    bots = load_bots()
+    bot = next((b for b in bots if b['name'] == bot_name), None)
+    
+    if not bot:
+        return jsonify({"error": "Bot not found"}), 404
+    
+    # Check if bot and player are in the same room
+    if bot.get('current_room') != gs.current_location:
+        return jsonify({"error": "Bot is not in your room"}), 400
+    
+    prices = get_current_prices().get('prices', {})
+    price = prices.get(drug_type, 1000)
+    
+    if action == 'buy':
+        # Player buys from bot
+        total_cost = price * quantity
+        if gs.money >= total_cost and bot.get('drugs', {}).get(drug_type, 0) >= quantity:
+            gs.money -= total_cost
+            setattr(gs.drugs, drug_type, getattr(gs.drugs, drug_type) + quantity)
+            bot['money'] = bot.get('money', 0) + total_cost
+            bot['drugs'][drug_type] -= quantity
+            save_game_state(gs)
+            save_json(BOTS_FILE, bots)
+            return jsonify({"success": True, "message": f"Bought {quantity} {drug_type} from {bot_name}"})
+        else:
+            return jsonify({"error": "Insufficient funds or bot doesn't have enough"}), 400
+    
+    elif action == 'sell':
+        # Player sells to bot
+        if getattr(gs.drugs, drug_type, 0) >= quantity and bot.get('money', 0) >= price * quantity:
+            gs.money += price * quantity
+            setattr(gs.drugs, drug_type, getattr(gs.drugs, drug_type) - quantity)
+            bot['money'] -= price * quantity
+            bot['drugs'][drug_type] = bot.get('drugs', {}).get(drug_type, 0) + quantity
+            save_game_state(gs)
+            save_json(BOTS_FILE, bots)
+            return jsonify({"success": True, "message": f"Sold {quantity} {drug_type} to {bot_name}"})
+        else:
+            return jsonify({"error": "Insufficient drugs or bot doesn't have enough money"}), 400
+    
+    return jsonify({"error": "Invalid action"}), 400
+
+# ============
+# Missing Routes
+# ============
+
+@app.route('/prostitutes')
+def visit_prostitutes():
+    gs = get_game_state(); gs.current_location = "prostitutes"; save_game_state(gs)
+    return render_template('prostitutes.html')
+
+@app.route('/prostitute_action', methods=['POST'])
+def prostitute_action():
+    gs = get_game_state()
+    action = request.form.get('action')
+    if action == 'quick_service':
+        if gs.money >= 200:
+            gs.money -= 200; gs.damage = max(0, gs.damage - 5); save_game_state(gs)
+    elif action == 'vip_experience':
+        if gs.money >= 500:
+            gs.money -= 500; gs.damage = max(0, gs.damage - 10); save_game_state(gs)
+    elif action == 'recruit_hooker':
+        if gs.money >= 1000:
+            gs.money -= 1000; gs.members += 1; save_game_state(gs)
+    return redirect(url_for('prostitutes'))
+
+@app.route('/buy_weapon', methods=['POST'])
+def buy_weapon():
+    gs = get_game_state()
+    weapon_type = request.form.get('weapon_type')
+    quantity = int(request.form.get('quantity', 1))
+    weapon_prices = {
+        'pistol': 1200, 'ghost_gun': 600, 'bullets': 100, 'exploding_bullets': 2000,
+        'hollow_point_bullets': 500, 'grenade': 1000, 'vampire_bat': 2500,
+        'missile_launcher': 1000000, 'missile': 100000, 'ar15': 50000,
+        'vest_light': 5000, 'vest_medium': 25000, 'vest_heavy': 35000
+    }
+    price = weapon_prices.get(weapon_type, 1000) * quantity
+    if gs.money >= price:
+        gs.money -= price
+        if weapon_type == 'pistol': gs.weapons.pistols += quantity
+        elif weapon_type == 'ghost_gun': gs.weapons.ghost_guns += quantity
+        elif weapon_type == 'bullets': gs.weapons.bullets += quantity
+        elif weapon_type == 'exploding_bullets': gs.weapons.exploding_bullets += quantity
+        elif weapon_type == 'hollow_point_bullets': gs.weapons.hollow_point_bullets += quantity
+        elif weapon_type == 'grenade': gs.weapons.grenades += quantity
+        elif weapon_type == 'vampire_bat': gs.weapons.vampire_bat += quantity
+        elif weapon_type == 'missile_launcher': gs.weapons.missile_launcher += quantity
+        elif weapon_type == 'missile': gs.weapons.missiles += quantity
+        elif weapon_type == 'ar15': gs.weapons.ar15 += quantity
+        elif weapon_type == 'vest_light': gs.weapons.vest += 5
+        elif weapon_type == 'vest_medium': gs.weapons.vest += 10
+        elif weapon_type == 'vest_heavy': gs.weapons.vest += 15
+        save_game_state(gs)
+    return redirect(url_for('gunshack'))
+
+@app.route('/upgrade_weapon', methods=['POST'])
+def upgrade_weapon():
+    gs = get_game_state()
+    weapon_type = request.form.get('weapon_type')
+    if weapon_type == 'pistol' and gs.money >= 2000 and gs.weapons.pistols > 0:
+        gs.money -= 2000; gs.weapons.pistol_automatic = True; save_game_state(gs)
+    elif weapon_type == 'ghost_gun' and gs.money >= 2000 and gs.weapons.ghost_guns > 0:
+        gs.money -= 2000; gs.weapons.ghost_gun_automatic = True; save_game_state(gs)
+    return redirect(url_for('gunshack'))
+
+@app.route('/bank_transaction', methods=['POST'])
+def bank_transaction():
+    gs = get_game_state()
+    action = request.form.get('action')
+    amount = int(request.form.get('amount', 0))
+    if action == 'deposit' and gs.money >= amount:
+        gs.money -= amount; gs.account += amount; save_game_state(gs)
+    elif action == 'withdraw' and gs.account >= amount:
+        gs.account -= amount; gs.money += amount; save_game_state(gs)
+    elif action == 'loan':
+        gs.loan += amount; gs.money += amount; gs.loan_days = 0; save_game_state(gs)
+    elif action == 'pay_loan' and gs.money >= amount and gs.loan > 0:
+        gs.loan -= amount; gs.money -= amount; save_game_state(gs)
+    return redirect(url_for('bank'))
+
+@app.route('/fight_cops', methods=['POST'])
+def fight_cops():
+    gs = get_game_state()
+    action = request.form.get('action')
+    weapon = request.form.get('weapon')
+    num_cops = int(request.form.get('num_cops', 1))
+    
+    if action == 'shoot':
+        if weapon == 'pistol' and gs.weapons.bullets > 0:
+            gs.weapons.bullets -= 1
+            dmg = random.randint(35, 60)
+            num_cops -= random.randint(1, 2)
+        elif weapon == 'grenade' and gs.weapons.grenades > 0:
+            gs.weapons.grenades -= 1
+            dmg = 100; num_cops -= random.randint(2, 4)
+        elif weapon == 'knife' and gs.weapons.knife > 0:
+            dmg = random.randint(10, 20)
+            num_cops -= 1
+        else:
+            dmg = 0
+        
+        if num_cops > 0:
+            cop_dmg = random.randint(8, 15) * num_cops
+            gs.damage += cop_dmg
+        else:
+            gs.money += random.randint(100, 500)
+    
+    elif action == 'run':
+        if random.random() < 0.5:
+            num_cops = 0
+        else:
+            gs.damage += random.randint(15, 30)
+    
+    if gs.damage >= 30:
+        gs.lives -= 1; gs.damage = 0; gs.health = 30
+    
+    save_game_state(gs)
+    return redirect(url_for('city'))
+
+@app.route('/start_war', methods=['POST'])
+def start_war():
+    return render_template('gang_war.html')
+
+@app.route('/start_final_battle', methods=['POST'])
+def start_final_battle():
+    return render_template('final_battle.html')
+
+@app.route('/handle_encounter', methods=['POST'])
+def handle_encounter():
+    gs = get_game_state()
+    encounter_type = request.form.get('encounter_type')
+    # Simplified encounter handling
+    save_game_state(gs)
+    return redirect(url_for('city'))
+
+@app.route('/move_room', methods=['POST'])
+def move_room():
+    direction = request.form.get('direction')
+    gs = get_game_state()
+    gs.steps += 1
+    save_game_state(gs)
+    return redirect(url_for('alleyway'))
+
+@app.route('/search_room')
+def search_room():
+    gs = get_game_state()
+    session['secret_found'] = True
+    save_game_state(gs)
+    return redirect(url_for('alleyway'))
+
+@app.route('/search_deeper')
+def search_deeper():
+    gs = get_game_state()
+    gs.money += random.randint(50, 200)
+    save_game_state(gs)
+    return redirect(url_for('alleyway'))
+
+@app.route('/bulk_purchase', methods=['POST'])
+def bulk_purchase():
+    gs = get_game_state()
+    drug_type = request.form.get('drug_type')
+    # Simplified bulk purchase
+    save_game_state(gs)
+    return redirect(url_for('closet'))
+
+@app.route('/picknsave_action', methods=['POST'])
+def picknsave_action():
+    gs = get_game_state()
+    action = request.form.get('action')
+    if action == 'buy_food' and gs.money >= 500:
+        gs.money -= 500; save_game_state(gs)
+    elif action == 'buy_medical' and gs.money >= 1000:
+        gs.money -= 1000; gs.damage = max(0, gs.damage - 10); save_game_state(gs)
+    elif action == 'buy_id' and gs.money >= 5000:
+        gs.money -= 5000; gs.flags.has_id = True; save_game_state(gs)
+    elif action == 'buy_info' and gs.money >= 2000:
+        gs.money -= 2000; save_game_state(gs)
+    elif action == 'recruit' and gs.money >= 10000:
+        gs.money -= 10000; gs.members += 1; save_game_state(gs)
+    return redirect(url_for('picknsave'))
+
+@app.route('/search_picknsave')
+def search_picknsave():
+    return render_template('search_picknsave.html')
+
+@app.route('/fight_npc', methods=['POST'])
+def fight_npc():
+    npc_id = request.form.get('npc_id')
+    return redirect(url_for('npc_interaction', npc_id=npc_id))
+
+@app.route('/trade_with_npc', methods=['GET', 'POST'])
+def trade_with_npc():
+    npc_id = request.form.get('npc_id', request.args.get('npc_id', 'nox'))
+    return render_template('npc_trade.html', npc_id=npc_id)
+
+@app.route('/npc_interaction')
+def npc_interaction():
+    npc_id = request.args.get('npc_id', 'nox')
+    return render_template('npc_interaction.html', npc_id=npc_id)
+
+@app.route('/talk_to_npc')
+def talk_to_npc():
+    npc_id = request.args.get('npc_id', 'nox')
+    return render_template('npc_dialogue.html', npc_id=npc_id)
+
+@app.route('/look_at_npc')
+def look_at_npc():
+    npc_id = request.args.get('npc_id', 'nox')
+    return render_template('npc_interaction.html', npc_id=npc_id)
+
+@app.route('/npc_dialogue')
+def npc_dialogue():
+    npc_id = request.args.get('npc_id', 'nox')
+    return render_template('npc_dialogue.html', npc_id=npc_id)
+
+@app.route('/npc_dialogue_topic')
+def npc_dialogue_topic():
+    npc_id = request.args.get('npc_id', 'nox')
+    topic = request.args.get('topic', 'general')
+    return render_template('npc_dialogue_topic.html', npc_id=npc_id, topic=topic)
+
+@app.route('/npc_dialogue_respond', methods=['POST'])
+def npc_dialogue_respond():
+    npc_id = request.form.get('npc_id', 'nox')
+    topic = request.form.get('topic', 'general')
+    return redirect(url_for('npc_dialogue_topic', npc_id=npc_id, topic=topic))
+
+@app.route('/npc_trade_action', methods=['POST'])
+def npc_trade_action():
+    npc_id = request.form.get('npc_id', 'nox')
+    return redirect(url_for('npc_trade', npc_id=npc_id))
+
+@app.route('/continue_activity')
+def continue_activity():
+    return redirect(url_for('wander'))
+
+@app.route('/closet')
+def closet():
+    return render_template('closet.html')
+
+@app.route('/search_closet')
+def search_closet():
+    gs = get_game_state()
+    gs.money += random.randint(10, 100)
+    save_game_state(gs)
+    return redirect(url_for('closet'))
+
+@app.route('/npcs')
+def npcs():
+    return render_template('npcs.html')
+
+@app.route('/recruit_hooker', methods=['POST'])
+def recruit_hooker():
+    hooker_name = request.form.get('hooker_name', 'Unknown')
+    gs = get_game_state()
+    if gs.money >= 1000:
+        gs.money -= 1000
+        gs.members += 1
+        save_game_state(gs)
+    return redirect(url_for('alleyway'))
+
+@app.route('/pickup_loot')
+def pickup_loot():
+    npc_id = request.args.get('npc_id', 'nox')
+    gs = get_game_state()
+    gs.money += random.randint(50, 200)
+    save_game_state(gs)
+    return redirect(url_for('npc_interaction', npc_id=npc_id))
+
+@app.route('/attempt_flee_npc')
+def attempt_flee_npc():
+    npc_id = request.args.get('npc_id', 'nox')
+    if random.random() < 0.5:
+        return redirect(url_for('city'))
+    else:
+        gs = get_game_state()
+        gs.damage += random.randint(10, 20)
+        save_game_state(gs)
+        return redirect(url_for('npc_interaction', npc_id=npc_id))
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(); parser.add_argument('--port', type=int, default=6009)

@@ -88,7 +88,7 @@ If chat doesn't connect, check:
 
 ## Features
 - **Dynamic Economy**: Fluctuating drug prices with daily market alerts and busts/flooded markets
-- **Real-time Multiplayer Chat**: Global chat system with player lists and location-based rooms
+- **Real-time Multiplayer Chat**: Location-based chat system where you only see messages from players/bots in the same room
 - **PVP Framework**: Player vs player challenge system
 - **High Score Tracking**: Persistent leaderboard with money earned, days survived, and achievements
 - **Extensive Combat System**: Multiple weapons, special ammo, body armor, and tactical combat
@@ -102,6 +102,31 @@ If chat doesn't connect, check:
 - **Day/Night Cycle**: Time progression with step limits and daily price fluctuations
 - **Random Encounters**: Police chases, baby momma incidents, gang fights, and Squidie hit squads
 - **Collateral Damage**: Realistic combat where gang members can die in battle
+- **Bot AI System**: Intelligent bots that wander streets, use drugs, trade with players, and only chat when in the same room
+
+## Bot System
+
+### Room-Based Bot AI
+Bots only appear in wandering/street rooms (entrance, dead_end, side_street, dumpster, underground areas, rooftops, industrial zones, etc.). They are NOT in city-specific locations like bar, bank, crackhouse, or gun shack.
+
+### Dynamic Chat Visibility
+Chat messages are room-filtered:
+- Player messages: Always visible
+- System messages: Always visible (/who, /top)
+- Bot messages: Only visible when bot is in the same room as player
+
+### Bot Behaviors
+- **Wandering**: Bots move randomly through 60+ allowed rooms (20% chance per tick)
+- **Drug Usage**: Bots occasionally use drugs they're carrying (30% chance), applying heal/damage effects
+- **Trading**: Bots buy/sell drugs on the market and can initiate trades with nearby players
+- **Combat**: Bots challenge players in their territory with turf warnings
+- **Death**: Bots that die from drug damage drop their inventory and respawn elsewhere
+
+### Bot Chat Features
+- Trading announcements: "Secured a batch of {drug}" or "Unloaded some weight of {drug}"
+- Turf challenges: "Yo {player}, this is MY turf! Get out or get smoked!"
+- Trade offers: "Hey {player}, I got {qty} {drug} for ${price}. Type '/trade {bot_name}' to buy!"
+- Drug usage messages: Shows effect results when player is in same room
 
 ## Content Warning
 This game contains extreme violence, gore, drug use, criminal activity, and mature themes. All depictions are fictional and for entertainment purposes only.
