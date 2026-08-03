@@ -218,10 +218,14 @@ def get_high_scores():
     return []
 
 def add_high_score(gs):
+    """Add high score and ensure player name is saved correctly"""
+    if not gs.player_name or gs.player_name.strip() == "":
+        return  # Don't save scores without player names
+    
     scores = get_high_scores()
     new_score = {
-        "player_name": gs.player_name or "Unknown Pimp",
-        "gang_name": gs.gang_name or "No Gang",
+        "player_name": gs.player_name.strip(),
+        "gang_name": gs.gang_name.strip() if gs.gang_name else "No Gang",
         "score": gs.current_score,
         "money_earned": gs.money + gs.account,
         "days_survived": gs.day,
@@ -347,15 +351,15 @@ def simulate_bots(player_loc=None, player_name=None):
             if random.random() < 0.4 and b.get('money', 0) > p * 10:
                 qty = random.randint(2, 10); b['money'] -= qty * p; b['drugs'][d] = b['drugs'].get(d, 0) + qty
                 modify_market_supply(d, -qty)
-                # Only add chat message if player is in the same room
-                if b.get('current_room') == player_loc:
-                    add_chat_message(b['name'], f"Secured a batch of {d}.")
+                # Global alert for significant drug deals
+                if random.random() < 0.3:  # 30% chance of global alert
+                    add_chat_message("SYSTEM", f"📢 {b['name']} secured a large batch of {d} in the streets!")
             elif b.get('drugs', {}).get(d, 0) > 0:
                 qty = b['drugs'][d]; b['money'] += qty * p; b['drugs'][d] = 0
                 modify_market_supply(d, qty)
-                # Only add chat message if player is in the same room
-                if b.get('current_room') == player_loc:
-                    add_chat_message(b['name'], f"Unloaded some weight of {d.upper()}. Cash only.")
+                # Global alert for significant sales
+                if qty >= 5 and random.random() < 0.4:  # 40% chance of global alert for large sales
+                    add_chat_message("SYSTEM", f"💰 {b['name']} unloaded {qty} {d.upper()} on the black market!")
         
         # Bot challenges/interactions
         elif roll < 0.85:
@@ -550,15 +554,57 @@ def high_scores():
 def wander():
     gs = get_game_state()
     gs.steps += 1
-    simulate_bots(gs.current_location, gs.player_name)
+    
+    # Generate random exploration events
+    events = []
+    roll = random.random()
+    
+    if roll < 0.3:
+        # Find money
+        found_money = random.randint(50, 200)
+        gs.money += found_money
+        events.append(f"You found ${found_money} on the ground!")
+    elif roll < 0.5:
+        # Random encounter with bot
+        simulate_bots(gs.current_location, gs.player_name)
+        bots = load_bots()
+        room_bots = [b for b in bots if b.get('current_room') == gs.current_location]
+        if room_bots:
+            bot = random.choice(room_bots)
+            events.append(f"You bump into {bot['name']} on the streets.")
+    elif roll < 0.6:
+        # Drug deal opportunity
+        drug_config_data = load_json('drug_config.json', {"drugs": {}})
+        drug_list = list(drug_config_data.get('drugs', {}).keys())
+        if drug_list:
+            drug = random.choice(drug_list)
+            qty = random.randint(1, 3)
+            price = get_current_prices().get('prices', {}).get(drug, 1000)
+            if gs.money >= price * qty:
+                gs.money -= price * qty
+                setattr(gs.drugs, drug, getattr(gs.drugs, drug) + qty)
+                events.append(f"A street dealer offers you {qty} {drug} for ${price * qty}. You take the deal.")
+    
     save_game_state(gs)
-    return render_template('wander_result.html')
+    result = " ".join(events) if events else "You wander around the city without incident."
+    return render_template('wander_result.html', result=result)
 
 @app.route('/alleyway')
 def alleyway():
     gs = get_game_state(); gs.current_location = "alleyway"; save_game_state(gs)
-    room = rooms_config['rooms'].get('entrance')
-    return render_template('alleyway.html', current_room=room)
+    
+    # Initialize session room if not set
+    if 'current_room' not in session:
+        session['current_room'] = 'entrance'
+    
+    # Get current room from session
+    current_room_id = session.get('current_room', 'entrance')
+    current_room = rooms_config['rooms'].get(current_room_id, rooms_config['rooms'].get('entrance'))
+    
+    # Simulate bots for this room to ensure they appear
+    simulate_bots(current_room_id, gs.player_name)
+    
+    return render_template('alleyway.html', current_room=current_room)
 
 @app.route('/stats')
 def stats():
@@ -888,7 +934,22 @@ def handle_encounter():
 def move_room():
     direction = request.form.get('direction')
     gs = get_game_state()
-    gs.steps += 1
+    
+    # Get current room from session or default to entrance
+    current_room_id = session.get('current_room', 'entrance')
+    current_room = rooms_config['rooms'].get(current_room_id, rooms_config['rooms'].get('entrance'))
+    
+    # Check if the direction is valid
+    if direction in current_room.get('exits', {}):
+        new_room_id = current_room['exits'][direction]
+        new_room = rooms_config['rooms'].get(new_room_id)
+        if new_room:
+            session['current_room'] = new_room_id
+            gs.steps += 1
+            save_game_state(gs)
+            return render_template('alleyway.html', current_room=new_room)
+    
+    # Invalid move, go back to current room
     save_game_state(gs)
     return redirect(url_for('alleyway'))
 
