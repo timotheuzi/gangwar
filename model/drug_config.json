@@ -27,10 +27,29 @@
     "super_lemon_haze": {"base_price": 3800, "description": "Citrus sativa power."}
   },
   "drug_effects": {
+    "weed": {"heal_amount": 3, "message": "You spark up a blunt. The chronic soothes your wounds. Healed 3 HP."},
     "crack": {"damage": 5, "message": "You smoke the rock. You feel invincible, but your heart hammers painfully!"},
+    "coke": {"damage": 3, "message": "You rail a line. Energy surges through your veins, but your nose bleeds slightly. Took 3 damage!"},
+    "ice": {"damage": 8, "message": "You smoke the crystal. Your mind races at impossible speeds. Took 8 damage from the crash coming!"},
     "percs": {"heal_amount": 10, "message": "Pain fades away as the percs kick in. Healed 10 HP."},
+    "pixie_dust": {"damage": 4, "message": "You inhale the synthetic dust. Euphoria overwhelms you, but reality distorts. Took 4 damage!"},
+    "lean": {"heal_amount": 5, "message": "Everything slows down... you feel heavy and relaxed. Healed 5 HP."},
+    "shrooms": {"damage": 6, "message": "The psilocybin takes hold. Colors explode and time dissolves. Took 6 damage from the trip!"},
+    "acid": {"damage": 7, "message": "LSD hits your bloodstream. The walls breathe and melt. Took 7 damage from sensory overload!"},
+    "opium": {"heal_amount": 8, "message": "You smoke the black resin. Warmth spreads through your body. Healed 8 HP."},
+    "crystal_blue": {"damage": 10, "message": "Sudden burst of intense energy and focus! But the crash will be brutal. Took 10 damage!"},
+    "white_widow": {"heal_amount": 5, "damage": 2, "message": "This potent hybrid hits different. You feel both relaxed and energized. Healed 5 HP, took 2 damage from paranoia."},
+    "purple_haze": {"damage": 5, "message": "Jimi's favorite takes you on a trip. Your mind expands in purple waves. Took 5 damage!"},
     "fentanyl": {"damage": 25, "message": "You dance with death. Your breathing slows dangerously. Took 25 damage!"},
-    "lean": {"message": "Everything slows down... you feel heavy and relaxed."},
-    "crystal_blue": {"message": "Sudden burst of intense energy and focus!"}
+    "ketamine": {"heal_amount": 7, "damage": 3, "message": "You K-hole into another dimension. When you resurface, you feel refreshed but disoriented. Healed 7 HP, took 3 damage."},
+    "speed": {"damage": 6, "message": "Amphetamines course through your blood. You could run forever, but your heart is pounding. Took 6 damage!"},
+    "blue_dream": {"heal_amount": 4, "message": "California's finest gives you a dreamy, relaxed high. Healed 4 HP."},
+    "red_devil": {"damage": 12, "message": "This dangerous cocktail burns through your veins! Your senses sharpen to painful levels. Took 12 damage!"},
+    "white_china": {"damage": 15, "message": "Pure heroin floods your system. Blissful numbness followed by crushing withdrawal. Took 15 damage!"},
+    "mdma_crystals": {"heal_amount": 6, "damage": 4, "message": "Molly takes over. You love everyone and everything! Healed 6 HP, took 4 damage from dehydration."},
+    "moon_rocks": {"damage": 9, "message": "These dipped nugs hit like a meteor. Your brain becomes one with the cosmos. Took 9 damage!"},
+    "blue_magic": {"damage": 18, "message": "Legendary purity H. You float on clouds of blue. Took 18 damage from the intensity!"},
+    "grey_death": {"damage": 30, "message": "The lethal mix courses through you. This is a near-death experience. Took 30 damage!"},
+    "super_lemon_haze": {"heal_amount": 6, "message": "Citrus sativa power! You feel zesty, energetic, and ready to conquer. Healed 6 HP."}
   }
 }

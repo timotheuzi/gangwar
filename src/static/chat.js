@@ -98,6 +98,10 @@ function startPolling() {
     // Start polling interval
     chatPollInterval = setInterval(function() {
         fetchMessages();
+        // Update users list every 2 polls (every 6 seconds)
+        if (Math.random() < 0.5) {
+            updateChatUsersList();
+        }
     }, pollIntervalMs);
     
     console.log('Started polling for chat messages every ' + (pollIntervalMs / 1000) + ' seconds');
@@ -113,7 +117,9 @@ function stopPolling() {
 
 function fetchMessages() {
     var xhr = new XMLHttpRequest();
-    xhr.open('GET', '/api/chat/messages?last_id=' + lastMessageId, true);
+    // Get current room from global variable
+    var currentRoom = window.currentRoom || 'global';
+    xhr.open('GET', '/api/chat/messages?last_id=' + lastMessageId + '&room=' + encodeURIComponent(currentRoom), true);
     xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
     
     xhr.onreadystatechange = function() {
@@ -234,23 +240,52 @@ function updateConnectionStatus(connected, reason) {
 }
 
 function updateChatUsersList() {
-    // Update the chat users list to show current user
+    // Update the chat users list to show users in the same room
     var pvpListDiv = document.getElementById('pvp-player-list');
     if (!pvpListDiv) return;
     
-    // Show the current player and a note about polling chat
-    var safePlayerName = playerName ? playerName.replace(/</g, '<').replace(/>/g, '>') : 'Player';
+    // Fetch users in the same room from the API
+    var currentRoom = window.currentRoom || 'global';
+    var xhr = new XMLHttpRequest();
+    xhr.open('GET', '/api/chat/users?room=' + encodeURIComponent(currentRoom), true);
+    xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
     
-    pvpListDiv.innerHTML = 
-        '<div class="user-list-item">' +
-            '<strong>👤 ' + safePlayerName + '</strong> (You)' +
-        '</div>' +
-        '<p style="font-size: 11px; color: #888; margin-top: 10px;">' +
-            '💬 Global chat enabled' +
-        '</p>' +
-        '<p style="font-size: 10px; color: #666;">' +
-            'Messages update every 3s' +
-        '</p>';
+    xhr.onreadystatechange = function() {
+        if (xhr.readyState === 4) {
+            if (xhr.status === 200) {
+                try {
+                    var response = JSON.parse(xhr.responseText);
+                    var users = response.users || [];
+                    
+                    if (users.length === 0) {
+                        pvpListDiv.innerHTML = '<p style="color: #888; font-size: 12px;">No one else is here</p>';
+                        return;
+                    }
+                    
+                    var html = '';
+                    users.forEach(function(user) {
+                        var isPlayer = user.type === 'Player';
+                        var icon = isPlayer ? '👤' : '🤖';
+                        var label = isPlayer ? ' (You)' : ' (Bot)';
+                        html += '<div class="user-list-item">' +
+                                    icon + ' <strong>' + user.name + '</strong>' + label +
+                                '</div>';
+                    });
+                    
+                    pvpListDiv.innerHTML = html;
+                } catch (e) {
+                    console.error('Error parsing users list:', e);
+                    // Fallback to showing just the player
+                    var safePlayerName = playerName ? playerName.replace(/</g, '<').replace(/>/g, '>') : 'Player';
+                    pvpListDiv.innerHTML = '<div class="user-list-item"><strong>👤 ' + safePlayerName + '</strong> (You)</div>';
+                }
+            } else {
+                console.error('Error fetching users:', xhr.status);
+            }
+        }
+    };
+    
+    xhr.send();
 }
 
 function showNotification(message, type) {

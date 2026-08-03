@@ -65,19 +65,6 @@
         <a href="{{ url_for('final_battle') }}" class="btn btn-danger">FINAL BATTLE: Destroy Squidies</a>
         {% endif %}
     </div>
-    
-    <div class="current-prices">
-        <h3>Current Street Prices:</h3>
-        <ul>
-            <li>Weed: ${{ game_state.drug_prices.get('weed', 'N/A') }} per kilo</li>
-            <li>Crack: ${{ game_state.drug_prices.get('crack', 'N/A') }} per kilo</li>
-            <li>Cocaine: ${{ game_state.drug_prices.get('coke', 'N/A') }} per kilo</li>
-            <li>ice: ${{ game_state.drug_prices.get('ice', 'N/A') }} per kilo</li>
-            <li>percs: ${{ game_state.drug_prices.get('percs', 'N/A') }} per kilo</li>
-            <li>Pixie Dust: ${{ game_state.drug_prices.get('pixie_dust', 'N/A') }} per kilo</li>
-        </ul>
-    </div>
-
 
 
 
