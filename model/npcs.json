@@ -231,12 +231,18 @@
         "new_ally": 50
       },
       "memory": {
-        "last_evolution": "2026-03-05",
+        "last_evolution": "2026-08-01",
         "significant_events": [
           {
             "type": "evolution_event",
             "description": "NPC gains a powerful ally",
             "date": "2026-03-05",
+            "impact": 0
+          },
+          {
+            "type": "evolution_event",
+            "description": "NPC finds valuable resources",
+            "date": "2026-08-01",
             "impact": 0
           }
         ],
@@ -270,13 +276,19 @@
         "player": 0
       },
       "memory": {
-        "last_evolution": "2026-03-05",
+        "last_evolution": "2026-08-01",
         "significant_events": [
           {
             "type": "evolution_event",
             "description": "NPC loses significant power",
             "date": "2026-03-05",
             "impact": 30
+          },
+          {
+            "type": "evolution_event",
+            "description": "NPC improves their skills",
+            "date": "2026-08-01",
+            "impact": 0
           }
         ],
         "player_interactions": []
@@ -641,7 +653,34 @@
     "is_alive": true,
     "location": "alleyway",
     "last_interaction": "",
-    "description": "A former corporate executive on the run, selling secrets and looking over his shoulder constantly."
+    "description": "A former corporate executive on the run, selling secrets and looking over his shoulder constantly.",
+    "evolution": {
+      "power_level": 100,
+      "evolution_points": 0,
+      "traits": [
+        "Generous"
+      ],
+      "relationships": {
+        "player": 0
+      },
+      "memory": {
+        "last_evolution": "2026-08-01",
+        "significant_events": [
+          {
+            "type": "evolution_event",
+            "description": "NPC suffers lasting injury",
+            "date": "2026-08-01",
+            "impact": 0
+          }
+        ],
+        "player_interactions": []
+      },
+      "status_effects": [],
+      "location_history": [
+        "alleyway"
+      ],
+      "evolution_stage": "Weak"
+    }
   },
   "chain_master": {
     "id": "chain_master",

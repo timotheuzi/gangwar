@@ -19,6 +19,29 @@
         </div>
     </div>
 
+    {% if room_npcs %}
+    <div class="room-npcs">
+        <h3>👥 People in This Room</h3>
+        <div class="npcs-list">
+            {% for npc in room_npcs %}
+            <div class="npc-card">
+                <h4>{{ npc.name }}</h4>
+                <p class="personality">{{ npc.personality|title }} personality</p>
+                <p class="npc-status">{% if npc.is_alive %}HP: {{ npc.hp }}/{{ npc.max_hp }}{% else %}Dead{% endif %}</p>
+                <div class="npc-actions">
+                    <a href="{{ url_for('talk_to_npc', npc_id=npc.id) }}" class="btn btn-primary">Talk</a>
+                    <a href="{{ url_for('look_at_npc', npc_id=npc.id) }}" class="btn btn-info">Look</a>
+                    <a href="{{ url_for('trade_with_npc', npc_id=npc.id) }}" class="btn btn-secondary">Trade</a>
+                    {% if npc.is_alive %}
+                        <a href="{{ url_for('npc_interaction', npc_id=npc.id) }}" class="btn btn-danger">Fight</a>
+                    {% endif %}
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+
     <div class="alleyway-actions">
         <a href="{{ url_for('city') }}" class="btn btn-secondary">Return to City</a>
         <a href="{{ url_for('stats') }}" class="btn btn-secondary">View Stats</a>
@@ -34,13 +57,15 @@
         <h4>Navigation</h4>
         <div class="direction-buttons">
             {% for direction, room_id in current_room.exits.items() %}
-                <a href="{{ url_for('move_room', direction=direction) }}" class="btn btn-primary direction-btn">
-                    Go {{ direction|title }}
-                </a>
+                <form action="{{ url_for('move_room') }}" method="post" style="display: inline;">
+                    <input type="hidden" name="direction" value="{{ direction }}">
+                    <button type="submit" class="btn btn-primary direction-btn">
+                        Go {{ direction|title }}
+                    </button>
+                </form>
             {% endfor %}
         </div>
     </div>
-
 
 </div>
 {% endblock %}
