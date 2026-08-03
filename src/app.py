@@ -139,7 +139,11 @@ def inject_globals():
         drug_config_data = load_json('drug_config.json', {"drugs": {}})
     except:
         drug_config_data = {"drugs": {}}
-    return dict(game_state=gs, high_scores=hs, drug_config=drug_config_data)
+    try:
+        top_list = get_top_list()
+    except:
+        top_list = []
+    return dict(game_state=gs, high_scores=hs, drug_config=drug_config_data, top_list=top_list)
 
 # ============
 # Market System
@@ -304,6 +308,10 @@ def simulate_bots(player_loc=None, player_name=None):
         "chain_lair", "tech_sanctum"
     ]
     
+    # Bot drug limits to prevent unlimited accumulation
+    MAX_DRUGS_PER_TYPE = 15  # Maximum of 15 units of any single drug
+    MAX_TOTAL_DRUGS = 30     # Maximum total drugs across all types
+    
     for b in bots:
         roll = random.random()
         
@@ -348,17 +356,40 @@ def simulate_bots(player_loc=None, player_name=None):
         elif roll < 0.60 and drug_list:
             d = random.choice(drug_list)
             p = prices.get(d, 1000)
+            
+            # Calculate current drug totals
+            bot_drugs = b.get('drugs', {})
+            current_qty = bot_drugs.get(d, 0)
+            total_drugs = sum(bot_drugs.values())
+            
+            # Bot buying drugs - with limits
             if random.random() < 0.4 and b.get('money', 0) > p * 10:
-                qty = random.randint(2, 10); b['money'] -= qty * p; b['drugs'][d] = b['drugs'].get(d, 0) + qty
-                modify_market_supply(d, -qty)
-                # Global alert for significant drug deals
-                if random.random() < 0.3:  # 30% chance of global alert
-                    add_chat_message("SYSTEM", f"📢 {b['name']} secured a large batch of {d} in the streets!")
-            elif b.get('drugs', {}).get(d, 0) > 0:
-                qty = b['drugs'][d]; b['money'] += qty * p; b['drugs'][d] = 0
+                # Check if bot can carry more
+                if current_qty < MAX_DRUGS_PER_TYPE and total_drugs < MAX_TOTAL_DRUGS:
+                    # Calculate how much they can actually buy
+                    max_can_buy = min(
+                        int(b.get('money', 0) / p),  # Limited by money
+                        MAX_DRUGS_PER_TYPE - current_qty,  # Limited by per-type cap
+                        MAX_TOTAL_DRUGS - total_drugs  # Limited by total cap
+                    )
+                    qty = min(random.randint(2, 10), max_can_buy)
+                    
+                    if qty > 0:
+                        b['money'] -= qty * p
+                        b['drugs'][d] = current_qty + qty
+                        modify_market_supply(d, -qty)
+                        # Global alert for significant drug deals
+                        if qty >= 5 and random.random() < 0.3:
+                            add_chat_message("SYSTEM", f"📢 {b['name']} secured a batch of {qty} {d} in the streets!")
+            
+            # Bot selling drugs
+            elif current_qty > 0:
+                qty = current_qty
+                b['money'] += qty * p
+                b['drugs'][d] = 0
                 modify_market_supply(d, qty)
                 # Global alert for significant sales
-                if qty >= 5 and random.random() < 0.4:  # 40% chance of global alert for large sales
+                if qty >= 5 and random.random() < 0.4:
                     add_chat_message("SYSTEM", f"💰 {b['name']} unloaded {qty} {d.upper()} on the black market!")
         
         # Bot challenges/interactions

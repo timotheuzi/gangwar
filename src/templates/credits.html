@@ -30,36 +30,27 @@
             </div>
         </div>
 
-       <div class="high-scores-section">
-            <h3>All-Time High Scores</h3>
+        <div class="live-rankings-section">
+            <h3>Live Rankings (Bots & Players)</h3>
             <div class="high-scores-content">
-                {% if high_scores %}
+                {% if top_list %}
                     <div class="scores-list">
-                        {% for score in high_scores %}
+                        {% for entry in top_list %}
                         <div class="score-entry">
                             <div class="score-rank">#{{ loop.index }}</div>
                             <div class="score-details">
                                 <div class="player-info">
-                                    <strong>{{ score.player_name }}</strong> - {{ score.gang_name }}
+                                    <strong>{{ entry.name }}</strong>
                                 </div>
                                 <div class="score-breakdown">
-                                    <span class="total-score">Score: {{ "{:,}".format(score.score) }}</span>
-                                    <div class="score-components">
-                                        <small>Money: ${{ "{:,}".format(score.money_earned) }}</small>
-                                        <small>Days: {{ score.days_survived }}</small>
-                                        <small>Gang Wars: {{ score.gang_wars_won }}</small>
-                                        <small>Fights: {{ score.fights_won }}</small>
-                                    </div>
-                                </div>
-                                <div class="score-date">
-                                    <small>{{ score.date_achieved }}</small>
+                                    <span class="total-score">Score: {{ "{:,}".format(entry.score) }}</span>
                                 </div>
                             </div>
                         </div>
                         {% endfor %}
                     </div>
                 {% else %}
-                    <p>No high scores yet. Be the first to set a record!</p>
+                    <p>No rankings available yet.</p>
                 {% endif %}
             </div>
         </div>
