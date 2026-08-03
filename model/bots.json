@@ -93,7 +93,7 @@
     "current_room": "forgotten_laboratory",
     "drugs": {
       "lean": 13,
-      "weed": 9
+      "weed": 8
     },
     "weapons": {
       "pistol": 1,
@@ -101,7 +101,7 @@
     },
     "chat_personality": "smooth",
     "last_action": "",
-    "health": 110
+    "health": 113
   },
   {
     "name": "Pimpin Ken",
@@ -141,8 +141,8 @@
     "name": "Magic Juan",
     "money": 7374,
     "members": 6,
-    "location": "burned_out_car",
-    "current_room": "burned_out_car",
+    "location": "forgotten_archive",
+    "current_room": "forgotten_archive",
     "drugs": {
       "crystal_blue": 5,
       "weed": 2
@@ -159,8 +159,8 @@
     "name": "Goldie",
     "money": 20806,
     "members": 15,
-    "location": "rooftop_access",
-    "current_room": "rooftop_access",
+    "location": "underground",
+    "current_room": "underground",
     "drugs": {
       "opium": 20,
       "coke": 1
@@ -212,8 +212,8 @@
     "name": "Candy Man",
     "money": 8860,
     "members": 8,
-    "location": "utility_room",
-    "current_room": "utility_room",
+    "location": "flooded_chamber",
+    "current_room": "flooded_chamber",
     "drugs": {
       "pixie_dust": 25,
       "speed": 1
