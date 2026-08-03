@@ -18,7 +18,7 @@
     "name": "Bishop Don Juan",
     "money": 21010,
     "members": 5,
-    "location": "city",
+    "location": "bar",
     "drugs": {
       "coke": 0
     },
@@ -81,7 +81,7 @@
     "name": "Silky Slim",
     "money": 1563,
     "members": 4,
-    "location": "bar",
+    "location": "crackhouse",
     "drugs": {
       "lean": 15,
       "weed": 9
@@ -126,11 +126,12 @@
   },
   {
     "name": "Magic Juan",
-    "money": 9000,
+    "money": 7374,
     "members": 6,
     "location": "bank",
     "drugs": {
-      "crystal_blue": 5
+      "crystal_blue": 5,
+      "weed": 3
     },
     "weapons": {
       "ar15": 1,
@@ -143,7 +144,7 @@
     "name": "Goldie",
     "money": 25000,
     "members": 15,
-    "location": "picknsave",
+    "location": "gunshack",
     "drugs": {
       "opium": 20
     },
@@ -175,7 +176,7 @@
     "name": "Do-Dirty",
     "money": 5500,
     "members": 6,
-    "location": "picknsave",
+    "location": "crackhouse",
     "drugs": {
       "crack": 15
     },

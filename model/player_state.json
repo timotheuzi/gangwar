@@ -9,7 +9,7 @@
   "squidies": 25,
   "day": 1,
   "health": 30,
-  "steps": 0,
+  "steps": 4,
   "max_steps": 7,
   "current_score": 151,
   "current_location": "city",
