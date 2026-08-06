@@ -3,8 +3,8 @@
     "name": "Slick Rick",
     "money": 5000,
     "members": 3,
-    "location": "entrance",
-    "current_room": "entrance",
+    "location": "maintenance_shaft",
+    "current_room": "maintenance_shaft",
     "drugs": {
       "crack": 9
     },
@@ -20,8 +20,8 @@
     "name": "Bishop Don Juan",
     "money": 19362,
     "members": 5,
-    "location": "makeshift_bridge",
-    "current_room": "makeshift_bridge",
+    "location": "ground_level",
+    "current_room": "ground_level",
     "drugs": {
       "coke": 0,
       "crack": 1
@@ -39,8 +39,8 @@
     "name": "Iceberg Slim",
     "money": 18516,
     "members": 4,
-    "location": "sewer_junction",
-    "current_room": "sewer_junction",
+    "location": "makeshift_bridge",
+    "current_room": "makeshift_bridge",
     "drugs": {
       "ice": 0
     },
@@ -54,13 +54,13 @@
   },
   {
     "name": "Diamond Jim",
-    "money": 11088,
+    "money": 15376,
     "members": 10,
-    "location": "sewer_access",
-    "current_room": "sewer_access",
+    "location": "loading_dock",
+    "current_room": "loading_dock",
     "drugs": {
-      "pixie_dust": 12,
-      "shrooms": 8
+      "pixie_dust": 11,
+      "shrooms": 0
     },
     "weapons": {
       "ar15": 1,
@@ -68,29 +68,31 @@
       "vest": 15
     },
     "chat_personality": "flashy",
-    "last_action": ""
+    "last_action": "",
+    "health": 96
   },
   {
     "name": "Sweet Daddy Dee",
     "money": 3000,
     "members": 2,
-    "location": "side_street",
-    "current_room": "side_street",
+    "location": "overgrown_garden",
+    "current_room": "overgrown_garden",
     "drugs": {
-      "weed": 20
+      "weed": 19
     },
     "weapons": {
       "knife": 2
     },
     "chat_personality": "street",
-    "last_action": ""
+    "last_action": "",
+    "health": 103
   },
   {
     "name": "Silky Slim",
     "money": 1563,
     "members": 4,
-    "location": "forgotten_laboratory",
-    "current_room": "forgotten_laboratory",
+    "location": "maintenance_ladder",
+    "current_room": "maintenance_ladder",
     "drugs": {
       "lean": 13,
       "weed": 8
@@ -107,8 +109,8 @@
     "name": "Pimpin Ken",
     "money": 22116,
     "members": 7,
-    "location": "weigh_station",
-    "current_room": "weigh_station",
+    "location": "street_level_access",
+    "current_room": "street_level_access",
     "drugs": {
       "coke": 0,
       "percs": 3,
@@ -126,8 +128,8 @@
     "name": "Fillmore Slim",
     "money": 11064,
     "members": 3,
-    "location": "street_level_access",
-    "current_room": "street_level_access",
+    "location": "construction_site",
+    "current_room": "construction_site",
     "drugs": {
       "shrooms": 0
     },
@@ -139,13 +141,14 @@
   },
   {
     "name": "Magic Juan",
-    "money": 7374,
+    "money": 8573,
     "members": 6,
-    "location": "forgotten_archive",
-    "current_room": "forgotten_archive",
+    "location": "boiler_room",
+    "current_room": "boiler_room",
     "drugs": {
-      "crystal_blue": 5,
-      "weed": 2
+      "crystal_blue": 0,
+      "weed": 2,
+      "pixie_dust": 8
     },
     "weapons": {
       "ar15": 1,
@@ -157,12 +160,12 @@
   },
   {
     "name": "Goldie",
-    "money": 20806,
+    "money": 79666,
     "members": 15,
-    "location": "underground",
-    "current_room": "underground",
+    "location": "rooftop_access",
+    "current_room": "rooftop_access",
     "drugs": {
-      "opium": 20,
+      "opium": 0,
       "coke": 1
     },
     "weapons": {
@@ -176,27 +179,29 @@
   },
   {
     "name": "Velvet Teddy",
-    "money": 22803,
+    "money": 15333,
     "members": 5,
-    "location": "water_tower",
-    "current_room": "water_tower",
+    "location": "side_street",
+    "current_room": "side_street",
     "drugs": {
       "mdma_crystals": 0,
-      "ice": 9
+      "ice": 8,
+      "percs": 9
     },
     "weapons": {
       "pistol": 1,
       "bullets": 80
     },
     "chat_personality": "smooth",
-    "last_action": ""
+    "last_action": "",
+    "health": 92
   },
   {
     "name": "Do-Dirty",
     "money": 5500,
     "members": 6,
-    "location": "flooded_chamber",
-    "current_room": "flooded_chamber",
+    "location": "water_tower",
+    "current_room": "water_tower",
     "drugs": {
       "crack": 14
     },
@@ -212,11 +217,11 @@
     "name": "Candy Man",
     "money": 8860,
     "members": 8,
-    "location": "flooded_chamber",
-    "current_room": "flooded_chamber",
+    "location": "rooftop_hideout",
+    "current_room": "rooftop_hideout",
     "drugs": {
       "pixie_dust": 25,
-      "speed": 1
+      "speed": 0
     },
     "weapons": {
       "uzi": 1,
@@ -224,14 +229,14 @@
     },
     "chat_personality": "flashy",
     "last_action": "",
-    "health": 94
+    "health": 88
   },
   {
     "name": "Pretty Tony",
     "money": 14000,
     "members": 9,
-    "location": "loading_dock",
-    "current_room": "loading_dock",
+    "location": "underground_stream",
+    "current_room": "underground_stream",
     "drugs": {
       "white_widow": 9
     },
@@ -251,13 +256,14 @@
     "drugs": {
       "fentanyl": 0,
       "purple_haze": 4,
-      "lean": 6
+      "lean": 5
     },
     "weapons": {
       "missile_launcher": 1,
       "missiles": 2
     },
     "chat_personality": "cold",
-    "last_action": ""
+    "last_action": "",
+    "health": 105
   }
 ]
